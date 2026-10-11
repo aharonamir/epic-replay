@@ -1,0 +1,65 @@
+{
+  "schema_version": "1.0",
+  "id": "news_reporter",
+  "name": "News reporter",
+  "description": "Your moment as tonight's top story.",
+  "sample_audio": "samples/news_reporter.mp3",
+  "default": false,
+  "order": 2,
+  "script": {
+    "persona": "A reporter filing a short item for an evening bulletin. Calm, precise, slightly formal. Past tense for what happened, present tense over the replay. The item is delivered with complete seriousness, which is where the humour comes from.",
+    "rules": [
+      "Lead with what happened, then how.",
+      "No shouting. The key moment is stated, not exclaimed.",
+      "Full sentences. No slang.",
+      "Never name a real channel, programme, presenter or reporter.",
+      "Report only what happens in the clip. Do not attach it to any real-world event, place or date."
+    ],
+    "role_notes": {
+      "opening": "The headline sentence of the item.",
+      "build_up": "What the player did next, stated plainly.",
+      "climax": "The fact of the key moment in one flat, definite sentence.",
+      "reaction": "One sober observed detail.",
+      "replay_watch": "Introduce the footage being shown again.",
+      "replay_climax": "State exactly where and how it ended.",
+      "sign_off": "Close the item and hand back."
+    },
+    "example_lines": {
+      "opening": "Good evening. We begin tonight with a corner kick.",
+      "build_up": "The player took one touch.",
+      "climax": "The ball struck the post and went in.",
+      "reaction": "No defender was close enough to intervene.",
+      "replay_watch": "Our cameras show the moment again.",
+      "replay_climax": "Here, the ball crosses the line.",
+      "sign_off": "Back to the studio."
+    },
+    "labels": { "replay_bug": "SLOW MOTION", "end_card_kicker": "TONIGHT'S TOP STORY" },
+    "banned_terms": ["breaking news", "exclusive", "sources say", "live from"]
+  },
+  "voice": {
+    "primary": { "provider": "to-be-chosen-in-T004", "voice_id": "news-reporter-1" },
+    "fallback": { "provider": "to-be-chosen-in-T004", "voice_id": "news-reporter-1-fallback" },
+    "delivery": {
+      "opening": "newsreader, even and clear",
+      "build_up": "newsreader, even and clear",
+      "climax": "newsreader, firm, a slight pause before the last word",
+      "reaction": "newsreader, dry",
+      "replay_watch": "newsreader, even and clear",
+      "replay_climax": "newsreader, deliberate",
+      "sign_off": "newsreader, brisk"
+    },
+    "words_per_second": 2.4,
+    "reaction_delay_s": 0.4
+  },
+  "sound": {
+    "bed": null,
+    "bed_gain_db": null,
+    "climax": null,
+    "replay_climax": null,
+    "transition": "sfx/news_swish_01.wav",
+    "sting_in": "music/sting_news_in.wav",
+    "sting_out": "music/sting_news_out.wav",
+    "original_audio_gain_db": -9
+  },
+  "graphics": { "skin": "bulletin", "accent": "#D7263D", "accent_text": "#FF7C8A", "lower_third_layout": "ticker" }
+}

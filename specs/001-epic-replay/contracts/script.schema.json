@@ -1,0 +1,179 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "script.schema.json",
+  "title": "Script",
+  "description": "The commentary in one narration style. Each line is voiced as a separate take and placed on the storyboard timeline by its anchor. Slots (anchor, max_duration_s, max_words) are built by code from the storyboard and the style pack; the Commentator fills text and delivery.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "run_id",
+    "language",
+    "style",
+    "words_per_second",
+    "reaction_delay_s",
+    "voice",
+    "headline",
+    "lower_third",
+    "lines",
+    "approved"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "run_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "language": {
+      "type": "string",
+      "pattern": "^[a-z]{2}$"
+    },
+    "style": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*$",
+      "description": "Id of the style pack used."
+    },
+    "words_per_second": {
+      "type": "number",
+      "exclusiveMinimum": 0,
+      "description": "Copied from the style pack when the slots were built."
+    },
+    "reaction_delay_s": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Copied from the style pack. Added to the anchor time of hit_at lines."
+    },
+    "voice": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "provider",
+        "voice_id"
+      ],
+      "properties": {
+        "provider": {
+          "type": "string"
+        },
+        "voice_id": {
+          "type": "string"
+        }
+      }
+    },
+    "headline": {
+      "type": "string",
+      "maxLength": 40,
+      "description": "End card text."
+    },
+    "lower_third": {
+      "type": "string",
+      "maxLength": 40
+    },
+    "lines": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "segment_id",
+          "role",
+          "anchor",
+          "max_duration_s",
+          "max_words",
+          "text",
+          "delivery",
+          "event_refs",
+          "generic"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^l[0-9]+$"
+          },
+          "segment_id": {
+            "type": "string",
+            "pattern": "^s[0-9]+$"
+          },
+          "role": {
+            "enum": [
+              "opening",
+              "build_up",
+              "climax",
+              "reaction",
+              "replay_watch",
+              "replay_climax",
+              "sign_off"
+            ]
+          },
+          "anchor": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "type",
+              "timeline_t",
+              "event_id"
+            ],
+            "properties": {
+              "type": {
+                "enum": [
+                  "start_at",
+                  "hit_at"
+                ],
+                "description": "start_at: the take starts at timeline_t. hit_at: the take starts at timeline_t plus reaction_delay_s."
+              },
+              "timeline_t": {
+                "type": "number",
+                "minimum": 0
+              },
+              "event_id": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "pattern": "^e[0-9]+$"
+              }
+            }
+          },
+          "max_duration_s": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          "max_words": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "text": {
+            "type": "string",
+            "minLength": 1
+          },
+          "delivery": {
+            "type": "string",
+            "description": "Short direction for the voice, kept apart from the words."
+          },
+          "event_refs": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^e[0-9]+$"
+            },
+            "uniqueItems": true
+          },
+          "generic": {
+            "type": "boolean",
+            "description": "True when the line makes no claim about the play."
+          }
+        }
+      }
+    },
+    "approved": {
+      "enum": [
+        "no",
+        "user",
+        "express"
+      ]
+    }
+  }
+}

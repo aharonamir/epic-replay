@@ -1,0 +1,40 @@
+{
+  "schema_version": "1.0",
+  "run_id": "fixture-freekick",
+  "mode": "specific",
+  "activity": { "value": "football free kick", "confidence": 0.97, "source": "model" },
+  "setting": "outdoor grass pitch, daylight, filmed from behind and to the right of the ball",
+  "actors": [
+    { "id": "a1", "descriptor": "player in a red shirt, number 10", "role": "free-kick taker", "user_name": "Noa", "followed": true },
+    { "id": "a2", "descriptor": "goalkeeper in green", "role": "goalkeeper", "user_name": null, "followed": false },
+    { "id": "a3", "descriptor": "four players in blue", "role": "defensive wall", "user_name": null, "followed": false }
+  ],
+  "events": [
+    { "id": "e1", "t_start": 0.0, "t_end": 8.2, "actor": "a1", "action": "places the ball for a free kick just outside the penalty area", "object": "ball", "outcome": null, "confidence": 0.9, "source": "model" },
+    { "id": "e2", "t_start": 2.0, "t_end": 8.2, "actor": "a3", "action": "line up as a wall", "object": null, "outcome": null, "confidence": 0.85, "source": "model" },
+    { "id": "e3", "t_start": 8.2, "t_end": 9.6, "actor": "a1", "action": "takes a short run-up", "object": null, "outcome": null, "confidence": 0.9, "source": "model" },
+    { "id": "e4", "t_start": 9.6, "t_end": 9.7, "actor": "a1", "action": "strikes the ball", "object": "ball", "outcome": null, "confidence": 0.9, "source": "model" },
+    { "id": "e5", "t_start": 9.7, "t_end": 10.433, "actor": null, "action": "ball flies over the wall", "object": "ball", "outcome": null, "confidence": 0.8, "source": "model" },
+    { "id": "e6", "t_start": 10.433, "t_end": 10.5, "actor": null, "action": "ball enters the goal in the top-left corner, under the crossbar", "object": "ball", "outcome": "goal", "confidence": 0.8, "source": "model" },
+    { "id": "e7", "t_start": 10.433, "t_end": 10.9, "actor": "a2", "action": "does not dive", "object": null, "outcome": null, "confidence": 0.6, "source": "user" },
+    { "id": "e8", "t_start": 10.9, "t_end": 15.0, "actor": "a1", "action": "runs away celebrating", "object": null, "outcome": null, "confidence": 0.9, "source": "model" }
+  ],
+  "climax": {
+    "event_id": "e6",
+    "t": 10.433,
+    "frame": 313,
+    "method": "stills",
+    "confidence": 0.82,
+    "candidates": [
+      { "t": 10.433, "frame": 313, "reason": "ball first seen behind the goal line; audio peak 0.1 s later" },
+      { "t": 9.633, "frame": 289, "reason": "foot strikes ball; motion peak" }
+    ]
+  },
+  "outcome_summary": { "value": "Direct free kick scored into the top-left corner.", "confidence": 0.8, "source": "model" },
+  "focus_box": { "x": 0.08, "y": 0.12, "w": 0.3, "h": 0.3 },
+  "sensitive": { "flag": false, "reason": null },
+  "agreement": { "passes": 2, "disagreed_fields": [], "escalated": false },
+  "overall_confidence": 0.8,
+  "confirmed_by_user": true,
+  "models": { "analysis": "deepseek-flash", "refine": "deepseek-flash" }
+}

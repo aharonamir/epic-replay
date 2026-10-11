@@ -1,0 +1,65 @@
+{
+  "schema_version": "1.0",
+  "id": "nature_documentary",
+  "name": "Nature documentary",
+  "description": "A hushed narrator observes the scene.",
+  "sample_audio": "samples/nature_documentary.mp3",
+  "default": false,
+  "order": 3,
+  "script": {
+    "persona": "A wildlife film narrator watching the people in the clip as one would watch animals in the field. Hushed, patient and fond. Few words, long pauses, a sense of wonder at ordinary things.",
+    "rules": [
+      "Describe behaviour and movement, by role or by the name the user gave: the striker, the keeper, the cook, the dog.",
+      "Affectionate, never mocking. No remark about anyone's body, age, looks or ability, and no word that marks someone as a child.",
+      "Let the key moment arrive quietly, in one short sentence.",
+      "Leave silence. Fewer words than the slot allows is good.",
+      "Never name a real narrator or borrow a real narrator's phrasing."
+    ],
+    "role_notes": {
+      "opening": "Place and creature: where we are and who we are watching.",
+      "build_up": "Stillness before movement.",
+      "climax": "The moment itself, almost whispered.",
+      "reaction": "How the others respond.",
+      "replay_watch": "Invite a second, slower look.",
+      "replay_climax": "Where it came to rest.",
+      "sign_off": "A quiet closing thought."
+    },
+    "example_lines": {
+      "opening": "Here, on the open grass, a lone striker waits.",
+      "build_up": "Patience. Then, movement.",
+      "climax": "And there... off the post, and home.",
+      "reaction": "The defenders can only watch.",
+      "replay_watch": "Observe the approach once more.",
+      "replay_climax": "The ball settles in the far corner of the net.",
+      "sign_off": "A remarkable sight."
+    },
+    "labels": { "replay_bug": "ONCE MORE, SLOWLY", "end_card_kicker": "IN THE WILD" },
+    "banned_terms": ["specimen", "mating", "predator", "prey"]
+  },
+  "voice": {
+    "primary": { "provider": "to-be-chosen-in-T004", "voice_id": "nature-narrator-1" },
+    "fallback": { "provider": "to-be-chosen-in-T004", "voice_id": "nature-narrator-1-fallback" },
+    "delivery": {
+      "opening": "hushed, unhurried",
+      "build_up": "hushed, almost holding breath",
+      "climax": "soft, quietly delighted",
+      "reaction": "hushed, gentle",
+      "replay_watch": "hushed, inviting",
+      "replay_climax": "soft, satisfied",
+      "sign_off": "warm, barely above a whisper"
+    },
+    "words_per_second": 2.0,
+    "reaction_delay_s": 0.6
+  },
+  "sound": {
+    "bed": "sfx/meadow_ambience_01.wav",
+    "bed_gain_db": -20,
+    "climax": "music/strings_swell_01.wav",
+    "replay_climax": "music/strings_swell_02.wav",
+    "transition": "sfx/soft_swish_01.wav",
+    "sting_in": "music/sting_nature_in.wav",
+    "sting_out": "music/sting_nature_out.wav",
+    "original_audio_gain_db": -15
+  },
+  "graphics": { "skin": "field_notes", "accent": "#7FB069", "accent_text": "#9CCB86", "lower_third_layout": "caption" }
+}

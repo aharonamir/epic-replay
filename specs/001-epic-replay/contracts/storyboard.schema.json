@@ -1,0 +1,219 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "storyboard.schema.json",
+  "title": "Storyboard",
+  "description": "The picture timeline of the output video. Written by S4 and fixed from then on. It does not depend on the narration style. Timeline times are seconds from the start of the output; source times are seconds from the start of the working copy.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "run_id",
+    "template",
+    "fps",
+    "width",
+    "height",
+    "duration_s",
+    "segments",
+    "overlays",
+    "markers"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "run_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "template": {
+      "enum": [
+        "classic",
+        "short",
+        "generic"
+      ]
+    },
+    "fps": {
+      "type": "number",
+      "exclusiveMinimum": 0
+    },
+    "width": {
+      "type": "integer",
+      "minimum": 16
+    },
+    "height": {
+      "type": "integer",
+      "minimum": 16
+    },
+    "duration_s": {
+      "type": "number",
+      "minimum": 12,
+      "maximum": 60
+    },
+    "segments": {
+      "type": "array",
+      "minItems": 3,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "kind",
+          "timeline_start",
+          "timeline_end",
+          "source",
+          "speed",
+          "freeze_at_s",
+          "zoom"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^s[0-9]+$"
+          },
+          "kind": {
+            "enum": [
+              "title",
+              "live",
+              "transition",
+              "replay",
+              "endcard"
+            ]
+          },
+          "timeline_start": {
+            "type": "number",
+            "minimum": 0
+          },
+          "timeline_end": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          "source": {
+            "description": "In and out points for moving segments (live, replay). Null for frozen segments.",
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "in_s",
+                  "out_s"
+                ],
+                "properties": {
+                  "in_s": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "out_s": {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                }
+              }
+            ]
+          },
+          "speed": {
+            "description": "Playback speed for moving segments; 1.0 is real time. Null for frozen segments.",
+            "type": [
+              "number",
+              "null"
+            ],
+            "exclusiveMinimum": 0,
+            "maximum": 1
+          },
+          "freeze_at_s": {
+            "description": "Source time of the frozen frame for title, transition and endcard. Null for moving segments.",
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "zoom": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "scale",
+                  "ease_in_s"
+                ],
+                "properties": {
+                  "scale": {
+                    "type": "number",
+                    "minimum": 1,
+                    "maximum": 1.5
+                  },
+                  "ease_in_s": {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    "overlays": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "type",
+          "start",
+          "end"
+        ],
+        "properties": {
+          "type": {
+            "enum": [
+              "title",
+              "lower_third",
+              "replay_bug",
+              "score_bug",
+              "end_card",
+              "ai_label"
+            ]
+          },
+          "start": {
+            "type": "number",
+            "minimum": 0
+          },
+          "end": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          }
+        }
+      }
+    },
+    "markers": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "climax_live_t",
+        "climax_replay_t"
+      ],
+      "properties": {
+        "climax_live_t": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "climax_replay_t": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0
+        }
+      }
+    }
+  }
+}

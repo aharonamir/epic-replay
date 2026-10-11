@@ -1,0 +1,141 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "play_sheet.schema.json",
+  "title": "PlaySheet",
+  "description": "What happened in the clip, whatever kind of moment it is. The only source of facts for commentary. Times are seconds from the start of the working copy.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "run_id", "mode", "activity", "setting", "actors", "events",
+    "climax", "outcome_summary", "focus_box", "sensitive", "agreement",
+    "overall_confidence", "confirmed_by_user", "models"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "run_id": { "type": "string", "minLength": 1 },
+    "mode": { "enum": ["specific", "generic"] },
+    "activity": { "$ref": "#/$defs/sourced_text", "description": "What is going on, in a few words: a football free kick, a dog catching a frisbee, a first bike ride. It need not be a sport." },
+    "setting": { "type": "string" },
+    "actors": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "descriptor", "role", "user_name", "followed"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^a[0-9]+$" },
+          "descriptor": { "type": "string", "description": "Neutral visible features only: clothing colour, number, position, or the kind of animal. Never age, gender, body or ability." },
+          "role": { "type": "string" },
+          "user_name": { "type": ["string", "null"] },
+          "followed": { "type": "boolean", "description": "True for the person the commentary follows." }
+        }
+      }
+    },
+    "events": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "t_start", "t_end", "actor", "action", "object", "outcome", "confidence", "source"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^e[0-9]+$" },
+          "t_start": { "type": "number", "minimum": 0 },
+          "t_end": { "type": "number", "minimum": 0 },
+          "actor": { "type": ["string", "null"], "pattern": "^a[0-9]+$" },
+          "action": { "type": "string" },
+          "object": { "type": ["string", "null"] },
+          "outcome": { "type": ["string", "null"] },
+          "confidence": { "$ref": "#/$defs/unit" },
+          "source": { "enum": ["model", "user"] }
+        }
+      }
+    },
+    "climax": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["event_id", "t", "frame", "method", "confidence", "candidates"],
+      "properties": {
+        "event_id": { "type": "string", "pattern": "^e[0-9]+$" },
+        "t": { "type": "number", "minimum": 0 },
+        "frame": { "type": "integer", "minimum": 0 },
+        "method": { "enum": ["stills", "signal_peak", "model_second", "user"] },
+        "confidence": { "$ref": "#/$defs/unit" },
+        "candidates": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["t", "frame", "reason"],
+            "properties": {
+              "t": { "type": "number", "minimum": 0 },
+              "frame": { "type": "integer", "minimum": 0 },
+              "reason": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "outcome_summary": { "$ref": "#/$defs/sourced_text" },
+    "focus_box": {
+      "description": "Where to zoom on the climax frame. Fractions of width and height.",
+      "oneOf": [
+        { "type": "null" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["x", "y", "w", "h"],
+          "properties": {
+            "x": { "$ref": "#/$defs/unit" },
+            "y": { "$ref": "#/$defs/unit" },
+            "w": { "$ref": "#/$defs/unit" },
+            "h": { "$ref": "#/$defs/unit" }
+          }
+        }
+      ]
+    },
+    "sensitive": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["flag", "reason"],
+      "properties": {
+        "flag": { "type": "boolean" },
+        "reason": { "type": ["string", "null"] }
+      }
+    },
+    "agreement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["passes", "disagreed_fields", "escalated"],
+      "properties": {
+        "passes": { "type": "integer", "minimum": 1 },
+        "disagreed_fields": { "type": "array", "items": { "type": "string" } },
+        "escalated": { "type": "boolean" }
+      }
+    },
+    "overall_confidence": { "$ref": "#/$defs/unit" },
+    "confirmed_by_user": { "type": "boolean" },
+    "models": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["analysis", "refine"],
+      "properties": {
+        "analysis": { "type": "string" },
+        "refine": { "type": "string" }
+      }
+    }
+  },
+  "$defs": {
+    "unit": { "type": "number", "minimum": 0, "maximum": 1 },
+    "sourced_text": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value", "confidence", "source"],
+      "properties": {
+        "value": { "type": "string" },
+        "confidence": { "$ref": "#/$defs/unit" },
+        "source": { "enum": ["model", "user"] }
+      }
+    }
+  }
+}

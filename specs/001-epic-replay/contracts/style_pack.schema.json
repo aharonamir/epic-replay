@@ -1,0 +1,301 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "style_pack.schema.json",
+  "title": "StylePack",
+  "description": "One narration style. A style changes how the play is told: wording, voice, delivery, sound and graphics skin. It never changes the facts, the picture timeline or the checks. Adding a file that validates against this schema adds a style to the picker.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "id",
+    "name",
+    "description",
+    "sample_audio",
+    "default",
+    "order",
+    "script",
+    "voice",
+    "sound",
+    "graphics"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*$"
+    },
+    "name": {
+      "type": "string",
+      "maxLength": 30,
+      "description": "Shown on the picker card."
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 80,
+      "description": "One line under the name."
+    },
+    "sample_audio": {
+      "type": "string",
+      "description": "Path under assets/ to a clip of about five seconds in this style, made once."
+    },
+    "default": {
+      "type": "boolean",
+      "description": "Exactly one pack is the default."
+    },
+    "order": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Position in the picker."
+    },
+    "script": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "persona",
+        "rules",
+        "role_notes",
+        "example_lines",
+        "labels",
+        "banned_terms"
+      ],
+      "properties": {
+        "persona": {
+          "type": "string",
+          "description": "Who is speaking and how. Given to the Commentator."
+        },
+        "rules": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          }
+        },
+        "role_notes": {
+          "$ref": "#/$defs/per_role",
+          "description": "What each line is for in this style."
+        },
+        "example_lines": {
+          "$ref": "#/$defs/per_role",
+          "description": "Invented samples that show the register. The Commentator must not copy them."
+        },
+        "labels": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "replay_bug",
+            "end_card_kicker"
+          ],
+          "properties": {
+            "replay_bug": {
+              "type": "string",
+              "maxLength": 24
+            },
+            "end_card_kicker": {
+              "type": "string",
+              "maxLength": 30
+            }
+          }
+        },
+        "banned_terms": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Added to the global banned lexicon for this style."
+        }
+      }
+    },
+    "voice": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "primary",
+        "fallback",
+        "delivery",
+        "words_per_second",
+        "reaction_delay_s"
+      ],
+      "properties": {
+        "primary": {
+          "$ref": "#/$defs/voice_ref"
+        },
+        "fallback": {
+          "$ref": "#/$defs/voice_ref"
+        },
+        "delivery": {
+          "$ref": "#/$defs/per_role",
+          "description": "Default voice direction per line role. The Commentator may refine it per line."
+        },
+        "words_per_second": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "Measured for the primary voice in this style. Sets word budgets."
+        },
+        "reaction_delay_s": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1.5,
+          "description": "How long after the key moment the key line starts."
+        }
+      }
+    },
+    "sound": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "bed",
+        "bed_gain_db",
+        "climax",
+        "replay_climax",
+        "transition",
+        "sting_in",
+        "sting_out",
+        "original_audio_gain_db"
+      ],
+      "properties": {
+        "bed": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Looping background under the whole video. Null for none."
+        },
+        "bed_gain_db": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "maximum": 0
+        },
+        "climax": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "One-shot at the key moment in the live segment."
+        },
+        "replay_climax": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "transition": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "sting_in": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "sting_out": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "original_audio_gain_db": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "maximum": 0,
+          "description": "Level of the clip's own sound under the live segment. Null mutes it. The user's 'remove original sound' choice overrides this."
+        }
+      }
+    },
+    "graphics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "skin",
+        "accent",
+        "lower_third_layout"
+      ],
+      "properties": {
+        "skin": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "description": "Name of a CSS skin under src/epic_replay/graphics/skins/."
+        },
+        "accent": {
+          "type": "string",
+          "pattern": "^#[0-9A-Fa-f]{6}$",
+          "description": "The narrator's colour: graphics in the video, and fills and borders on the page."
+        },
+        "accent_text": {
+          "type": "string",
+          "pattern": "^#[0-9A-Fa-f]{6}$",
+          "description": "The narrator's colour for small text on the dark page, when the accent is too dark to read there. Defaults to accent. See contracts/design.md section 2."
+        },
+        "lower_third_layout": {
+          "enum": [
+            "strap",
+            "ticker",
+            "caption"
+          ]
+        }
+      }
+    }
+  },
+  "$defs": {
+    "voice_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "provider",
+        "voice_id"
+      ],
+      "properties": {
+        "provider": {
+          "type": "string"
+        },
+        "voice_id": {
+          "type": "string"
+        }
+      }
+    },
+    "per_role": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "opening",
+        "build_up",
+        "climax",
+        "reaction",
+        "replay_watch",
+        "replay_climax",
+        "sign_off"
+      ],
+      "properties": {
+        "opening": {
+          "type": "string"
+        },
+        "build_up": {
+          "type": "string"
+        },
+        "climax": {
+          "type": "string"
+        },
+        "reaction": {
+          "type": "string"
+        },
+        "replay_watch": {
+          "type": "string"
+        },
+        "replay_climax": {
+          "type": "string"
+        },
+        "sign_off": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

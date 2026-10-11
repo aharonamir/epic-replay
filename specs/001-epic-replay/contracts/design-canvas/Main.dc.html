@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Epic Replay: start</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sofia+Sans+Extra+Condensed:ital,wght@0,700;0,900;1,900&amp;family=Sofia+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="min-height: 100vh; box-sizing: border-box; display: flex; flex-direction: column; background: #0D1012; color: #F2F4F3; font-family: 'Sofia Sans', system-ui, sans-serif; font-size: 17px; line-height: 1.45">
+
+  <header style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px 16px; padding: 16px clamp(16px, 4vw, 48px)">
+    <div style="display: flex; align-items: center; gap: 10px">
+      <svg width="30" height="20" viewBox="0 0 30 20" aria-hidden="true" style="color: {{accent}}; flex: none"><path d="M14 1 1 10l13 9z" fill="currentColor"></path><path d="M29 1 16 10l13 9z" fill="currentColor"></path></svg>
+      <div style="font-family: 'Sofia Sans Extra Condensed', 'Arial Narrow', sans-serif; font-weight: 900; font-size: 30px; line-height: 1; letter-spacing: 0.04em; text-transform: uppercase">Epic Replay</div>
+    </div>
+  </header>
+  <div aria-hidden="true" style="height: 9px; background: repeating-linear-gradient(90deg, #2C3338 0 1px, transparent 1px 12px); border-top: 1px solid #2C3338"></div>
+
+  <main style="flex: 1; width: 100%; max-width: 1280px; margin: 0 auto; box-sizing: border-box; display: flex; flex-direction: column; gap: 32px; padding: clamp(24px, 4vw, 44px) clamp(16px, 4vw, 48px) 48px">
+
+    <div style="display: flex; flex-wrap: wrap; gap: 40px 56px; align-items: stretch">
+
+      <section style="flex: 1 1 420px; min-width: 0; display: flex; flex-direction: column; gap: 24px">
+        <h1 style="margin: 0; font-family: 'Sofia Sans Extra Condensed', 'Arial Narrow', sans-serif; font-weight: 900; font-size: clamp(64px, 8vw, 104px); line-height: 0.9; letter-spacing: 0.01em; text-transform: uppercase">Film it.<br><span style="color: {{accentText}}">We'll call it.</span></h1>
+
+        <div style="position: relative; flex: 1; min-height: 260px; box-sizing: border-box; display: flex; flex-direction: column; background: #161A1D; padding: 28px 24px">
+          <div aria-hidden="true" style="position: absolute; top: 10px; left: 10px; width: 24px; height: 24px; border-top: 2px solid #5A646B; border-left: 2px solid #5A646B"></div>
+          <div aria-hidden="true" style="position: absolute; top: 10px; right: 10px; width: 24px; height: 24px; border-top: 2px solid #5A646B; border-right: 2px solid #5A646B"></div>
+          <div aria-hidden="true" style="position: absolute; bottom: 10px; left: 10px; width: 24px; height: 24px; border-bottom: 2px solid #5A646B; border-left: 2px solid #5A646B"></div>
+          <div aria-hidden="true" style="position: absolute; bottom: 10px; right: 10px; width: 24px; height: 24px; border-bottom: 2px solid #5A646B; border-right: 2px solid #5A646B"></div>
+
+          <sc-if value="{{ noFile }}" hint-placeholder-val="{{ true }}">
+            <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; text-align: center">
+              <svg width="44" height="44" viewBox="0 0 44 44" fill="none" stroke="#F2F4F3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="9" width="34" height="26" rx="2"></rect><path d="M5 16h34M5 28h34M12 9v7M20 9v7M28 9v7M12 28v7M20 28v7M28 28v7"></path><path d="M22 19v6M19 22h6"></path></svg>
+              <div style="display: flex; flex-direction: column; gap: 2px">
+                <div style="font-size: 21px; font-weight: 600; text-wrap: balance">Drop your clip here, or choose a file.</div>
+                <div style="color: #AAB3B9">Any great moment.</div>
+              </div>
+              <button type="button" onClick="{{ chooseFile }}" style="min-height: 48px; padding: 0 22px; background: transparent; color: #F2F4F3; border: 1.5px solid #F2F4F3; border-radius: 4px; font: inherit; font-weight: 600; cursor: pointer">Choose a file</button>
+              <div style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 13px; color: #AAB3B9; text-wrap: balance">3 to 30 seconds · MP4, MOV or WebM · up to 200 MB</div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ hasFile }}" hint-placeholder-val="{{ false }}">
+            <div style="flex: 1; display: flex; flex-direction: column; gap: 14px">
+              <div style="flex: 1; min-height: 170px; display: flex; align-items: center; justify-content: center; background: repeating-linear-gradient(135deg, #1E2327 0 10px, #232A2F 10px 20px); font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 13px; color: #AAB3B9">first frame of your clip</div>
+              <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px">
+                <div style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 14px">clip.mov · 15 s</div>
+                <button type="button" onClick="{{ clearFile }}" style="min-height: 44px; padding: 0 16px; background: transparent; color: #F2F4F3; border: 1px solid #5A646B; border-radius: 4px; font: inherit; font-weight: 600; cursor: pointer">Change</button>
+              </div>
+            </div>
+          </sc-if>
+        </div>
+
+        <p style="margin: 0; font-size: 15px; color: #AAB3B9">Tip: film in slo-mo mode for a sharper replay.</p>
+      </section>
+
+      <section style="flex: 1 1 420px; min-width: 0; display: flex; flex-direction: column; gap: 28px">
+
+        <fieldset style="margin: 0; padding: 0; border: 0; min-width: 0; display: flex; flex-direction: column; gap: 12px">
+          <legend style="padding: 0; margin-bottom: 12px; font-family: 'Sofia Sans Extra Condensed', 'Arial Narrow', sans-serif; font-weight: 700; font-size: 30px; line-height: 1; letter-spacing: 0.03em; text-transform: uppercase">Who's narrating?</legend>
+
+          <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; padding: 14px 16px; border: 2px solid {{football.ring}}; background: {{football.bg}}; border-radius: 6px">
+            <label style="flex: 1 1 240px; min-width: 0; display: flex; align-items: flex-start; gap: 14px; cursor: pointer">
+              <input type="radio" name="narrator" checked="{{ football.on }}" onChange="{{ football.pick }}" style="flex: none; width: 20px; height: 20px; margin: 3px 0 0; accent-color: #FFD23F">
+              <span style="min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 6px">
+                <span style="font-size: 19px; font-weight: 700; line-height: 1.2">Football commentator</span>
+                <span style="font-size: 15px; color: #AAB3B9">Excited play-by-play from the stadium booth.</span>
+                <span style="margin: 2px 0 0 3px; padding: 4px 10px 2px; background: #FFD23F; color: #121416; font-family: 'Sofia Sans Extra Condensed', 'Arial Narrow', sans-serif; font-weight: 900; font-style: italic; font-size: 20px; line-height: 1.1; letter-spacing: 0.02em; text-transform: uppercase">Off the post and in! Unbelievable!</span>
+              </span>
+            </label>
+            <button type="button" style="flex: none; min-height: 44px; padding: 0 16px; display: flex; align-items: center; gap: 8px; background: transparent; color: #F2F4F3; border: 1px solid #5A646B; border-radius: 4px; font: inherit; font-size: 15px; font-weight: 600; cursor: pointer"><svg width="12" height="14" viewBox="0 0 12 14" aria-hidden="true"><path d="M1 1l10 6-10 6z" fill="currentColor"></path></svg>Listen</button>
+          </div>
+
+          <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; padding: 14px 16px; border: 2px solid {{news.ring}}; background: {{news.bg}}; border-radius: 6px">
+            <label style="flex: 1 1 240px; min-width: 0; display: flex; align-items: flex-start; gap: 14px; cursor: pointer">
+              <input type="radio" name="narrator" checked="{{ news.on }}" onChange="{{ news.pick }}" style="flex: none; width: 20px; height: 20px; margin: 3px 0 0; accent-color: #D7263D">
+              <span style="min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 6px">
+                <span style="font-size: 19px; font-weight: 700; line-height: 1.2">News reporter</span>
+                <span style="font-size: 15px; color: #AAB3B9">Your moment as tonight's top story.</span>
+                <span style="margin-top: 2px; display: flex; flex-wrap: wrap; font-size: 14px; line-height: 1.3">
+                  <span style="padding: 4px 8px; background: #D7263D; color: #FFFFFF; font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase">Tonight's top story</span>
+                  <span style="padding: 3px 10px; background: #F2F4F3; color: #121416; font-weight: 600">The ball struck the post and went in.</span>
+                </span>
+              </span>
+            </label>
+            <button type="button" style="flex: none; min-height: 44px; padding: 0 16px; display: flex; align-items: center; gap: 8px; background: transparent; color: #F2F4F3; border: 1px solid #5A646B; border-radius: 4px; font: inherit; font-size: 15px; font-weight: 600; cursor: pointer"><svg width="12" height="14" viewBox="0 0 12 14" aria-hidden="true"><path d="M1 1l10 6-10 6z" fill="currentColor"></path></svg>Listen</button>
+          </div>
+
+          <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; padding: 14px 16px; border: 2px solid {{nature.ring}}; background: {{nature.bg}}; border-radius: 6px">
+            <label style="flex: 1 1 240px; min-width: 0; display: flex; align-items: flex-start; gap: 14px; cursor: pointer">
+              <input type="radio" name="narrator" checked="{{ nature.on }}" onChange="{{ nature.pick }}" style="flex: none; width: 20px; height: 20px; margin: 3px 0 0; accent-color: #7FB069">
+              <span style="min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 6px">
+                <span style="font-size: 19px; font-weight: 700; line-height: 1.2">Nature documentary</span>
+                <span style="font-size: 15px; color: #AAB3B9">A hushed narrator observes the scene.</span>
+                <span style="margin-top: 2px; padding-top: 5px; border-top: 1px solid #7FB069; font-style: italic; font-size: 16px; color: #D9E5D2">And there... off the post, and home.</span>
+              </span>
+            </label>
+            <button type="button" style="flex: none; min-height: 44px; padding: 0 16px; display: flex; align-items: center; gap: 8px; background: transparent; color: #F2F4F3; border: 1px solid #5A646B; border-radius: 4px; font: inherit; font-size: 15px; font-weight: 600; cursor: pointer"><svg width="12" height="14" viewBox="0 0 12 14" aria-hidden="true"><path d="M1 1l10 6-10 6z" fill="currentColor"></path></svg>Listen</button>
+          </div>
+        </fieldset>
+
+        <div style="display: flex; flex-direction: column; gap: 8px">
+          <div style="font-size: 13px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #AAB3B9">Optional</div>
+          <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px">
+            <label for="star" style="font-weight: 600">Who's the star?</label>
+            <input id="star" type="text" autocomplete="off" style="flex: 1 1 200px; min-width: 0; height: 48px; box-sizing: border-box; padding: 0 14px; background: #0D1012; color: #F2F4F3; border: 1px solid #5A646B; border-radius: 4px; font: inherit">
+          </div>
+          <label style="display: flex; align-items: center; gap: 12px; min-height: 44px; cursor: pointer">
+            <input type="checkbox" style="flex: none; width: 20px; height: 20px; margin: 0; accent-color: {{accent}}">
+            <span>Remove the clip's own sound</span>
+          </label>
+        </div>
+      </section>
+    </div>
+
+    <section style="display: flex; flex-wrap: wrap; align-items: center; gap: 24px 48px; padding-top: 28px; border-top: 1px solid #2C3338">
+      <div style="flex: 999 1 420px; min-width: 0; display: flex; flex-direction: column; gap: 10px">
+        <label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer">
+          <input type="checkbox" checked="{{ consent }}" onChange="{{ toggleConsent }}" style="flex: none; width: 20px; height: 20px; margin: 3px 0 0; accent-color: {{accent}}">
+          <span style="text-wrap: pretty">I filmed this or have permission to use it. Everyone in it is happy to be filmed, and for any child I am the parent or guardian or have their permission.</span>
+        </label>
+        <p style="margin: 0 0 0 32px; font-size: 15px; color: #AAB3B9; text-wrap: pretty">Still frames from the clip are sent to <span style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 13px; color: #F2F4F3">[VISION SERVICE]</span> (<span style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 13px; color: #F2F4F3">[COUNTRY]</span>) to be looked at. Nothing else leaves this machine.</p>
+      </div>
+
+      <sc-if value="{{ ready }}" hint-placeholder-val="{{ false }}">
+        <a href="Confirm.dc.html" style="flex: 1 1 240px; min-height: 64px; box-sizing: border-box; padding: 0 32px; display: flex; align-items: center; justify-content: center; background: {{accent}}; color: {{onAccent}}; border-radius: 4px; text-decoration: none; font-family: 'Sofia Sans Extra Condensed', 'Arial Narrow', sans-serif; font-weight: 900; font-size: 30px; line-height: 1; letter-spacing: 0.04em; text-transform: uppercase">Make my replay</a>
+      </sc-if>
+      <sc-if value="{{ notReady }}" hint-placeholder-val="{{ true }}">
+        <button type="button" disabled style="flex: 1 1 240px; min-height: 64px; box-sizing: border-box; padding: 0 32px; background: #1E2327; color: #AAB3B9; border: 1px solid #414A51; border-radius: 4px; font-family: 'Sofia Sans Extra Condensed', 'Arial Narrow', sans-serif; font-weight: 900; font-size: 30px; line-height: 1; letter-spacing: 0.04em; text-transform: uppercase; cursor: not-allowed">Make my replay</button>
+      </sc-if>
+    </section>
+
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":940}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const s = this.state || {};
+    const picked = s.picked || 'football';
+    const packs = {
+      football: { accent: '#FFD23F', onAccent: '#121416', accentText: '#FFD23F' },
+      news: { accent: '#D7263D', onAccent: '#FFFFFF', accentText: '#FF7C8A' },
+      nature: { accent: '#7FB069', onAccent: '#121416', accentText: '#9CCB86' }
+    };
+    const row = (id) => ({
+      on: picked === id,
+      ring: picked === id ? packs[id].accent : '#2C3338',
+      bg: picked === id ? '#1E2327' : '#161A1D',
+      pick: () => this.setState({ picked: id })
+    });
+    const hasFile = !!s.hasFile;
+    const consent = !!s.consent;
+    const ready = hasFile && consent;
+    return {
+      accent: packs[picked].accent,
+      onAccent: packs[picked].onAccent,
+      accentText: packs[picked].accentText,
+      football: row('football'),
+      news: row('news'),
+      nature: row('nature'),
+      hasFile: hasFile,
+      noFile: !hasFile,
+      consent: consent,
+      ready: ready,
+      notReady: !ready,
+      chooseFile: () => this.setState({ hasFile: true }),
+      clearFile: () => this.setState({ hasFile: false }),
+      toggleConsent: () => this.setState({ consent: !consent })
+    };
+  }
+}
+</script>
+</body>
+</html>

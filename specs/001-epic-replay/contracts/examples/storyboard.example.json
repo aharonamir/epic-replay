@@ -1,0 +1,101 @@
+{
+  "schema_version": "1.0",
+  "run_id": "fixture-freekick",
+  "template": "classic",
+  "fps": 30,
+  "width": 1920,
+  "height": 1080,
+  "duration_s": 28.9,
+  "segments": [
+    {
+      "id": "s1",
+      "kind": "title",
+      "timeline_start": 0.0,
+      "timeline_end": 1.0,
+      "source": null,
+      "speed": null,
+      "freeze_at_s": 0.0,
+      "zoom": null
+    },
+    {
+      "id": "s2",
+      "kind": "live",
+      "timeline_start": 1.0,
+      "timeline_end": 16.0,
+      "source": {
+        "in_s": 0.0,
+        "out_s": 15.0
+      },
+      "speed": 1.0,
+      "freeze_at_s": null,
+      "zoom": null
+    },
+    {
+      "id": "s3",
+      "kind": "transition",
+      "timeline_start": 16.0,
+      "timeline_end": 16.4,
+      "source": null,
+      "speed": null,
+      "freeze_at_s": 14.967,
+      "zoom": null
+    },
+    {
+      "id": "s4",
+      "kind": "replay",
+      "timeline_start": 16.4,
+      "timeline_end": 26.4,
+      "source": {
+        "in_s": 8.933,
+        "out_s": 11.433
+      },
+      "speed": 0.25,
+      "freeze_at_s": null,
+      "zoom": {
+        "scale": 1.25,
+        "ease_in_s": 1.0
+      }
+    },
+    {
+      "id": "s5",
+      "kind": "endcard",
+      "timeline_start": 26.4,
+      "timeline_end": 28.9,
+      "source": null,
+      "speed": null,
+      "freeze_at_s": 10.5,
+      "zoom": null
+    }
+  ],
+  "overlays": [
+    {
+      "type": "ai_label",
+      "start": 0.0,
+      "end": 28.9
+    },
+    {
+      "type": "title",
+      "start": 0.0,
+      "end": 1.0
+    },
+    {
+      "type": "lower_third",
+      "start": 2.0,
+      "end": 6.0
+    },
+    {
+      "type": "replay_bug",
+      "start": 16.4,
+      "end": 26.4
+    },
+    {
+      "type": "end_card",
+      "start": 26.4,
+      "end": 28.9
+    }
+  ],
+  "markers": {
+    "climax_live_t": 11.433,
+    "climax_replay_t": 22.4
+  }
+}
