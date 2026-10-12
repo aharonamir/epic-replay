@@ -51,18 +51,31 @@ def build_agent() -> ReActAgent:
     agent = ReActAgent(card=AgentCard(name="spike", description="T002 throwaway"))
     cfg = (
         ReActAgentConfig()
-        .configure_model_client(provider=ep.provider, api_key=ep.api_key or "unset",
-                                api_base=ep.api_base, model_name=ep.model)
+        .configure_model_client(
+            provider=ep.provider,
+            api_key=ep.api_key or "unset",
+            api_base=ep.api_base,
+            model_name=ep.model,
+        )
         .configure_prompt_template([{"role": "system", "content": SYSTEM}])
         .configure_max_iterations(5)
     )
     agent.configure(cfg)
     for name, fn, desc, props, req in (
         ("look_up", look_up, "Look up a word.", {"word": {"type": "string"}}, ["word"]),
-        ("submit", submit, "Submit the final answer. Ends the task.", {"answer": {"type": "string"}}, ["answer"]),
+        (
+            "submit",
+            submit,
+            "Submit the final answer. Ends the task.",
+            {"answer": {"type": "string"}},
+            ["answer"],
+        ),
     ):
-        card = ToolCard(name=name, description=desc,
-                        input_params={"type": "object", "properties": props, "required": req})
+        card = ToolCard(
+            name=name,
+            description=desc,
+            input_params={"type": "object", "properties": props, "required": req},
+        )
         agent.ability_manager.add_ability(card, LocalFunction(card, fn))
     return agent
 

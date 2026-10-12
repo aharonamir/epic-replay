@@ -44,6 +44,7 @@ class Settings:
     vision_country: str
     speech_provider: str
     gemini_api_key: str
+    openai_api_key: str
     elevenlabs_api_key: str
 
 
@@ -73,5 +74,6 @@ def load() -> Settings:
         vision_country=_s("EPIC_VISION_COUNTRY", "China"),
         speech_provider=_s("EPIC_SPEECH_PROVIDER", "gemini"),
         gemini_api_key=_s("GEMINI_API_KEY"),
+        openai_api_key=_s("OPENAI_API_KEY"),
         elevenlabs_api_key=_s("ELEVENLABS_API_KEY"),
     )
