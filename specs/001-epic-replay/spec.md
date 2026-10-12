@@ -297,6 +297,7 @@ Targets marked (provisional) are re-set at Gate 0 from the spike measurements, a
 - DeepSeek sees the frames (option 2 of the earlier list, narrowed to adults). FR-037's no-training requirement is recorded as waived for the demo. The consent line carries a disclaimer: still frames go to DeepSeek, in China, under terms that allow training on submitted data. The vision endpoint stays one line of configuration, so a provider with a no-training commitment can replace it later without rework.
 - An opt-out request to DeepSeek (privacy@deepseek.com) is sent for the account; this is a task for the owner.
 - Frame sampling for analysis defaults to 4 frames per second and is configuration. Motion detection may thin frames where nothing moves (plan.md section 4.3).
+- The speech provider default is OpenAI (`gpt-4o-mini-tts`) until T004 compares it with Gemini TTS; `EPIC_SPEECH_PROVIDER` switches it.
 - The minimum output length is configuration, default 20 seconds. The key-frame agreement tolerance is configuration, default a quarter of a second.
 - Facts that led to the waiver, as found on 2026-10-11:
   - DeepSeek's privacy policy (updated 2026-02-10) says personal data is used to "train and improve our technology", with a right to opt out by request, and that data is collected, processed and stored in the People's Republic of China.

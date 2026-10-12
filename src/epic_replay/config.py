@@ -72,7 +72,7 @@ def load() -> Settings:
         vision_api_key=_s("EPIC_VISION_API_KEY", ds),
         vision_service_name=_s("EPIC_VISION_SERVICE_NAME", "DeepSeek"),
         vision_country=_s("EPIC_VISION_COUNTRY", "China"),
-        speech_provider=_s("EPIC_SPEECH_PROVIDER", "gemini"),
+        speech_provider=_s("EPIC_SPEECH_PROVIDER", "openai"),
         gemini_api_key=_s("GEMINI_API_KEY"),
         openai_api_key=_s("OPENAI_API_KEY"),
         elevenlabs_api_key=_s("ELEVENLABS_API_KEY"),

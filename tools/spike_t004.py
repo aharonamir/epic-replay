@@ -138,7 +138,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--yes", action="store_true")
-    ap.add_argument("--provider", choices=["gemini", "openai", "both"], default="both")
+    ap.add_argument("--provider", choices=["gemini", "openai", "both"], default="openai")
     a = ap.parse_args()
     providers = ["gemini", "openai"] if a.provider == "both" else [a.provider]
     jobs = plan(providers)

@@ -21,7 +21,7 @@ EPIC_VISION_SERVICE_NAME=DeepSeek          # shown in the consent line on the pa
 EPIC_VISION_COUNTRY=China                  # shown in the consent line on the page
 
 # voices
-EPIC_SPEECH_PROVIDER=gemini
+EPIC_SPEECH_PROVIDER=openai       # openai | gemini; T004 chooses
 GEMINI_API_KEY=
 ```
 
