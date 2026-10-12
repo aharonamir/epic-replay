@@ -1,0 +1,11 @@
+{
+  "consent": { "confirmed": true, "at": "2026-10-12T09:12:00Z", "text_version": "3" },
+  "keep_for_demo": false,
+  "style": "football_commentator",
+  "activity": null,
+  "player_name": "Noa",
+  "team_home": null, "team_away": null, "score": null,
+  "keep_original_audio": true,
+  "express": true,
+  "description": null
+}

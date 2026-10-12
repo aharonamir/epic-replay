@@ -12,7 +12,7 @@ A task is done when its "Done when" line is true and its tests pass with provide
 
 - [x] T001 Create the repo from the spec-kit template; copy this folder into `specs/001-epic-replay/`; set up Python 3.12, FFmpeg, Playwright, pytest, linting, `.env.example`, `.gitignore` for `runs/` and `eval/clips/` (2h; full design 2h)
   Done when: `pytest` runs and `ffmpeg -version` and a Playwright screenshot work from a clean checkout.
-- [ ] T007 Schemas and fixture: copy the four schemas and their examples from `contracts/`; build `tests/fixtures/sample_run/` from the examples plus a minimal `clip_meta.json` and `user_context.json`; add a test that validates the fixture and the cross-file rules in data-model.md section 3 (2h; full design 3h) - FR-005, FR-013, FR-016
+- [x] T007 Schemas and fixture: copy the four schemas and their examples from `contracts/`; build `tests/fixtures/sample_run/` from the examples plus a minimal `clip_meta.json` and `user_context.json`; add a test that validates the fixture and the cross-file rules in data-model.md section 3 (2h; full design 3h) - FR-005, FR-013, FR-016
   Done when: the fixture validates and the cross-file rule test passes.
 - [ ] T009 Adapters from contracts/provider-adapters.md: the vision adapter (numbered frames in, validated JSON or text out) and the speech adapter, each with record and replay as one wrapper keyed by a hash of the request; `providers/llm.py` holding the model name, base URL and key that agent-core and the vision adapter read from the environment; stubs that serve the fixture (1h; full design 3h) - FR-035
   Done when: a stage can call both adapters in replay mode with the network disabled, and changing the vision endpoint is a change to `.env` only.
