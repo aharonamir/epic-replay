@@ -46,8 +46,9 @@
     },
     "duration_s": {
       "type": "number",
-      "minimum": 12,
-      "maximum": 60
+      "exclusiveMinimum": 0,
+      "maximum": 60,
+      "description": "S4 enforces the configured minimum (EPIC_MIN_OUTPUT_S, default 20)."
     },
     "segments": {
       "type": "array",

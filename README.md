@@ -64,20 +64,19 @@ A style is a data file, not code. It sets the persona and writing rules, the voi
 | Key line | Shouted at once | Stated as fact, a beat later | Almost whispered, later still |
 | Around it | Crowd and roar | No crowd, bulletin stings | Outdoor ambience, quiet strings |
 
-## Children in the footage
+## People in the footage
 
-- The person uploading confirms they are the parent or guardian, or have permission.
+- Adults only, and in the MVP men only. The person uploading confirms this, and has read a disclaimer: frames go to DeepSeek, in China, and may be used for training.
 - Only still frames leave the machine, to one provider. Voice and script stages send text only. Slow motion is made on the machine.
-- No stage says or guesses that someone is a child, or remarks on anyone's body or ability.
+- No stage says or guesses anyone's age, or remarks on anyone's body or ability.
 - A clip showing someone hurt, upset, humiliated or undressed is not narrated.
 - A run can be deleted at once from the page.
-- **Not settled:** the spec requires that the provider's terms exclude training on what it is sent. As far as I could confirm, DeepSeek's do not, and its data is stored in China. See "Still open".
 
 ## Decided
 
 - One person, two weeks.
 - Any short moment, not only sport.
-- Children are likely to appear.
+- Adults only (men only in the MVP); DeepSeek sees the frames, with a disclaimer (revision 6).
 - The one-tap confirmation of what happened stays.
 - The look of the page: dark, broadcast-style, coloured by the chosen narrator.
 - Three narration styles in the MVP.
@@ -86,5 +85,4 @@ A style is a data file, not code. It sets the persona and writing rules, the voi
 
 ## Still open
 
-1. Which provider sees frames of clips with children in them? Options, in spec.md section 8: keep the agents on DeepSeek and send frames to a provider with a no-training commitment (recommended; one line of configuration); use DeepSeek for everything and record the waiver; or look at frames on your own machines.
-2. Does "two weeks" leave ten full working days? With nine, the Nature documentary pack and the sample player go.
+1. Does "two weeks" leave ten full working days? With nine, the Nature documentary pack and the sample player go.

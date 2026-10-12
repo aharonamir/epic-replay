@@ -4,11 +4,11 @@ The commands below are the targets that T001 and later tasks create. None of the
 
 ## 1. Prerequisites
 
-- Python 3.11 to 3.13 (agent-core needs 3.11 or higher and below 3.14), FFmpeg 7 with ffprobe on the path, Git.
+- Python 3.11 to 3.13 (agent-core needs 3.11 or higher and below 3.14), FFmpeg 8 with ffprobe on the path, Git.
 - A DeepSeek API key, for the two agents and for looking at frames. Use the model name `deepseek-flash`; `deepseek-v4-flash-vision-exp` is a retired name that is only routed to it for now.
 - A Google Gemini API key on the **paid** tier, for the voices. DeepSeek has no speech model.
 - Only if the day-2 voice test rules out Gemini for the shout: an ElevenLabs key.
-- Only still frames from the clip leave the machine, and only to the vision endpoint in `.env`. Read spec.md section 8 before sending any clip with a child in it.
+- Only still frames from the clip leave the machine, and only to the vision endpoint in `.env`. Footage must show adults only; the page says that frames go to DeepSeek, in China, and may be used for training (spec.md section 8).
 
 ## 2. Set up (T001)
 
@@ -38,6 +38,11 @@ ELEVENLABS_API_KEY=         # only if chosen in T004
 EPIC_PROVIDER_MODE=replay   # live | record | replay
 EPIC_CAP_RUN_USD=1.00
 EPIC_CAP_DAY_USD=20.00
+EPIC_CAP_PRE_CHECKPOINT_USD=0.30
+EPIC_FRAME_FPS=4            # frames per second sent for analysis
+EPIC_MOTION_MIN=0.0         # drop frames in still spans below this frame difference; 0 = off
+EPIC_KEYFRAME_TOL_S=0.25
+EPIC_MIN_OUTPUT_S=20
 ```
 
 ## 3. Run the fixture with no keys (T007, T027)
@@ -103,7 +108,7 @@ uvicorn epic_replay.web.app:app --port 8000
 - Keep the whole action in frame, including where it ends: the goal, the pan, the dog's mouth.
 - Use the phone's slo-mo mode (120 fps or more) if it has one. The replay then uses real frames.
 - Three to thirty seconds. Start a few seconds before the action.
-- Film only people who are happy to be filmed. For a child, be the parent or guardian or have their permission. Nobody undressed.
+- Film only adults who are happy to be filmed (the MVP is for men). Nobody undressed.
 - Still frames from the clip are sent to the vision provider named in `.env`; the page says which and where. `DELETE /runs/{id}`, or the link on the page, removes your local copy and its frames at once.
 
 ## 9. When something goes wrong

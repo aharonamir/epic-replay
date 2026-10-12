@@ -16,7 +16,7 @@ One person builds it in ten working days. That is 80 hours, and the full design 
 |------|--------|
 | Language | Python 3.11 to 3.13. agent-core needs 3.11 or higher and below 3.14 |
 | Agent framework | openJiuwen agent-core (`pip install openjiuwen`, 0.1.19 at the time of writing) for the two ReAct agents. The flow between stages is a plain Python runner; jiuwenswarm is not used (section 3) |
-| Media | FFmpeg and ffprobe 7.x. Slow motion from real frames or FFmpeg blending; RIFE is a stretch item |
+| Media | FFmpeg and ffprobe 8.x (8.0.1 installed). Slow motion from real frames or FFmpeg blending; RIFE is a stretch item |
 | Graphics | HTML and CSS templates rendered with Playwright (headless Chromium) |
 | Web | One page served by FastAPI: a server-rendered template, HTMX for partial updates, a little plain JavaScript, server-sent events for progress. No build step. Works in a phone browser (contracts/ui.md). Looks as in contracts/design.md |
 | Narration styles | Style packs: JSON files in `src/epic_replay/styles/`, validated at start-up. Three in the MVP |
@@ -25,7 +25,7 @@ One person builds it in ten working days. That is 80 hours, and the full design 
 | Testing | pytest; recorded provider responses; one hand-written fixture run; 8 to 12 labelled clips across sport, tricks, pets, family and everyday moments |
 | Target | One machine (laptop or a small server) for a live demo; one run at a time is enough |
 | Performance goals | SC-1: upload to play card within 60 s, confirmed play card to video within 90 s, a further style within 60 s (provisional) |
-| Constraints | Per-run cost cap 1.00 USD, daily cap 20 USD. Children are likely in the footage: only still frames leave the machine, to one provider; voice and script stages send text. Whether DeepSeek's terms are acceptable for those frames is an open decision (spec.md section 8) |
+| Constraints | Per-run cost cap 1.00 USD, daily cap 20 USD. Footage is of adults only: only still frames leave the machine, to one provider; voice and script stages send text. DeepSeek's terms allow training and its servers are in China; the owner accepted that on 2026-10-12 and the consent line says so (spec.md section 8) |
 | Scale | Tens of runs per day |
 
 ## 3. Agents and framework
@@ -125,7 +125,7 @@ Full input and output contracts are in contracts/stage-contracts.md.
 
 DeepSeek's API takes still images, not video or sound. The clip is therefore turned into numbered frames, and the Spotter looks at those.
 
-- **Frames.** S0 already has the working copy. A helper extracts frames at a chosen rate, scales them, burns the frame number into a corner, and writes them to `frames/`. Each image goes to the model with a line of text before it: `Frame 148, 4.93 s`. Because the model sees frame numbers, it can answer in frame numbers; there is no whole-second limit as there was with video input.
+- **Frames.** S0 already has the working copy. A helper extracts frames at a chosen rate (default 4 per second, `EPIC_FRAME_FPS`), optionally drops frames in spans where nothing moves (mean frame difference below `EPIC_MOTION_MIN`, keeping at least one frame a second, so the motion carries the content), scales them, burns the frame number into a corner, and writes them to `frames/`. Each image goes to the model with a line of text before it: `Frame 148, 4.93 s`. Because the model sees frame numbers, it can answer in frame numbers; there is no whole-second limit as there was with video input.
 - **The Spotter is a ReAct agent** on `deepseek-flash` with four tools:
 
   | Tool | Arguments | Does | Returns |
@@ -149,7 +149,7 @@ S3 is the Spotter's `zoom` step and what code does with its answer.
 
 1. The overview `look` gives a candidate frame, accurate to about a quarter of a second at 4 frames a second.
 2. `zoom` sends every frame from one second before to one second after the candidate (thinned to 60 if the clip was filmed at a high frame rate) and asks: "In which frame does [the outcome, for example the ball crossing the line, the dog's jaws closing on the frisbee] first happen?" It also asks for a box around the action in that frame, as fractions of the frame.
-3. The second look gives an independent frame for the same moment from the overview frames. If the two are within a quarter of a second, the zoom's frame is accepted. Otherwise the climax is marked low confidence and the play card opens with the nudge active.
+3. The second look gives an independent frame for the same moment from the overview frames. If the two are within `EPIC_KEYFRAME_TOL_S` (default a quarter of a second), the zoom's frame is accepted. Otherwise the climax is marked low confidence and the play card opens with the nudge active.
 4. In the full design, the signal scan (S1) adds a third opinion from motion and sound peaks.
 
 Method and confidence are stored (FR-007). The user's nudge at Checkpoint A always wins.
@@ -169,6 +169,7 @@ Code selects a template and computes the timeline (FR-013 to FR-015).
 | Generic | generic mode | title 1.0 s, live at 1x, replay of the highest signal peak at 0.5x, end card 2.5 s |
 
 - Replay window: 1.5 s before the climax to 1.0 s after, clamped to the clip.
+- Minimum length: when the total would be under `EPIC_MIN_OUTPUT_S` (default 20 s), S4 first widens the replay window symmetrically (at most 3.5 s in all), then holds the end card longer; the rule is written down in T015 and tested.
 - Trim: when the clip is longer than 20 s the live segment starts at most 10 s before the climax and ends at most 3 s after.
 - Zoom: the replay crops toward the focus box at up to 1.25x, eased in over the first second.
 - For every segment the storyboard gives timeline start and end. It also gives the two markers the audio needs: the climax time in the live segment and in the replay segment.
@@ -281,7 +282,7 @@ The page address carries the run id, so a reload or a second device shows the sa
 | Deferred | Stage | What happens instead | Cost of adding it back |
 |----------|-------|----------------------|------------------------|
 | Verifier agent and its planted-error set | S6 | The ten code checks. A failed line goes back to the Commentator with the rule it broke, at most twice | 2 to 3 h |
-| Signal scan | S1 | S3 takes the candidate second from S2 alone, and accepts a frame when two asks agree within three frames; otherwise the play card opens with the nudge active | 2 h |
+| Signal scan | S1 | S3 takes the candidate second from S2 alone, and accepts a frame when two asks agree within `EPIC_KEYFRAME_TOL_S` (default 0.25 s); otherwise the play card opens with the nudge active | 2 h |
 | Escalation model | S2 | Disagreement is shown on the play card | 1 h |
 | Fallback providers for text and voice | S5, S7 | One retry on the same provider. If the voice still fails the run stops at S7 with "try again", which re-runs from S7 | 2 h per provider, plus a voice per style |
 | Frame interpolation | S9 | Real frames when filmed at 100 fps or more; FFmpeg frame blending otherwise. The page's tip to film in slo-mo matters more | 2 to 4 h for RIFE on the machine |
@@ -292,9 +293,9 @@ The page address carries the run id, so a reload or a second device shows the sa
 | 30-clip evaluation set, five-person viewer test | evaluation | 8 to 12 clips; three viewers during rehearsal | 6 h |
 | Blind read to choose the writer model | S5 | DeepSeek Flash writes, as chosen by the owner | 1 h |
 
-Two things follow from the children decision and are part of the MVP, not deferred:
+Two things follow from the privacy decision and are part of the MVP, not deferred:
 - No hosted interpolation. It would send the clip to a second vendor.
-- Frames are sent inside the request and never placed in the provider's file store, so there is no stored file to delete afterwards. What the provider keeps of a request is set by its terms, which is the open privacy decision in spec.md section 8. T033 tests that frames go to the one configured vision endpoint and nowhere else.
+- Frames are sent inside the request and never placed in the provider's file store, so there is no stored file to delete afterwards. What the provider keeps of a request is set by its terms, which the owner accepted on 2026-10-12 (spec.md section 8). T033 tests that frames go to the one configured vision endpoint and nowhere else.
 
 Principle IX ("a video always comes out") holds for analysis (generic mode) and slow motion (blending). It does not hold for the voice until a fallback provider is added; the cached demo run covers the presentation.
 
@@ -359,7 +360,7 @@ If "two weeks" leaves nine working days, day 9 and day 10 merge: the Nature docu
 - Key moment: the numbered-stills step lands within 0.3 s on at least three in four.
 - Voice: the provider is chosen. The football commentator voice is fixed with its measured words per second, and one calm line and one hushed line from the same provider are good enough to carry the other two styles.
 - Agents: a ReAct agent on agent-core has called a tool and submitted a result on `deepseek-flash`, with its steps streamed; or the hand-written loop is chosen, with the reason written down.
-- Privacy: it is decided which provider sees frames of clips with children in them (spec.md section 8). Until then the starter clips with children are not sent anywhere.
+- Privacy: decided 2026-10-12: adults only, DeepSeek sees the frames, disclaimer on the consent line, opt-out request sent. No starter clip has a child in it.
 - Guards: a test paid call is blocked by the cap.
 - SC-1, SC-2 and SC-5 targets re-set from the measurements and written into spec.md.
 
@@ -372,10 +373,10 @@ If the Spotter misses the bar: narrow the supported kinds of clip to those that 
 - The fixture storyboard and script produce a finished MP4 with voice, mix, slow motion and graphics, with both key lines within 150 ms of target. One real clip goes end to end from the command line.
 
 **Gate 2, end of day 8: the page.**
-- Five real clips, at least one not sport and at least one with a child in it, go from upload to video on the page in the Football commentator style without touching code. A reload mid-run restores the state. One run is done from a phone.
+- Five real clips, at least one not sport, go from upload to video on the page in the Football commentator style without touching code. A reload mid-run restores the state. One run is done from a phone.
 
 **Gate 3, end of day 9: three narrators.**
-- All three styles are in the picker. One clip has been produced in all three, and the second and third made no analysis call. After a run, the provider's file list shows nothing from it.
+- All three styles are in the picker. One clip has been produced in all three, and the second and third made no analysis call. A run's frames were sent only inside requests (no file store), and deleting the run removes them locally.
 
 **Gate 4, day 10: rehearsed and measured.**
 - Five rehearsal runs in a row across the three styles. Success criteria measured as spec.md section 10 describes and written into `docs/eval-notes.md`. A cached run and a backup video exist. Presentation ready.
@@ -399,11 +400,11 @@ A second person joining part-way should take, in order: the Verifier, the two ex
 | Blended slow motion looks soft on clips filmed at normal speed | High | Less impressive replay | The page tells users to film in slo-mo, which gives real frames; RIFE on the machine is a stretch item |
 | agent-core does not work with DeepSeek's tool calls, or its API differs from what the wiki describes | Medium | Day 2 lost on plumbing | Two-hour limit in T002; a hand-written ReAct loop over the same tools is the fallback; the tools hold the logic, not the framework |
 | A ReAct loop wanders: too many looks, or never submits | Medium | Slow or failed analysis | Iteration and image-call limits in the tools; coded fixed sequence as fallback |
-| DeepSeek's terms do not exclude training on API inputs, and data is stored in China | Certain as far as I could confirm | Frames of children go to a provider that does not meet FR-037 | Open decision in spec.md section 8, to settle at Gate 0; the vision endpoint is one line of configuration |
+| DeepSeek's terms do not exclude training on API inputs, and data is stored in China | Certain as far as I could confirm | Frames of adults go to a provider that does not meet FR-037 | Accepted by the owner 2026-10-12 with a disclaimer; the vision endpoint is one line of configuration |
 | The model name changes again: `deepseek-v4-flash-vision-exp` was retired on 2026-09-10 and only routed "temporarily" | Medium | Calls fail on the day | Use `deepseek-flash`; the name is configuration; cached demo run |
 | DeepSeek peak-hour prices are double, and peak covers late morning in Israel | Certain | Cost per run about doubles in those hours | Still about 0.10 USD a run; cap unchanged |
 | Provider outage or rate limit during the demo | Medium | Demo stalls | Fallback providers, recorded responses, cached run, backup video |
-| Frames of children sent to a cloud provider | Expected | Privacy concern | Frames only, to one provider; guardian line in the consent; no age or body words; undress stops the run; delete-now link; the page names the provider and country. Which provider is the open decision in spec.md section 8 |
+| Frames sent to a cloud provider | Expected | Privacy concern | Adults only by declaration; frames only, to one provider; disclaimer in the consent; no age or body words; undress stops the run; delete-now link; the page names the provider and country |
 | Gemini TTS prices double on 2027-01-01 | Certain | Voice cost doubles | About a cent a run either way |
 | A user uploads broadcast footage | Low in a demo | Rights issue | Consent line at upload; out of scope in the spec |
 | One person, 78 of 80 hours planned | High | Something overruns and there is no slack | Working demo from day 8; styles two and three built last; cut list fixed in advance |
@@ -425,7 +426,7 @@ A second person joining part-way should take, in order: the Verifier, the two ex
 | IV. Picture drives timing | Storyboard fixed at S4; S9 runs in parallel; voice is fitted to slots |
 | V. Providers are swappable | Four adapter interfaces with record and replay; primary and fallback each |
 | VI. Honest output | AI label in corner and end card in every skin; designed house voices; own brand graphics; banned lexicon covers presenters, narrators and outlets |
-| VII. People in the clip are protected | Consent with the guardian line, neutral descriptors and no age words enforced in `submit_play_sheet`, sensitivity stop, frames to one provider only. The no-training requirement is not met by DeepSeek as far as I could confirm: open decision |
+| VII. People in the clip are protected | Consent with the adults-only line and disclaimer, neutral descriptors and no age words enforced in `submit_play_sheet`, sensitivity stop, frames to one provider only. The no-training requirement is not met by DeepSeek; waived by the owner for the demo (2026-10-12) |
 | VIII. Every run is replayable and costed | File per stage, re-run from stage, cost ledger with caps |
 | IX. A video always comes out | Generic mode, voice fallback, frame-blend slow motion |
 | X. A style changes the telling, never the facts | Style is data read by S5, S7, S8 and S9 graphics only; storyboard and checks are style-independent; versions share one confirmed play sheet |

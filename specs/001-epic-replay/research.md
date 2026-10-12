@@ -261,7 +261,7 @@ None of the pages I read claims to describe the user's actual play. That is the 
 | Highest `fps` Gemini accepts in static mode (only if Gemini is used on video) | T003 |
 | Whether sending numbered stills finds the exact frame reliably | T003 |
 | Real accuracy on your own clips, per kind of clip (sport, trick, pet, family, everyday) | T003, then T028 |
-| How long uploaded files stay on the Files API, and that delete works as expected (I believe they expire after 48 hours) | T033 |
+| Nothing is uploaded to a provider file store; T033 checks that frames travel only inside requests | T033 |
 | Whether OpenAI's API accepts video files as of this month | Not needed unless you want it as a candidate |
 | Qwen prices on the international endpoint | T003 if Qwen is tested |
 | Whether Gemini TTS keeps one voice stable across separate short requests, and how much take length varies | T004 |

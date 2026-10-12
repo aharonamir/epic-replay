@@ -2,12 +2,13 @@
 
 **Feature branch**: `001-epic-replay`
 **Created**: 2026-10-11
-**Status**: Draft, revision 5
+**Status**: Draft, revision 6
 **Input**: "You film your own goal or trick. The agent watches the clip, writes and voices an excited broadcast-style call of what actually happened, then adds a slow-motion replay and a score graphic."
 **Added in revision 2**: "In the MVP it is a web page: upload the video, choose a narration style (football enthusiast, news reporter and so on), see the progress, see the result."
 **Added in revision 3**: one person builds it in two weeks; the clip does not have to be a sport event; children are likely to appear in the footage; the confirmation step and the three styles stay.
 **Added in revision 4**: the agents are ReAct agents built with openJiuwen agent-core, on a cloud model provider, DeepSeek.
 **Added in revision 5**: the owner approved the visual design of the page.
+**Added in revision 6**: footage is adults only (men only in the MVP), with a disclaimer that frames go to DeepSeek; minimum output length and frame sampling are configuration; a case rule for the name check.
 
 ## 1. Summary
 
@@ -131,8 +132,8 @@ Before starting, the user picks a narration style from a small set of cards and 
 - Text on screen in the clip (scoreboard, shirt names): may be read into the play sheet as low-confidence fields that need confirmation.
 - A style whose name suggests sport used on something else (Football commentator on a dog catching a frisbee): the style is a persona; it calls the moment in the words the play sheet uses for it. This mismatch is a feature.
 - A clip with no ball, no score and no opponent: the play sheet has an activity, events and a high point like any other; "outcome" is simply how it ended.
-- A child appears in the clip: nothing changes in the pipeline, because no stage may state or guess age; the consent line covers permission, and the clip goes to one provider only (FR-037).
-- Someone in the clip is undressed, for example a child in a paddling pool: the run stops (FR-009).
+- The MVP accepts footage of adults only. The consent line says so, and no stage states or guesses age, so the page cannot check it; the declaration is the user's. Clips with children are not used for testing or demonstration.
+- Someone in the clip is undressed: the run stops (FR-009).
 - A slower style leaves less room for words: slots are rebuilt for each style from its speaking rate; a slot too short for its line role is dropped, never the key line.
 - A style pack that fails validation, or names a voice or sound that does not exist: it is left out of the picker and the reason is logged at start-up.
 - The user asks for a second style while the first is still rendering: the request is accepted once the first run has passed Checkpoint A, and the two finish independently.
@@ -145,7 +146,7 @@ Before starting, the user picks a narration style from a small set of cards and 
 
 - **FR-001**: The system MUST accept MP4, MOV and WebM uploads of 3 to 30 seconds and at most 200 MB, and MUST reject anything else with a specific reason.
 - **FR-002**: The system MUST record duration, frame rate, resolution, rotation and audio presence, and MUST produce a constant-frame-rate working copy.
-- **FR-003**: The system MUST require the user to confirm, before the clip is sent to any provider, that they have the right to use the footage, that the people in it agree to being filmed, and that for any child they are the parent or guardian or have that person's permission. The page MUST say truthfully what leaves the machine (still frames from the clip), which service receives it and in which country, and what is known about how long it is kept. The confirmation MUST be stored with the run.
+- **FR-003**: The system MUST require the user to confirm, before the clip is sent to any provider, that they have the right to use the footage, that everyone in it is an adult man (the MVP scope) who agrees to being filmed, and that they have read the disclaimer. The page MUST say truthfully what leaves the machine (still frames from the clip), which service receives it and in which country, and what is known about how long it is kept; for DeepSeek the disclaimer says the service is in China and that its terms allow use of submitted data to train its models. The confirmation MUST be stored with the run.
 - **FR-004**: The system MUST let the user choose a narration style (FR-039) and optionally give: the activity, a name for the person or animal the clip is about, team names, score, and whether to keep the original sound.
 
 **Understanding the play**
@@ -153,7 +154,7 @@ Before starting, the user picks a narration style from a small set of cards and 
 - **FR-005**: The system MUST produce a play sheet containing: the activity (whatever is going on; it need not be a sport), setting, actors, ordered events with start and end time, action, outcome and confidence, the climax time, an outcome summary, a focus box and a sensitivity flag (contracts/play_sheet.schema.json).
 - **FR-006**: The system MUST analyse the clip in two independent passes and MUST mark any field on which they disagree as low confidence.
 - **FR-007**: The system MUST locate the climax to within one frame of a specific frame of the working copy, and MUST record the method used and its confidence.
-- **FR-008**: The system MUST refer to people only by a user-given name or a neutral visible descriptor, and MUST NOT infer or state identity, age, gender, ethnicity, body characteristics or ability. This holds for children as for adults: no stage may say or guess that someone is a child. Words the user typed may be used as typed.
+- **FR-008**: The system MUST refer to people only by a user-given name or a neutral visible descriptor, and MUST NOT infer or state identity, age, ethnicity, body characteristics or ability. Because the MVP scope is declared by the user as adult men, "he", "him" and "his" may be used for a person; female terms and any word that marks someone's age are in the banned lexicon. Words the user typed may be used as typed.
 - **FR-009**: The system MUST stop the run, with an explanation, when the clip shows injury, violence, distress or humiliation, or anyone undressed. A clip with no discernible action is not stopped; it goes to the play card with a request to pick the moment.
 
 **Checkpoint A - play card**
@@ -165,7 +166,7 @@ Before starting, the user picks a narration style from a small set of cards and 
 **Storyboard**
 
 - **FR-013**: The system MUST build a storyboard from a template: ordered segments each with source in and out points, speed, zoom, overlays and timeline start and end (contracts/storyboard.schema.json). The picture timeline is fixed once the storyboard is written.
-- **FR-014**: The output MUST be between 12 and 60 seconds. When the clip is longer than 20 seconds, the live segment MUST be trimmed to at most 10 seconds before and 3 seconds after the climax.
+- **FR-014**: The output MUST be between the configured minimum (`EPIC_MIN_OUTPUT_S`, default 20) and 60 seconds. When the clip is longer than 20 seconds, the live segment MUST be trimmed to at most 10 seconds before and 3 seconds after the climax.
 - **FR-015**: The replay segment MUST cover a window around the climax at a speed between 0.25x and 0.5x.
 
 **Commentary**
@@ -255,7 +256,7 @@ Targets marked (provisional) are re-set at Gate 0 from the spike measurements, a
 
 - Built by one person in ten working days of eight hours (plan.md section 6). What a second person would add is in plan.md section 7.
 - The agents are ReAct agents built with openJiuwen agent-core, running on DeepSeek's `deepseek-flash`. A plain Python runner moves the run between stages. plan.md section 3 lists what must be confirmed on day 2 and the fallback.
-- The person uploading is an adult using footage they have the right to use. Children are likely to appear in it. There are no accounts.
+- The person uploading is an adult using footage they have the right to use, which shows adult men only. There are no accounts.
 - English first. Hebrew is a stretch item because one of the candidate voice providers lists it as supported.
 - Three styles in the MVP. All three use voices from the provider chosen in the bake-off, so one provider must be able to shout, read evenly and speak softly.
 - The confirmation step (Checkpoint A) is shown inside the progress list. Script approval is automatic by default.
@@ -275,7 +276,7 @@ Targets marked (provisional) are re-set at Gate 0 from the spike measurements, a
 
 - One person builds it, in two weeks.
 - The clip does not have to be a sport event.
-- Children are likely to appear in the footage.
+- Footage is of adults only (decided 2026-10-12, revision 6; earlier "children are likely" is withdrawn).
 - The confirmation step (Checkpoint A) stays in the MVP flow.
 - The MVP ships three styles: Football commentator, News reporter and Nature documentary. More can be added later as style packs (stretch item X5).
 
@@ -290,20 +291,17 @@ Targets marked (provisional) are re-set at Gate 0 from the spike measurements, a
 - The Verifier agent is deferred (section 10). It is the first thing to add back.
 - Images do not pass through agent-core. The agents reason in text and call tools that look at frames.
 
-**Open, and it needs the owner's decision before any clip with a child in it is processed**
+**Decided by the owner on 2026-10-12 (revision 6)**
 
-FR-037 requires that footage goes only to a provider whose terms exclude training use. As far as I could confirm on 2026-10-11, DeepSeek does not meet that:
-- Its privacy policy (updated 2026-02-10) says personal data is used to "train and improve our technology", with a right to opt out by request, and that data is collected, processed and stored in the People's Republic of China. It also says the services "are not aimed at children".
-- That policy says end-user data in apps built on the open platform is outside its scope, and the Open Platform terms (effective 2026-04-29) say nothing on training, retention or location. They do require the developer to obtain end users' consent.
-- I found no statement that API inputs are excluded from training, and no retention period.
-
-Ways to resolve it, any of which the build supports without rework because the vision endpoint is one line of configuration:
-
-1. **DeepSeek for the agents' text, another provider for the frames.** A voice key for Gemini is needed anyway, and Gemini's paid tier does not use content to improve its products. Point the vision adapter at it; the agents stay on DeepSeek. This is my recommendation.
-2. **DeepSeek for everything, with eyes open.** Accept the terms for a demo; send the opt-out request to DeepSeek for the account; process only clips of the owner's own children or with the parent's explicit agreement to this; say on the page that frames go to servers in China. FR-037 is then recorded as waived for the demo.
-3. **Frames stay on your machines.** An open-weights vision model served locally (stretch item X8). DeepSeek's own open weights are about 305 billion parameters, too large for most single servers; a smaller model such as Qwen3-VL is the practical choice.
-
-A smaller mitigation that helps under any option: blur faces in the frames before they are sent. It costs about two hours and may confuse the model when a face is the subject.
+- Only footage of adults is processed, and in the MVP only of men. No clip with a child is sent anywhere.
+- DeepSeek sees the frames (option 2 of the earlier list, narrowed to adults). FR-037's no-training requirement is recorded as waived for the demo. The consent line carries a disclaimer: still frames go to DeepSeek, in China, under terms that allow training on submitted data. The vision endpoint stays one line of configuration, so a provider with a no-training commitment can replace it later without rework.
+- An opt-out request to DeepSeek (privacy@deepseek.com) is sent for the account; this is a task for the owner.
+- Frame sampling for analysis defaults to 4 frames per second and is configuration. Motion detection may thin frames where nothing moves (plan.md section 4.3).
+- The minimum output length is configuration, default 20 seconds. The key-frame agreement tolerance is configuration, default a quarter of a second.
+- Facts that led to the waiver, as found on 2026-10-11:
+  - DeepSeek's privacy policy (updated 2026-02-10) says personal data is used to "train and improve our technology", with a right to opt out by request, and that data is collected, processed and stored in the People's Republic of China.
+  - The Open Platform terms (effective 2026-04-29) say nothing on training, retention or location.
+  - I found no statement that API inputs are excluded from training, and no retention period.
 
 **Still open**
 
@@ -320,7 +318,7 @@ Not counted in the schedule. Each is independent.
 | X3 | Hebrew commentary, right-to-left graphics | Voice bake-off confirming Hebrew quality |
 | X4 | Edit single script lines at Checkpoint B and re-voice only those lines | Checkpoint B |
 | X5 | More styles, for example Movie trailer and Bedtime story | One style pack, a voice and a sound set each |
-| X6 | Sharper slow motion: RIFE on the machine; a paid hosted option only for footage without children | Interpolation adapter |
+| X6 | Sharper slow motion: RIFE on the machine; a paid hosted option, only after the vendor's terms are checked | Interpolation adapter |
 | X7 | Per-run generated crowd and music | Sound adapter |
 | X8 | Looking at frames on your own machines (an open-weights vision model), so nothing leaves them | Vision adapter, a GPU server |
 
@@ -355,4 +353,5 @@ Success criteria as measured in the one-person MVP:
 - Revision 2 (2026-10-11): the MVP is one web page (FR-043, contracts/ui.md). Narration styles moved from stretch into the MVP: three styles, chosen at upload, defined as data, with re-telling of the same play in another style (US5, FR-039 to FR-042, SC-9). FR-004, FR-018, FR-021, FR-024, FR-029 and FR-036 amended. Script approval is automatic by default. Existing ids are unchanged. The owner confirmed the same day that the confirmation step stays and that the MVP has these three styles.
 - Revision 3 (2026-10-11): one person, ten working days: section 10 added, listing what is deferred and how the success criteria are measured. Scope widened from sport to any short moment: the play sheet's `sport` field is renamed `activity`; FR-004, FR-005 and FR-009 amended. Children in footage: FR-003, FR-008 and FR-037 tightened; footage goes to one provider only; stretch item X8 added. Section 8 now records decisions. Existing ids are unchanged.
 - Revision 4 (2026-10-11): agents are ReAct agents on openJiuwen agent-core with a plain Python runner; jiuwenswarm dropped. Model provider DeepSeek, `deepseek-flash`. Because DeepSeek takes images and not video or sound, analysis works from numbered frames. FR-003 reworded so the page states truthfully what is sent and where. FR-037 is unchanged and, as far as I could confirm, not met by DeepSeek: recorded as an open decision in section 8 with three ways to resolve it.
+- Revision 6 (2026-10-12): adults only, men only in the MVP; DeepSeek sees frames, with a disclaimer, FR-037 waived for the demo (section 8). FR-003 and FR-008 reworded. Minimum output length is configuration (default 20 s, FR-014). Frame sampling default 4 per second with optional motion thinning; key-frame tolerance a quarter second. FFmpeg 8. The name check compares case-insensitively and runs on a sentence-cased copy of shouted lines. Existing ids are unchanged.
 - Revision 5 (2026-10-11): the owner approved the visual design of the page, made on the design canvas. Added contracts/design.md (colours, type, layout, parts) and a copy of the canvas files in contracts/design-canvas/. contracts/ui.md redrawn to the approved layout, with a table of all wording. Style packs gain an optional `graphics.accent_text`; the page takes its colour from the chosen pack. The descriptions of two example packs shortened, and the News reporter's no longer says "goal". No requirement, success criterion or task hour changed.

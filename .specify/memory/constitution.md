@@ -1,6 +1,6 @@
 # Epic Replay Constitution
 
-Version 1.3 (2026-10-11). These principles override convenience. A change to any of them is a spec change: update this file, then spec.md, plan.md and tasks.md in the same commit.
+Version 1.4 (2026-10-12). These principles override convenience. A change to any of them is a spec change: update this file, then spec.md, plan.md and tasks.md in the same commit.
 
 ## I. The play is the source of truth
 
@@ -28,7 +28,7 @@ Every exported video carries a visible "AI commentary" label, in every narration
 
 ## VII. People in the clip are protected
 
-Only footage the user has the right to use is accepted. People are referred to by a name the user gave or by neutral visible descriptors such as kit colour or playing role. The system never infers or mentions identity, age, gender, ethnicity, body or ability. Children are likely to be in the footage and get no weaker protection than adults: no stage says or guesses that someone is a child, and the person uploading confirms they are the parent or guardian or have permission. Injury, fights, distress, humiliation and anyone undressed stop the run. Only still frames leave the machine, to one provider, on terms that exclude training use; where the chosen provider's terms do not, that is a recorded decision of the owner and the page says where the frames go. The user can delete a run at once.
+Only footage the user has the right to use is accepted, and in the MVP only of adults (men, as declared by the user). People are referred to by a name the user gave or by neutral visible descriptors such as kit colour or playing role. The system never infers or mentions identity, age, ethnicity, body or ability, and no word marks someone as a child or as old or young. Injury, fights, distress, humiliation and anyone undressed stop the run. Only still frames leave the machine, to one provider, on terms that exclude training use; where the chosen provider's terms do not, that is a recorded decision of the owner (DeepSeek, 2026-10-12) and the consent line carries a disclaimer saying where the frames go and that they may be used for training. The user can delete a run at once.
 
 ## VIII. Every run is replayable and costed
 

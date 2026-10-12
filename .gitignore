@@ -5,3 +5,7 @@ __pycache__/
 runs/
 .pytest_cache/
 .DS_Store
+graft/
+eval/clips/
+node_modules/
+*.egg-info/

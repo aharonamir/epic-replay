@@ -217,7 +217,6 @@ A run created by re-telling in another style starts with the outputs of S0 to S4
 {
   "clip": "fk_01.mp4",
   "category": "sport",
-  "has_children": false,
   "activity": "football free kick",
   "outcome": "goal",
   "outcome_detail": "free kick into the top-left corner",

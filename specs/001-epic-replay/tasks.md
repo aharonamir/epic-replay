@@ -18,7 +18,7 @@ A task is done when its "Done when" line is true and its tests pass with provide
   Done when: a stage can call both adapters in replay mode with the network disabled, and changing the vision endpoint is a change to `.env` only.
 - [ ] T008 Guards: cost ledger; paid-call wrapper with the three caps; consent record with the revision 3 wording; the global banned lexicon file; a test that a call over the cap is blocked and logged (2h; full design 3h) - US4, FR-003, FR-034
   Done when: the blocked-call test passes (US4 scenario 4).
-- [ ] T006 Starter clips: 8 to 12 clips you have the right to use, with a label file each (data-model.md section 6). Include at least two that are sport, two that are not (a pet, a kitchen moment, a trick), two with a child in them, one filmed in slo-mo, and one with no obvious high point (1h; full design 2h)
+- [ ] T006 Starter clips: 8 to 12 clips you have the right to use, with a label file each (data-model.md section 6). Include at least two that are sport, two that are not (a pet, a kitchen moment, a trick), one filmed in slo-mo, and one with no obvious high point (1h; full design 2h)
   Done when: the clips and label files are in `eval/`.
 
 ## Day 2 - Measure what the plan depends on - 7 h
@@ -37,6 +37,7 @@ A task is done when its "Done when" line is true and its tests pass with provide
 Until T014, a yes-or-no prompt on the command line stands in for the play card.
 
 - [ ] T038 Style system: loader that validates every pack at start-up, checks that its voices and assets exist, and works out its page colours with the contrast rule in contracts/design.md section 2; the Football commentator pack with the voice from T004; slot builder that reads speaking rate and reaction delay from the pack (plan.md section 4.7) (2h; full design 3h) - US5, FR-040, FR-041
+  Placeholder (silent, licence-lined) assets stand in for sounds and the sample until T021 and T040 replace them, and a local voice-id registry written after T004 lets the loader check voices with no network.
   Done when: slots built from the fixture storyboard with the football pack equal the slots in the fixture script; for each of the three example packs, and for 100 random valid storyboards, slots do not overlap and both key-line slots are kept; a pack with a missing asset, or with an accent that fails the contrast rule, is refused with a logged reason.
 - [ ] T010 S0 Intake: upload validation, ffprobe, rotation, constant-frame-rate working copy, capture rate detection (2h; full design 3h) - US1, FR-001, FR-002
   Done when: the fixture clip and a vertical phone clip both produce valid `clip_meta.json`; a 40 s clip is rejected with the reason.
@@ -45,7 +46,7 @@ Until T014, a yes-or-no prompt on the command line stands in for the play card.
 - [ ] T013 S2 and S3 Spotter agent: the agent-core `ReActAgent` with its prompt, which does not assume sport, and the four tools; `submit_play_sheet` validating the schema, the descriptor rules including no age words, and the sensitivity flag with its reason; eight iterations at most, then the fallback from T012; each tool call emitted as a stage event; focus box and key frame written to `play_sheet.json` (2h; full design 3h) - US1, US4, FR-005, FR-007, FR-008, FR-009
   Done when: on the starter clips the agent submits a valid play sheet or the fallback does; key-moment error matches the T003 result to within one clip; a seeded sensitivity flag stops the run with its reason (US4 scenario 3); a play sheet containing an age word is rejected by `submit_play_sheet`.
 - [ ] T015 S4 Storyboard: the Classic and Short templates, trim rule, replay window, zoom, markers; no dependence on the narration style. In generic mode the replay is built around the moment the user picked (2h; full design 4h) - US1, FR-013, FR-014, FR-015, FR-041
-  Done when: the fixture play sheet produces exactly the fixture storyboard, and for 100 random valid play sheets segments are contiguous, the duration is within 12 to 60 s and the markers lie inside their segments.
+  Done when: the fixture play sheet produces exactly the fixture storyboard, and for 100 random valid play sheets segments are contiguous, the duration is within `EPIC_MIN_OUTPUT_S` to 60 s and the markers lie inside their segments.
 - [ ] T016 S5 Commentator agent: an agent-core `ReActAgent` whose prompt takes persona, rules, role notes and sample lines from the style pack and the slots from T038; tools `check_lines`, which runs the checks of T017 on a draft and returns each failure with its rule, and `submit_script`; headline and lower third; six iterations at most, then one structured draft with failing lines replaced by generic ones. `deepseek-flash` writes (2h; full design 4h) - US1, FR-016, FR-017, FR-018
   Done when: scripts for the fixture and three starter clips validate against the schema and pass S6.
 - [ ] T017 S6 Code checks: the ten rules in contracts/stage-contracts.md with a unit test each; the pack's banned terms added to the global list; five planted-error scripts in `tests/planted_errors/`, one for each kind of error code can see (3h; full design 4h) - FR-017, FR-018, FR-019, SC-3, SC-8
@@ -80,7 +81,7 @@ Until T014, a yes-or-no prompt on the command line stands in for the play card.
   Done when: the four US2 acceptance scenarios pass as API tests and the card works by hand.
 - [ ] T029 The page, following contracts/ui.md and looking as in contracts/design.md (one stylesheet with its tokens; fonts served by the app; the narrator's colour on the page; if the hours run out, cut in the order of its section 9): the remaining endpoints in contracts/http-api.md; one template with the start, progress, confirm and result states; file drop with preview and browser-side checks; style cards from `GET /styles`; the consent wording; eight plain-word steps driven by server-sent events with a polling fallback; a details view listing each stage's duration, cost and one-line summary; the play card from T014 inside the progress list; result with player, download, the script with "Write it again", and delete-now; reload restores state; a layout that works on a phone (5h; full design 7h) - US1, US3, FR-003, FR-004, FR-021, FR-036, FR-039, FR-043
   Done when: US1 scenarios 5 and 6 and US3 scenarios 1 and 2 pass, a run can be completed with the mouse only, the same run can be completed from a phone browser, and each state at 1280 px and 390 px wide matches its artboard in contracts/design-canvas/ in layout, colour and type.
-- [ ] T031 End to end on five real clips on the page with live providers, at least one not sport and one with a child in it; list defects; fix the ones that block Gate 2 (3h; full design 6h)
+- [ ] T031 End to end on five real clips on the page with live providers, at least one not sport; list defects; fix the ones that block Gate 2 (3h; full design 6h)
   Done when: Gate 2's lines are true.
 
 **Gate 2** (plan.md section 6).
@@ -137,7 +138,7 @@ Listed in the order to add them back when there is time (plan.md section 6). Hou
 
 - The tasks are in dependency order as listed. Within a day block the order can change where noted here.
 - T007 comes before everything from T038 on: every stage is built against the fixture.
-- T008 and T009 come before any task that calls a provider outside a spike.
+- T008 and T009 come before any task that calls a provider outside a spike. Do T008 before T009: the adapters call the paid-call wrapper.
 - T038 comes before T015 and T016. T015 comes before T016. T017 is listed after T016 but its checks are the `check_lines` tool, so write the checks first if that is easier and wire the agent second.
 - T002 comes before T013 and T016: both agents use what it finds.
 - T018 comes before T019 and T024. T020 comes before T022. T022 and T023 come before T024.
