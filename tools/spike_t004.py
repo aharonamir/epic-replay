@@ -15,6 +15,7 @@ import argparse
 import base64
 import json
 import sys
+import time
 import wave
 from pathlib import Path
 
@@ -76,18 +77,25 @@ def estimate(job) -> float:
 def synth_openai(job, out: Path, key: str) -> dict:
     import httpx  # only here, in a spike script
 
-    r = httpx.post(
-        "https://api.openai.com/v1/audio/speech",
-        timeout=120,
-        headers={"Authorization": f"Bearer {key}"},
-        json={
-            "model": MODELS["openai"],
-            "input": job["text"],
-            "voice": job["voice"],
-            "instructions": job["delivery"],
-            "response_format": "wav",
-        },
-    )
+    for attempt in range(4):
+        try:
+            r = httpx.post(
+                "https://api.openai.com/v1/audio/speech",
+                timeout=120,
+                headers={"Authorization": f"Bearer {key}"},
+                json={
+                    "model": MODELS["openai"],
+                    "input": job["text"],
+                    "voice": job["voice"],
+                    "instructions": job["delivery"],
+                    "response_format": "wav",
+                },
+            )
+            break
+        except httpx.ConnectError:  # flaky DNS on this machine; nothing was sent
+            if attempt == 3:
+                raise
+            time.sleep(3)
     r.raise_for_status()
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_bytes(r.content)
@@ -122,8 +130,10 @@ def synth(job, out: Path) -> dict:
 
 def measure(path: Path) -> dict:
     with wave.open(str(path)) as w:
-        sr, n = w.getframerate(), w.getnframes()
-        pcm = np.frombuffer(w.readframes(n), "<i2").astype(float) / 32768
+        sr = w.getframerate()
+        # a streamed WAV (OpenAI) has no length in its header: count the samples actually there
+        pcm = np.frombuffer(w.readframes(w.getnframes()), "<i2").astype(float) / 32768
+        n = len(pcm)
     loud = np.where(np.abs(pcm) > 0.02)[0]
     trimmed = (loud[-1] - loud[0]) / sr if len(loud) else 0.0
     return {

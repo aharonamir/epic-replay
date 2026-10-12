@@ -9,3 +9,6 @@ graft/
 eval/clips/
 node_modules/
 *.egg-info/
+eval/spike/voices/
+eval/spike/frames/
+eval/spike/work/
