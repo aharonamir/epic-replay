@@ -6,8 +6,8 @@ The commands below are the targets that T001 and later tasks create. None of the
 
 - Python 3.11 to 3.13 (agent-core needs 3.11 or higher and below 3.14), FFmpeg 8 with ffprobe on the path, Git.
 - A DeepSeek API key, for the two agents and for looking at frames. Use the model name `deepseek-flash`; `deepseek-v4-flash-vision-exp` is a retired name that is only routed to it for now.
-- A Google Gemini API key on the **paid** tier, for the voices. DeepSeek has no speech model.
-- Only if the day-2 voice test rules out Gemini for the shout: an ElevenLabs key.
+- An ElevenLabs API key (Starter plan is enough; read permissions on voices, models and user) for the voices. DeepSeek has no speech model.
+- Optional: an OpenAI key, the fallback speech provider.
 - Only still frames from the clip leave the machine, and only to the vision endpoint in `.env`. Footage must show adults only; the page says that frames go to DeepSeek, in China, and may be used for training (spec.md section 8).
 
 ## 2. Set up (T001)
@@ -33,7 +33,7 @@ EPIC_VISION_MODEL=deepseek-flash
 EPIC_VISION_API_KEY=
 EPIC_VISION_SERVICE_NAME=DeepSeek
 EPIC_VISION_COUNTRY=China
-GEMINI_API_KEY=             # voices
+ELEVENLABS_API_KEY=         # voices (T004: ElevenLabs, eleven_v3)
 ELEVENLABS_API_KEY=         # only if chosen in T004
 EPIC_PROVIDER_MODE=replay   # live | record | replay
 EPIC_CAP_RUN_USD=1.00

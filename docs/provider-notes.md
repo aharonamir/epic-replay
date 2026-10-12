@@ -53,3 +53,27 @@ Old baseline (ash, "shouting, full voice"): RMS 0.083, median pitch 137 Hz, 4.0 
 Candidates that are both louder and higher than the baseline: shimmer roar short (RMS 0.136, 316 Hz, 2.2 s); shimmer roar full (0.121, 230 Hz, 3.8 s);
 shimmer joy full (0.127, 190 Hz, 4.4 s); verse joy full (0.097, 293 Hz, 4.4 s); echo roar full (0.112, 146 Hz, 3.2 s).
 The short line is about 2 s in most voices, which fits the 2.0 s climax slot; the full line is 2.8 to 4.4 s in every voice, which does not.
+
+### T004 result: ElevenLabs (19 takes, 0.0705 USD by estimate at 0.10 USD per 1,000 characters; not checked against billing)
+
+Takes in `eval/spike/voices/elevenlabs/<style>/`; measurements in `eval/spike/t004_eleven.json`; script `tools/spike_t004_eleven.py --chosen`.
+Account: Starter, 40,000 characters. The key needs `voices_read` (to list), `models_read`, `user_read`; `voices_write` is missing and was not needed:
+a shared-library voice id synthesised without being added to the account. Request: POST `/v1/text-to-speech/{voice_id}?output_format=mp3_44100_128`, header `xi-api-key`, body `{text, model_id}`.
+The legacy ids for "Rachel" and "Josh" now point at other voices (Janet, Craig): always use the ids below.
+
+Chosen by the owner (heard, "the voices are good"), 2026-10-12:
+
+| Style | Voice | Voice id | Fallback |
+|---|---|---|---|
+| Football commentator | Gerald, "Exciting Older Character" | `fGIZlgPQ75MMlvQ6WxgY` | none yet |
+| News reporter | Adam | `pNInz6obpgDQGcFmaJgB` | Rachel, "Clear, Calm, Natural, Neutral, Narrative" `mDYJ5aI19GeZeL0uKqb3` |
+| Nature documentary | Josh, "Deep & Full" | `83q1pBDDePRioCY8grPY` | none yet |
+
+Provider `elevenlabs`. Model for the build: `eleven_v3` (fits the football slot; v4 is slower on shouts and on Josh). Football tag: `[excited] [shouts] `.
+The pack format has no field for the model or the tag, so the adapter holds model `eleven_v3` as a setting and the tag comes from the pack's delivery text (T020).
+
+Football words per second, shouted short line "OFF THE POST AND IN!" (5 words, silence trimmed): v3 2.93 to 2.95 (1.70 s), v4 2.52 to 2.88 (1.74 to 1.98 s). The pack's 2.6 holds, and the 2.0 s climax slot is met with the short line.
+The long line (6 words) on v4 takes 3.06 s, 1.96 words per second: still too long; the football climax line stays at about 5 words.
+Josh on v3 3.3 to 3.6 words per second (v4 2.2 to 2.9); Adam v3 3.4 to 3.9; Rachel 2.6 to 3.5. The nature pack's 2.0 and news pack's 2.4 are slower than the measured rates: re-set in T039 by ear.
+Not measured: take-length spread across repeated requests on ElevenLabs (one take per cell). The voice id fixes the voice; T020 must still fit every take to its slot by measuring.
+Gemini TTS was not tested (no key); OpenAI stays available as the fallback provider.
