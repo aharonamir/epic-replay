@@ -42,3 +42,14 @@ What the numbers say, before any listening:
 - The shouted football climax line (6 words) runs 2.8 to 4.1 s, about 1.5 to 2.1 words per second, against the pack's 2.6 and a climax slot of 2.0 s. Shouting is slow here. Either the football climax line must be about 3 words, or the slot and the speaking-rate assumption change. This needs a decision after listening (spec.md section 4.7 and the pack's `words_per_second`).
 - Take length varies by up to 0.65 s between two takes of one line (ballad), and by 0.05 s at best (ash, sage, cedar). Voices with a small spread fit slots more predictably.
 - Voice stability across separate requests and the quality of shout, even read and whisper: by ear, not yet done.
+
+### T004 follow-up: louder football shout, OpenAI (24 takes, about 0.02 USD)
+
+Takes in `eval/spike/voices/openai/football_v2/<voice>__<variant>__<line>.wav`; measurements in `eval/spike/t004_football.json`.
+Variants: `roar`, `joy`, `frenzy` (stronger `instructions`); lines: `full` "OFF THE POST AND IN! Unbelievable!", `short` "OFF THE POST AND IN!".
+Acoustic proxies only (RMS of the speech, median pitch); the owner's ear decides.
+Old baseline (ash, "shouting, full voice"): RMS 0.083, median pitch 137 Hz, 4.0 s.
+
+Candidates that are both louder and higher than the baseline: shimmer roar short (RMS 0.136, 316 Hz, 2.2 s); shimmer roar full (0.121, 230 Hz, 3.8 s);
+shimmer joy full (0.127, 190 Hz, 4.4 s); verse joy full (0.097, 293 Hz, 4.4 s); echo roar full (0.112, 146 Hz, 3.2 s).
+The short line is about 2 s in most voices, which fits the 2.0 s climax slot; the full line is 2.8 to 4.4 s in every voice, which does not.
