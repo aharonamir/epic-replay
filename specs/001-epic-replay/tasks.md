@@ -10,7 +10,7 @@ A task is done when its "Done when" line is true and its tests pass with provide
 
 ## Day 1 - Foundations - 8 h
 
-- [ ] T001 Create the repo from the spec-kit template; copy this folder into `specs/001-epic-replay/`; set up Python 3.12, FFmpeg, Playwright, pytest, linting, `.env.example`, `.gitignore` for `runs/` and `eval/clips/` (2h; full design 2h)
+- [x] T001 Create the repo from the spec-kit template; copy this folder into `specs/001-epic-replay/`; set up Python 3.12, FFmpeg, Playwright, pytest, linting, `.env.example`, `.gitignore` for `runs/` and `eval/clips/` (2h; full design 2h)
   Done when: `pytest` runs and `ffmpeg -version` and a Playwright screenshot work from a clean checkout.
 - [ ] T007 Schemas and fixture: copy the four schemas and their examples from `contracts/`; build `tests/fixtures/sample_run/` from the examples plus a minimal `clip_meta.json` and `user_context.json`; add a test that validates the fixture and the cross-file rules in data-model.md section 3 (2h; full design 3h) - FR-005, FR-013, FR-016
   Done when: the fixture validates and the cross-file rule test passes.

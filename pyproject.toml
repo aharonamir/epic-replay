@@ -1,0 +1,41 @@
+[project]
+name = "epic-replay"
+version = "0.1.0"
+description = "Epic Replay: narrated slow-motion replays of short clips"
+requires-python = ">=3.11,<3.14"
+dependencies = [
+  "openjiuwen",
+  "openai",
+  "fastapi",
+  "uvicorn[standard]",
+  "python-multipart",
+  "jinja2",
+  "jsonschema",
+  "pydantic>=2",
+  "numpy",
+  "playwright",
+  "httpx",
+  "python-dotenv",
+]
+
+[project.optional-dependencies]
+dev = ["pytest", "ruff"]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-m 'not live'"
+markers = ["live: calls real providers or agents; costs money; skipped by default"]
+
+[tool.ruff]
+line-length = 100
+src = ["src", "tests"]
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+ignore = ["E501"]
