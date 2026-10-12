@@ -35,3 +35,16 @@ from openjiuwen.core.foundation.tool import ToolCard, LocalFunction
 | 3 | Does `stream()` give thoughts, tool calls and results as they happen? | Not yet run: `--stream` |
 | 4 | Token usage readable for the cost ledger? | Not yet checked. Source has a context-usage emitter (`_emit_context_usage`); look in the run |
 | 5 | Images through agent-core? | Not needed: design choice |
+
+## Harness DeepAgent (example, 2026-10-12)
+
+The local agent-core checkout (`/home/amir/workspace/agent-core`, ahead of the PyPI 0.1.19 release,
+installed editable with `uv pip install -e ... --no-deps`) also offers `openjiuwen.harness.create_deep_agent`.
+`examples/deep_agent_vision.py` follows taketwo's `VisionBuilder`: `create_deep_agent(model=Model(...),
+tools=[], rails=[SysOperationRail(enable_read_image_multimodal=True)], enable_read_image_multimodal=True,
+workspace=...)`. It builds offline (RUN); the model call is not run yet (`--yes`, one small image call).
+Model is `Model(model_client_config=ModelClientConfig(client_provider="OpenAI", api_key, api_base, timeout,
+verify_ssl), model_config=ModelRequestConfig(model=..., temperature=...))`.
+Difference from our design: here the agent's `read_file` tool puts the image into the model call, i.e.
+images pass through agent-core. Epic Replay keeps images out (tools return text), so this stays an
+example until the owner decides otherwise.

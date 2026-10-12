@@ -42,3 +42,66 @@
 2026-10-12 14:08:13 | common | default_trace_id | INFO | Registered parser ImageParser for .jfif
 2026-10-12 14:08:14 | common | default_trace_id | INFO | Added GLOBAL tag to resource. resource_id=look_up_56fdd70d375546a29c5267be32920a13, changed from [] to [GLOBAL]
 2026-10-12 14:08:14 | common | default_trace_id | INFO | Added GLOBAL tag to resource. resource_id=submit_56fdd70d375546a29c5267be32920a13, changed from [] to [GLOBAL]
+2026-10-12 14:28:46 | common | default_trace_id | INFO | Registered connector pool type: default
+2026-10-12 14:28:46 | common | default_trace_id | INFO | Registered connector pool type: httpx
+2026-10-12 14:28:47 | common | default_trace_id | INFO | Registered query expression support for milvus
+2026-10-12 14:28:47 | common | default_trace_id | INFO | Registered query expression support for chroma
+2026-10-12 14:28:47 | common | default_trace_id | INFO | Registered parser ExcelParser for .xlsx
+2026-10-12 14:28:47 | common | default_trace_id | INFO | Registered parser ExcelParser for .csv
+2026-10-12 14:28:47 | common | default_trace_id | INFO | Registered parser ExcelParser for .tsv
+2026-10-12 14:28:47 | common | default_trace_id | INFO | Registered parser TxtMdParser for .txt
+2026-10-12 14:28:47 | common | default_trace_id | INFO | Registered parser TxtMdParser for .md
+2026-10-12 14:28:47 | common | default_trace_id | INFO | Registered parser TxtMdParser for .markdown
+2026-10-12 14:28:47 | common | default_trace_id | INFO | Registered parser HTMLFileParser for .htm
+2026-10-12 14:28:47 | common | default_trace_id | INFO | Registered parser HTMLFileParser for .html
+2026-10-12 14:28:47 | common | default_trace_id | INFO | Registered parser JSONParser for .json
+2026-10-12 14:28:47 | common | default_trace_id | INFO | Registered parser PDFParser for .pdf
+2026-10-12 14:28:47 | common | default_trace_id | INFO | Registered parser WordParser for .docx
+2026-10-12 14:28:47 | common | default_trace_id | INFO | Registered parser ImageParser for .png
+2026-10-12 14:28:47 | common | default_trace_id | INFO | Registered parser ImageParser for .jpg
+2026-10-12 14:28:47 | common | default_trace_id | INFO | Registered parser ImageParser for .jpeg
+2026-10-12 14:28:47 | common | default_trace_id | INFO | Registered parser ImageParser for .webp
+2026-10-12 14:28:47 | common | default_trace_id | INFO | Registered parser ImageParser for .gif
+2026-10-12 14:28:47 | common | default_trace_id | INFO | Registered parser ImageParser for .jfif
+2026-10-12 14:28:48 | common | default_trace_id | INFO | Added GLOBAL tag to resource. resource_id=deep_agent_2187892f36f64cccbf1232dd8e9c3293, changed from [] to [GLOBAL]
+2026-10-12 14:28:48 | common | default_trace_id | INFO | Added GLOBAL tag to resource. resource_id=deep_agent_2187892f36f64cccbf1232dd8e9c3293.code.execute_code, changed from [] to [GLOBAL]
+2026-10-12 14:28:48 | common | default_trace_id | INFO | Added GLOBAL tag to resource. resource_id=deep_agent_2187892f36f64cccbf1232dd8e9c3293.code.execute_code_stream, changed from [] to [GLOBAL]
+2026-10-12 14:28:48 | common | default_trace_id | INFO | Added GLOBAL tag to resource. resource_id=deep_agent_2187892f36f64cccbf1232dd8e9c3293.fs.read_file, changed from [] to [GLOBAL]
+2026-10-12 14:28:48 | common | default_trace_id | INFO | Added GLOBAL tag to resource. resource_id=deep_agent_2187892f36f64cccbf1232dd8e9c3293.fs.read_file_stream, changed from [] to [GLOBAL]
+2026-10-12 14:28:48 | common | default_trace_id | INFO | Added GLOBAL tag to resource. resource_id=deep_agent_2187892f36f64cccbf1232dd8e9c3293.fs.write_file, changed from [] to [GLOBAL]
+2026-10-12 14:28:48 | common | default_trace_id | INFO | Added GLOBAL tag to resource. resource_id=deep_agent_2187892f36f64cccbf1232dd8e9c3293.fs.upload_file, changed from [] to [GLOBAL]
+2026-10-12 14:28:48 | common | default_trace_id | INFO | Added GLOBAL tag to resource. resource_id=deep_agent_2187892f36f64cccbf1232dd8e9c3293.fs.upload_file_stream, changed from [] to [GLOBAL]
+2026-10-12 14:28:48 | common | default_trace_id | INFO | Added GLOBAL tag to resource. resource_id=deep_agent_2187892f36f64cccbf1232dd8e9c3293.fs.download_file, changed from [] to [GLOBAL]
+2026-10-12 14:28:48 | common | default_trace_id | INFO | Added GLOBAL tag to resource. resource_id=deep_agent_2187892f36f64cccbf1232dd8e9c3293.fs.download_file_stream, changed from [] to [GLOBAL]
+2026-10-12 14:28:48 | common | default_trace_id | INFO | Added GLOBAL tag to resource. resource_id=deep_agent_2187892f36f64cccbf1232dd8e9c3293.fs.list_files, changed from [] to [GLOBAL]
+2026-10-12 14:28:48 | common | default_trace_id | INFO | Added GLOBAL tag to resource. resource_id=deep_agent_2187892f36f64cccbf1232dd8e9c3293.fs.list_directories, changed from [] to [GLOBAL]
+2026-10-12 14:28:48 | common | default_trace_id | INFO | Added GLOBAL tag to resource. resource_id=deep_agent_2187892f36f64cccbf1232dd8e9c3293.fs.search_files, changed from [] to [GLOBAL]
+2026-10-12 14:28:48 | common | default_trace_id | INFO | Added GLOBAL tag to resource. resource_id=deep_agent_2187892f36f64cccbf1232dd8e9c3293.shell.execute_cmd, changed from [] to [GLOBAL]
+2026-10-12 14:28:48 | common | default_trace_id | INFO | Added GLOBAL tag to resource. resource_id=deep_agent_2187892f36f64cccbf1232dd8e9c3293.shell.execute_cmd_stream, changed from [] to [GLOBAL]
+2026-10-12 14:28:48 | common | default_trace_id | INFO | Added GLOBAL tag to resource. resource_id=deep_agent_2187892f36f64cccbf1232dd8e9c3293.shell.execute_cmd_background, changed from [] to [GLOBAL]
+2026-10-12 14:28:48 | common | default_trace_id | WARNING | Failed to import online training rail factory: No module named 'redis'
+2026-10-12 14:28:48 | common | default_trace_id | INFO | [DeepAgent] inner ReAct max_iterations=4 (configured)
+2026-10-12 14:28:48 | common | default_trace_id | WARNING | [DeepAgent] online training rail factory unavailable: No module named 'redis'
+2026-10-12 14:28:55 | common | default_trace_id | INFO | Registered connector pool type: default
+2026-10-12 14:28:55 | common | default_trace_id | INFO | Registered connector pool type: httpx
+2026-10-12 14:28:56 | common | default_trace_id | INFO | Registered query expression support for milvus
+2026-10-12 14:28:56 | common | default_trace_id | INFO | Registered query expression support for chroma
+2026-10-12 14:28:56 | common | default_trace_id | INFO | Registered parser ExcelParser for .xlsx
+2026-10-12 14:28:56 | common | default_trace_id | INFO | Registered parser ExcelParser for .csv
+2026-10-12 14:28:56 | common | default_trace_id | INFO | Registered parser ExcelParser for .tsv
+2026-10-12 14:28:56 | common | default_trace_id | INFO | Registered parser TxtMdParser for .txt
+2026-10-12 14:28:56 | common | default_trace_id | INFO | Registered parser TxtMdParser for .md
+2026-10-12 14:28:56 | common | default_trace_id | INFO | Registered parser TxtMdParser for .markdown
+2026-10-12 14:28:56 | common | default_trace_id | INFO | Registered parser HTMLFileParser for .htm
+2026-10-12 14:28:56 | common | default_trace_id | INFO | Registered parser HTMLFileParser for .html
+2026-10-12 14:28:56 | common | default_trace_id | INFO | Registered parser JSONParser for .json
+2026-10-12 14:28:56 | common | default_trace_id | INFO | Registered parser PDFParser for .pdf
+2026-10-12 14:28:56 | common | default_trace_id | INFO | Registered parser WordParser for .docx
+2026-10-12 14:28:56 | common | default_trace_id | INFO | Registered parser ImageParser for .png
+2026-10-12 14:28:56 | common | default_trace_id | INFO | Registered parser ImageParser for .jpg
+2026-10-12 14:28:56 | common | default_trace_id | INFO | Registered parser ImageParser for .jpeg
+2026-10-12 14:28:56 | common | default_trace_id | INFO | Registered parser ImageParser for .webp
+2026-10-12 14:28:56 | common | default_trace_id | INFO | Registered parser ImageParser for .gif
+2026-10-12 14:28:56 | common | default_trace_id | INFO | Registered parser ImageParser for .jfif
+2026-10-12 14:28:57 | common | default_trace_id | INFO | Added GLOBAL tag to resource. resource_id=look_up_270c98b277904a9188024fb00d80e303, changed from [] to [GLOBAL]
+2026-10-12 14:28:57 | common | default_trace_id | INFO | Added GLOBAL tag to resource. resource_id=submit_270c98b277904a9188024fb00d80e303, changed from [] to [GLOBAL]
