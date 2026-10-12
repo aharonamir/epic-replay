@@ -16,7 +16,7 @@ A task is done when its "Done when" line is true and its tests pass with provide
   Done when: the fixture validates and the cross-file rule test passes.
 - [ ] T009 Adapters from contracts/provider-adapters.md: the vision adapter (numbered frames in, validated JSON or text out) and the speech adapter, each with record and replay as one wrapper keyed by a hash of the request; `providers/llm.py` holding the model name, base URL and key that agent-core and the vision adapter read from the environment; stubs that serve the fixture (1h; full design 3h) - FR-035
   Done when: a stage can call both adapters in replay mode with the network disabled, and changing the vision endpoint is a change to `.env` only.
-- [ ] T008 Guards: cost ledger; paid-call wrapper with the three caps; consent record with the revision 3 wording; the global banned lexicon file; a test that a call over the cap is blocked and logged (2h; full design 3h) - US4, FR-003, FR-034
+- [x] T008 Guards: cost ledger; paid-call wrapper with the three caps; consent record with the revision 3 wording; the global banned lexicon file; a test that a call over the cap is blocked and logged (2h; full design 3h) - US4, FR-003, FR-034
   Done when: the blocked-call test passes (US4 scenario 4).
 - [ ] T006 Starter clips: 8 to 12 clips you have the right to use, with a label file each (data-model.md section 6). Include at least two that are sport, two that are not (a pet, a kitchen moment, a trick), one filmed in slo-mo, and one with no obvious high point (1h; full design 2h)
   Done when: the clips and label files are in `eval/`.
