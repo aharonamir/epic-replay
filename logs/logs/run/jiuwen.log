@@ -105,3 +105,111 @@
 2026-10-12 14:28:56 | common | default_trace_id | INFO | Registered parser ImageParser for .jfif
 2026-10-12 14:28:57 | common | default_trace_id | INFO | Added GLOBAL tag to resource. resource_id=look_up_270c98b277904a9188024fb00d80e303, changed from [] to [GLOBAL]
 2026-10-12 14:28:57 | common | default_trace_id | INFO | Added GLOBAL tag to resource. resource_id=submit_270c98b277904a9188024fb00d80e303, changed from [] to [GLOBAL]
+2026-10-12 14:40:01 | common | default_trace_id | INFO | Registered connector pool type: default
+2026-10-12 14:40:01 | common | default_trace_id | INFO | Registered connector pool type: httpx
+2026-10-12 14:40:01 | common | default_trace_id | INFO | Registered query expression support for milvus
+2026-10-12 14:40:01 | common | default_trace_id | INFO | Registered query expression support for chroma
+2026-10-12 14:40:01 | common | default_trace_id | INFO | Registered parser ExcelParser for .xlsx
+2026-10-12 14:40:01 | common | default_trace_id | INFO | Registered parser ExcelParser for .csv
+2026-10-12 14:40:01 | common | default_trace_id | INFO | Registered parser ExcelParser for .tsv
+2026-10-12 14:40:01 | common | default_trace_id | INFO | Registered parser TxtMdParser for .txt
+2026-10-12 14:40:01 | common | default_trace_id | INFO | Registered parser TxtMdParser for .md
+2026-10-12 14:40:01 | common | default_trace_id | INFO | Registered parser TxtMdParser for .markdown
+2026-10-12 14:40:01 | common | default_trace_id | INFO | Registered parser HTMLFileParser for .htm
+2026-10-12 14:40:01 | common | default_trace_id | INFO | Registered parser HTMLFileParser for .html
+2026-10-12 14:40:01 | common | default_trace_id | INFO | Registered parser JSONParser for .json
+2026-10-12 14:40:02 | common | default_trace_id | INFO | Registered parser PDFParser for .pdf
+2026-10-12 14:40:02 | common | default_trace_id | INFO | Registered parser WordParser for .docx
+2026-10-12 14:40:02 | common | default_trace_id | INFO | Registered parser ImageParser for .png
+2026-10-12 14:40:02 | common | default_trace_id | INFO | Registered parser ImageParser for .jpg
+2026-10-12 14:40:02 | common | default_trace_id | INFO | Registered parser ImageParser for .jpeg
+2026-10-12 14:40:02 | common | default_trace_id | INFO | Registered parser ImageParser for .webp
+2026-10-12 14:40:02 | common | default_trace_id | INFO | Registered parser ImageParser for .gif
+2026-10-12 14:40:02 | common | default_trace_id | INFO | Registered parser ImageParser for .jfif
+2026-10-12 14:40:02 | common | default_trace_id | INFO | Added GLOBAL tag to resource. resource_id=look_up_6ba3f57ab856405c83499a0350279dc6, changed from [] to [GLOBAL]
+2026-10-12 14:40:02 | common | default_trace_id | INFO | Added GLOBAL tag to resource. resource_id=submit_6ba3f57ab856405c83499a0350279dc6, changed from [] to [GLOBAL]
+2026-10-12 14:40:02 | common | default_trace_id | INFO | Added GLOBAL tag to resource. resource_id=look_up_713a9a618d244787b3fc9b5496b4ed34, changed from [] to [GLOBAL]
+2026-10-12 14:40:02 | common | default_trace_id | INFO | Added GLOBAL tag to resource. resource_id=submit_713a9a618d244787b3fc9b5496b4ed34, changed from [] to [GLOBAL]
+2026-10-12 14:40:02 | common | default_trace_id | INFO | ReAct iteration 1
+2026-10-12 14:40:02 | common | default_trace_id | INFO | [LLM] >>> request: msg_count=2, tool_count=2
+2026-10-12 14:40:03 | common | default_trace_id | INFO | [LLM] <<< response: content_len=0, tool_call_count=1, tokens={input=385, output=77}
+2026-10-12 14:40:03 | common | default_trace_id | INFO | Executing tool: look_up with args: {"word": "kettle"}
+2026-10-12 14:40:03 | common | default_trace_id | INFO | ReAct iteration 2
+2026-10-12 14:40:03 | common | default_trace_id | INFO | [LLM] >>> request: msg_count=4, tool_count=2
+2026-10-12 14:40:04 | common | default_trace_id | INFO | [LLM] <<< response: content_len=0, tool_call_count=1, tokens={input=491, output=66}
+2026-10-12 14:40:04 | common | default_trace_id | INFO | Executing tool: submit with args: {"answer": "A kettle is a vessel for boiling water, found in 9 of 10 kitchens."}
+2026-10-12 14:40:04 | common | default_trace_id | INFO | ReAct iteration 3
+2026-10-12 14:40:04 | common | default_trace_id | INFO | [LLM] >>> request: msg_count=6, tool_count=2
+2026-10-12 14:40:05 | common | default_trace_id | INFO | [LLM] <<< response: content_len=143, tool_call_count=0, tokens={input=571, output=38}
+2026-10-12 14:40:10 | common | default_trace_id | INFO | Registered connector pool type: default
+2026-10-12 14:40:10 | common | default_trace_id | INFO | Registered connector pool type: httpx
+2026-10-12 14:40:10 | common | default_trace_id | INFO | Registered query expression support for milvus
+2026-10-12 14:40:10 | common | default_trace_id | INFO | Registered query expression support for chroma
+2026-10-12 14:40:10 | common | default_trace_id | INFO | Registered parser ExcelParser for .xlsx
+2026-10-12 14:40:10 | common | default_trace_id | INFO | Registered parser ExcelParser for .csv
+2026-10-12 14:40:10 | common | default_trace_id | INFO | Registered parser ExcelParser for .tsv
+2026-10-12 14:40:10 | common | default_trace_id | INFO | Registered parser TxtMdParser for .txt
+2026-10-12 14:40:10 | common | default_trace_id | INFO | Registered parser TxtMdParser for .md
+2026-10-12 14:40:10 | common | default_trace_id | INFO | Registered parser TxtMdParser for .markdown
+2026-10-12 14:40:10 | common | default_trace_id | INFO | Registered parser HTMLFileParser for .htm
+2026-10-12 14:40:10 | common | default_trace_id | INFO | Registered parser HTMLFileParser for .html
+2026-10-12 14:40:10 | common | default_trace_id | INFO | Registered parser JSONParser for .json
+2026-10-12 14:40:11 | common | default_trace_id | INFO | Registered parser PDFParser for .pdf
+2026-10-12 14:40:11 | common | default_trace_id | INFO | Registered parser WordParser for .docx
+2026-10-12 14:40:11 | common | default_trace_id | INFO | Registered parser ImageParser for .png
+2026-10-12 14:40:11 | common | default_trace_id | INFO | Registered parser ImageParser for .jpg
+2026-10-12 14:40:11 | common | default_trace_id | INFO | Registered parser ImageParser for .jpeg
+2026-10-12 14:40:11 | common | default_trace_id | INFO | Registered parser ImageParser for .webp
+2026-10-12 14:40:11 | common | default_trace_id | INFO | Registered parser ImageParser for .gif
+2026-10-12 14:40:11 | common | default_trace_id | INFO | Registered parser ImageParser for .jfif
+2026-10-12 14:40:11 | common | default_trace_id | INFO | Added GLOBAL tag to resource. resource_id=look_up_fbbc965d714c4773ab8bf7549b3d28f6, changed from [] to [GLOBAL]
+2026-10-12 14:40:11 | common | default_trace_id | INFO | Added GLOBAL tag to resource. resource_id=submit_fbbc965d714c4773ab8bf7549b3d28f6, changed from [] to [GLOBAL]
+2026-10-12 14:40:11 | common | default_trace_id | INFO | Added GLOBAL tag to resource. resource_id=look_up_b3e98e9bce1249e9a7fb3fdfab799bfc, changed from [] to [GLOBAL]
+2026-10-12 14:40:11 | common | default_trace_id | INFO | Added GLOBAL tag to resource. resource_id=submit_b3e98e9bce1249e9a7fb3fdfab799bfc, changed from [] to [GLOBAL]
+2026-10-12 14:40:11 | common | default_trace_id | INFO | ReAct iteration 1
+2026-10-12 14:40:11 | common | default_trace_id | INFO | [LLM] >>> request: msg_count=2, tool_count=2
+2026-10-12 14:40:12 | common | default_trace_id | INFO | [LLM] <<< response: content_len=0, tool_call_count=1, tokens={input=385, output=39}
+2026-10-12 14:40:12 | common | default_trace_id | INFO | Executing tool: look_up with args: {"word": "kettle"}
+2026-10-12 14:40:12 | common | default_trace_id | INFO | ReAct iteration 2
+2026-10-12 14:40:12 | common | default_trace_id | INFO | [LLM] >>> request: msg_count=4, tool_count=2
+2026-10-12 14:40:13 | common | default_trace_id | INFO | [LLM] <<< response: content_len=0, tool_call_count=1, tokens={input=453, output=62}
+2026-10-12 14:40:13 | common | default_trace_id | INFO | Executing tool: submit with args: {"answer": "A kettle is a vessel for boiling water, found in 9 of 10 kitchens."}
+2026-10-12 14:40:13 | common | default_trace_id | INFO | ReAct iteration 3
+2026-10-12 14:40:13 | common | default_trace_id | INFO | [LLM] >>> request: msg_count=6, tool_count=2
+2026-10-12 14:40:15 | common | default_trace_id | INFO | [LLM] <<< response: content_len=126, tool_call_count=0, tokens={input=529, output=29}
+2026-10-12 14:40:19 | common | default_trace_id | INFO | Registered connector pool type: default
+2026-10-12 14:40:19 | common | default_trace_id | INFO | Registered connector pool type: httpx
+2026-10-12 14:40:20 | common | default_trace_id | INFO | Registered query expression support for milvus
+2026-10-12 14:40:20 | common | default_trace_id | INFO | Registered query expression support for chroma
+2026-10-12 14:40:20 | common | default_trace_id | INFO | Registered parser ExcelParser for .xlsx
+2026-10-12 14:40:20 | common | default_trace_id | INFO | Registered parser ExcelParser for .csv
+2026-10-12 14:40:20 | common | default_trace_id | INFO | Registered parser ExcelParser for .tsv
+2026-10-12 14:40:20 | common | default_trace_id | INFO | Registered parser TxtMdParser for .txt
+2026-10-12 14:40:20 | common | default_trace_id | INFO | Registered parser TxtMdParser for .md
+2026-10-12 14:40:20 | common | default_trace_id | INFO | Registered parser TxtMdParser for .markdown
+2026-10-12 14:40:20 | common | default_trace_id | INFO | Registered parser HTMLFileParser for .htm
+2026-10-12 14:40:20 | common | default_trace_id | INFO | Registered parser HTMLFileParser for .html
+2026-10-12 14:40:20 | common | default_trace_id | INFO | Registered parser JSONParser for .json
+2026-10-12 14:40:20 | common | default_trace_id | INFO | Registered parser PDFParser for .pdf
+2026-10-12 14:40:20 | common | default_trace_id | INFO | Registered parser WordParser for .docx
+2026-10-12 14:40:20 | common | default_trace_id | INFO | Registered parser ImageParser for .png
+2026-10-12 14:40:20 | common | default_trace_id | INFO | Registered parser ImageParser for .jpg
+2026-10-12 14:40:20 | common | default_trace_id | INFO | Registered parser ImageParser for .jpeg
+2026-10-12 14:40:20 | common | default_trace_id | INFO | Registered parser ImageParser for .webp
+2026-10-12 14:40:20 | common | default_trace_id | INFO | Registered parser ImageParser for .gif
+2026-10-12 14:40:20 | common | default_trace_id | INFO | Registered parser ImageParser for .jfif
+2026-10-12 14:40:20 | common | default_trace_id | INFO | Added GLOBAL tag to resource. resource_id=look_up_d88f6ec5d839435e8e75ecc339e39e52, changed from [] to [GLOBAL]
+2026-10-12 14:40:20 | common | default_trace_id | INFO | Added GLOBAL tag to resource. resource_id=submit_d88f6ec5d839435e8e75ecc339e39e52, changed from [] to [GLOBAL]
+2026-10-12 14:40:20 | common | default_trace_id | INFO | Added GLOBAL tag to resource. resource_id=look_up_b186c47a1d744aabbf0af08e4ac0c532, changed from [] to [GLOBAL]
+2026-10-12 14:40:20 | common | default_trace_id | INFO | Added GLOBAL tag to resource. resource_id=submit_b186c47a1d744aabbf0af08e4ac0c532, changed from [] to [GLOBAL]
+2026-10-12 14:40:20 | common | default_trace_id | INFO | ReAct iteration 1
+2026-10-12 14:40:20 | common | default_trace_id | INFO | [LLM] >>> request: msg_count=2, tool_count=2
+2026-10-12 14:40:21 | common | default_trace_id | INFO | [LLM] <<< response: content_len=0, tool_call_count=1, tokens={input=385, output=52}
+2026-10-12 14:40:21 | common | default_trace_id | INFO | Executing tool: look_up with args: {"word": "kettle"}
+2026-10-12 14:40:21 | common | default_trace_id | INFO | ReAct iteration 2
+2026-10-12 14:40:21 | common | default_trace_id | INFO | [LLM] >>> request: msg_count=4, tool_count=2
+2026-10-12 14:40:22 | common | default_trace_id | INFO | [LLM] <<< response: content_len=0, tool_call_count=1, tokens={input=466, output=66}
+2026-10-12 14:40:22 | common | default_trace_id | INFO | Executing tool: submit with args: {"answer": "A kettle is a vessel for boiling water, found in 9 of 10 kitchens."}
+2026-10-12 14:40:22 | common | default_trace_id | INFO | ReAct iteration 3
+2026-10-12 14:40:22 | common | default_trace_id | INFO | [LLM] >>> request: msg_count=6, tool_count=2
+2026-10-12 14:40:23 | common | default_trace_id | INFO | [LLM] <<< response: content_len=53, tool_call_count=0, tokens={input=546, output=15}

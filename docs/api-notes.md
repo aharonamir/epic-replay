@@ -26,15 +26,22 @@ from openjiuwen.core.foundation.tool import ToolCard, LocalFunction
 - The agent can carry images in tool results (`_build_multimodal_tool_result_messages`); we do not
   use it: tools return text (plan.md section 3, question 5).
 
-## The five questions (plan.md section 3)
+## The five questions (plan.md section 3) - RUN 2026-10-12, three small live calls (about 0.001 USD each)
+
+Decision: **agent-core `ReActAgent` is used** (no hand-written loop). Evidence: `tools/spike_t002.py`.
 
 | # | Question | Answer |
 |---|----------|--------|
-| 1 | Runs on `https://api.deepseek.com`, `deepseek-flash`, with tool calls? | Not yet run: `python tools/spike_t002.py --yes` |
-| 2 | How is a function registered, does a `submit_` tool end the loop? | Registration: see above (RUN offline). Ending on submit: not yet run; fallback is to treat the first valid submit as the end and stop from our side |
-| 3 | Does `stream()` give thoughts, tool calls and results as they happen? | Not yet run: `--stream` |
-| 4 | Token usage readable for the cost ledger? | Not yet checked. Source has a context-usage emitter (`_emit_context_usage`); look in the run |
+| 1 | Runs on `https://api.deepseek.com`, `deepseek-flash`, with tool calls? | **Yes.** `configure_model_client(provider="openai", ...)` works as is. The agent called `look_up("kettle")`, then `submit(...)`; 3.3 s, two model turns |
+| 2 | How is a function registered, does a `submit_` tool end the loop? | Registration as above. **A submit tool does not end the loop**: after it the agent takes one more model turn and writes a plain-text reply ("Done ..."). So our runner takes the first accepted `submit_*` call as the result and ignores the text after it. A prompt line "finish by calling submit" was obeyed |
+| 3 | Does `stream()` give thoughts, tool calls and results as they happen? | **Yes.** Chunk types seen: `llm_reasoning` (thoughts, token by token), `llm_output` (answer text), `tracer_agent` (one per tool call: inputs, then outputs; use these for the details view), `llm_usage`, `context.usage`, and a final `answer`. Tool *call* events come as `tracer_agent` traces, not as an `OutputSchema` type of their own |
+| 4 | Token usage readable for the cost ledger? | **Yes.** `llm_usage` chunks carry `usage_metadata`: `model_name`, `input_tokens`, `output_tokens`, `total_tokens`, `cache_tokens`. Example: 529 in, 29 out, 384 cached. One chunk per model turn, so sum them. Convert to dollars with the DeepSeek prices (cached input is cheaper; ignore that for a safe upper bound) |
 | 5 | Images through agent-core? | Not needed: design choice |
+
+Other findings:
+- With `invoke`, only the final `{"output", "result_type": "answer"}` comes back; use `stream` for events and usage.
+- The spike called the agent directly, outside `guards.budget.paid_call`. The real agents must be wrapped: estimate from the iteration limit before, actual from the summed `llm_usage` after.
+- The `deepseek-flash` model returns reasoning chunks; budget a little extra output for them.
 
 ## Harness DeepAgent (example, 2026-10-12)
 

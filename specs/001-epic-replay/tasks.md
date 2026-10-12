@@ -23,7 +23,7 @@ A task is done when its "Done when" line is true and its tests pass with provide
 
 ## Day 2 - Measure what the plan depends on - 7 h
 
-- [ ] T002 agent-core check, two hours at most: install `openjiuwen`; build a throwaway `ReActAgent` on `deepseek-flash` with one tool and a `submit` tool; answer the five questions in plan.md section 3, questions 1 and 2 first; write the real import paths and call signatures in `docs/api-notes.md` (2h; full design 4h)
+- [x] T002 agent-core check, two hours at most: install `openjiuwen`; build a throwaway `ReActAgent` on `deepseek-flash` with one tool and a `submit` tool; answer the five questions in plan.md section 3, questions 1 and 2 first; write the real import paths and call signatures in `docs/api-notes.md` (2h; full design 4h)
   Done when: `docs/api-notes.md` says agent-core or the hand-written loop, with the evidence, and shows a working tool registration.
 - [ ] T003 Spotter spike, following research.md section 2, calling the vision model directly without an agent: the starter clips that have no children in them, as numbered frames. Overview at 2, 4 and 8 frames a second, at low and at full detail; then a zoom on every frame around the high point. Record outcome right or wrong, key-moment error in frames, latency, tokens and cost per setting in `docs/provider-notes.md`. If the privacy decision in spec.md section 8 is option 1, run the same frames through the second provider (3h; full design 6h) - S2, S3, SC-2
   Done when: the Gate 0 Spotter and key-moment lines can be answered yes or no from the table, and one overview rate and detail setting is chosen.
