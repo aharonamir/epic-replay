@@ -42,6 +42,43 @@ TAGS = {
 }
 
 
+# Chosen by the owner 2026-10-12. Gerald, Josh and Rachel come from the shared library and must be
+# added to the account first (add_shared_voice). Adam is already in the account.
+CHOSEN = {
+    "football_commentator": {"gerald": ("fGIZlgPQ75MMlvQ6WxgY", "81323703")},
+    "nature_documentary": {"josh": ("83q1pBDDePRioCY8grPY", "8f3586e5")},
+    "news_reporter": {
+        "adam": ("pNInz6obpgDQGcFmaJgB", None),
+        "rachel": ("mDYJ5aI19GeZeL0uKqb3", "6e1b3700"),
+    },
+}
+
+
+def plan_chosen() -> list[dict]:
+    """Football: the tag test for Gerald. Nature and news: the two example lines, plain, both models."""
+    jobs = plan([CHOSEN["football_commentator"]["gerald"][0]])
+    for j in jobs:
+        j["style"], j["name"] = "football_commentator", "gerald"
+    for style in ("nature_documentary", "news_reporter"):
+        pack = json.loads((base.PACKS / f"{style}.json").read_text())
+        for name, (vid, _) in CHOSEN[style].items():
+            for model in MODELS:
+                for role in base.ROLES:
+                    text = pack["script"]["example_lines"][role]
+                    jobs.append(
+                        {
+                            "model": model,
+                            "voice": vid,
+                            "tag": "plain",
+                            "line": role,
+                            "text": text,
+                            "style": style,
+                            "name": name,
+                        }
+                    )
+    return jobs
+
+
 def plan(voices: list[str]) -> list[dict]:
     jobs = []
     for model in MODELS:
@@ -91,6 +128,7 @@ def synth(j: dict, key: str, out: Path) -> dict:
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--voices", default="", help="comma-separated ElevenLabs voice ids")
+    ap.add_argument("--chosen", action="store_true", help="the owner's picks (CHOSEN)")
     ap.add_argument("--list-voices", action="store_true")
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--yes", action="store_true")
@@ -115,9 +153,10 @@ def main():
             print(v["voice_id"], v["name"], v.get("category"), lab)
         return
     voices = [v for v in a.voices.split(",") if v]
-    if not voices:
-        sys.exit("give --voices ID1,ID2,... (or --list-voices)")
-    jobs = plan(voices)
+    if not voices and not a.chosen:
+        sys.exit("give --voices ID1,ID2,... or --chosen (or --list-voices)")
+    jobs = plan_chosen() if a.chosen else plan(voices)
+    voices = sorted({j["voice"] for j in jobs})
     print(
         f"{len(jobs)} takes ({len(voices)} voices), "
         f"{sum(len(j['text']) for j in jobs)} characters, "
@@ -132,8 +171,9 @@ def main():
     for j in jobs:
         out = (
             base.REPO
-            / "eval/spike/voices/elevenlabs/football"
-            / f"{j['voice'][:6]}__{j['model']}__{j['tag']}__{j['line']}.mp3"
+            / "eval/spike/voices/elevenlabs"
+            / j.get("style", "football_commentator")
+            / f"{j.get('name', j['voice'][:6])}__{j['model']}__{j['tag']}__{j['line']}.mp3"
         )
 
         def run(j=j, out=out):
