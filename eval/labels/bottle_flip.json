@@ -2,10 +2,10 @@
   "clip": "bottle flip.mp4",
   "category": "trick",
   "activity": "bottle flip",
-  "outcome": null,
-  "outcome_detail": null,
-  "climax_t": null,
+  "outcome": "flipped",
+  "outcome_detail": "the bottle is flipped",
+  "climax_t": 2,
   "followed_actor": null,
   "capture_fps": 30,
-  "notes": "DRAFT. Fill outcome, outcome_detail, climax_t, followed_actor by watching the clip. Probed: motion peak 3.9 s; file reports 30.05 fps average (slightly variable)"
+  "notes": ""
 }

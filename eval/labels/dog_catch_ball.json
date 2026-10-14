@@ -2,10 +2,10 @@
   "clip": "dog_catch_ball.mp4",
   "category": "pet",
   "activity": "dog catches a ball",
-  "outcome": null,
-  "outcome_detail": null,
-  "climax_t": null,
-  "followed_actor": null,
+  "outcome": "catch",
+  "outcome_detail": "dog catches a ball",
+  "climax_t": 12,
+  "followed_actor": "dog",
   "capture_fps": 29.97,
-  "notes": "DRAFT. Fill outcome, outcome_detail, climax_t, followed_actor by watching the clip. Probed: motion peak 1.4 s"
+  "notes": ""
 }

@@ -2,10 +2,10 @@
   "clip": "fk_1.mp4",
   "category": "sport",
   "activity": "football free kick",
-  "outcome": null,
-  "outcome_detail": null,
-  "climax_t": null,
-  "followed_actor": null,
+  "outcome": "goal",
+  "outcome_detail": "player scores a goal",
+  "climax_t": 16,
+  "followed_actor": "player",
   "capture_fps": 30,
-  "notes": "DRAFT. Fill outcome, outcome_detail, climax_t, followed_actor by watching the clip. Probed: motion peaks at 4.3 s, 2.8 s, 19.1 s (may be camera cuts)"
+  "notes": ""
 }
