@@ -110,3 +110,9 @@ Several clips got a high point at frame 240 to 262 whatever the clip length, whi
 | fk_miss.mp4 | high | the ball is curled over the wall into the net for a goal | -60 | -76 | 73.0 | 0.02156 |
 | fk_save.mp4 | low | The goalkeeper completes full-stretch diving saves, catches  | -112 | -112 | 27.2 | 0.01129 |
 | fk_save.mp4 | high | The drills pay off as the keeper pulls off full-stretch divi | -98 | -114 | 45.5 | 0.01545 |
+
+### T003 option 2 trial: code-chosen windows, one clip (basket_ball_shot, label 2.9 s), 2026-10-14
+
+`tools/spike_t003_motion.py`: motion curve gives five windows (1.1-4.1, 3.4-6.4, 5.5-8.5, 7.5-10.5, 13.0-16.0 s), 58 frames at 4 fps, high detail, then the 61-frame zoom. Three repeats, 0.040 USD.
+Outcome was right in all three ("made basket"). Key-moment error: repeat 0 +161 frames, repeat 1 +154 (the model named frames 248 and 241, about 8.2 s), repeat 2 +14 overview and +2 zoom (within 0.5 s and 0.07 s).
+Two of three answers point at about 8.2 s, a second moment in the clip; the model earlier called it "the final shot". Label ambiguity (two baskets?) to be checked by the owner.

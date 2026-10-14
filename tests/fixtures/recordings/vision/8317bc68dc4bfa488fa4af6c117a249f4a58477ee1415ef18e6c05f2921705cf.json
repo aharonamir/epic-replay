@@ -1,0 +1,23 @@
+{
+  "text": "{\"activity\": \"basketball shootaround on an outdoor court between two players\", \"outcome\": \"a shot drops through the hoop for a made basket, and play continues\", \"actor\": \"person in gray athletic gear\", \"climax_frame\": 101}",
+  "data": {
+    "activity": "basketball shootaround on an outdoor court between two players",
+    "outcome": "a shot drops through the hoop for a made basket, and play continues",
+    "actor": "person in gray athletic gear",
+    "climax_frame": 101
+  },
+  "usage": {
+    "prompt_tokens": 11988,
+    "completion_tokens": 962,
+    "total_tokens": 12950,
+    "prompt_tokens_details": {
+      "cached_tokens": 11776
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 905
+    },
+    "prompt_cache_hit_tokens": 11776,
+    "prompt_cache_miss_tokens": 212
+  },
+  "usage_usd": 0.004751
+}

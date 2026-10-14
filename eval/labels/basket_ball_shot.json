@@ -4,7 +4,7 @@
   "activity": "basketball shot",
   "outcome": "basket",
   "outcome_detail": "the ball is in the basket",
-  "climax_t": 2.0,
+  "climax_t": 2.9,
   "followed_actor": "player on the left",
   "capture_fps": 30,
   "notes": ""

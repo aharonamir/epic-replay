@@ -1,0 +1,144 @@
+[
+  {
+    "clip": "basket_ball_shot.mp4",
+    "repeat": 0,
+    "windows_s": [
+      [
+        1.1333333333333333,
+        4.133333333333334
+      ],
+      [
+        3.3666666666666667,
+        6.366666666666666
+      ],
+      [
+        5.533333333333333,
+        8.533333333333333
+      ],
+      [
+        7.533333333333333,
+        10.533333333333333
+      ],
+      [
+        13.0,
+        16.0
+      ]
+    ],
+    "label_inside": true,
+    "answer": {
+      "activity": "basketball one-on-one",
+      "outcome": "basket made",
+      "actor": "grey",
+      "climax_frame": 248
+    },
+    "expected_outcome": "the ball is in the basket",
+    "overview_err_frames": 161,
+    "zoom_frame": 238,
+    "zoom_err_frames": 151,
+    "latency_s": 42.2,
+    "cost_usd": 0.0152
+  },
+  {
+    "clip": "basket_ball_shot.mp4",
+    "repeat": 1,
+    "windows_s": [
+      [
+        1.1333333333333333,
+        4.133333333333334
+      ],
+      [
+        3.3666666666666667,
+        6.366666666666666
+      ],
+      [
+        5.533333333333333,
+        8.533333333333333
+      ],
+      [
+        7.533333333333333,
+        10.533333333333333
+      ],
+      [
+        13.0,
+        16.0
+      ]
+    ],
+    "label_inside": true,
+    "answer": {
+      "type": "object",
+      "required": [
+        "activity",
+        "outcome",
+        "actor",
+        "climax_frame"
+      ],
+      "properties": {
+        "activity": {
+          "type": "string",
+          "description": "two people playing one-on-one basketball, taking turns shooting at an outdoor court hoop"
+        },
+        "outcome": {
+          "type": "string",
+          "description": "a shot drops through the net for a made basket"
+        },
+        "actor": {
+          "type": "string",
+          "description": "person in grey clothing"
+        },
+        "climax_frame": {
+          "type": "integer",
+          "description": "241"
+        }
+      },
+      "activity": "two people taking turns shooting hoops on an outdoor basketball court",
+      "outcome": "the ball arcs up and drops cleanly through the net for a made basket",
+      "actor": "person in grey clothing",
+      "climax_frame": 241
+    },
+    "expected_outcome": "the ball is in the basket",
+    "overview_err_frames": 154,
+    "zoom_frame": 237,
+    "zoom_err_frames": 150,
+    "latency_s": 41.1,
+    "cost_usd": 0.01528
+  },
+  {
+    "clip": "basket_ball_shot.mp4",
+    "repeat": 2,
+    "windows_s": [
+      [
+        1.1333333333333333,
+        4.133333333333334
+      ],
+      [
+        3.3666666666666667,
+        6.366666666666666
+      ],
+      [
+        5.533333333333333,
+        8.533333333333333
+      ],
+      [
+        7.533333333333333,
+        10.533333333333333
+      ],
+      [
+        13.0,
+        16.0
+      ]
+    ],
+    "label_inside": true,
+    "answer": {
+      "activity": "basketball shootaround on an outdoor court between two players",
+      "outcome": "a shot drops through the hoop for a made basket, and play continues",
+      "actor": "person in gray athletic gear",
+      "climax_frame": 101
+    },
+    "expected_outcome": "the ball is in the basket",
+    "overview_err_frames": 14,
+    "zoom_frame": 89,
+    "zoom_err_frames": 2,
+    "latency_s": 17.6,
+    "cost_usd": 0.00984
+  }
+]

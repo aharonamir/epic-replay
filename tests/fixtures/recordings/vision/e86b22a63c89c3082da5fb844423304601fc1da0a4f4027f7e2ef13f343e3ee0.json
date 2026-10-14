@@ -1,0 +1,23 @@
+{
+  "text": "{\"activity\":\"basketball one-on-one\",\"outcome\":\"basket made\",\"actor\":\"grey\",\"climax_frame\":248}",
+  "data": {
+    "activity": "basketball one-on-one",
+    "outcome": "basket made",
+    "actor": "grey",
+    "climax_frame": 248
+  },
+  "usage": {
+    "prompt_tokens": 11987,
+    "completion_tokens": 4908,
+    "total_tokens": 16895,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 4879
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 11987
+  },
+  "usage_usd": 0.009486
+}

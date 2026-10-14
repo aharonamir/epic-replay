@@ -1,26 +1,26 @@
 {
-  "text": "{\"frame\": 249, \"box\": {\"x\": 0.70, \"y\": 0.35, \"w\": 0.10, \"h\": 0.13}}",
+  "text": "{\"frame\": 238, \"box\": {\"x\": 0.70, \"y\": 0.52, \"w\": 0.09, \"h\": 0.13}}",
   "data": {
-    "frame": 249,
+    "frame": 238,
     "box": {
       "x": 0.7,
-      "y": 0.35,
-      "w": 0.1,
+      "y": 0.52,
+      "w": 0.09,
       "h": 0.13
     }
   },
   "usage": {
     "prompt_tokens": 12549,
-    "completion_tokens": 4226,
-    "total_tokens": 16775,
+    "completion_tokens": 1628,
+    "total_tokens": 14177,
     "prompt_tokens_details": {
-      "cached_tokens": 0
+      "cached_tokens": 12415
     },
     "completion_tokens_details": {
-      "reasoning_tokens": 4184
+      "reasoning_tokens": 1586
     },
-    "prompt_cache_hit_tokens": 0,
-    "prompt_cache_miss_tokens": 12549
+    "prompt_cache_hit_tokens": 12415,
+    "prompt_cache_miss_tokens": 134
   },
-  "usage_usd": 0.008836
+  "usage_usd": 0.005718
 }
