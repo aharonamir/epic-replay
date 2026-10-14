@@ -34,7 +34,6 @@ EPIC_VISION_API_KEY=
 EPIC_VISION_SERVICE_NAME=DeepSeek
 EPIC_VISION_COUNTRY=China
 ELEVENLABS_API_KEY=         # voices (T004: ElevenLabs, eleven_v3)
-ELEVENLABS_API_KEY=         # only if chosen in T004
 EPIC_PROVIDER_MODE=replay   # live | record | replay
 EPIC_CAP_RUN_USD=1.00
 EPIC_CAP_DAY_USD=20.00

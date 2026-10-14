@@ -1,0 +1,11 @@
+{
+  "clip": "Skateboard_trick.mp4",
+  "category": "trick",
+  "activity": "skateboard trick",
+  "outcome": null,
+  "outcome_detail": null,
+  "climax_t": null,
+  "followed_actor": null,
+  "capture_fps": 24,
+  "notes": "DRAFT. Fill outcome, outcome_detail, climax_t, followed_actor by watching the clip. Probed: 24 fps; strongest motion jump at 15.2 s is probably a cut"
+}

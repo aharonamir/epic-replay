@@ -1,0 +1,11 @@
+{
+  "clip": "basket_ball_shot.mp4",
+  "category": "sport",
+  "activity": "basketball shot",
+  "outcome": null,
+  "outcome_detail": null,
+  "climax_t": null,
+  "followed_actor": null,
+  "capture_fps": 30,
+  "notes": "DRAFT. Fill outcome, outcome_detail, climax_t, followed_actor by watching the clip. Probed: motion peaks 9.0 s, 4.8 s"
+}

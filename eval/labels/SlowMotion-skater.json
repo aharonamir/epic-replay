@@ -1,0 +1,11 @@
+{
+  "clip": "SlowMotion-skater.mp4",
+  "category": "trick",
+  "activity": "skater in slow motion",
+  "outcome": null,
+  "outcome_detail": null,
+  "climax_t": null,
+  "followed_actor": null,
+  "capture_fps": 30,
+  "notes": "DRAFT. Fill outcome, outcome_detail, climax_t, followed_actor by watching the clip. Probed: file is 30 fps: slow motion is baked in, not captured at 100+ fps; motion peak 11.9 s"
+}

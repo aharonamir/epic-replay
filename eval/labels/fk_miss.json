@@ -1,0 +1,11 @@
+{
+  "clip": "fk_miss.mp4",
+  "category": "sport",
+  "activity": "football free kick (shot that misses?)",
+  "outcome": null,
+  "outcome_detail": null,
+  "climax_t": null,
+  "followed_actor": null,
+  "capture_fps": 30,
+  "notes": "DRAFT. Fill outcome, outcome_detail, climax_t, followed_actor by watching the clip. Probed: 368x360; motion peak 8.7 s"
+}
