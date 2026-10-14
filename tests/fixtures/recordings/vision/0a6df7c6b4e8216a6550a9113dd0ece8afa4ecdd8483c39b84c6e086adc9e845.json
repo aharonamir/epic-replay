@@ -1,0 +1,23 @@
+{
+  "text": "{\"activity\":\"skateboarding trick (kickflip)\",\"outcome\":\"lands the trick and rides away, then the video ends with a black screen displaying 'Free Download Link in Description Below'\",\"actor\":\"skateboarder in black pants and grey shoes\",\"climax_frame\":240}",
+  "data": {
+    "activity": "skateboarding trick (kickflip)",
+    "outcome": "lands the trick and rides away, then the video ends with a black screen displaying 'Free Download Link in Description Below'",
+    "actor": "skateboarder in black pants and grey shoes",
+    "climax_frame": 240
+  },
+  "usage": {
+    "prompt_tokens": 16630,
+    "completion_tokens": 11033,
+    "total_tokens": 27663,
+    "prompt_tokens_details": {
+      "cached_tokens": 16384
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 10971
+    },
+    "prompt_cache_hit_tokens": 16384,
+    "prompt_cache_miss_tokens": 246
+  },
+  "usage_usd": 0.018229
+}

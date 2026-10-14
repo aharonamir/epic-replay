@@ -1,0 +1,23 @@
+{
+  "text": "{\"activity\": \"Cooking round flatbreads on a flat griddle, flipping them with a metal spatula as they puff and brown\", \"outcome\": \"The flatbreads are turned over and cooked to a golden brown, with the camera zooming in closely on the finished browning flatbread\", \"actor\": \"hands in pink shirt sleeves using a metal spatula\", \"climax_frame\": 82}",
+  "data": {
+    "activity": "Cooking round flatbreads on a flat griddle, flipping them with a metal spatula as they puff and brown",
+    "outcome": "The flatbreads are turned over and cooked to a golden brown, with the camera zooming in closely on the finished browning flatbread",
+    "actor": "hands in pink shirt sleeves using a metal spatula",
+    "climax_frame": 82
+  },
+  "usage": {
+    "prompt_tokens": 13788,
+    "completion_tokens": 329,
+    "total_tokens": 14117,
+    "prompt_tokens_details": {
+      "cached_tokens": 13568
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 241
+    },
+    "prompt_cache_hit_tokens": 13568,
+    "prompt_cache_miss_tokens": 220
+  },
+  "usage_usd": 0.004531
+}

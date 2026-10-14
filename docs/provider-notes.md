@@ -77,3 +77,36 @@ The long line (6 words) on v4 takes 3.06 s, 1.96 words per second: still too lon
 Josh on v3 3.3 to 3.6 words per second (v4 2.2 to 2.9); Adam v3 3.4 to 3.9; Rachel 2.6 to 3.5. The nature pack's 2.0 and news pack's 2.4 are slower than the measured rates: re-set in T039 by ear.
 Not measured: take-length spread across repeated requests on ElevenLabs (one take per cell). The voice id fixes the voice; T020 must still fit every take to its slot by measuring.
 Gemini TTS was not tested (no key); OpenAI stays available as the fallback provider.
+
+
+### T003 first pass: Spotter at 4 frames per second, 2026-10-14 (partial: 2 and 8 fps not run)
+
+9 clips, low and high detail, overview then a zoom on the 61 frames around the answer. Frame numbers are source frames at 30 fps (30 = 1 s).
+Errors are the model's frame minus the label's `climax_t` x 30. Outcome right or wrong: to be filled in by the owner.
+Cost of this pass about 0.61 USD for the final run, plus about 0.20 USD for a first run that crashed on a reply with two JSON objects (since fixed). The rerun did not hit the cache: the extracted frames differed byte for byte, so every call was billed again.
+Two runs of the same setting differed a lot (FlippingPancakes high: overview error 0, then 22; basket_ball_shot low: 30, then 188). One run per setting cannot separate noise from effect.
+
+Median absolute error: overview low 112 frames, high 68; zoom low 119, high 94. Latency per overview-plus-zoom pair: 19 to 177 s.
+Reading against the labels, by me, not scored: `fk_miss` was reported as a goal at both detail levels (the label says it misses); every other outcome is roughly consistent with its label.
+Several clips got a high point at frame 240 to 262 whatever the clip length, which looks like a habit rather than a reading of the frames.
+
+| clip | detail | model outcome (short) | overview err (fr) | zoom err (fr) | s | USD |
+|---|---|---|---|---|---|---|
+| FlippingPancakes.mp4 | low | both tortillas are cooked and golden brown | 52 | 60 | 101.0 | 0.02693 |
+| FlippingPancakes.mp4 | high | The flatbreads are turned over and cooked to a golden brown, | 22 | 9 | 60.2 | 0.01911 |
+| Skateboard_trick.mp4 | low | lands the trick and rides away, then the video ends with a b | 60 | 84 | 171.5 | 0.0397 |
+| Skateboard_trick.mp4 | high | lands the trick and rides away | 60 | 90 | 119.5 | 0.03097 |
+| SlowMotion-skater.mp4 | low | The skater lands the flipping board cleanly and rolls away r | 82 | 66 | 147.3 | 0.03535 |
+| SlowMotion-skater.mp4 | high | the skater lands the trick cleanly and rolls away | 68 | 94 | 63.0 | 0.01925 |
+| basket_ball_shot.mp4 | low | the shot drops cleanly through the hoop and the pair keeps t | 188 | 189 | 37.0 | 0.015 |
+| basket_ball_shot.mp4 | high | The final shot arcs up toward the hoop as the clip ends, wit | 180 | 173 | 20.2 | 0.01135 |
+| bottle flip.mp4 | low | The bottle bounces off and lands upright on the pavement. | 90 | 119 | 86.0 | 0.02537 |
+| bottle flip.mp4 | high | The bottle lands and balances upright on its base, staying s | -15 | -26 | 19.4 | 0.01187 |
+| dog_catch_ball.mp4 | low | catches the ball | -158 | -128 | 32.9 | 0.01572 |
+| dog_catch_ball.mp4 | high | The dog successfully catches the ball, and the clip ends wit | -112 | -110 | 27.5 | 0.01462 |
+| fk_1.mp4 | low | scores a goal | 210 | 239 | 135.8 | 0.03881 |
+| fk_1.mp4 | high | The ball is struck and curls high toward the goal, ending wi | 158 | 143 | 47.2 | 0.02058 |
+| fk_miss.mp4 | low | scores a goal | 218 | 188 | 176.7 | 0.04185 |
+| fk_miss.mp4 | high | the ball is curled over the wall into the net for a goal | -60 | -76 | 73.0 | 0.02156 |
+| fk_save.mp4 | low | The goalkeeper completes full-stretch diving saves, catches  | -112 | -112 | 27.2 | 0.01129 |
+| fk_save.mp4 | high | The drills pay off as the keeper pulls off full-stretch divi | -98 | -114 | 45.5 | 0.01545 |

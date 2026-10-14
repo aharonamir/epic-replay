@@ -86,9 +86,9 @@ def normalise(src: Path, dst: Path) -> None:
     )
 
 
-def counts(label, meta):
+def counts(label, meta, rates=RATES):
     out = []
-    for rate in RATES:
+    for rate in rates:
         n = int(meta["duration_s"] * rate) + 1
         for d in DETAILS:
             out.append((rate, d, n))
@@ -99,7 +99,9 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--yes", action="store_true")
+    ap.add_argument("--rates", default="2,4,8", help="frames per second to test, e.g. 4")
     a = ap.parse_args()
+    rates = tuple(int(x) for x in a.rates.split(","))
     s = config.load()
     todo = list(clips())
     if not todo:
@@ -111,7 +113,7 @@ def main():
     total, imgs = 0.0, 0
     for path, label in todo:
         meta = fr.probe(path)
-        c = counts(label, meta)
+        c = counts(label, meta, rates)
         zoom_n = 61
         est = sum(probe.estimate(n, d) for _, d, n in c) + len(c) * probe.estimate(zoom_n, "high")
         total += est
@@ -127,16 +129,18 @@ def main():
         return
     if s.provider_mode == "replay":
         sys.exit("set EPIC_PROVIDER_MODE=record (or live)")
-    led = Ledger(s.runs_dir / "spike-t003", s)
-    vis = VisionAdapter(led, settings=s)
     rows = []
+    spent = 0.0
     for path, label in todo:
+        # one ledger (and so one run cap) per clip
+        led = Ledger(s.runs_dir / f"spike-t003-{path.stem.replace(' ', '_')}", s)
+        vis = VisionAdapter(led, settings=s)
         work = REPO / "eval/spike/work" / path.name
         normalise(path, work)
         meta = fr.probe(work)
         fps = meta["fps"]
         n_total = int(round(meta["duration_s"] * fps))
-        for rate in RATES:
+        for rate in rates:
             idx = fr.choose_frames(
                 n_total, fps, start_s=0, end_s=meta["duration_s"], sample_fps=rate
             )
@@ -182,9 +186,12 @@ def main():
                     d,
                     rows[-1]["overview_err_frames"],
                     rows[-1]["zoom_err_frames"],
+                    flush=True,
                 )
+        spent += led.total_usd
     out = REPO / "eval/spike"
-    (out / "t003.json").write_text(json.dumps(rows, indent=2))
+    tag = "_r" + "-".join(map(str, rates)) if rates != RATES else ""
+    (out / f"t003{tag}.json").write_text(json.dumps(rows, indent=2))
     md = [
         "| clip | rate | detail | frames | outcome (model) | expected | outcome ok? | overview err (fr) | zoom err (fr) | s | USD |",
         "|---|---|---|---|---|---|---|---|---|---|---|",
@@ -195,8 +202,8 @@ def main():
             f"{r['expected_outcome']} |  | {r['overview_err_frames']} | {r['zoom_err_frames']} | "
             f"{r['latency_s']} | {r['cost_usd']} |"
         )
-    (out / "t003.md").write_text("\n".join(md))
-    print("total cost", led.total_usd)
+    (out / f"t003{tag}.md").write_text("\n".join(md))
+    print("total cost", round(spent, 4))
 
 
 if __name__ == "__main__":

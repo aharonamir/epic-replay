@@ -116,3 +116,10 @@ def test_bad_mode_is_refused(monkeypatch):
     monkeypatch.setenv("EPIC_PROVIDER_MODE", "yolo")
     with pytest.raises(ValueError):
         config.load()
+
+
+def test_first_json_takes_first_object():
+    from epic_replay.providers.vision import _first_json
+
+    assert _first_json('{"a": 1}\n{"a": 2}') == {"a": 1}
+    assert _first_json('```json\n{"a": 1}\n```') == {"a": 1}

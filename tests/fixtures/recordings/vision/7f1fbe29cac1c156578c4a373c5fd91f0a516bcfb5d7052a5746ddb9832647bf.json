@@ -1,0 +1,23 @@
+{
+  "text": "{\"activity\":\"skateboarding trick\",\"outcome\":\"lands the trick and rides away\",\"actor\":\"person in black pants and beige shoes\",\"climax_frame\":240}",
+  "data": {
+    "activity": "skateboarding trick",
+    "outcome": "lands the trick and rides away",
+    "actor": "person in black pants and beige shoes",
+    "climax_frame": 240
+  },
+  "usage": {
+    "prompt_tokens": 16630,
+    "completion_tokens": 2951,
+    "total_tokens": 19581,
+    "prompt_tokens_details": {
+      "cached_tokens": 16384
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 2914
+    },
+    "prompt_cache_hit_tokens": 16384,
+    "prompt_cache_miss_tokens": 246
+  },
+  "usage_usd": 0.00853
+}

@@ -1,0 +1,23 @@
+{
+  "text": "{\"activity\": \"Goalkeeper training video comparing solo drills to in-game situations (diving, crossing, handling, distribution)\", \"outcome\": \"The drills pay off as the keeper pulls off full-stretch diving saves, catches crosses and handles the ball cleanly in real matches\", \"actor\": \"A goalkeeper in black kit with white gloves and pink boots\", \"climax_frame\": 82}",
+  "data": {
+    "activity": "Goalkeeper training video comparing solo drills to in-game situations (diving, crossing, handling, distribution)",
+    "outcome": "The drills pay off as the keeper pulls off full-stretch diving saves, catches crosses and handles the ball cleanly in real matches",
+    "actor": "A goalkeeper in black kit with white gloves and pink boots",
+    "climax_frame": 82
+  },
+  "usage": {
+    "prompt_tokens": 13269,
+    "completion_tokens": 228,
+    "total_tokens": 13497,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 144
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 13269
+  },
+  "usage_usd": 0.004254
+}

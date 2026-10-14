@@ -1,0 +1,23 @@
+{
+  "text": "{\"activity\":\"soccer player taking a free kick\",\"outcome\":\"scores a goal\",\"actor\":\"player in pink\",\"climax_frame\":308}",
+  "data": {
+    "activity": "soccer player taking a free kick",
+    "outcome": "scores a goal",
+    "actor": "player in pink",
+    "climax_frame": 308
+  },
+  "usage": {
+    "prompt_tokens": 13083,
+    "completion_tokens": 9140,
+    "total_tokens": 22223,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 9107
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 13083
+  },
+  "usage_usd": 0.014893
+}

@@ -1,0 +1,23 @@
+{
+  "text": "{\"activity\": \"Skateboarding — a kickflip trick performed in an empty parking lot\", \"outcome\": \"The skater lands the flipping board cleanly and rolls away riding switch/fakie down the lot\", \"actor\": \"Skateboarder in a red t-shirt and khaki trousers\", \"climax_frame\": 262}",
+  "data": {
+    "activity": "Skateboarding — a kickflip trick performed in an empty parking lot",
+    "outcome": "The skater lands the flipping board cleanly and rolls away riding switch/fakie down the lot",
+    "actor": "Skateboarder in a red t-shirt and khaki trousers",
+    "climax_frame": 262
+  },
+  "usage": {
+    "prompt_tokens": 11758,
+    "completion_tokens": 408,
+    "total_tokens": 12166,
+    "prompt_tokens_details": {
+      "cached_tokens": 11520
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 334
+    },
+    "prompt_cache_hit_tokens": 11520,
+    "prompt_cache_miss_tokens": 238
+  },
+  "usage_usd": 0.004017
+}

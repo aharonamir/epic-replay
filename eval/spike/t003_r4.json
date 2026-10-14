@@ -1,0 +1,344 @@
+[
+  {
+    "clip": "FlippingPancakes.mp4",
+    "rate": 4,
+    "detail": "low",
+    "n_frames": 67,
+    "answer": {
+      "activity": "cooking tortillas on a griddle and flipping them with a spatula",
+      "outcome": "both tortillas are cooked and golden brown",
+      "actor": "person",
+      "climax_frame": 112
+    },
+    "expected_outcome": "pancakes are flipped",
+    "overview_err_frames": 52,
+    "zoom_frame": 120,
+    "zoom_err_frames": 60,
+    "latency_s": 101.0,
+    "cost_usd": 0.02693,
+    "outcome_ok": null
+  },
+  {
+    "clip": "FlippingPancakes.mp4",
+    "rate": 4,
+    "detail": "high",
+    "n_frames": 67,
+    "answer": {
+      "activity": "Cooking round flatbreads on a flat griddle, flipping them with a metal spatula as they puff and brown",
+      "outcome": "The flatbreads are turned over and cooked to a golden brown, with the camera zooming in closely on the finished browning flatbread",
+      "actor": "hands in pink shirt sleeves using a metal spatula",
+      "climax_frame": 82
+    },
+    "expected_outcome": "pancakes are flipped",
+    "overview_err_frames": 22,
+    "zoom_frame": 69,
+    "zoom_err_frames": 9,
+    "latency_s": 60.2,
+    "cost_usd": 0.01911,
+    "outcome_ok": null
+  },
+  {
+    "clip": "Skateboard_trick.mp4",
+    "rate": 4,
+    "detail": "low",
+    "n_frames": 81,
+    "answer": {
+      "activity": "skateboarding trick (kickflip)",
+      "outcome": "lands the trick and rides away, then the video ends with a black screen displaying 'Free Download Link in Description Below'",
+      "actor": "skateboarder in black pants and grey shoes",
+      "climax_frame": 240
+    },
+    "expected_outcome": "person doing a skateboard flip",
+    "overview_err_frames": 60,
+    "zoom_frame": 264,
+    "zoom_err_frames": 84,
+    "latency_s": 171.5,
+    "cost_usd": 0.0397,
+    "outcome_ok": null
+  },
+  {
+    "clip": "Skateboard_trick.mp4",
+    "rate": 4,
+    "detail": "high",
+    "n_frames": 81,
+    "answer": {
+      "activity": "skateboarding trick",
+      "outcome": "lands the trick and rides away",
+      "actor": "person in black pants and beige shoes",
+      "climax_frame": 240
+    },
+    "expected_outcome": "person doing a skateboard flip",
+    "overview_err_frames": 60,
+    "zoom_frame": 270,
+    "zoom_err_frames": 90,
+    "latency_s": 119.5,
+    "cost_usd": 0.03097,
+    "outcome_ok": null
+  },
+  {
+    "clip": "SlowMotion-skater.mp4",
+    "rate": 4,
+    "detail": "low",
+    "n_frames": 57,
+    "answer": {
+      "activity": "Skateboarding \u2014 a kickflip trick performed in an empty parking lot",
+      "outcome": "The skater lands the flipping board cleanly and rolls away riding switch/fakie down the lot",
+      "actor": "Skateboarder in a red t-shirt and khaki trousers",
+      "climax_frame": 262
+    },
+    "expected_outcome": "person doing a skateboard flip",
+    "overview_err_frames": 82,
+    "zoom_frame": 246,
+    "zoom_err_frames": 66,
+    "latency_s": 147.3,
+    "cost_usd": 0.03535,
+    "outcome_ok": null
+  },
+  {
+    "clip": "SlowMotion-skater.mp4",
+    "rate": 4,
+    "detail": "high",
+    "n_frames": 57,
+    "answer": {
+      "activity": "skateboarding \u2014 performing a flip/ollie trick in an empty parking lot",
+      "outcome": "the skater lands the trick cleanly and rolls away",
+      "actor": "person in a red shirt and khaki pants",
+      "climax_frame": 248
+    },
+    "expected_outcome": "person doing a skateboard flip",
+    "overview_err_frames": 68,
+    "zoom_frame": 274,
+    "zoom_err_frames": 94,
+    "latency_s": 63.0,
+    "cost_usd": 0.01925,
+    "outcome_ok": null
+  },
+  {
+    "clip": "basket_ball_shot.mp4",
+    "rate": 4,
+    "detail": "low",
+    "n_frames": 73,
+    "answer": {
+      "activity": "two men playing basketball on an outdoor court, one shooting while the other defends and rebounds",
+      "outcome": "the shot drops cleanly through the hoop and the pair keeps trading shots as the clip ends",
+      "actor": "man in grey sleeveless top and light leggings",
+      "climax_frame": 248
+    },
+    "expected_outcome": "the ball is in the basket",
+    "overview_err_frames": 188,
+    "zoom_frame": 249,
+    "zoom_err_frames": 189,
+    "latency_s": 37.0,
+    "cost_usd": 0.015,
+    "outcome_ok": null
+  },
+  {
+    "clip": "basket_ball_shot.mp4",
+    "rate": 4,
+    "detail": "high",
+    "n_frames": 73,
+    "answer": {
+      "activity": "Two people taking turns shooting a basketball on an outdoor court, with one rebounding and passing the ball back to the other",
+      "outcome": "The final shot arcs up toward the hoop as the clip ends, with several earlier attempts having gone in",
+      "actor": "A player in a dark jersey and grey shorts and a player in a black shirt and black shorts",
+      "climax_frame": 240
+    },
+    "expected_outcome": "the ball is in the basket",
+    "overview_err_frames": 180,
+    "zoom_frame": 233,
+    "zoom_err_frames": 173,
+    "latency_s": 20.2,
+    "cost_usd": 0.01135,
+    "outcome_ok": null
+  },
+  {
+    "clip": "bottle flip.mp4",
+    "rate": 4,
+    "detail": "low",
+    "n_frames": 86,
+    "answer": {
+      "activity": "A person throws a plastic water bottle against a white wall.",
+      "outcome": "The bottle bounces off and lands upright on the pavement.",
+      "actor": "person in black",
+      "climax_frame": 150
+    },
+    "expected_outcome": "the bottle is flipped",
+    "overview_err_frames": 90,
+    "zoom_frame": 179,
+    "zoom_err_frames": 119,
+    "latency_s": 86.0,
+    "cost_usd": 0.02537,
+    "outcome_ok": null
+  },
+  {
+    "clip": "bottle flip.mp4",
+    "rate": 4,
+    "detail": "high",
+    "n_frames": 86,
+    "answer": {
+      "activity": "A person tosses a plastic water bottle so it flips through the air and lands standing upright on a concrete path",
+      "outcome": "The bottle lands and balances upright on its base, staying standing until it is picked up again",
+      "actor": "person in red sleeve",
+      "climax_frame": 45
+    },
+    "expected_outcome": "the bottle is flipped",
+    "overview_err_frames": -15,
+    "zoom_frame": 34,
+    "zoom_err_frames": -26,
+    "latency_s": 19.4,
+    "cost_usd": 0.01187,
+    "outcome_ok": null
+  },
+  {
+    "clip": "dog_catch_ball.mp4",
+    "rate": 4,
+    "detail": "low",
+    "n_frames": 92,
+    "answer": {
+      "activity": "catching a ball",
+      "outcome": "catches the ball",
+      "actor": "German Shepherd",
+      "climax_frame": 202
+    },
+    "expected_outcome": "dog catches a ball",
+    "overview_err_frames": -158,
+    "zoom_frame": 232,
+    "zoom_err_frames": -128,
+    "latency_s": 32.9,
+    "cost_usd": 0.01572,
+    "outcome_ok": null
+  },
+  {
+    "clip": "dog_catch_ball.mp4",
+    "rate": 4,
+    "detail": "high",
+    "n_frames": 92,
+    "answer": {
+      "activity": "A German Shepherd dog repeatedly jumping and catching a tossed ball indoors while a person throws it",
+      "outcome": "The dog successfully catches the ball, and the clip ends with a 'THANK YOU' and 'SUBSCRIBE' outro",
+      "actor": "German Shepherd dog",
+      "climax_frame": 248
+    },
+    "expected_outcome": "dog catches a ball",
+    "overview_err_frames": -112,
+    "zoom_frame": 250,
+    "zoom_err_frames": -110,
+    "latency_s": 27.5,
+    "cost_usd": 0.01462,
+    "outcome_ok": null
+  },
+  {
+    "clip": "fk_1.mp4",
+    "rate": 4,
+    "detail": "low",
+    "n_frames": 134,
+    "answer": {
+      "activity": "soccer free kick",
+      "outcome": "scores a goal",
+      "actor": "player in yellow and blue",
+      "climax_frame": 690
+    },
+    "expected_outcome": "player scores a goal",
+    "overview_err_frames": 210,
+    "zoom_frame": 719,
+    "zoom_err_frames": 239,
+    "latency_s": 135.8,
+    "cost_usd": 0.03881,
+    "outcome_ok": null
+  },
+  {
+    "clip": "fk_1.mp4",
+    "rate": 4,
+    "detail": "high",
+    "n_frames": 134,
+    "answer": {
+      "activity": "A free kick is taken in a soccer match, with players lined up in a wall and a run-up to strike the ball",
+      "outcome": "The ball is struck and curls high toward the goal, ending with the ball in the air near the goal as the goalkeeper dives",
+      "actor": "player in a yellow jersey and blue shorts",
+      "climax_frame": 638
+    },
+    "expected_outcome": "player scores a goal",
+    "overview_err_frames": 158,
+    "zoom_frame": 623,
+    "zoom_err_frames": 143,
+    "latency_s": 47.2,
+    "cost_usd": 0.02058,
+    "outcome_ok": null
+  },
+  {
+    "clip": "fk_miss.mp4",
+    "rate": 4,
+    "detail": "low",
+    "n_frames": 62,
+    "answer": {
+      "activity": "soccer player taking a free kick",
+      "outcome": "scores a goal",
+      "actor": "player in pink",
+      "climax_frame": 308
+    },
+    "expected_outcome": "football kick misses and goes out",
+    "overview_err_frames": 218,
+    "zoom_frame": 278,
+    "zoom_err_frames": 188,
+    "latency_s": 176.7,
+    "cost_usd": 0.04185,
+    "outcome_ok": null
+  },
+  {
+    "clip": "fk_miss.mp4",
+    "rate": 4,
+    "detail": "high",
+    "n_frames": 62,
+    "answer": {
+      "activity": "soccer free kick at goal",
+      "outcome": "the ball is curled over the wall into the net for a goal",
+      "actor": "player in black",
+      "climax_frame": 30
+    },
+    "expected_outcome": "football kick misses and goes out",
+    "overview_err_frames": -60,
+    "zoom_frame": 14,
+    "zoom_err_frames": -76,
+    "latency_s": 73.0,
+    "cost_usd": 0.02156,
+    "outcome_ok": null
+  },
+  {
+    "clip": "fk_save.mp4",
+    "rate": 4,
+    "detail": "low",
+    "n_frames": 62,
+    "answer": {
+      "activity": "Goalkeeper doing solo training drills (diving, catching crosses, handling, distribution) intercut with match play, labelled Solo Drill to Game",
+      "outcome": "The goalkeeper completes full-stretch diving saves, catches crosses and handles the ball cleanly in both drills and the game",
+      "actor": "Person in black goalkeeper kit with white gloves and pink boots",
+      "climax_frame": 68
+    },
+    "expected_outcome": "goalkeeper catches the ball",
+    "overview_err_frames": -112,
+    "zoom_frame": 68,
+    "zoom_err_frames": -112,
+    "latency_s": 27.2,
+    "cost_usd": 0.01129,
+    "outcome_ok": null
+  },
+  {
+    "clip": "fk_save.mp4",
+    "rate": 4,
+    "detail": "high",
+    "n_frames": 62,
+    "answer": {
+      "activity": "Goalkeeper training video comparing solo drills to in-game situations (diving, crossing, handling, distribution)",
+      "outcome": "The drills pay off as the keeper pulls off full-stretch diving saves, catches crosses and handles the ball cleanly in real matches",
+      "actor": "A goalkeeper in black kit with white gloves and pink boots",
+      "climax_frame": 82
+    },
+    "expected_outcome": "goalkeeper catches the ball",
+    "overview_err_frames": -98,
+    "zoom_frame": 66,
+    "zoom_err_frames": -114,
+    "latency_s": 45.5,
+    "cost_usd": 0.01545,
+    "outcome_ok": null
+  }
+]

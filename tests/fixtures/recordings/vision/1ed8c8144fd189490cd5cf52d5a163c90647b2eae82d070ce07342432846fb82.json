@@ -1,0 +1,23 @@
+{
+  "text": "{\"activity\": \"Two people taking turns shooting a basketball on an outdoor court, with one rebounding and passing the ball back to the other\", \"outcome\": \"The final shot arcs up toward the hoop as the clip ends, with several earlier attempts having gone in\", \"actor\": \"A player in a dark jersey and grey shorts and a player in a black shirt and black shorts\", \"climax_frame\": 240}",
+  "data": {
+    "activity": "Two people taking turns shooting a basketball on an outdoor court, with one rebounding and passing the ball back to the other",
+    "outcome": "The final shot arcs up toward the hoop as the clip ends, with several earlier attempts having gone in",
+    "actor": "A player in a dark jersey and grey shorts and a player in a black shirt and black shorts",
+    "climax_frame": 240
+  },
+  "usage": {
+    "prompt_tokens": 15006,
+    "completion_tokens": 774,
+    "total_tokens": 15780,
+    "prompt_tokens_details": {
+      "cached_tokens": 14848
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 685
+    },
+    "prompt_cache_hit_tokens": 14848,
+    "prompt_cache_miss_tokens": 158
+  },
+  "usage_usd": 0.005431
+}

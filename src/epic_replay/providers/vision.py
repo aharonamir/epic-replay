@@ -32,6 +32,16 @@ PRICE_OUT_PER_M = 1.20
 EXPECTED_OUT_TOKENS = 800
 
 
+def _first_json(text: str):
+    """The model sometimes adds a second object or a code fence: take the first JSON object."""
+    t = text.strip()
+    if t.startswith("```"):
+        t = t.split("\n", 1)[1] if "\n" in t else t
+        t = t.rsplit("```", 1)[0]
+    obj, _ = json.JSONDecoder().raw_decode(t.strip())
+    return obj
+
+
 class VisionAdapter:
     name = "vision"
 
@@ -140,5 +150,5 @@ class VisionAdapter:
             u.get("prompt_tokens", 0) * PRICE_IN_PER_M
             + u.get("completion_tokens", 0) * PRICE_OUT_PER_M
         ) / 1e6
-        data = json.loads(text) if schema is not None else None
+        data = _first_json(text) if schema is not None else None
         return {"text": text, "data": data, "usage": u, "usage_usd": round(usd, 6)}

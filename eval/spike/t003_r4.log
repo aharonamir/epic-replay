@@ -1,0 +1,29 @@
+FlippingPancakes.mp4          16.7s  2 overviews + 2 zooms  <= 0.082 USD
+Skateboard_trick.mp4          20.2s  2 overviews + 2 zooms  <= 0.091 USD
+SlowMotion-skater.mp4         14.0s  2 overviews + 2 zooms  <= 0.076 USD
+basket_ball_shot.mp4          18.1s  2 overviews + 2 zooms  <= 0.086 USD
+bottle flip.mp4               21.3s  2 overviews + 2 zooms  <= 0.094 USD
+dog_catch_ball.mp4            22.8s  2 overviews + 2 zooms  <= 0.098 USD
+fk_1.mp4                      33.5s  2 overviews + 2 zooms  <= 0.124 USD
+fk_miss.mp4                   15.4s  2 overviews + 2 zooms  <= 0.079 USD
+fk_save.mp4                   15.4s  2 overviews + 2 zooms  <= 0.079 USD
+TOTAL upper bound 0.81 USD, 2528 images (1,024 tokens each assumed; real cost should be lower)
+FlippingPancakes.mp4 4 low 52 60
+FlippingPancakes.mp4 4 high 22 9
+Skateboard_trick.mp4 4 low 60 84
+Skateboard_trick.mp4 4 high 60 90
+SlowMotion-skater.mp4 4 low 82 66
+SlowMotion-skater.mp4 4 high 68 94
+basket_ball_shot.mp4 4 low 188 189
+basket_ball_shot.mp4 4 high 180 173
+bottle flip.mp4 4 low 90 119
+bottle flip.mp4 4 high -15 -26
+dog_catch_ball.mp4 4 low -158 -128
+dog_catch_ball.mp4 4 high -112 -110
+fk_1.mp4 4 low 210 239
+fk_1.mp4 4 high 158 143
+fk_miss.mp4 4 low 218 188
+fk_miss.mp4 4 high -60 -76
+fk_save.mp4 4 low -112 -112
+fk_save.mp4 4 high -98 -114
+total cost 0.6135

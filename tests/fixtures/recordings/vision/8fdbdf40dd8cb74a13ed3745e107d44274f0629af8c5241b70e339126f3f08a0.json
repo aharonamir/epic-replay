@@ -1,0 +1,23 @@
+{
+  "text": "{\"activity\": \"A person tosses a plastic water bottle so it flips through the air and lands standing upright on a concrete path\", \"outcome\": \"The bottle lands and balances upright on its base, staying standing until it is picked up again\", \"actor\": \"person in red sleeve\", \"climax_frame\": 45}",
+  "data": {
+    "activity": "A person tosses a plastic water bottle so it flips through the air and lands standing upright on a concrete path",
+    "outcome": "The bottle lands and balances upright on its base, staying standing until it is picked up again",
+    "actor": "person in red sleeve",
+    "climax_frame": 45
+  },
+  "usage": {
+    "prompt_tokens": 17645,
+    "completion_tokens": 769,
+    "total_tokens": 18414,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 698
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 17645
+  },
+  "usage_usd": 0.006216
+}

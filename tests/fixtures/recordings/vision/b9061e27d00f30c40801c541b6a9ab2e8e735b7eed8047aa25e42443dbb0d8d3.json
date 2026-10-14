@@ -1,0 +1,23 @@
+{
+  "text": "{\"activity\": \"soccer free kick at goal\", \"outcome\": \"the ball is curled over the wall into the net for a goal\", \"actor\": \"player in black\", \"climax_frame\": 30}",
+  "data": {
+    "activity": "soccer free kick at goal",
+    "outcome": "the ball is curled over the wall into the net for a goal",
+    "actor": "player in black",
+    "climax_frame": 30
+  },
+  "usage": {
+    "prompt_tokens": 13083,
+    "completion_tokens": 9154,
+    "total_tokens": 22237,
+    "prompt_tokens_details": {
+      "cached_tokens": 12928
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 9106
+    },
+    "prompt_cache_hit_tokens": 12928,
+    "prompt_cache_miss_tokens": 155
+  },
+  "usage_usd": 0.01491
+}

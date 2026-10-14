@@ -1,0 +1,23 @@
+{
+  "text": "{\"activity\": \"soccer free kick\", \"outcome\": \"scores a goal\", \"actor\": \"player in yellow and blue\", \"climax_frame\": 690}",
+  "data": {
+    "activity": "soccer free kick",
+    "outcome": "scores a goal",
+    "actor": "player in yellow and blue",
+    "climax_frame": 690
+  },
+  "usage": {
+    "prompt_tokens": 27389,
+    "completion_tokens": 12486,
+    "total_tokens": 39875,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 12447
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 27389
+  },
+  "usage_usd": 0.0232
+}

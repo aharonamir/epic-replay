@@ -1,0 +1,23 @@
+{
+  "text": "{\"activity\": \"two men playing basketball on an outdoor court, one shooting while the other defends and rebounds\", \"outcome\": \"the shot drops cleanly through the hoop and the pair keeps trading shots as the clip ends\", \"actor\": \"man in grey sleeveless top and light leggings\", \"climax_frame\": 248}",
+  "data": {
+    "activity": "two men playing basketball on an outdoor court, one shooting while the other defends and rebounds",
+    "outcome": "the shot drops cleanly through the hoop and the pair keeps trading shots as the clip ends",
+    "actor": "man in grey sleeveless top and light leggings",
+    "climax_frame": 248
+  },
+  "usage": {
+    "prompt_tokens": 15006,
+    "completion_tokens": 1388,
+    "total_tokens": 16394,
+    "prompt_tokens_details": {
+      "cached_tokens": 14848
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 1316
+    },
+    "prompt_cache_hit_tokens": 14848,
+    "prompt_cache_miss_tokens": 158
+  },
+  "usage_usd": 0.006167
+}

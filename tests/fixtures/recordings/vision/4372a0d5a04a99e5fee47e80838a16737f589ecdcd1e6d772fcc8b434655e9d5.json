@@ -1,0 +1,23 @@
+{
+  "text": "{\"activity\": \"catching a ball\", \"outcome\": \"catches the ball\", \"actor\": \"German Shepherd\", \"climax_frame\": 202}",
+  "data": {
+    "activity": "catching a ball",
+    "outcome": "catches the ball",
+    "actor": "German Shepherd",
+    "climax_frame": 202
+  },
+  "usage": {
+    "prompt_tokens": 18863,
+    "completion_tokens": 3996,
+    "total_tokens": 22859,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 3960
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 18863
+  },
+  "usage_usd": 0.010454
+}

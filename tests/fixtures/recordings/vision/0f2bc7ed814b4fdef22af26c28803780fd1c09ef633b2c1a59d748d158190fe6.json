@@ -1,0 +1,23 @@
+{
+  "text": "{\"activity\":\"A person throws a plastic water bottle against a white wall.\",\"outcome\":\"The bottle bounces off and lands upright on the pavement.\",\"actor\":\"person in black\",\"climax_frame\":150}",
+  "data": {
+    "activity": "A person throws a plastic water bottle against a white wall.",
+    "outcome": "The bottle bounces off and lands upright on the pavement.",
+    "actor": "person in black",
+    "climax_frame": 150
+  },
+  "usage": {
+    "prompt_tokens": 17645,
+    "completion_tokens": 9190,
+    "total_tokens": 26835,
+    "prompt_tokens_details": {
+      "cached_tokens": 17408
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 9144
+    },
+    "prompt_cache_hit_tokens": 17408,
+    "prompt_cache_miss_tokens": 237
+  },
+  "usage_usd": 0.016321
+}

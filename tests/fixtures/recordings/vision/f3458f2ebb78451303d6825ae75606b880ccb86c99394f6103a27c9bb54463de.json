@@ -1,0 +1,23 @@
+{
+  "text": "{\"activity\": \"A free kick is taken in a soccer match, with players lined up in a wall and a run-up to strike the ball\", \"outcome\": \"The ball is struck and curls high toward the goal, ending with the ball in the air near the goal as the goalkeeper dives\", \"actor\": \"player in a yellow jersey and blue shorts\", \"climax_frame\": 638}",
+  "data": {
+    "activity": "A free kick is taken in a soccer match, with players lined up in a wall and a run-up to strike the ball",
+    "outcome": "The ball is struck and curls high toward the goal, ending with the ball in the air near the goal as the goalkeeper dives",
+    "actor": "player in a yellow jersey and blue shorts",
+    "climax_frame": 638
+  },
+  "usage": {
+    "prompt_tokens": 27389,
+    "completion_tokens": 2827,
+    "total_tokens": 30216,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 2742
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 27389
+  },
+  "usage_usd": 0.011609
+}

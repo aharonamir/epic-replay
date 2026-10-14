@@ -1,0 +1,23 @@
+{
+  "text": "{\"activity\": \"cooking tortillas on a griddle and flipping them with a spatula\", \"outcome\": \"both tortillas are cooked and golden brown\", \"actor\": \"person\", \"climax_frame\": 112}",
+  "data": {
+    "activity": "cooking tortillas on a griddle and flipping them with a spatula",
+    "outcome": "both tortillas are cooked and golden brown",
+    "actor": "person",
+    "climax_frame": 112
+  },
+  "usage": {
+    "prompt_tokens": 13788,
+    "completion_tokens": 6288,
+    "total_tokens": 20076,
+    "prompt_tokens_details": {
+      "cached_tokens": 13568
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 6238
+    },
+    "prompt_cache_hit_tokens": 13568,
+    "prompt_cache_miss_tokens": 220
+  },
+  "usage_usd": 0.011682
+}

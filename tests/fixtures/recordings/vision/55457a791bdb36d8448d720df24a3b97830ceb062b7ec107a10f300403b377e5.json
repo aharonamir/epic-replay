@@ -1,0 +1,23 @@
+{
+  "text": "{\"activity\": \"Goalkeeper doing solo training drills (diving, catching crosses, handling, distribution) intercut with match play, labelled Solo Drill to Game\", \"outcome\": \"The goalkeeper completes full-stretch diving saves, catches crosses and handles the ball cleanly in both drills and the game\", \"actor\": \"Person in black goalkeeper kit with white gloves and pink boots\", \"climax_frame\": 68}",
+  "data": {
+    "activity": "Goalkeeper doing solo training drills (diving, catching crosses, handling, distribution) intercut with match play, labelled Solo Drill to Game",
+    "outcome": "The goalkeeper completes full-stretch diving saves, catches crosses and handles the ball cleanly in both drills and the game",
+    "actor": "Person in black goalkeeper kit with white gloves and pink boots",
+    "climax_frame": 68
+  },
+  "usage": {
+    "prompt_tokens": 13269,
+    "completion_tokens": 329,
+    "total_tokens": 13598,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 240
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 13269
+  },
+  "usage_usd": 0.004376
+}

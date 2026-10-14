@@ -1,0 +1,23 @@
+{
+  "text": "{\"activity\": \"skateboarding — performing a flip/ollie trick in an empty parking lot\", \"outcome\": \"the skater lands the trick cleanly and rolls away\", \"actor\": \"person in a red shirt and khaki pants\", \"climax_frame\": 248}",
+  "data": {
+    "activity": "skateboarding — performing a flip/ollie trick in an empty parking lot",
+    "outcome": "the skater lands the trick cleanly and rolls away",
+    "actor": "person in a red shirt and khaki pants",
+    "climax_frame": 248
+  },
+  "usage": {
+    "prompt_tokens": 11758,
+    "completion_tokens": 1328,
+    "total_tokens": 13086,
+    "prompt_tokens_details": {
+      "cached_tokens": 11520
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 1266
+    },
+    "prompt_cache_hit_tokens": 11520,
+    "prompt_cache_miss_tokens": 238
+  },
+  "usage_usd": 0.005121
+}
