@@ -1,0 +1,23 @@
+{
+  "text": "{\"activity\": \"A person throwing a plastic water bottle so it flies through the air, bounces off a white wall, and lands standing upright on the pavement\", \"outcome\": \"The bottle bounces off the wall and settles standing upright on the ground, staying balanced there\", \"actor\": \"person\", \"climax_frame\": 193}",
+  "data": {
+    "activity": "A person throwing a plastic water bottle so it flies through the air, bounces off a white wall, and lands standing upright on the pavement",
+    "outcome": "The bottle bounces off the wall and settles standing upright on the ground, staying balanced there",
+    "actor": "person",
+    "climax_frame": 193
+  },
+  "usage": {
+    "prompt_tokens": 11784,
+    "completion_tokens": 4864,
+    "total_tokens": 16648,
+    "prompt_tokens_details": {
+      "cached_tokens": 1664
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 4791
+    },
+    "prompt_cache_hit_tokens": 1664,
+    "prompt_cache_miss_tokens": 10120
+  },
+  "usage_usd": 0.009372
+}

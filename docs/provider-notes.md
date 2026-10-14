@@ -117,3 +117,8 @@ Several clips got a high point at frame 240 to 262 whatever the clip length, whi
 Outcome was right in all three ("made basket"). Key-moment error: repeat 0 +161 frames, repeat 1 +154 (the model named frames 248 and 241, about 8.2 s), repeat 2 +14 overview and +2 zoom (within 0.5 s and 0.07 s).
 Two of three answers point at about 8.2 s, a second moment in the clip; the model earlier called it "the final shot". Label ambiguity (two baskets?) to be checked by the owner.
 Update: the owner confirms a second basket at about 8 s, so the clip has two valid high points (label now has `other_climax_t: [8.0]`). Scored against either, all three repeats were right: the zoom answers were 7.93 s, 7.90 s and 2.97 s, within 3 to 4 frames of a basket. The play sheet already has `climax.candidates`; the play card's nudge covers a choice between them.
+
+### T003 option 2 trial, four more clips (one repeat each, 0.098 USD in all)
+
+The motion windows did not help on these. Model answers (overview / zoom, seconds) against labels: bottle flip 6.4 / 6.0 (label 2.0; window 2.2-5.2 contains it, the answer is in 4.7-7.7); dog_catch_ball 8.6 / 8.3 (label 13.0); fk_miss 10.9 / 11.4 (label 3.0; outcome text says the ball goes over the wall into the goalmouth, the label says it misses); fk_1 31.8 / 32.4 (label 16.0, which lies OUTSIDE the five windows chosen from the motion curve).
+Open: whether the labels or the model are right on these (the owner is to look at the times the model named), and a motion curve that is dominated by camera movement and cuts.

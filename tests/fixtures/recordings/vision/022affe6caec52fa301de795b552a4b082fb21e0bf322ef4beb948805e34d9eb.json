@@ -1,0 +1,23 @@
+{
+  "text": "{\"activity\": \"a football (soccer) match free kick being taken toward goal\", \"outcome\": \"the ball is lofted over the defensive wall into the goalmouth, where a scramble with the goalkeeper follows\", \"actor\": \"pink\", \"climax_frame\": 327}",
+  "data": {
+    "activity": "a football (soccer) match free kick being taken toward goal",
+    "outcome": "the ball is lofted over the defensive wall into the goalmouth, where a scramble with the goalkeeper follows",
+    "actor": "pink",
+    "climax_frame": 327
+  },
+  "usage": {
+    "prompt_tokens": 12901,
+    "completion_tokens": 6675,
+    "total_tokens": 19576,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 6613
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 12901
+  },
+  "usage_usd": 0.01188
+}

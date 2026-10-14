@@ -1,0 +1,26 @@
+{
+  "text": "{\"frame\": 972, \"box\": {\"x\": 0.05, \"y\": 0.78, \"w\": 0.15, \"h\": 0.15}}",
+  "data": {
+    "frame": 972,
+    "box": {
+      "x": 0.05,
+      "y": 0.78,
+      "w": 0.15,
+      "h": 0.15
+    }
+  },
+  "usage": {
+    "prompt_tokens": 12549,
+    "completion_tokens": 18648,
+    "total_tokens": 31197,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 18606
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 12549
+  },
+  "usage_usd": 0.026142
+}

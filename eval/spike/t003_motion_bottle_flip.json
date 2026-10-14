@@ -1,0 +1,41 @@
+[
+  {
+    "clip": "bottle flip.mp4",
+    "repeat": 0,
+    "windows_s": [
+      [
+        0.0,
+        2.3333333333333335
+      ],
+      [
+        2.1666666666666665,
+        5.166666666666667
+      ],
+      [
+        4.7,
+        7.7
+      ],
+      [
+        10.033333333333333,
+        13.033333333333333
+      ],
+      [
+        19.433333333333334,
+        21.266666666666666
+      ]
+    ],
+    "label_inside": true,
+    "answer": {
+      "activity": "A person throwing a plastic water bottle so it flies through the air, bounces off a white wall, and lands standing upright on the pavement",
+      "outcome": "The bottle bounces off the wall and settles standing upright on the ground, staying balanced there",
+      "actor": "person",
+      "climax_frame": 193
+    },
+    "expected_outcome": "the bottle is flipped",
+    "overview_err_frames": 133,
+    "zoom_frame": 179,
+    "zoom_err_frames": 119,
+    "latency_s": 56.5,
+    "cost_usd": 0.01904
+  }
+]

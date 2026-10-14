@@ -1,0 +1,41 @@
+[
+  {
+    "clip": "fk_1.mp4",
+    "repeat": 0,
+    "windows_s": [
+      [
+        1.5,
+        4.5
+      ],
+      [
+        20.733333333333334,
+        23.733333333333334
+      ],
+      [
+        23.766666666666666,
+        26.766666666666666
+      ],
+      [
+        27.6,
+        30.6
+      ],
+      [
+        29.8,
+        32.8
+      ]
+    ],
+    "label_inside": false,
+    "answer": {
+      "activity": "soccer free kick",
+      "outcome": "goal",
+      "actor": "player in yellow and blue",
+      "climax_frame": 954
+    },
+    "expected_outcome": "player scores a goal",
+    "overview_err_frames": 474,
+    "zoom_frame": 972,
+    "zoom_err_frames": 492,
+    "latency_s": 158.9,
+    "cost_usd": 0.03783
+  }
+]

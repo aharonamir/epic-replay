@@ -6,7 +6,7 @@
 Code: motion curve -> smoothed over 0.5 s -> the strongest `--windows` peaks at least 2 s apart,
 each widened to +-`--half` s. The model sees only those windows (4 fps, numbered frames, gaps
 between windows) and names the frame of the high point; then the same zoom as spike_t003.py.
-Only still frames leave the machine. Results: eval/spike/t003_motion.json.
+Only still frames leave the machine. Results: eval/spike/t003_motion_<clip>.json.
 """
 
 from __future__ import annotations
@@ -130,7 +130,7 @@ def main():
             rows[-1]["zoom_err_frames"],
             flush=True,
         )
-    (base.REPO / "eval/spike/t003_motion.json").write_text(
+    (base.REPO / f"eval/spike/t003_motion_{Path(a.clip).stem.replace(' ', '_')}.json").write_text(
         json.dumps(rows, indent=2, default=float)
     )
     print("total cost", round(led.total_usd, 4))

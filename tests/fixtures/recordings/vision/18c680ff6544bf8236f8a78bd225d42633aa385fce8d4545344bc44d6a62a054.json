@@ -1,0 +1,23 @@
+{
+  "text": "{\"activity\": \"Playing fetch/catch with a ball (thrown by a person's hand) in a room, preceded by title text slides reading 'German Shepherd Skills: He is really good in catching the ball.'\", \"outcome\": \"The German Shepherd catches the ball out of the air in its mouth, ending with a 'THANK YOU' title card.\", \"actor\": \"German Shepherd dog\", \"climax_frame\": 259}",
+  "data": {
+    "activity": "Playing fetch/catch with a ball (thrown by a person's hand) in a room, preceded by title text slides reading 'German Shepherd Skills: He is really good in catching the ball.'",
+    "outcome": "The German Shepherd catches the ball out of the air in its mouth, ending with a 'THANK YOU' title card.",
+    "actor": "German Shepherd dog",
+    "climax_frame": 259
+  },
+  "usage": {
+    "prompt_tokens": 13205,
+    "completion_tokens": 619,
+    "total_tokens": 13824,
+    "prompt_tokens_details": {
+      "cached_tokens": 2304
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 526
+    },
+    "prompt_cache_hit_tokens": 2304,
+    "prompt_cache_miss_tokens": 10901
+  },
+  "usage_usd": 0.004704
+}

@@ -1,0 +1,41 @@
+[
+  {
+    "clip": "fk_miss.mp4",
+    "repeat": 0,
+    "windows_s": [
+      [
+        0.8,
+        3.8
+      ],
+      [
+        4.666666666666667,
+        7.666666666666667
+      ],
+      [
+        7.066666666666666,
+        10.066666666666666
+      ],
+      [
+        10.633333333333333,
+        13.633333333333333
+      ],
+      [
+        12.866666666666667,
+        15.4
+      ]
+    ],
+    "label_inside": true,
+    "answer": {
+      "activity": "a football (soccer) match free kick being taken toward goal",
+      "outcome": "the ball is lofted over the defensive wall into the goalmouth, where a scramble with the goalkeeper follows",
+      "actor": "pink",
+      "climax_frame": 327
+    },
+    "expected_outcome": "football kick misses and goes out",
+    "overview_err_frames": 237,
+    "zoom_frame": 343,
+    "zoom_err_frames": 253,
+    "latency_s": 97.8,
+    "cost_usd": 0.02666
+  }
+]
