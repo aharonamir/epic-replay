@@ -227,4 +227,4 @@ A run created by re-telling in another style starts with the outputs of S0 to S4
 }
 ```
 
-`category` is one of `sport`, `trick`, `pet`, `family`, `everyday`. `run_eval.py` runs S0 to S3 on each clip and scores `outcome` by a person's yes or no against `outcome_detail`, and `climax_t` by absolute error. Scoring the outcome by hand is deliberate: string matching would reward wording, not correctness.
+`other_climax_t` (optional list of seconds) names further moments that also count, for a clip with more than one high point; the Spotter is scored right when its key moment lands on `climax_t` or on any of them, and its `candidates` should include the others. `category` is one of `sport`, `trick`, `pet`, `family`, `everyday`. `run_eval.py` runs S0 to S3 on each clip and scores `outcome` by a person's yes or no against `outcome_detail`, and `climax_t` by absolute error. Scoring the outcome by hand is deliberate: string matching would reward wording, not correctness.
