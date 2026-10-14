@@ -4,7 +4,7 @@
   "activity": "dog catches a ball",
   "outcome": "catch",
   "outcome_detail": "dog catches a ball",
-  "climax_t": 12,
+  "climax_t": 12.0,
   "followed_actor": "dog",
   "capture_fps": 29.97,
   "notes": ""

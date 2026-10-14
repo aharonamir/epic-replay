@@ -4,7 +4,7 @@
   "activity": "football free kick",
   "outcome": "goal",
   "outcome_detail": "player scores a goal",
-  "climax_t": 16,
+  "climax_t": 16.0,
   "followed_actor": "player",
   "capture_fps": 30,
   "notes": ""

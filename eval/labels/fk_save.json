@@ -1,10 +1,10 @@
 {
   "clip": "fk_save.mp4",
   "category": "sport",
-  "activity": "football shot (saved)",
+  "activity": "football shot",
   "outcome": "no goal",
-  "outcome_detail": "goalkeeper catch the ball",
-  "climax_t": 6,
+  "outcome_detail": "goalkeeper catches the ball",
+  "climax_t": 6.0,
   "followed_actor": "goalkeeper",
   "capture_fps": 30,
   "notes": ""

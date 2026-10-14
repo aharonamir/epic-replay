@@ -3,9 +3,9 @@
   "category": "sport",
   "activity": "football free kick (shot that misses?)",
   "outcome": "no goal",
-  "outcome_detail": "football kick misses",
-  "climax_t": 3,
+  "outcome_detail": "football kick misses and goes out",
+  "climax_t": 3.0,
   "followed_actor": "player",
   "capture_fps": 30,
-  "notes": "followed_actor by watching the clip. Probed: 368x360; motion peak 8.7 s"
+  "notes": ""
 }

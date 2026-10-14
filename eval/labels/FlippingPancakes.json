@@ -5,7 +5,7 @@
   "outcome": "flipped",
   "outcome_detail": "pancakes are flipped",
   "climax_t": 2,
-  "followed_actor": null,
+  "followed_actor": "person",
   "capture_fps": 29.94,
   "notes": ""
 }

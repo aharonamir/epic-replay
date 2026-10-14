@@ -4,7 +4,7 @@
   "activity": "bottle flip",
   "outcome": "flipped",
   "outcome_detail": "the bottle is flipped",
-  "climax_t": 2,
+  "climax_t": 2.0,
   "followed_actor": null,
   "capture_fps": 30,
   "notes": ""
