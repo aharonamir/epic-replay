@@ -19,7 +19,8 @@ Design, in `specs/001-epic-replay/`: `spec.md` (what and why; section 10 = what 
 10. The clip can be any moment, not only sport. Prompts must not assume a ball, a score or an opponent.
 11. 78 of 80 hours are planned. If a task runs over its hours by half again, stop and tell the owner; decide together what to cut (tasks.md "If a day is lost").
 12. Name checks (stage-contracts rule 4) compare case-insensitively on a sentence-cased copy of the line; shouted capitals are not names.
-13. Configurable, with defaults: `EPIC_FRAME_FPS=4`, `EPIC_MOTION_MIN`, `EPIC_KEYFRAME_TOL_S=0.25`, `EPIC_MIN_OUTPUT_S=20`, caps (see `.env.example`).
+13. Configurable, with defaults: `EPIC_FRAME_FPS=4`, `EPIC_MOTION_MIN`, `EPIC_KEYFRAME_TOL_S=0.25`, `EPIC_MIN_OUTPUT_S=20`, `EPIC_SHEET_PASSES=3`, `EPIC_SOUND_SNAP_S=0.25`, caps (see `.env.example`).
+14. The Spotter answers with a cell on a contact sheet, never with a frame number or a time; code maps cells to frames (spec revision 7, plan.md 4.3 and 4.4). Every time placed on the output timeline comes from a measurement: a frame, a sound onset, a word's start in a take.
 
 ## Layout (plan.md section 5)
 

@@ -32,6 +32,8 @@ class Settings:
     frame_fps: float
     motion_min: float
     keyframe_tol_s: float
+    sheet_passes: int
+    sound_snap_s: float
     min_output_s: float
     agent_provider: str
     agent_api_base: str
@@ -62,6 +64,8 @@ def load() -> Settings:
         frame_fps=_f("EPIC_FRAME_FPS", 4),
         motion_min=_f("EPIC_MOTION_MIN", 0.0),
         keyframe_tol_s=_f("EPIC_KEYFRAME_TOL_S", 0.25),
+        sheet_passes=int(_f("EPIC_SHEET_PASSES", 3)),
+        sound_snap_s=_f("EPIC_SOUND_SNAP_S", 0.25),
         min_output_s=_f("EPIC_MIN_OUTPUT_S", 20),
         agent_provider=_s("EPIC_AGENT_PROVIDER", "openai"),
         agent_api_base=_s("EPIC_AGENT_API_BASE", "https://api.deepseek.com"),

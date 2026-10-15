@@ -1,6 +1,6 @@
 # Stage contracts
 
-This file describes the full design. The one-person MVP defers S1, the Verifier half of S6, and the provider fallbacks; plan.md section 4.15 says what happens instead.
+This file describes the full design. The one-person MVP defers the Verifier half of S6, rules 2, 3, 7, 9 and 10 of the code checks, the Spotter's ReAct loop and the provider fallbacks; plan.md section 4.15 says what happens instead. S1 is built (revision 7).
 
 Every stage is a function with the same shape, called by the plain Python runner. A stage that uses an agent builds the agent-core `ReActAgent` inside the function:
 
@@ -17,15 +17,15 @@ def run(ctx: RunContext) -> StageResult: ...
 | Stage | Reads | Writes | Fails or degrades how | Time budget |
 |-------|-------|--------|-----------------------|-------------|
 | S0 Intake | uploaded file, `user_context.json` | `clip_meta.json`, `work.mp4` | Rejects with a reason (FR-001); no retry | 10 s |
-| S1 Signal scan | `work.mp4` | `signals.json` | No audio: motion only, `degraded` | 5 s |
-| S2 Analysis | `work.mp4`, `clip_meta.json`, `user_context.json` | `frames/`, `spotter_trace.json`, `second_look.json` | The agent does not submit within eight iterations: the fixed sequence of looks runs instead, every field low confidence. The vision call fails twice: `failed`, offer generic mode | 40 s |
-| S3 Key moment | the agent's `zoom` answer, `second_look.json` (`signals.json` in the full design) | `play_sheet.json` | Zoom and second look disagree by more than a quarter of a second: climax low confidence. `sensitive.flag` true: `stopped` | part of S2 |
+| S1 Signal scan | `work.mp4` | `signals.json` | No audio: motion only, `degraded` | 15 s |
+| S2 Analysis | `work.mp4`, `clip_meta.json`, `user_context.json`, `signals.json` | `sheets/`, `spotter_trace.json`, `second_look.json` | The fixed sequence of sheet calls runs (revision 7; the agent loop is deferred). A sheet call fails twice: the strongest S1 candidate becomes the climax, low confidence. No S1 candidate and the calls fail: `failed`, offer generic mode | 60 s |
+| S3 Key moment | the last `refine` answer, `second_look.json`, `signals.json` | `play_sheet.json` | The climax snaps to a sound onset when there is one; the two looks disagree by more than `EPIC_KEYFRAME_TOL_S`: climax low confidence. `sensitive.flag` true: `stopped` | part of S2 |
 | Checkpoint A | `play_sheet.json` | `play_sheet.json` with `confirmed_by_user`, `user_context.json` updated | `waiting` until the user acts; reject leads to generic mode or ends the run | human |
 | S4 Storyboard | `play_sheet.json`, `clip_meta.json`, `user_context.json` | `storyboard.json` | Cannot fail on valid input; invalid input is a bug | 1 s |
 | S5 Script | `play_sheet.json`, `storyboard.json`, `user_context.json`, the style pack, on rewrite `checks.json` | `script.json` (slots built by code, then text from the Commentator agent), `commentator_trace.json` | The agent does not submit within six iterations: one structured draft, failing lines replaced by generic ones, `degraded` | 15 s |
 | S6 Checks | `script.json`, `play_sheet.json`, `user_context.json`, `storyboard.json`, the style pack's banned terms and sample lines | `checks.json` | Verifier fails: code checks stand alone, `degraded` | 10 s |
 | Checkpoint B | `script.json`, `checks.json` | `script.json` with `approved` | Express mode, the default, approves when all checks pass; with express off, or when a check still fails after the rewrites, `waiting` | human |
-| S7 Voice | `script.json`, `storyboard.json`, the style pack's voices | `voice/<line_id>.wav`, `voice.json` | Provider fails: fallback provider once per line. A non-climax line that still fails is dropped. Climax call fails on both: `failed` | 20 s |
+| S7 Voice | `script.json`, `storyboard.json`, the style pack's voices | `voice/<line_id>.wav`, `voice.json` (with each key line placed by its `hit_word`, plan.md section 4.8) | Provider fails: fallback provider once per line. A non-climax line that still fails is dropped. Climax call fails on both: `failed` | 20 s |
 | S8 Sound | `voice.json`, `voice/`, `storyboard.json`, `work.mp4`, the style pack's sound set, `assets/` | `mix.wav`, `mix.json` | A layer the pack sets to null is simply absent. A named asset that is missing: skip that layer, `degraded` | 5 s |
 | S9 Visuals | `work.mp4`, `storyboard.json`; for graphics also `script.json` (headline and caption only), `user_context.json` and the style pack's labels and skin | `segments/<segment_id>.mp4`, `overlays/<type>.png`, `visuals.json` | Interpolation fails or exceeds 60 s: frame blending, `degraded`. Graphics wait for the approved script; segments do not | 60 s |
 | S10 Compose | `segments/`, `overlays/`, `mix.wav`, `storyboard.json`, `voice.json` | `final.mp4`, `render.json`, optional `captions.srt` | FFmpeg error: `failed` with the command and log saved | 30 s |
@@ -45,7 +45,7 @@ Time budgets are targets for a 20 second clip and are replaced by measured value
 9. In generic mode every line has `generic: true` and no references.
 10. No line repeats a sample line from the style pack (compared without case or punctuation).
 
-The rules are the same for every narration style. The same ten rules are the test list for `tests/unit/test_checks.py`.
+The rules are the same for every narration style. The same ten rules are the test list for `tests/unit/test_checks.py`. The MVP builds rules 1, 4, 5, 6 and 8 (revision 7), which catch all five kinds of planted error code can see. `submit_script` also checks that each key line's `hit_word` occurs in its text.
 
 ## Stage events
 

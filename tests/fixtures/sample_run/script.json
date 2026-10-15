@@ -61,6 +61,7 @@
       "max_duration_s": 2.0,
       "max_words": 5,
       "text": "TOP CORNER! What a strike!",
+      "hit_word": "TOP",
       "delivery": "shouting, full voice",
       "event_refs": [
         "e6",
@@ -117,6 +118,7 @@
       "max_duration_s": 3.5,
       "max_words": 9,
       "text": "There it is. Top left, right under the bar.",
+      "hit_word": "There",
       "delivery": "warm, admiring",
       "event_refs": [
         "e6"

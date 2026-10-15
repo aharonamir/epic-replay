@@ -1,6 +1,6 @@
 # Implementation Plan: Epic Replay
 
-**Branch**: `001-epic-replay` | **Date**: 2026-10-11 | **Spec**: [spec.md](spec.md) | Revision 5
+**Branch**: `001-epic-replay` | **Date**: 2026-10-11 | **Spec**: [spec.md](spec.md) | Revision 7 (2026-10-15)
 
 Supporting documents: [research.md](research.md) (providers), [data-model.md](data-model.md), [contracts/](contracts/), [quickstart.md](quickstart.md), [tasks.md](tasks.md).
 
@@ -118,39 +118,44 @@ Full input and output contracts are in contracts/stage-contracts.md.
 
 ### 4.2 S0 Intake and S1 Signal scan
 
-- S0 validates the upload (FR-001), reads metadata with ffprobe, fixes rotation, and writes a constant-frame-rate working copy at up to 1080p. It keeps the true capture rate when the container reports one, because S9 needs it.
-- S1 computes two curves per frame: motion energy (mean absolute difference between consecutive downscaled frames) and audio energy (short-window RMS with onset detection). It writes the top five peaks of each and the windows where both peak together. This costs nothing and gives S3 and the play card a starting point even if the model is vague about time.
+- S0 validates the upload (FR-001), reads metadata with ffprobe, fixes rotation, and writes a constant-frame-rate working copy at up to 1080p, with the sound kept because S1 needs it. It keeps the true capture rate when the container reports one, because S9 needs it.
+- S1 (revision 7) proposes candidate moments from cheap local signals, one value per frame; nothing leaves the machine. Prototype and tests: `tools/signal_scan.py`, `tools/make_test_clip.py`.
+  - **Camera movement** is estimated from dense optical flow (OpenCV DIS) as a similarity transform fitted with RANSAC, so a shaky phone does not count as action. The handoff's motion curve (mean frame difference) was dominated by camera movement and cuts; this is the fix.
+  - **Motion** is the larger of two curves taken with the camera removed: the flow left over (bodies, larger objects), and the pixel change left over once the previous frame is moved the way the camera moved (small fast objects such as a ball, which flow misses).
+  - **Cuts** are frames where more than a third of the picture changed even after the camera fit, and far more than usual for the clip. Motion within 3 frames of a cut is ignored.
+  - **Sound onsets**: spectral flux of the clip's own audio, moved back to where each rise begins (a kick, a bat, a splash, a clap); about 12 ms resolution. **Loud peaks**, as HotClip finds them: the largest sample in each 10 ms block, blocks above 75 percent of the clip's loudest, merged when under 0.35 s apart.
+  - The score of a frame is motion plus sound, each as a robust z-score capped at 12, so two signals agreeing beat one signal shouting. The **candidates** are the three highest-scoring peaks at least 0.5 s apart, each with the earliest sound onset from 0.25 s before to 0.1 s after it.
+  - A clip with no sound gives motion-only candidates and the stage reports `degraded`.
 
-### 4.3 S2 Analysis: the Spotter looks at frames
+### 4.3 S2 Analysis: the Spotter looks at contact sheets
 
-DeepSeek's API takes still images, not video or sound. The clip is therefore turned into numbered frames, and the Spotter looks at those.
+DeepSeek's API takes still images, not video or sound. Revision 7 changes how the frames are shown. The first spike sent up to 60 numbered frames per call and asked for the frame number of the high point: the median error was about 2.3 s, and two runs of the same input often disagreed (docs/provider-notes.md). The model is good at saying what happens and poor at reading a frame number off one image among sixty.
 
-- **Frames.** S0 already has the working copy. A helper extracts frames at a chosen rate (default 4 per second, `EPIC_FRAME_FPS`), optionally drops frames in spans where nothing moves (mean frame difference below `EPIC_MOTION_MIN`, keeping at least one frame a second, so the motion carries the content), scales them, burns the frame number into a corner, and writes them to `frames/`. Each image goes to the model with a line of text before it: `Frame 148, 4.93 s`. Because the model sees frame numbers, it can answer in frame numbers; there is no whole-second limit as there was with video input.
-- **The Spotter is a ReAct agent** on `deepseek-flash` with four tools:
+- **Contact sheets.** Nine frames go into one 3x3 image, each cell marked 1 to 9 in its top-left corner (`tools/contact_sheet.py`; the idea is HotClip's). The model answers with a cell; code knows which frame each cell is, so no time is ever read from the model's text. The same frames give the same JPEG bytes on every run, so recorded calls replay. One sheet is one image, so a call costs about what one frame did before.
+- **The Spotter runs as a fixed sequence** in the MVP (revision 7). Its tools are plain functions, so the agent-core ReAct loop over them can be added back later (section 4.15):
 
   | Tool | Arguments | Does | Returns |
   |------|-----------|------|---------|
-  | `clip_info` | none | Reads `clip_meta.json` and the user context | Duration, frame rate, orientation, anything the user typed |
-  | `look` | `start_s`, `end_s`, `fps`, `question` | Sends the frames of that span at that rate, at low detail, to the vision model with the question | What is visible, with frame numbers |
-  | `zoom` | `frame_from`, `frame_to`, `question` | Sends every frame in that range at full detail | The answer, with a frame number and a box when asked |
+  | `clip_info` | none | Reads `clip_meta.json`, `signals.json` and the user context | Duration, frame rate, orientation, the S1 candidates, anything the user typed |
+  | `look_sheets` | none | Sends the overview: two sheets spread evenly over the clip and one sheet over plus or minus 1.5 s around each S1 candidate, one call per sheet, at high detail. Each call asks what is going on, how it ends, who or what does it, the cell of the high point if this sheet shows it (0 if not), and how sure the model is, 0 to 10 | Per sheet: description, cell, sureness |
+  | `refine` | `sheet`, `cell` | Sends a sheet spanning from the cell before the chosen one to the cell after it, and asks which cell shows the exact moment | The cell, and what it shows |
   | `submit_play_sheet` | the play sheet | Validates it against the schema and the descriptor rules | "accepted", or the list of errors to fix |
 
-- A typical run: `clip_info`; `look` at the whole clip at about 4 frames a second to learn what is going on and roughly when the high point is; `zoom` on a second or two around it; `submit_play_sheet`. Limits enforced in the tools: at most 120 frames per `look`, 60 per `zoom`, six image calls per run.
-- **Second look (FR-006).** After the agent submits, one more vision call, made by code and independent of the agent's reasoning, is shown the same overview frames and asked four things: the activity, how it ended, who or what did it, and the frame of the high point. A comparison function marks each as agreed or disagreed with the play sheet. Disagreement lowers the field's confidence and highlights it on the play card.
+- **The sequence:** `clip_info`; `look_sheets`; the surest sheet that shows the high point wins, a candidate sheet winning a tie; `refine` until the cells are consecutive frames, at most `EPIC_SHEET_PASSES` passes (from a 3 s candidate window two passes reach single frames); then the snap of section 4.4; `submit_play_sheet`. If no sheet shows the high point, the strongest S1 candidate is refined instead and the climax is marked low confidence. Limits in the tools: at most five overview sheets and `EPIC_SHEET_PASSES` refining passes per look.
+- **Second look (FR-006).** The overview is run a second time with the same sheets and a question that differs only in whitespace, as an independent recording. A comparison function marks the activity, the outcome, the actor and the final frame as agreed or disagreed. Disagreement lowers the field's confidence and highlights it on the play card.
 - **Rules in the prompt and enforced by `submit_play_sheet`:** people are described only by clothing colour, role and position, animals by kind (FR-008); no age words, so "the rider in the yellow helmet", never "the little boy"; a sensitivity flag with its reason: injury, violence, distress, humiliation, or someone undressed (FR-009).
 - The prompt does not assume sport. It asks what is going on, who or what does it, what the high point is and how it ends. "Outcome" is how the moment ended: the ball went in, the dog caught it, the pancake landed in the pan.
 - If the user gave an activity or a name at upload, it is in `clip_info` and marked `source: user`.
-- **No sound.** The model never hears the clip. A cheer or a bang cannot inform the analysis; only the deferred signal scan (S1) would use the audio track.
-- **Fallback.** If the agent does not submit a valid play sheet within eight iterations, code runs the fixed sequence (overview `look`, `zoom` on the frame it names, one structured call to fill the play sheet) and marks every field low confidence.
+- **Sound.** The model never hears the clip, but S1 does: sound onsets choose candidate windows and fix the exact frame of a contact.
+- **Fallback.** If a sheet call fails twice, the strongest S1 candidate becomes the climax with low confidence, and the play card opens with the nudge active.
 
-### 4.4 S3 Key moment: the zoom
+### 4.4 S3 Key moment: coarse to fine, then the sound
 
-S3 is the Spotter's `zoom` step and what code does with its answer.
-
-1. The overview `look` gives a candidate frame, accurate to about a quarter of a second at 4 frames a second.
-2. `zoom` sends every frame from one second before to one second after the candidate (thinned to 60 if the clip was filmed at a high frame rate) and asks: "In which frame does [the outcome, for example the ball crossing the line, the dog's jaws closing on the frisbee] first happen?" It also asks for a box around the action in that frame, as fractions of the frame.
-3. The second look gives an independent frame for the same moment from the overview frames. If the two are within `EPIC_KEYFRAME_TOL_S` (default a quarter of a second), the zoom's frame is accepted. Otherwise the climax is marked low confidence and the play card opens with the nudge active.
-4. In the full design, the signal scan (S1) adds a third opinion from motion and sound peaks.
+1. The overview gives a cell on one sheet: within about a third of a second on a candidate sheet, within about two seconds on an overview sheet.
+2. `refine` narrows the window about fourfold per pass until the cells are consecutive frames.
+3. **Snap to the sound.** If S1 found a sound onset from `EPIC_SOUND_SNAP_S` (default 0.25 s) before the chosen frame to 0.1 s after it, the climax moves to the onset's frame: for a contact (a kick, a catch, a landing) the sound starts at the moment of contact. `climax.method` is `sheets+sound`; otherwise `sheets`.
+4. The second look gives an independent final frame. If the two are within `EPIC_KEYFRAME_TOL_S` (default a quarter of a second), the frame is accepted. Otherwise the climax is marked low confidence and the play card opens with the nudge active.
+5. `climax.candidates` keeps the other S1 candidates and any second high point the overview reported, so a clip with two valid moments (the basketball clip has two baskets) offers both on the play card.
 
 Method and confidence are stored (FR-007). The user's nudge at Checkpoint A always wins.
 
@@ -191,8 +196,8 @@ Code selects a template and computes the timeline (FR-013 to FR-015).
 
 - Slot rules: a `hit_at` slot starts at its marker plus the pack's reaction delay. Every other slot starts at the later of its nominal time and the previous slot's worst-case end plus 0.1 s. A slot that would run past its limit (0.1 s before the next `hit_at` slot starts, the limit in the table, or the end of the video) is shortened; a slot left shorter than 1.2 s is dropped. The two climax slots are never dropped. Word budget is `floor(max_duration_s x words_per_second)` with the pack's speaking rate, so a slower narrator gets fewer words in the same picture.
 - The Commentator receives the confirmed play sheet, the slots with their budgets, the user context, and from the style pack the persona, the rules, a note on what each line role is for, and invented sample lines that show the register. It returns text and a delivery direction for each slot, plus a headline for the end card and a caption for the lower third.
-- **The Commentator is a ReAct agent** on `deepseek-flash` with two tools. `check_lines` runs the ten code checks on a draft and returns each failure with the rule it broke. `submit_script` accepts a draft that passes. The agent drafts, checks, fixes and submits within six iterations; the write-check-rewrite loop is the agent's own loop. S6 then runs the same checks again on what was submitted: the agent saying a draft passed is never taken as proof. If the agent does not submit in time, code asks for one structured draft and replaces any failing line with a generic one.
-- The climax call is its own line. Because each line is voiced separately and placed by its start time, the shout lands on the moment without word-level alignment (FR-016, FR-024).
+- **The Commentator is a ReAct agent** on `deepseek-flash` with two tools. `check_lines` runs the code checks (five of the ten in the MVP, revision 7) on a draft and returns each failure with the rule it broke. `submit_script` accepts a draft that passes. The agent drafts, checks, fixes and submits within six iterations; the write-check-rewrite loop is the agent's own loop. S6 then runs the same checks again on what was submitted: the agent saying a draft passed is never taken as proof. If the agent does not submit in time, code asks for one structured draft and replaces any failing line with a generic one.
+- The climax call is its own line. Each line is voiced separately; a key line also names its key word (`hit_word`), and S7 places the take so that word lands on the moment (section 4.8, FR-016, FR-024).
 - Code checks run first (FR-019): every `event_refs` id exists; every capitalised name and every number appears in the play sheet or user context; word count is within budget; no banned term (real commentators, presenters and narrators and their catchphrases, slurs, appearance words, plus the pack's own list); language matches. The checks are the same for every style (FR-041). Worst-case line ends, computed from `max_duration_s`, must not overlap the next line's start.
 - The Verifier, from a different model family than the writer, gets the play sheet and the script and returns per-line verdicts with the unsupported phrase quoted (FR-020). A failed line goes back to the Commentator with the reason, at most twice, then becomes a generic line or is dropped.
 - Planted-error test for SC-3: ten seeded scripts, each with one error (wrong outcome, invented name, invented number, wrong actor, wrong order, wrong term for the activity, over budget, banned term, missing reference, a claim about something off-screen).
@@ -201,7 +206,12 @@ Code selects a template and computes the timeline (FR-013 to FR-015).
 
 - One request per line, in parallel, with the style pack's voice and the delivery direction for the line. The pack gives a default direction per line role; the Commentator may refine it. Results are cached by a hash of text, voice and delivery.
 - Each take is trimmed of leading and trailing silence and measured. If it exceeds its slot by up to 12 percent it is sped up with FFmpeg `atempo`; beyond that the Commentator is asked for a shorter line, twice at most (FR-023).
-- Placement: `start_at` lines start at their anchor. `hit_at` lines start at the event's timeline time plus the style's reaction delay: 150 ms for the football commentator, who reacts at once; longer for the reporter and the narrator, who do not.
+- Placement: `start_at` lines start at their anchor. A `hit_at` line is placed so that its key word, not the start of the take, lands at the event's timeline time plus the style's reaction delay: 150 ms for the football commentator, who reacts at once; longer for the reporter and the narrator, who do not (revision 7).
+  - The Commentator names the key word of each key line in `hit_word`; `submit_script` checks that it is in the line.
+  - The key word's offset inside the trimmed take comes from the speech provider's character timings when the model returns them (ElevenLabs `/v1/text-to-speech/{voice_id}/with-timestamps`; whether `eleven_v3` returns them is checked in T020), and otherwise from the take's first strong sound onset, which for a shouted line is its first syllable.
+  - `start = marker + reaction delay - key-word offset`. The key line never moves to make room: the line before it is placed to end at least 0.1 s before the key line starts, sped up by at most 12 percent if it does not fit, or shortened.
+  - In the replay, the marker is the climax mapped onto the output timeline: `replay_out_start + (t_climax - replay_src_start) / speed`.
+  - S10 measures the onset of each key line in the output audio (`render.json`) against its target; SC-4 is computed from that.
 - Fallback: on provider error, one retry on the fallback provider with the pack's fallback voice (FR-035).
 
 ### 4.9 S8 Sound
@@ -282,20 +292,26 @@ The page address carries the run id, so a reload or a second device shows the sa
 | Deferred | Stage | What happens instead | Cost of adding it back |
 |----------|-------|----------------------|------------------------|
 | Verifier agent and its planted-error set | S6 | The ten code checks. A failed line goes back to the Commentator with the rule it broke, at most twice | 2 to 3 h |
-| Signal scan | S1 | S3 takes the candidate second from S2 alone, and accepts a frame when two asks agree within `EPIC_KEYFRAME_TOL_S` (default 0.25 s); otherwise the play card opens with the nudge active | 2 h |
 | Escalation model | S2 | Disagreement is shown on the play card | 1 h |
 | Fallback providers for text and voice | S5, S7 | One retry on the same provider. If the voice still fails the run stops at S7 with "try again", which re-runs from S7 | 2 h per provider, plus a voice per style |
 | Frame interpolation | S9 | Real frames when filmed at 100 fps or more; FFmpeg frame blending otherwise. The page's tip to film in slo-mo matters more | 2 to 4 h for RIFE on the machine |
 | Score bug; score and team fields on the page | S9, page | Not shown. The API still accepts the fields | 2 h |
 | Captions | S10 | None | 1 h |
 | Editing each event on the play card | Checkpoint A | Keep or remove an item, edit the outcome sentence, nudge the moment, reject | 2 h |
-| Generic template driven by signal peaks | S4 | In generic mode the user picks the moment on the play card | with S1 |
+| Generic template driven by signal peaks | S4 | In generic mode the user picks the moment on the play card, from S1's candidates or by nudging | 1 h |
 | 30-clip evaluation set, five-person viewer test | evaluation | 8 to 12 clips; three viewers during rehearsal | 6 h |
 | Blind read to choose the writer model | S5 | DeepSeek Flash writes, as chosen by the owner | 1 h |
+| The Spotter's ReAct loop (revision 7) | S2, S3 | The fixed sequence of section 4.3 runs on every clip, with the same tools and validators. The Commentator is the only ReAct agent | 1 to 2 h |
+| Code-check rules 2, 3, 7, 9 and 10 (revision 7) | S6 | Rules 1, 4, 5, 6 and 8, which catch all five kinds of planted error code can see | 2 h |
+| The Nature documentary pack (revision 7) | styles | Two narrators: Football commentator and News reporter | 2 h |
+| Re-telling from the result page, and the sample player (revision 7) | page | Re-telling from the command line (T027); the cached demo run shows both versions | 3 h |
+| Real-frame slow motion, the lower third, the vertical layout, zoom easing (revision 7) | S9 | Blending only (no starter clip is high-frame-rate); title, REPLAY bug, end card and AI label, horizontal | 4 h |
+| Automated single-endpoint privacy test, seven-day purge (revision 7) | guards | The consent wording and delete-now are checked by hand in T033 | 1.5 h |
+| Evaluation run, tuning, the full measurement write-up (revision 7) | evaluation | The T003 spike report gives SC-2; T034 records SC-1, SC-4 and SC-5 | 9 h |
 
 Two things follow from the privacy decision and are part of the MVP, not deferred:
 - No hosted interpolation. It would send the clip to a second vendor.
-- Frames are sent inside the request and never placed in the provider's file store, so there is no stored file to delete afterwards. What the provider keeps of a request is set by its terms, which the owner accepted on 2026-10-12 (spec.md section 8). T033 tests that frames go to the one configured vision endpoint and nowhere else.
+- Frames are sent inside the request and never placed in the provider's file store, so there is no stored file to delete afterwards. What the provider keeps of a request is set by its terms, which the owner accepted on 2026-10-12 (spec.md section 8). The vision adapter is the only code given a picture (provider-adapters.md); the automated test of that is deferred in revision 7, and T033 checks by hand that deleting a run removes its sheets.
 
 Principle IX ("a video always comes out") holds for analysis (generic mode) and slow motion (blending). It does not hold for the voice until a fallback provider is added; the cached demo run covers the presentation.
 
@@ -339,49 +355,46 @@ epic-replay/
 
 ## 6. Schedule and gates
 
-One person, ten working days of eight hours: 80 hours. 78 are planned.
+Revision 7 (2026-10-15): nine working days, not ten. Friday 23 October is not a working day and the presentation is on Saturday 24 October. Days 1 and 2 built the foundations and measured the voices and the agent framework; days 3 and 4 went to the key-moment problem (docs/provider-notes.md). From the afternoon of day 4, 43 hours remain, and 43 are planned.
 
-| Day | Tasks | Hours | What exists at the end |
-|-----|-------|-------|------------------------|
-| 1 | T001, T007, T009, T008, T006 | 8 | Repo, schemas, the fixture run, adapters that replay, cost and consent guards, 8 to 12 labelled clips |
-| 2 | T002, T003, T004 | 7 | Gate 0: measured accuracy, chosen voices, framework decision |
-| 3-4 | T038, T010, T012, T013, T015, T016, T017 | 16 | Gate 1a: clip to checked script from the command line |
-| 5-6, and 2 h of day 7 | T018 to T024 | 18 | Gate 1b: clip to video from the command line |
-| 7-8 | T027, T014, T029, T031 | 14 | Gate 2: clip to video on the page, one narrator |
-| 9 | T039, T040, T033 | 8 | Gate 3: three narrators, re-telling, deletion checked |
-| 10 | T028, T032, T034, T036, T037 | 7 | Gate 4: measured, rehearsed, ready to present |
+| Day | Date | Tasks | Hours | What exists at the end |
+|-----|------|-------|-------|------------------------|
+| 1 | Mon 12 Oct | T001, T007, T009, T008, T006 | 8 | Repo, schemas, the fixture run, adapters that replay, cost and consent guards, 9 labelled clips |
+| 2 | Tue 13 Oct | T002, T004 | 4 | Agent framework and voices chosen |
+| 3 | Wed 14 Oct | T003 (first pass, numbered frames) | | The key-moment problem measured |
+| 4 | Thu 15 Oct, afternoon | T003 (contact sheets) | 3 | Gate 0 |
+| 5 | Sun 18 Oct | T011, T010, T012, T038 | 8 | Clip to play sheet from the command line |
+| 6 | Mon 19 Oct | T013, T015, T016, T017, T018 | 8 | Gate 1a: clip to checked script from the command line |
+| 7 | Tue 20 Oct | T019, T020, T021, T022, T023 | 8 | Voice placed by key word, mix, slow motion, graphics |
+| 8 | Wed 21 Oct | T024, T027, T014, T039 | 8 | Gate 1b: clip to video; Gate 2: the flow, the play card, a second narrator |
+| 9 | Thu 22 Oct | T029, T031, T033, T034, T037 | 8 | Gate 3: the page; Gate 4: rehearsed, cached runs, presentation |
 
-There are 2 hours of margin, one on day 2 and one on day 10. That is not slack; every task is already at its smallest useful size. The protection is the order: the pipeline is finished before the page, the page before the extra narrators, and the cut list in tasks.md removes the last-built things first. Whatever slips, there is a working demo from day 8.
+There is no margin. The protection is the order: the pipeline is finished before the page, and the cut list in tasks.md removes the last-built things first. A cached run is made on day 9 whatever else slips.
 
-If "two weeks" leaves nine working days, day 9 and day 10 merge: the Nature documentary pack and the sample player go, and tuning is skipped.
-
-**Gate 0, end of day 2: do the foundations hold?**
-- Spotter: on the starter clips, the outcome is right on at least three in four, with one provider and one setting written down.
-- Key moment: the numbered-stills step lands within 0.3 s on at least three in four.
-- Voice: the provider is chosen. The football commentator voice is fixed with its measured words per second, and one calm line and one hushed line from the same provider are good enough to carry the other two styles.
-- Agents: a ReAct agent on agent-core has called a tool and submitted a result on `deepseek-flash`, with its steps streamed; or the hand-written loop is chosen, with the reason written down.
-- Privacy: decided 2026-10-12: adults only, DeepSeek sees the frames, disclaimer on the consent line, opt-out request sent. No starter clip has a child in it.
-- Guards: a test paid call is blocked by the cap.
+**Gate 0, end of day 4: can the key moment be found?**
+- Spotter: on the starter clips, the outcome is right on at least three in four.
+- Key moment: the final frame is within `EPIC_KEYFRAME_TOL_S` of a labelled moment on at least two in three clips, and the two repeats agree on most of those. The SC-2 target is re-set from the measured share.
+- Voice, agents, privacy and guards: met on days 1 and 2 (docs/provider-notes.md, docs/api-notes.md, spec.md section 8).
 - SC-1, SC-2 and SC-5 targets re-set from the measurements and written into spec.md.
 
-If the Spotter misses the bar: narrow the supported kinds of clip to those that passed; or switch the product to "tell me in one line what happened", where the user's sentence is the source of facts and the model only finds the moment and the supporting detail. Decide on day 2, not later.
+If the key moment misses the bar: the play card opens with the nudge active on every clip, the S1 candidates are offered as the choices, and the user's pick is the climax. The model then describes what happened and the user says when. Decide on day 4, not later.
 
-**Gate 1a, end of day 4: clip to checked script.**
-- From the command line, a clip produces a printed play card; after a yes, a storyboard and a script in the Football commentator style that passes the ten code checks. On the fixture and on three starter clips, one of them not sport.
+**Gate 1a, end of day 6: clip to checked script.**
+- From the command line, a clip produces a printed play card; after a yes, a storyboard and a script in the Football commentator style that passes the five code checks and names a `hit_word` on both key lines. On the fixture and on three starter clips, one of them not sport.
 
-**Gate 1b, two hours into day 7: clip to video.**
+**Gate 1b, two hours into day 8: clip to video.**
 - The fixture storyboard and script produce a finished MP4 with voice, mix, slow motion and graphics, with both key lines within 150 ms of target. One real clip goes end to end from the command line.
 
-**Gate 2, end of day 8: the page.**
-- Five real clips, at least one not sport, go from upload to video on the page in the Football commentator style without touching code. A reload mid-run restores the state. One run is done from a phone.
+**Gate 2, end of day 8: the flow and a second narrator.**
+- One command runs a clip from S0 to S10 with the play card answered; the same play is re-told in the News reporter style from the command line without an analysis call.
 
-**Gate 3, end of day 9: three narrators.**
-- All three styles are in the picker. One clip has been produced in all three, and the second and third made no analysis call. A run's frames were sent only inside requests (no file store), and deleting the run removes them locally.
+**Gate 3, middle of day 9: the page.**
+- Two real clips, one not sport, go from upload to video on the page without touching code. A reload mid-run restores the state. One run is done from a phone.
 
-**Gate 4, day 10: rehearsed and measured.**
-- Five rehearsal runs in a row across the three styles. Success criteria measured as spec.md section 10 describes and written into `docs/eval-notes.md`. A cached run and a backup video exist. Presentation ready.
+**Gate 4, end of day 9: rehearsed.**
+- Three rehearsal runs in a row across the two styles. A cached run and a backup video exist. SC-1, SC-2, SC-4 and SC-5 are written into `docs/eval-notes.md`. Presentation ready.
 
-**When ahead of plan, add back in this order:** the Verifier (T026); analysis on your own machines (X8); the signal scan (T011); a fallback voice provider; the wider viewer test (T035).
+**When ahead of plan, add back in this order:** the Verifier (T026); the Spotter's ReAct loop; the rest of the code checks; the Nature documentary pack; re-telling from the page (T040); analysis on your own machines (X8); a fallback voice provider; the wider viewer test (T035).
 
 ## 7. If a second person joins
 
@@ -394,7 +407,7 @@ A second person joining part-way should take, in order: the Verifier, the two ex
 | Risk | Likelihood | Effect | Response |
 |------|------------|--------|----------|
 | The vision model gets the outcome wrong on fast action, seen as frames a quarter of a second apart and without sound | High | Wrong narration | Zoom at every frame, the second look, Checkpoint A, generic mode; measured at Gate 0 with a pivot defined |
-| The key moment is off by half a second | Medium | Shout lands early or late | S1 signals, numbered stills, the user's nudge |
+| The key moment is off by half a second | Medium | Shout lands early or late | S1 candidates, contact sheets refined to single frames, the snap to the sound onset, the user's nudge |
 | The voice sounds like an assistant, not a commentator | Medium | Low wow | Bake-off with blind listening; style per line; ElevenLabs as the stronger option |
 | Take length varies, lines overrun | Medium | Overlapping speech | Per-line budget, speed-up limit, shorten loop, worst-case overlap check |
 | Blended slow motion looks soft on clips filmed at normal speed | High | Less impressive replay | The page tells users to film in slo-mo, which gives real frames; RIFE on the machine is a stretch item |
@@ -436,10 +449,10 @@ No violations to justify.
 ## 10. Demo plan
 
 1. Open with a finished result: fifteen seconds that show what the product does.
-2. Live, on the page: upload a clip filmed that day, ideally something that is not sport, choose Football commentator, press the button. While analysis runs, open the details and name the roles.
+2. Live, on the page: upload a clip filmed that day, ideally something that is not sport, choose Football commentator, press the button. While analysis runs, open the details: the signal scan's candidates, then the contact sheets the Spotter is shown and the cell it picks at each pass.
 3. The play card appears in the progress list: point at a highlighted item, correct something on purpose, confirm.
 4. While the video renders (about a minute), keep the details open: the script arriving, a code check sending a line back to the Commentator, the voice takes landing.
-5. Play the result. Then press News reporter and let the audience watch the same moment become tonight's top story in under a minute, with no new analysis. Do Nature documentary if time allows.
+5. Play the result. Then show the same moment as tonight's top story in the News reporter style, made from the same play sheet with no new analysis: from the cached run, since re-telling from the page is deferred (revision 7).
 6. Close with the limits: measured accuracy before correction, the cost per run and per extra style, what the confirmation step is for.
 
-If a provider fails on the day, the fallbacks keep the run going. If the network fails, switch to the cached run, which is labelled as such.
+If a provider fails on the day, or the network does, switch to the cached run, which is labelled as such; the fallback providers are deferred.

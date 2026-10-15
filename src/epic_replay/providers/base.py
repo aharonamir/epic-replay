@@ -44,6 +44,16 @@ class VisionModel(Protocol):
         self, frames: list[Frame], question: str, *, detail: str = "low", schema: dict | None = None
     ) -> VisionResult: ...
 
+    def look_sheet(
+        self,
+        sheet: Path,
+        cells: list[dict],
+        question: str,
+        *,
+        detail: str = "high",
+        schema: dict | None = None,
+    ) -> VisionResult: ...
+
 
 class SpeechSynth(Protocol):
     def estimate(self, text: str) -> float: ...

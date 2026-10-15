@@ -1,4 +1,4 @@
-"""Vision adapter: numbered frames in, text or validated JSON out.
+"""Vision adapter: numbered frames, or one contact sheet, in; text or validated JSON out.
 
 The only code that may be given a path under frames/, work.mp4 or the upload (FR-037).
 Frames travel inside the request as base64, never through a provider file store.
@@ -95,6 +95,50 @@ class VisionAdapter:
             fn=run,
             pre_checkpoint=self.pre_checkpoint,
         )
+        return self._result(payload, ep, schema, t0)
+
+    def look_sheet(
+        self,
+        sheet: Path,
+        cells: list[dict],
+        question: str,
+        *,
+        detail: str = "high",
+        schema: dict | None = None,
+    ) -> VisionResult:
+        """One contact sheet: up to nine frames in one image, cells numbered 1 to 9
+        (tools/contact_sheet.py, plan.md section 4.3). `cells` says which frame each cell is,
+        [{cell, frame, t}]; it is part of the cache key but is not sent, so the model can only
+        answer with a cell and code maps the cell to a frame."""
+        ep = llm.vision_endpoint(self.s)
+        request = {
+            "question": question,
+            "detail": detail,
+            "schema": schema,
+            "sheet_cells": [{"cell": c["cell"], "frame": c["frame"]} for c in cells],
+        }
+        key = cache_key(self.name, ep.model, request, [sha256_file(sheet)])
+        t0 = time.monotonic()
+
+        def live() -> dict:
+            return self._post(ep, [(None, Path(sheet))], question, detail, schema)
+
+        def run() -> PaidResult[dict]:
+            payload, hit = self.rec.fetch(self.name, key, live)
+            return PaidResult(payload, 0.0 if hit else payload["usage_usd"], hit)
+
+        payload = paid_call(
+            self.ledger,
+            stage=self.stage,
+            provider=ep.api_base,
+            model=ep.model,
+            estimate_usd=self.estimate(1, detail),
+            fn=run,
+            pre_checkpoint=self.pre_checkpoint,
+        )
+        return self._result(payload, ep, schema, t0)
+
+    def _result(self, payload: dict, ep, schema: dict | None, t0: float) -> VisionResult:
         hit = self.rec.mode == "replay"
         data = payload.get("data")
         if schema is not None and data is not None:
@@ -108,7 +152,7 @@ class VisionAdapter:
         )
         return VisionResult(payload["text"], data, info)
 
-    # -- live branch: not run yet (T003)
+    # -- live branch (run in T003)
     def _call_live(
         self,
         ep: llm.ModelEndpoint,
@@ -117,12 +161,25 @@ class VisionAdapter:
         detail: str,
         schema: dict | None,
     ) -> dict:
+        images = [(f"Frame {f.number}, {f.t:.2f} s", Path(f.path)) for f in frames]
+        return self._post(ep, images, question, detail, schema)
+
+    def _post(
+        self,
+        ep: llm.ModelEndpoint,
+        images: list[tuple[str | None, Path]],
+        question: str,
+        detail: str,
+        schema: dict | None,
+    ) -> dict:
+        """Each image, preceded by its text label when it has one, then the question."""
         if not ep.api_key:
             raise RuntimeError("EPIC_VISION_API_KEY (or DEEPSEEK_API_KEY) is not set")
         content: list[dict] = []
-        for f in frames:
-            content.append({"type": "text", "text": f"Frame {f.number}, {f.t:.2f} s"})
-            b64 = base64.b64encode(Path(f.path).read_bytes()).decode()
+        for label, path in images:
+            if label:
+                content.append({"type": "text", "text": label})
+            b64 = base64.b64encode(path.read_bytes()).decode()
             content.append(
                 {
                     "type": "image_url",

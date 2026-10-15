@@ -13,6 +13,8 @@ dependencies = [
   "jsonschema",
   "pydantic>=2",
   "numpy",
+  "scipy",
+  "opencv-python-headless",
   "playwright",
   "httpx",
   "python-dotenv",

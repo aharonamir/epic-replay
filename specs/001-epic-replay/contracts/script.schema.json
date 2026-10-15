@@ -149,6 +149,12 @@
             "type": "string",
             "minLength": 1
           },
+          "hit_word": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^\\S+$",
+            "description": "For a key line (role climax or replay_climax): the word that lands on the moment. S7 places the take so this word starts at the anchor time plus the reaction delay. It must occur in `text` (revision 7)."
+          },
           "delivery": {
             "type": "string",
             "description": "Short direction for the voice, kept apart from the words."

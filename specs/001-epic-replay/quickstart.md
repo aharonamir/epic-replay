@@ -115,7 +115,7 @@ uvicorn epic_replay.web.app:app --port 8000
 | Symptom | Look at |
 |---------|---------|
 | Run stops before the play card | `manifest.json` for the stage note; `cost.json` `blocked` list for a cap |
-| Wrong outcome on the play card | `spotter_trace.json` for what the Spotter looked at and was told, and `second_look.json`; raise the overview frame rate or the detail setting |
+| Wrong outcome or moment on the play card | `spotter_trace.json` for the sheets the Spotter was shown and the cells it chose, `signals.json` for the candidates, and `second_look.json`. `python tools/spike_t003_sheets.py --clip <name>` reruns one clip and writes a report with the sheets |
 | The Spotter loops or never submits | `spotter_trace.json`; the fixed-sequence fallback should have taken over, and the stage note says so |
 | Agent calls fail at once | `docs/api-notes.md` from T002; the model name (`deepseek-flash`) and base URL in `.env` |
 | Shout lands off the moment | `render.json` `climax_onsets`; then the climax frame in `play_sheet.json` |

@@ -12,9 +12,9 @@ runs/<run_id>/
   source.<ext>           # the upload, untouched
   work.mp4               # constant-frame-rate working copy
   clip_meta.json         # S0
-  signals.json           # S1
-  frames/                # S2, S3: numbered frames sent to the vision model
-  spotter_trace.json     # S2, S3: each tool call the Spotter made, with its result
+  signals.json           # S1: candidates, sound onsets, cuts
+  sheets/                # S2, S3: the contact sheets sent to the vision model
+  spotter_trace.json     # S2, S3: each sheet call, the cells shown and the cell chosen
   second_look.json       # S2: the independent answers used for comparison
   commentator_trace.json # S5: each draft, check result and rewrite
   play_sheet.json        # S3, then confirmed at Checkpoint A
@@ -54,7 +54,7 @@ Schema: [contracts/play_sheet.schema.json](contracts/play_sheet.schema.json). Ex
 | `activity`, `outcome_summary` | A value with its confidence and source. The activity is whatever is going on; it need not be a sport |
 | `actors[]` | People or groups, with a neutral descriptor, a role, an optional name the user gave, and which one the commentary follows |
 | `events[]` | What happened, in order: who, what, to what, with what result, when, how sure |
-| `climax` | The key moment: the event, its time and frame, how it was found, and the other candidates |
+| `climax` | The key moment: the event, its time and frame, how it was found (`sheets` or `sheets+sound` in revision 7), and the other candidates (S1's, and any second high point the overview reported) |
 | `focus_box` | Where to zoom on the climax frame, as fractions of the frame |
 | `sensitive` | A flag that stops the run, with the reason |
 | `agreement` | How many independent looks there were (the agent's and the second look), which fields they disagreed on, whether an escalation model was used |
@@ -87,11 +87,12 @@ Schema: [contracts/script.schema.json](contracts/script.schema.json). Example: [
 | `style` | Id of the style pack |
 | `words_per_second`, `reaction_delay_s` | Copied from the pack when the slots were built: the two numbers that turn slots into word budgets and anchors into start times |
 | `lines[]` | One take each: the segment, the role, the anchor, the longest it may run, the words, a delivery direction, and the events it relies on. Slot fields are written by code; text and delivery by the Commentator |
-| `anchor.type` | `start_at`: start at `timeline_t`. `hit_at`: start at `timeline_t` plus the reaction delay |
+| `anchor.type` | `start_at`: start at `timeline_t`. `hit_at`: the line's `hit_word` lands at `timeline_t` plus the reaction delay |
+| `hit_word` | Key lines only: the word that lands on the moment; it must occur in the text (revision 7) |
 | `headline`, `lower_third` | Text for the end card and the name strap; checked like spoken lines |
 | `approved` | `no`, `user` or `express` |
 
-Rules beyond the schema are the ten code checks in [contracts/stage-contracts.md](contracts/stage-contracts.md).
+Rules beyond the schema are the ten code checks in [contracts/stage-contracts.md](contracts/stage-contracts.md); the MVP builds five of them, and checks that a key line's `hit_word` occurs in its text.
 
 ### Style pack - `src/epic_replay/styles/<id>.json`
 
@@ -141,7 +142,17 @@ Rules beyond the schema: exactly one pack has `default: true`; ids and `order` v
 
 ### Signal scan - `signals.json`
 
-`motion[]` and `audio[]`: one value per frame, normalised 0 to 1. `motion_peaks[]`, `audio_peaks[]`: up to five each, with time and strength. `joint_peaks[]`: times where a motion peak and an audio peak fall within 0.3 s of each other.
+Revision 7, as written by `tools/signal_scan.py` and then by the S1 stage:
+
+| Field | Meaning |
+|-------|---------|
+| `fps`, `frames`, `has_sound` | The working copy's rate and length, and whether it has a sound track |
+| `cuts[]` | Frame numbers where the shot changes; motion within 3 frames of each is ignored |
+| `onsets_t[]` | Times where a sound begins (spectral flux, moved back to the start of the rise) |
+| `loud_peaks_t[]` | Times of the loudest moments, loudest first (HotClip's method) |
+| `candidates[]` | Up to three moments, best first: `frame`, `t`, `score`, `motion_z`, `flow_z`, `change_z`, `sound_z`, and `sound_onset_t` / `sound_onset_frame` (the earliest onset from 0.25 s before to 0.1 s after) and `loud_peak_t` |
+
+The per-frame curves are not stored; `tools/signal_scan.py --curves` writes them to a CSV for plotting.
 
 ### Check report - `checks.json`
 
@@ -159,7 +170,7 @@ Rules beyond the schema: exactly one pack has `default: true`; ids and `order` v
 
 ### Voice takes - `voice.json`
 
-Per line: file, `raw_duration_s`, `speed_factor` applied (1.0 to 1.12), `duration_s` after fitting, `timeline_start`, provider, voice, cost, and `dropped` with a reason when a line could not be fitted.
+Per line: file, `raw_duration_s`, `speed_factor` applied (1.0 to 1.12), `duration_s` after fitting, `timeline_start`, provider, voice, cost, and `dropped` with a reason when a line could not be fitted. For a key line also `hit_offset_s` (where its key word starts inside the fitted take) and `hit_source` (`timestamps` or `onset`), so that `timeline_start + hit_offset_s` is the time the word lands (revision 7).
 
 ### Mix - `mix.json`
 

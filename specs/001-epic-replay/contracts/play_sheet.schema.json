@@ -59,7 +59,7 @@
         "event_id": { "type": "string", "pattern": "^e[0-9]+$" },
         "t": { "type": "number", "minimum": 0 },
         "frame": { "type": "integer", "minimum": 0 },
-        "method": { "enum": ["stills", "signal_peak", "model_second", "user"] },
+        "method": { "enum": ["stills", "signal_peak", "model_second", "user", "sheets", "sheets+sound"], "description": "Revision 7: sheets (contact sheets refined by cell) or sheets+sound (then moved to a sound onset); user when nudged at the play card." },
         "confidence": { "$ref": "#/$defs/unit" },
         "candidates": {
           "type": "array",

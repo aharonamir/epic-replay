@@ -33,14 +33,14 @@ Built with openJiuwen agent-core's `ReActAgent`. The import paths and call signa
 
 | Agent | Model | Max iterations | Tools | Ends when |
 |-------|-------|----------------|-------|-----------|
-| Spotter | `EPIC_AGENT_MODEL` | 8 | `clip_info`, `look`, `zoom`, `submit_play_sheet` | `submit_play_sheet` accepts |
+| Spotter | `EPIC_AGENT_MODEL` | 8 | `clip_info`, `look_sheets`, `refine`, `submit_play_sheet` | `submit_play_sheet` accepts. In the MVP the Spotter runs as its fixed sequence, not as an agent (revision 7, plan.md section 4.3) |
 | Commentator | `EPIC_AGENT_MODEL` | 6 | `check_lines`, `submit_script` | `submit_script` accepts |
 
 Rules for both:
 
 - **Tools are plain Python functions** in `agents/<name>/tools.py` with typed arguments and a docstring. They hold the logic. The agent-core registration is a thin layer over them, so the same functions serve the hand-written loop if T002 chooses it, and the coded fallback.
 - **Tools return text or small JSON, never images.** Frames go from a tool to the vision adapter and the description comes back as text.
-- **Submit tools validate.** `submit_play_sheet` checks the schema, the descriptor rules and the limits; `submit_script` runs the ten code checks. On failure they return the errors and the loop continues.
+- **Submit tools validate.** `submit_play_sheet` checks the schema, the descriptor rules and the limits; `submit_script` runs the code checks (five of the ten in the MVP) and checks that each key line's `hit_word` occurs in it. On failure they return the errors and the loop continues.
 - **Limits live in the tools**, not in the prompt: frames per call, image calls per run, total iterations.
 - **Every tool call is logged** to `spotter_trace.json` or `commentator_trace.json` and emitted as a stage event.
 - **Coded fallback.** `agents/<name>/fallback.py` calls the same tools in a fixed order. The stage uses it when the agent does not submit in time.
@@ -53,45 +53,63 @@ from pathlib import Path
 from typing import Protocol
 from dataclasses import dataclass
 
+
 @dataclass
 class CallInfo:
-    provider: str          # "deepseek", "google", "local", ...
+    provider: str  # "deepseek", "google", "local", ...
     model: str
-    cost_usd: float        # from the provider's usage report when it gives one
+    cost_usd: float  # from the provider's usage report when it gives one
     latency_s: float
     cache_hit: bool
 
+
 @dataclass
 class Frame:
-    path: Path             # JPEG with the frame number burned in
-    number: int            # index into work.mp4
-    t: float               # seconds from the start of work.mp4
+    path: Path  # JPEG with the frame number burned in
+    number: int  # index into work.mp4
+    t: float  # seconds from the start of work.mp4
+
 
 @dataclass
 class VisionResult:
-    text: str              # the model's answer
-    data: dict | None      # parsed and validated when a schema was given
+    text: str  # the model's answer
+    data: dict | None  # parsed and validated when a schema was given
     info: CallInfo
+
 
 @dataclass
 class AudioResult:
-    wav_path: Path         # 24 kHz or higher, mono
-    duration_s: float      # after trimming silence
+    wav_path: Path  # 24 kHz or higher, mono
+    duration_s: float  # after trimming silence
     info: CallInfo
 
 
 class VisionModel(Protocol):
     def estimate(self, n_frames: int, detail: str) -> float: ...
-    def look(self, frames: list[Frame], question: str, *,
-             detail: str = "low", schema: dict | None = None) -> VisionResult:
+    def look(
+        self, frames: list[Frame], question: str, *, detail: str = "low", schema: dict | None = None
+    ) -> VisionResult:
         """Send the frames in order, each preceded by a text line 'Frame <number>, <t> s',
         inside the request (base64), never through a provider file store."""
+
+    def look_sheet(
+        self,
+        sheet: Path,
+        cells: list[dict],
+        question: str,
+        *,
+        detail: str = "high",
+        schema: dict | None = None,
+    ) -> VisionResult:
+        """One contact sheet of up to nine frames, cells numbered 1 to 9; `cells` is
+        [{cell, frame, t}] and stays on this side (revision 7)."""
 
 
 class SpeechSynth(Protocol):
     def estimate(self, text: str) -> float: ...
-    def synthesise(self, text: str, *, voice_id: str, delivery: str,
-                   language: str = "en") -> AudioResult: ...
+    def synthesise(
+        self, text: str, *, voice_id: str, delivery: str, language: str = "en"
+    ) -> AudioResult: ...
 ```
 
 Rules for both adapters:
@@ -99,7 +117,8 @@ Rules for both adapters:
 - **Paid-call wrapper.** Calls go through `guards.budget.paid_call(ctx, estimate, fn)`, which checks the caps before the call and writes estimate and actual to `cost.json` after it (FR-034).
 - **Record and replay.** `EPIC_PROVIDER_MODE` is `live`, `record` or `replay`. The cache key is a SHA-256 of adapter name, model, the canonical request and the hashes of any files sent. `replay` never touches the network and raises on a miss.
 - **Structured output.** With a schema, `look` asks for JSON, validates it and retries once on a schema error before raising.
-- **One endpoint for pictures.** `VisionModel` is the only code that may be given a path under `frames/`, `work.mp4` or the upload. A test in T033 enforces it (FR-037).
+- **One endpoint for pictures.** `VisionModel` is the only code that may be given a path under `frames/`, `sheets/`, `work.mp4` or the upload (FR-037). The automated test of this is deferred in revision 7.
+- **Contact sheets (revision 7).** `look_sheet` sends one image with no text label before it. The `cells` list, which frame each numbered cell is, goes into the cache key and is never sent, so the model can answer only with a cell. Its estimate is one image.
 - **Speech mapping.** The speech adapter turns `delivery` into whatever the provider uses: a style field for Gemini TTS, inline tags for ElevenLabs. Each style pack names its voice.
 
 ## What is and is not replayed in tests

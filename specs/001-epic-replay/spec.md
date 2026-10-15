@@ -2,13 +2,14 @@
 
 **Feature branch**: `001-epic-replay`
 **Created**: 2026-10-11
-**Status**: Draft, revision 6
+**Status**: Draft, revision 7
 **Input**: "You film your own goal or trick. The agent watches the clip, writes and voices an excited broadcast-style call of what actually happened, then adds a slow-motion replay and a score graphic."
 **Added in revision 2**: "In the MVP it is a web page: upload the video, choose a narration style (football enthusiast, news reporter and so on), see the progress, see the result."
 **Added in revision 3**: one person builds it in two weeks; the clip does not have to be a sport event; children are likely to appear in the footage; the confirmation step and the three styles stay.
 **Added in revision 4**: the agents are ReAct agents built with openJiuwen agent-core, on a cloud model provider, DeepSeek.
 **Added in revision 5**: the owner approved the visual design of the page.
 **Added in revision 6**: footage is adults only (men only in the MVP), with a disclaimer that frames go to DeepSeek; minimum output length and frame sampling are configuration; a case rule for the name check.
+**Added in revision 7**: nine working days; the key moment is proposed by code from motion and sound and chosen by the model on contact sheets; each key line is placed by its key word; the cuts that fit the remaining hours.
 
 ## 1. Summary
 
@@ -153,7 +154,7 @@ Before starting, the user picks a narration style from a small set of cards and 
 
 - **FR-005**: The system MUST produce a play sheet containing: the activity (whatever is going on; it need not be a sport), setting, actors, ordered events with start and end time, action, outcome and confidence, the climax time, an outcome summary, a focus box and a sensitivity flag (contracts/play_sheet.schema.json).
 - **FR-006**: The system MUST analyse the clip in two independent passes and MUST mark any field on which they disagree as low confidence.
-- **FR-007**: The system MUST locate the climax to within one frame of a specific frame of the working copy, and MUST record the method used and its confidence.
+- **FR-007**: The system MUST locate the climax to within one frame of a specific frame of the working copy, and MUST record the method used and its confidence. Candidate moments are proposed by code from motion and sound; the vision model chooses only among frames shown to it, by their position on a contact sheet; every time is taken from a frame or a sound onset, never from the model's text (revision 7).
 - **FR-008**: The system MUST refer to people only by a user-given name or a neutral visible descriptor, and MUST NOT infer or state identity, age, ethnicity, body characteristics or ability. Because the MVP scope is declared by the user as adult men, "he", "him" and "his" may be used for a person; female terms and any word that marks someone's age are in the banned lexicon. Words the user typed may be used as typed.
 - **FR-009**: The system MUST stop the run, with an explanation, when the clip shows injury, violence, distress or humiliation, or anyone undressed. A clip with no discernible action is not stopped; it goes to the play card with a request to pick the moment.
 
@@ -185,7 +186,7 @@ Before starting, the user picks a narration style from a small set of cards and 
 
 - **FR-022**: Each line MUST be synthesised separately and stored with its measured duration.
 - **FR-023**: A line that is longer than its slot MUST be sped up by at most 12 percent; beyond that a shorter line is requested, at most twice; after that a non-climax line is dropped.
-- **FR-024**: The climax call MUST start at the climax time plus the reaction delay of the chosen style (150 ms for Football commentator), with a tolerance of plus or minus 150 ms.
+- **FR-024**: The climax call MUST start at the climax time plus the reaction delay of the chosen style (150 ms for Football commentator), with a tolerance of plus or minus 150 ms. The call's key word, named in the script, is what lands at that time, not the start of the recorded take (revision 7).
 - **FR-025**: Voices MUST come from provider prebuilt voices or voices designed from a text description. Voice cloning from a recording of a person is disabled.
 
 **Sound**
@@ -304,9 +305,19 @@ Targets marked (provisional) are re-set at Gate 0 from the spike measurements, a
   - The Open Platform terms (effective 2026-04-29) say nothing on training, retention or location.
   - I found no statement that API inputs are excluded from training, and no retention period.
 
+**Decided by the owner on 2026-10-15 (revision 7)**
+
+- Friday 23 October is not a working day: nine working days, presentation on Saturday 24 October. From the afternoon of day 4, 43 hours remain and 43 are planned (tasks.md).
+- The key moment: the signal scan (S1) is built; the Spotter looks at contact sheets of nine frames and answers with a cell; code refines in passes and snaps to a sound onset (plan.md sections 4.2 to 4.4). The approach comes from the first spike's failure (median error about 2.3 s with numbered frames) and from HotClip's rule that the model never states a time.
+- The Spotter runs as a fixed sequence of tool calls; the Commentator is the only ReAct agent in the MVP. The Spotter's loop is the second thing to add back.
+- Each key line is placed by its key word (`hit_word`), from the provider's character timings or the take's first onset (plan.md section 4.8).
+- The MVP ships two styles, Football commentator and News reporter; the Nature documentary pack is deferred. This replaces the decision of 2026-10-11 that the MVP ships three.
+- The cuts in tasks.md are applied: five of the ten code checks, re-telling from the command line only, no sample player, blending only for slow motion, no lower third, a reduced privacy check, and the evaluation write-up reduced to four criteria.
+- The speech provider is ElevenLabs `eleven_v3`, as T004 chose (docs/provider-notes.md); this replaces the interim OpenAI default of revision 6.
+
 **Still open**
 
-1. If "two weeks" leaves fewer than ten full working days before the presentation, which item of the cut list in tasks.md goes first?
+None.
 
 ## 9. Stretch items
 
@@ -330,7 +341,6 @@ Sections 3 to 5 describe the full design. One person in ten working days builds 
 | Deferred | What the MVP does instead | Requirement affected |
 |----------|---------------------------|----------------------|
 | Verifier agent | Code checks only; a rejected line is rewritten by the Commentator from the code check's reason | FR-020 |
-| Signal scan (S1) | The key moment comes from the model's second, the numbered stills, and the user's nudge | FR-007 (method) |
 | Escalation model on disagreement | The disagreeing field is highlighted on the play card | FR-006 (met), plan 4.3 |
 | Fallback providers | One retry on the same provider. A failed voice stage offers "try again" | FR-035, US4 scenario 1 |
 | Frame interpolation | Real frames when the clip was filmed at 100 fps or more; FFmpeg frame blending otherwise | FR-028 (two of three methods) |
@@ -338,14 +348,21 @@ Sections 3 to 5 describe the full design. One person in ten working days builds 
 | Burned-in captions | None | FR-032 |
 | Editing each event on the play card | Confirm, keep or remove an item, edit the outcome sentence, nudge the moment, or reject | FR-010 (part) |
 | 30-clip evaluation set | 8 to 12 clips, across sport, tricks, pets, family and everyday moments | SC-2 |
-| Viewer test with five people | Three people, during rehearsal | SC-6, SC-9 |
+| Viewer test with five people | Not run; SC-6 and SC-9 are not measured | SC-6, SC-9 |
+| The Nature documentary pack (revision 7) | Two styles: Football commentator and News reporter | FR-039 (two of three styles) |
+| Re-telling from the result page, and the sample player (revision 7) | Re-telling from the command line; the cached demo run shows both versions; style cards without audio | FR-042 (part), FR-039 (sample), US5 scenarios 1, 2 and 5 |
+| The Spotter's ReAct loop (revision 7) | A fixed sequence of the same tools | none; plan.md section 4.3 |
+| Code-check rules 2, 3, 7, 9 and 10 (revision 7) | Rules 1, 4, 5, 6 and 8 | FR-019 (part) |
+| Real-frame slow motion, the lower third, the vertical layout (revision 7) | Blending only; title, REPLAY bug, end card and AI label, horizontal | FR-028 (one of three methods), FR-029 (part) |
+| The sound set beyond a crowd bed, a roar and a sting (revision 7) | Those three per style | FR-026 (part) |
+| The automated single-endpoint test and the seven-day purge (revision 7) | Consent wording and delete-now checked by hand | FR-037 (test), retention |
 
 Success criteria as measured in the one-person MVP:
 
-- **SC-2** is reported on the 8 to 12 clips, with the count stated.
-- **SC-3** becomes: the code checks catch every planted error of the five kinds code can see (invented name, invented number, missing reference, over budget, banned term). The other five kinds are caught only by the user at the play card until the Verifier is built, and are reported as not covered.
-- **SC-6** and **SC-9** are reported from three viewers and marked indicative.
-- **SC-7** is five consecutive runs, not ten.
+- **SC-1**, **SC-2**, **SC-4** and **SC-5** are the four criteria measured (T003 report and T034's rehearsal runs). SC-2 is reported on the nine starter clips, with the count stated, from the T003 spike report.
+- **SC-3** becomes: the code checks (rules 1, 4, 5, 6 and 8) catch every planted error of the five kinds code can see (invented name, invented number, missing reference, over budget, banned term). The other five kinds are caught only by the user at the play card until the Verifier is built, and are reported as not covered.
+- **SC-6** and **SC-9** are not measured in the MVP.
+- **SC-7** is three consecutive runs, not ten.
 - **US4 scenario 1** is not met until a fallback voice provider is added.
 
 ## 11. Revision history
@@ -356,3 +373,4 @@ Success criteria as measured in the one-person MVP:
 - Revision 4 (2026-10-11): agents are ReAct agents on openJiuwen agent-core with a plain Python runner; jiuwenswarm dropped. Model provider DeepSeek, `deepseek-flash`. Because DeepSeek takes images and not video or sound, analysis works from numbered frames. FR-003 reworded so the page states truthfully what is sent and where. FR-037 is unchanged and, as far as I could confirm, not met by DeepSeek: recorded as an open decision in section 8 with three ways to resolve it.
 - Revision 6 (2026-10-12): adults only, men only in the MVP; DeepSeek sees frames, with a disclaimer, FR-037 waived for the demo (section 8). FR-003 and FR-008 reworded. Minimum output length is configuration (default 20 s, FR-014). Frame sampling default 4 per second with optional motion thinning; key-frame tolerance a quarter second. FFmpeg 8. The name check compares case-insensitively and runs on a sentence-cased copy of shouted lines. Existing ids are unchanged.
 - Revision 5 (2026-10-11): the owner approved the visual design of the page, made on the design canvas. Added contracts/design.md (colours, type, layout, parts) and a copy of the canvas files in contracts/design-canvas/. contracts/ui.md redrawn to the approved layout, with a table of all wording. Style packs gain an optional `graphics.accent_text`; the page takes its colour from the chosen pack. The descriptions of two example packs shortened, and the News reporter's no longer says "goal". No requirement, success criterion or task hour changed.
+- Revision 7 (2026-10-15): nine working days. The signal scan (S1) is built; the Spotter looks at contact sheets and answers with a cell, code refines and snaps to a sound onset; the Spotter runs as a fixed sequence (plan.md sections 4.2 to 4.4). Key lines are placed by their key word (`hit_word`, plan.md section 4.8). FR-007 and FR-024 extended. The MVP ships two styles; section 10 lists the other cuts. Section 8 records the decisions. Existing ids are unchanged.

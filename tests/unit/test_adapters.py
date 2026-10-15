@@ -123,3 +123,25 @@ def test_first_json_takes_first_object():
 
     assert _first_json('{"a": 1}\n{"a": 2}') == {"a": 1}
     assert _first_json('```json\n{"a": 1}\n```') == {"a": 1}
+
+
+def test_sheet_replays_and_cells_change_the_key(tmp_path, no_network):
+    s, led, rec = setup(tmp_path)
+    sheet = tmp_path / "sheet.jpg"
+    sheet.write_bytes(b"jpeg-sheet")
+    cells = [{"cell": k + 1, "frame": 80 + k, "t": (80 + k) / 30} for k in range(9)]
+    ep = llm.vision_endpoint(s)
+    req = {
+        "question": "which cell?",
+        "detail": "high",
+        "schema": None,
+        "sheet_cells": [{"cell": c["cell"], "frame": c["frame"]} for c in cells],
+    }
+    key = cache_key("vision", ep.model, req, [sha256_file(sheet)])
+    put_recording(rec, "vision", key, {"text": '{"cell": 4}', "data": None, "usage_usd": 0.001})
+    v = VisionAdapter(led, settings=s, recorder=rec)
+    out = v.look_sheet(sheet, cells, "which cell?")
+    assert out.text == '{"cell": 4}' and out.info.cache_hit
+    shifted = [dict(c, frame=c["frame"] + 1) for c in cells]
+    with pytest.raises(ReplayMiss):
+        v.look_sheet(sheet, shifted, "which cell?")

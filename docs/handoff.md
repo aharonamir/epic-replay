@@ -1,5 +1,7 @@
 # Epic Replay: state and handoff
 
+**Update 2026-10-15:** the owner chose an approach and spec revision 7 records it: signal scan plus contact sheets answered by cell, refined in passes and snapped to a sound onset; nine working days; the cuts in tasks.md. Sections 4.4, 5 and 7 below are answered there. How to continue: docs/next-session.md.
+
 Written 2026-10-15 (day 4 of the work calendar; day 1 was Mon 2026-10-12). Purpose: let someone, or a fresh Claude Code session, pick up exactly where this stopped, and let the owner take the open problem to a chat for a better overall approach.
 Everything here is checked against the repository at the commit that contains this file. Where something is a guess, it says so.
 
