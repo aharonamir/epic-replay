@@ -2,6 +2,8 @@
 
 Updated 2026-10-12 (day 1, Monday). Work week Sunday to Thursday: nine working days to Thu Oct 22; presentation given as Oct 24 (a Saturday). The day-count question is open (see "Open questions").
 
+**Newer state: see [handoff.md](handoff.md) (2026-10-15).**
+
 ## Done (all committed)
 
 - Spec revision 6 (adults only, men only in the MVP; DeepSeek sees frames, with a disclaimer; FR-037 waived for the demo; config for minimum output length, frame rate and key-frame tolerance; case-insensitive name check; speech provider default).
