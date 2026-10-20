@@ -131,7 +131,7 @@ Full input and output contracts are in contracts/stage-contracts.md.
 
 DeepSeek's API takes still images, not video or sound. Revision 7 changes how the frames are shown. The first spike sent up to 60 numbered frames per call and asked for the frame number of the high point: the median error was about 2.3 s, and two runs of the same input often disagreed (docs/provider-notes.md). The model is good at saying what happens and poor at reading a frame number off one image among sixty.
 
-- **Contact sheets.** Nine frames go into one 3x3 image, each cell marked 1 to 9 in its top-left corner (`tools/contact_sheet.py`; the idea is HotClip's). The model answers with a cell; code knows which frame each cell is, so no time is ever read from the model's text. The same frames give the same JPEG bytes on every run, so recorded calls replay. One sheet is one image, so a call costs about what one frame did before.
+- **Contact sheets.** Nine frames go into one 3x3 image, each cell marked 1 to 9 in its top-left corner (`src/epic_replay/media/contact_sheet.py`; the idea is HotClip's). The model answers with a cell; code knows which frame each cell is, so no time is ever read from the model's text. The same frames give the same JPEG bytes on every run, so recorded calls replay. One sheet is one image, so a call costs about what one frame did before.
 - **The Spotter runs as a fixed sequence** in the MVP (revision 7). Its tools are plain functions, so the agent-core ReAct loop over them can be added back later (section 4.15):
 
   | Tool | Arguments | Does | Returns |
@@ -156,6 +156,8 @@ DeepSeek's API takes still images, not video or sound. Revision 7 changes how th
 4. At Checkpoint A the user picks the proposed frame or another moment, and may nudge it frame by frame. That frame is the climax, `climax.method` `user` (FR-007, FR-010).
 
 Method and confidence are stored (FR-007). The user's pick at Checkpoint A is the climax on every run.
+
+As built in T012 (`agents/spotter.py`), where the steps above leave a choice open: a proposal with no sheet showing the high point is the strongest S1 candidate at its sound onset, `climax.method` `signal_peak`; with no S1 candidate either, the middle of the clip, confidence 0. The proposal's confidence is 0.6 x the sheet's sureness / 10, so it is always below the 0.7 at which the card highlights a field. The overview asks for no event list: the play sheet has two events, the activity over the whole clip and the outcome at the proposed frame (`e2`, the climax event). A second high point is listed as another moment when it is more than 0.5 s from every listed one.
 
 ### 4.5 Checkpoint A: the play card
 

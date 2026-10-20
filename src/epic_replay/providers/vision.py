@@ -55,6 +55,15 @@ def _first_json(text: str):
     return obj
 
 
+def _sheet_request(cells: list[dict], detail: str, schema: dict | None) -> dict:
+    """The cache-key request of a sheet call, without its question."""
+    return {
+        "detail": detail,
+        "schema": schema,
+        "sheet_cells": [{"cell": c["cell"], "frame": c["frame"]} for c in cells],
+    }
+
+
 def _misfit(data, schema: dict | None) -> str:
     """Why a parsed reply does not fit the schema, or "" when it does (or there is none)."""
     if schema is None:
@@ -127,14 +136,10 @@ class VisionAdapter:
         schema: dict | None = None,
     ) -> VisionResult:
         """One contact sheet: up to nine frames in one image, cells numbered 1 to 9
-        (tools/contact_sheet.py, plan.md section 4.3). `cells` says which frame each cell is,
+        (media/contact_sheet.py, plan.md section 4.3). `cells` says which frame each cell is,
         [{cell, frame, t}]; it is part of the cache key but is not sent, so the model can only
         answer with a cell and code maps the cell to a frame."""
-        request = {
-            "detail": detail,
-            "schema": schema,
-            "sheet_cells": [{"cell": c["cell"], "frame": c["frame"]} for c in cells],
-        }
+        request = _sheet_request(cells, detail, schema)
 
         def send(ep: llm.ModelEndpoint, q: str) -> dict:
             return self._post(ep, [(None, Path(sheet))], q, detail, schema)
@@ -142,6 +147,28 @@ class VisionAdapter:
         return self._ask(
             request, [sha256_file(sheet)], send, question, schema, self.sheet_estimate()
         )
+
+    def new_sheet_calls(
+        self,
+        sheet: Path,
+        cells: list[dict],
+        question: str,
+        *,
+        detail: str = "high",
+        schema: dict | None = None,
+    ) -> int:
+        """How many paid calls look_sheet would make now: 0 when the recordings answer it,
+        1 when the first call is new (a retry may follow) or only a needed retry is new."""
+        model = llm.vision_endpoint(self.s).model
+        request, files = _sheet_request(cells, detail, schema), [sha256_file(sheet)]
+        key = cache_key(self.name, model, dict(request, question=question), files)
+        if not self.rec.has(self.name, key):
+            return 1
+        data = json.loads(self.rec.path(self.name, key).read_text()).get("data")
+        if schema is None or not _misfit(data, schema):
+            return 0
+        retry = dict(request, question=question + "\n" + RETRY_LINE)
+        return 0 if self.rec.has(self.name, cache_key(self.name, model, retry, files)) else 1
 
     def _ask(self, request, files, send, question, schema, estimate) -> VisionResult:
         """One call, and with a schema one retry with RETRY_LINE when the reply does not fit.

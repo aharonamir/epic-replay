@@ -39,10 +39,11 @@ import numpy as np
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "src"))
 sys.path.insert(0, str(REPO / "tools"))
-import contact_sheet as cs  # noqa: E402
+
 
 from epic_replay import config  # noqa: E402
 from epic_replay.guards.budget import CapExceeded, Ledger  # noqa: E402
+from epic_replay.media import contact_sheet as cs  # noqa: E402
 from epic_replay.providers.replay import ReplayMiss  # noqa: E402
 from epic_replay.providers.vision import SchemaMisfit, VisionAdapter  # noqa: E402
 from epic_replay.stages import s1_signals as signal_scan  # noqa: E402

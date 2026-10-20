@@ -15,8 +15,8 @@ Code always knows which frame a cell is; no time is read from the model's text.
 The same frames give the same JPEG bytes on every run (fixed size, fixed quality, no
 metadata), so recorded vision calls replay from the cache.
 
-    python tools/contact_sheet.py clip.mp4 --start 1.5 --end 4.5 --out sheet1.jpg
-    python tools/contact_sheet.py clip.mp4 --refine sheet1.json --cell 5 --out sheet2.jpg
+    python -m epic_replay.media.contact_sheet clip.mp4 --start 1.5 --end 4.5 --out sheet1.jpg
+    python -m epic_replay.media.contact_sheet clip.mp4 --refine sheet1.json --cell 5 --out sheet2.jpg
 """
 
 from __future__ import annotations
