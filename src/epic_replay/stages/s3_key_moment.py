@@ -26,6 +26,7 @@ def run(ctx: RunContext) -> StageResult:
         signals,
         snap_s=ctx.settings.sound_snap_s,
         model=llm.vision_endpoint(ctx.settings).model,
+        events_look=trace.get("events_call"),
     )
     ctx.path(PLAY_SHEET).write_text(json.dumps(sheet, indent=2) + "\n")
     c = sheet["climax"]

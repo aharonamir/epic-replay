@@ -40,6 +40,7 @@ from epic_replay.stages.base import RunContext, StageResult
 
 WORK = "work.mp4"
 SIGNALS = "signals.json"
+TOP = 5  # the play card's other moments (plan.md 4.4); the overview looks at the first three
 SR = 22050
 N_FFT, HOP = 1024, 256
 
@@ -272,7 +273,7 @@ def run(ctx: RunContext) -> StageResult:
     work = ctx.path(WORK)
     if not work.exists():
         return StageResult("failed", f"no {WORK} in the run folder")
-    result, _ = scan(work)
+    result, _ = scan(work, top=TOP)
     ctx.path(SIGNALS).write_text(json.dumps(result, indent=2) + "\n")
     status = "ok" if result["has_sound"] else "degraded"
     note = "" if result["has_sound"] else "no sound: motion only"

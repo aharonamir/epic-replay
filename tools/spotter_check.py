@@ -52,7 +52,7 @@ def prepare(path: Path, s: config.Settings) -> RunContext:
 
 
 def count(ctx: RunContext) -> tuple[int, int]:
-    """(sheets, calls not recorded) for this clip's overview, sending nothing."""
+    """(calls, calls not recorded) for this clip's overview and events call, sending nothing."""
     vis = s2_analysis.vision_for(ctx)
     tools = spotter.SpotterTools(ctx, vis)
     plan = tools.plan_overview(tools.clip_info())
@@ -61,7 +61,9 @@ def count(ctx: RunContext) -> tuple[int, int]:
         img, cells = tools.sheet(entry)
         q = spotter.OVERVIEW_Q.format(where=entry["where"])
         new += vis.new_sheet_calls(img, cells, q, schema=spotter.OVERVIEW_SCHEMA)
-    return len(plan), new
+    uniform = [tools.sheet(e) for e in plan if e["kind"] == "uniform"]
+    new += vis.new_set_calls(uniform, spotter.EVENTS_Q, schema=spotter.EVENTS_SCHEMA)
+    return len(plan) + 1, new
 
 
 def main() -> None:
@@ -78,7 +80,7 @@ def main() -> None:
         if a.count:
             n, new = count(ctx)
             total_sheets, total_new = total_sheets + n, total_new + new
-            print(f"{label['clip']:28s} sheets {n}, new calls {new}")
+            print(f"{label['clip']:28s} calls {n}, new calls {new}")
             continue
         r2 = s2_analysis.run(ctx)
         s3_key_moment.run(ctx)
@@ -89,11 +91,13 @@ def main() -> None:
         err = min((c["frame"] - round(w * fps) for w in wants), key=abs)
         print(f"{label['clip']:28s} S2 {r2.status:8s} {c['method']:13s} frame {c['frame']:4d} "
               f"error {err:+5d} frames, others {len(c['candidates'])}, "
-              f"cost {ctx.ledger.total_usd:.4f} USD | {sheet['outcome_summary']['value'][:60]}")  # fmt: skip
+              f"events {len(sheet['events'])}, cost {ctx.ledger.total_usd:.4f} USD | "
+              f"{sheet['outcome_summary']['value'][:50]}")  # fmt: skip
     if a.count:
-        print(f"total: {total_sheets} sheets, {total_new} new calls, about "
+        print(f"total: {total_sheets} calls, {total_new} new calls, about "
               f"{VisionAdapter.expected_sheets_usd(total_new):.3f} USD (average), at most "
-              f"{total_new * 0.008:.3f} USD (ceiling), plus a retry for any misfit reply")  # fmt: skip
+              f"{total_new * 0.016:.3f} USD (ceiling: two images a call when the new calls are the "
+              f"events calls), plus a retry for any misfit reply")  # fmt: skip
 
 
 if __name__ == "__main__":

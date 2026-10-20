@@ -37,6 +37,10 @@ EXPECTED_OUT_TOKENS = 800
 SHEET_CALL_CEILING_USD = 0.008
 SHEET_CALL_MEAN_USD = 0.0035
 
+# Per-call timeout (plan.md 4.4): S2 waits for its slowest parallel call, and T003's
+# longest was 72 s. A call that times out raises httpx.TimeoutException; S2 leaves it out.
+TIMEOUT_S = 45.0
+
 # A reply that does not fit the schema is asked once more with this line (T003 spike).
 RETRY_LINE = "Fill in the fields; do not repeat the schema."
 
@@ -62,6 +66,12 @@ def _sheet_request(cells: list[dict], detail: str, schema: dict | None) -> dict:
         "schema": schema,
         "sheet_cells": [{"cell": c["cell"], "frame": c["frame"]} for c in cells],
     }
+
+
+def _set_request(sheets: list[tuple[Path, list[dict]]], detail: str, schema) -> dict:
+    """The cache-key request of a call with several sheets, without its question."""
+    grids = [[{"cell": c["cell"], "frame": c["frame"]} for c in cells] for _, cells in sheets]
+    return {"detail": detail, "schema": schema, "grids": grids}
 
 
 def _misfit(data, schema: dict | None) -> str:
@@ -148,6 +158,27 @@ class VisionAdapter:
             request, [sha256_file(sheet)], send, question, schema, self.sheet_estimate()
         )
 
+    def look_sheet_set(
+        self,
+        sheets: list[tuple[Path, list[dict]]],
+        question: str,
+        *,
+        detail: str = "high",
+        schema: dict | None = None,
+    ) -> VisionResult:
+        """Several contact sheets in one call, each preceded by the label "Grid k", so the
+        model answers with a grid and a cell; code maps both to a frame. The cells of every
+        grid are part of the cache key and are not sent."""
+        request = _set_request(sheets, detail, schema)
+        images = [(f"Grid {k + 1}", Path(img)) for k, (img, _) in enumerate(sheets)]
+
+        def send(ep: llm.ModelEndpoint, q: str) -> dict:
+            return self._post(ep, images, q, detail, schema)
+
+        files = [sha256_file(img) for img, _ in sheets]
+        estimate = len(sheets) * self.sheet_estimate()
+        return self._ask(request, files, send, question, schema, estimate)
+
     def new_sheet_calls(
         self,
         sheet: Path,
@@ -159,8 +190,23 @@ class VisionAdapter:
     ) -> int:
         """How many paid calls look_sheet would make now: 0 when the recordings answer it,
         1 when the first call is new (a retry may follow) or only a needed retry is new."""
+        request = _sheet_request(cells, detail, schema)
+        return self._new_calls(request, [sha256_file(sheet)], question, schema)
+
+    def new_set_calls(
+        self,
+        sheets: list[tuple[Path, list[dict]]],
+        question: str,
+        *,
+        detail: str = "high",
+        schema: dict | None = None,
+    ) -> int:
+        """As new_sheet_calls, for look_sheet_set."""
+        request = _set_request(sheets, detail, schema)
+        return self._new_calls(request, [sha256_file(img) for img, _ in sheets], question, schema)
+
+    def _new_calls(self, request: dict, files: list[str], question: str, schema) -> int:
         model = llm.vision_endpoint(self.s).model
-        request, files = _sheet_request(cells, detail, schema), [sha256_file(sheet)]
         key = cache_key(self.name, model, dict(request, question=question), files)
         if not self.rec.has(self.name, key):
             return 1
@@ -247,7 +293,7 @@ class VisionAdapter:
         r = httpx.post(
             ep.api_base.rstrip("/") + "/chat/completions",
             json=body,
-            timeout=120,
+            timeout=TIMEOUT_S,
             headers={"Authorization": f"Bearer {ep.api_key}"},
         )
         r.raise_for_status()

@@ -150,7 +150,7 @@ Revision 7, as written by the S1 stage (`src/epic_replay/stages/s1_signals.py`):
 | `cuts[]` | Frame numbers where the shot changes; motion within 3 frames of each is ignored |
 | `onsets_t[]` | Times where a sound begins (spectral flux, moved back to the start of the rise) |
 | `loud_peaks_t[]` | Times of the loudest moments, loudest first (HotClip's method) |
-| `candidates[]` | Up to three moments, best first: `frame`, `t`, `score`, `motion_z`, `flow_z`, `change_z`, `sound_z`, and `sound_onset_t` / `sound_onset_frame` (the earliest onset from 0.25 s before to 0.1 s after) and `loud_peak_t` |
+| `candidates[]` | Up to five moments, best first (the overview's candidate sheets use the first three; the play card offers all five): `frame`, `t`, `score`, `motion_z`, `flow_z`, `change_z`, `sound_z`, and `sound_onset_t` / `sound_onset_frame` (the earliest onset from 0.25 s before to 0.1 s after) and `loud_peak_t` |
 
 The per-frame curves are not stored; `python -m epic_replay.stages.s1_signals <clip> --curves` writes them to a CSV for plotting.
 
