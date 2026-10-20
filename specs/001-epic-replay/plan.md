@@ -355,6 +355,8 @@ epic-replay/
 
 ## 6. Schedule and gates
 
+Re-plan (owner, 2026-10-20): the presentation moves to Tuesday 27 October. The working days left are Tue 20, Wed 21, Thu 22, Sat 24, Sun 25 and Mon 26; Friday 23 is off. Tue 20 to Thu 22 build the shortest path from upload to video; from Sat 24 the cut items are added back in the owner's order; at least 2 h of margin stay on Mon 26. Gates 1 to 4 are re-set below.
+
 Revision 8 (2026-10-20): Gate 0's key-moment line is no; the fallback below is applied. T012 drops refinement and the second look (3 h to 2 h), and the play card's nudge and other moments are no longer in the cut list. The freed hour is margin.
 
 Revision 7 (2026-10-15): nine working days, not ten. Friday 23 October is not a working day and the presentation is on Saturday 24 October. Days 1 and 2 built the foundations and measured the voices and the agent framework; days 3 and 4 went to the key-moment problem (docs/provider-notes.md). From the afternoon of day 4, 43 hours remain, and 43 are planned.
@@ -364,14 +366,16 @@ Revision 7 (2026-10-15): nine working days, not ten. Friday 23 October is not a 
 | 1 | Mon 12 Oct | T001, T007, T009, T008, T006 | 8 | Repo, schemas, the fixture run, adapters that replay, cost and consent guards, 9 labelled clips |
 | 2 | Tue 13 Oct | T002, T004 | 4 | Agent framework and voices chosen |
 | 3 | Wed 14 Oct | T003 (first pass, numbered frames) | | The key-moment problem measured |
-| 4 | Thu 15 Oct, afternoon | T003 (contact sheets) | 3 | Gate 0 |
-| 5 | Sun 18 Oct | T011, T010, T012, T038 | 7 | Clip to play sheet from the command line |
-| 6 | Mon 19 Oct | T013, T015, T016, T017, T018 | 8 | Gate 1a: clip to checked script from the command line |
-| 7 | Tue 20 Oct | T019, T020, T021, T022, T023 | 8 | Voice placed by key word, mix, slow motion, graphics |
-| 8 | Wed 21 Oct | T024, T027, T014, T039 | 8 | Gate 1b: clip to video; Gate 2: the flow, the play card, a second narrator |
-| 9 | Thu 22 Oct | T029, T031, T033, T034, T037 | 8 | Gate 3: the page; Gate 4: rehearsed, cached runs, presentation |
+| 4 | Thu 15 Oct, afternoon | T003 (contact sheets) | 3 | Gate 0 measured |
+| 5, 6 | Sun 18, Mon 19 Oct | T003 finished; revision 8 | | Gate 0 answered; the user picks the key moment |
+| 7 | Tue 20 Oct | T010, T011, T012, T013, T038, T015, T018, T019 | 8 | Clip to play sheet, storyboard and slow-motion segments from the command line |
+| 8 | Wed 21 Oct | T016, T017, T020, T021, T022, T024 | 7.5 + 0.5 buffer | Script by the Commentator agent, voice, mix, composed video from the fixture |
+| 9 | Thu 22 Oct | T027, T031 (command line), T014, T029, T031 (page) | 6.5 + 1.5 buffer | Gate 1: a real clip to video from the command line; the play card and the page, core |
+| 10 | Sat 24 Oct | Add back 9, 4, 1 (T039), 6 + 7, 13 + 11 (T033) | 6 + 2 buffer | Gate 2: live progress, style cards, phone layout; the News reporter |
+| 11 | Sun 25 Oct | Add back 2 (T023), 3, 8; T034 (cached run, backup); T037 | 5.25 + 2.75 buffer | Gate 3: cached run, backup video, deck |
+| 12 | Mon 26 Oct | Add back 14 (T034 rehearsals); T037 run-through; if time 5, 10, 12 | 2 (+2 if time) + at least 2 margin | Gate 4: rehearsed |
 
-There is no margin. The protection is the order: the pipeline is finished before the page, and the cut list in tasks.md removes the last-built things first. A cached run is made on day 9 whatever else slips.
+The add-back numbers are the cut items the owner listed on 2026-10-20 (tasks.md, days 10 to 12, names each). The protection is the order: the whole path from upload to video is built Tue 20 to Thu 22 in its smallest form, then items are added back in the owner's order, and the cached run and backup video are made on Sun 25 whatever else slips.
 
 **Gate 0, end of day 4: can the key moment be found?**
 - Spotter: on the starter clips, the outcome is right on at least three in four.
@@ -383,20 +387,17 @@ If the key moment misses the bar: the play card opens with the nudge active on e
 
 Result (2026-10-20, docs/provider-notes.md): Spotter yes, 13 of 16 repeats right; key moment no, 3 of 16 within tolerance; voice, agents, privacy and guards yes; SC-1, SC-2 and SC-5 re-set in spec.md section 5. The fallback above is applied (revision 8).
 
-**Gate 1a, end of day 6: clip to checked script.**
-- From the command line, a clip produces a printed play card; after a yes, a storyboard and a script in the Football commentator style that passes the five code checks and names a `hit_word` on both key lines. On the fixture and on three starter clips, one of them not sport.
+**Gate 1, end of Thu 22: a real clip to video from the command line.**
+- One command runs a real starter clip from S0 to S10 with live providers: the play-card pick typed at the prompt, a script by the Commentator agent in the Football commentator style that passes the three code checks, voice, mix, blended slow motion and the FFmpeg text overlays with the AI label. The fixture renders with both key lines within 150 ms of target.
 
-**Gate 1b, two hours into day 8: clip to video.**
-- The fixture storyboard and script produce a finished MP4 with voice, mix, slow motion and graphics, with both key lines within 150 ms of target. One real clip goes end to end from the command line.
+**Gate 2, end of Sat 24: the page and a second narrator.**
+- A real clip goes from upload to video on the page with live progress, without touching code; a reload mid-run restores the state; one run is done from a phone. A clip renders in the News reporter style from the command line.
 
-**Gate 2, end of day 8: the flow and a second narrator.**
-- One command runs a clip from S0 to S10 with the play card answered; the same play is re-told in the News reporter style from the command line without an analysis call.
+**Gate 3, end of Sun 25: ready to show.**
+- The HTML graphics are in. A cached run in both styles and a backup video exist. The deck exists.
 
-**Gate 3, middle of day 9: the page.**
-- Two real clips, one not sport, go from upload to video on the page without touching code. A reload mid-run restores the state. One run is done from a phone.
-
-**Gate 4, end of day 9: rehearsed.**
-- Three rehearsal runs in a row across the two styles. A cached run and a backup video exist. SC-1, SC-2, SC-4 and SC-5 are written into `docs/eval-notes.md`. Presentation ready.
+**Gate 4, end of Mon 26: rehearsed.**
+- Three rehearsal runs in a row across the two styles. SC-1, SC-2, SC-4 and SC-5 are written into `docs/eval-notes.md`. The presentation has been run through once.
 
 **When ahead of plan, add back in this order:** the Verifier (T026); the Spotter's ReAct loop; the rest of the code checks; the Nature documentary pack; re-telling from the page (T040); analysis on your own machines (X8); a fallback voice provider; the wider viewer test (T035).
 

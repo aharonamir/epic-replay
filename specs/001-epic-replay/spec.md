@@ -244,7 +244,7 @@ Field-level definitions are in data-model.md.
 Targets marked (provisional) are re-set at Gate 0 from the spike measurements, and the new values are written here. These are the criteria of the full design; section 10 says how each is measured in the one-person MVP.
 
 - **SC-1 Speed**: for a 20 second clip, upload to play card takes at most 60 seconds, and confirmed play card to finished video takes at most 90 seconds, at the median of 10 runs. A further style of the same play takes at most 60 seconds. Upload to play card is set from T003 (revision 8): one overview look of five sheet calls sent in parallel takes as long as its slowest call, measured at a median of 26 s and at most 71 s; S0 and S1 have 25 s between them (contracts/stage-contracts.md), so a slow call can push a single run past 60 s. The other two parts stay provisional until T034.
-- **SC-2 Understanding**: on the 30-clip evaluation set, before any user correction, the outcome is correct in at least 80 percent of clips (T003 measured 13 of 16 repeats on eight starter clips). The climax is user-confirmed: on every run the user picks the key moment on the play card before anything is written, and the share of picks that are the proposed frame or one of the other offered moments, without a nudge, is reported, not targeted (revision 8; T003 measured the model's own frame within a quarter second of a labelled moment on 3 of 16 repeats).
+- **SC-2 Understanding**: on the 30-clip evaluation set, before any user correction, the outcome is correct in at least 75 percent of clips (T003 measured 13 of 16 repeats on eight starter clips; with 16 repeats that share is too noisy to set 80). The climax is user-confirmed: on every run the user picks the key moment on the play card before anything is written, and the share of picks that are the proposed frame or one of the other offered moments, without a nudge, is reported, not targeted (revision 8; T003 measured the model's own frame within a quarter second of a labelled moment on 3 of 16 repeats).
 - **SC-3 Verification**: the checks catch at least 8 of 10 planted errors in a seeded test script, and the code checks alone catch every planted name and number error.
 - **SC-4 Timing**: in every render, the climax call starts within 150 ms of its target time (the climax time plus the style's reaction delay), measured by onset detection on the output audio.
 - **SC-5 Cost**: a run with the default provider set costs at most 0.25 USD, and no run exceeds the 1.00 USD cap. Analysis is set from T003 (revision 8): a sheet call costs about 0.0035 USD (mostly reasoning tokens, about three times the adapter's first estimate), so the five-call overview is about 0.02 USD. The rest of the run stays provisional until T034.
@@ -262,7 +262,7 @@ Targets marked (provisional) are re-set at Gate 0 from the spike measurements, a
 - Three styles in the MVP. All three use voices from the provider chosen in the bake-off, so one provider must be able to shout, read evenly and speak softly.
 - The confirmation step (Checkpoint A) is shown inside the progress list. Script approval is automatic by default.
 - Keys are available for DeepSeek (both agents and the vision calls) and for a voice provider. DeepSeek has no speech model, so the voices come from Gemini 3.8 Flash TTS on a paid key, or from ElevenLabs if the day-2 test prefers it.
-- The presentation is two weeks from 2026-10-11. The schedule is expressed as ten working days.
+- The presentation is two weeks from 2026-10-11. The schedule is expressed as ten working days. The owner moved the presentation to 2026-10-27 on 2026-10-20 (plan.md section 6).
 
 ## 7. Dependencies and constraints
 
@@ -320,7 +320,8 @@ Targets marked (provisional) are re-set at Gate 0 from the spike measurements, a
 - Gate 0's key-moment line is no: the model's frame was within a quarter second of a labelled moment on 3 of 16 repeats, and the repeats agreed on 2 of 8 clips, both on a wrong frame (docs/provider-notes.md, T003 contact sheets). Plan.md section 6's fallback applies.
 - The play card always opens with the key moment highlighted and the nudge active; the S1 candidates are offered as other moments; the user's pick is the climax (`climax.method` `user`).
 - The Spotter is overview-only: it describes the clip and proposes a start frame from the overview sheets. Refining passes and the second look are deferred (section 10).
-- SC-1, SC-2 and SC-5 are re-set from the T003 measurements (section 5).
+- SC-1, SC-2 and SC-5 are re-set from the T003 measurements (section 5); the SC-2 outcome target is 75 percent.
+- Re-plan (2026-10-20): the presentation moves to Tuesday 27 October; the working days left are Tue 20, Wed 21, Thu 22, Sat 24, Sun 25 and Mon 26. The shortest path from upload to video is built first, then the cut items come back in the owner's order (tasks.md, plan.md section 6). The Commentator stays a ReAct agent.
 - The outcome was right on 13 of 16 repeats, above the Gate 0 bar of three in four; fk_save was not run (spend cap), and the labelling passes beyond the first were skipped.
 
 **Still open**

@@ -4,7 +4,7 @@ Revision 7 (2026-10-15): nine working days, not ten (Friday 23 October is not a 
 
 `US#`, `FR-###` and `SC-#` refer to spec.md; `S#` refers to the stages in plan.md section 4. Tasks are listed in the order to do them.
 
-Done before revision 7: T001, T002, T004, T006, T007, T008, T009. From the afternoon of Thursday 15 October: 43 h planned of 43 h available (3 h that afternoon, then 8 h a day from Sunday 18 to Thursday 22 October). The full design is 152 h. Revision 8 (2026-10-20): T012 drops from 3 h to 2 h, so 42 h are planned and 1 h is margin.
+Done before revision 7: T001, T002, T004, T006, T007, T008, T009. From the afternoon of Thursday 15 October: 43 h planned of 43 h available (3 h that afternoon, then 8 h a day from Sunday 18 to Thursday 22 October). The full design is 152 h. Revision 8 (2026-10-20): T012 drops from 3 h to 2 h. Re-plan (owner, 2026-10-20): the presentation moves to Tuesday 27 October; the working days left are Tue 20, Wed 21, Thu 22, Sat 24, Sun 25 and Mon 26 (Friday 23 is off), 48 h. The shortest path from upload to video runs Tue 20 to Thu 22; the cut items are added back from Sat 24 in the owner's order. 35.25 h are planned, 2 h more if time allows, and the rest is buffer, at least 2 h of it on Mon 26.
 
 A task is done when its "Done when" line is true and its tests pass with providers in replay mode.
 
@@ -40,89 +40,121 @@ The afternoon of Thursday 15 October. Numbered frames at 4 per second were tried
 **Gate 0** (plan.md section 6). Re-set SC-1, SC-2 and SC-5 in spec.md from the measurements.
 Result (2026-10-20): Spotter yes (13 of 16 repeats), key moment no (3 of 16 within tolerance); revision 8 applies plan.md section 6's fallback: the user picks the key moment on every play card.
 
-## Day 5 - From clip to play sheet - 7 h
+## Days 5 and 6 - Sun 18 and Mon 19 October
 
-Sunday 18 October. Until T014, a yes-or-no prompt on the command line stands in for the play card.
+Both went to T003 and spec revision 8 (the results, Gate 0, the play card as the place the key moment is picked).
 
-- [ ] T011 S1 Signal scan in the pipeline: move `tools/signal_scan.py` into `src/epic_replay/stages/` as the S1 stage writing `signals.json` (data-model.md section 4); camera-compensated motion, pixel change, cuts, sound onsets and loud peaks; motion only, `degraded`, when the clip has no sound (1.5h; full design 2h) - FR-007
-  Done when: on the clip from `tools/make_test_clip.py` the top candidate is within 2 frames of frame 90, its sound onset within 2 frames of 90, the cut at frame 135 is listed and not a candidate, and the same clip with its sound removed gives a `degraded` motion-only result.
-- [ ] T010 S0 Intake: upload validation, ffprobe, rotation, constant-frame-rate working copy with the sound kept (S1 needs it), capture rate detection (1.5h; full design 3h) - US1, FR-001, FR-002
+## Day 7 - Tue 20 October - from clip to slow-motion segments - 8 h
+
+Until T014, a yes-or-no prompt on the command line stands in for the play card, and the pick is typed as a frame.
+
+- [ ] T010 S0 Intake: upload validation, ffprobe, rotation, constant-frame-rate working copy with the sound kept (S1 needs it), capture rate detection (1h; full design 3h) - US1, FR-001, FR-002
   Done when: the fixture clip and a vertical phone clip both produce valid `clip_meta.json`; a 40 s clip is rejected with the reason.
-- [ ] T012 S2 and S3 looking with contact sheets, overview only (revision 8): `tools/contact_sheet.py` moved into `src/epic_replay/media/`; the tools `clip_info` and `look_sheets` over `VisionAdapter.look_sheet`, with its limit (at most five overview sheets per run) and the spike's retry on a reply that does not fit the schema; the five sheet calls sent in parallel; the fixed sequence from the T003 spike filling the play sheet with the description and a proposed start frame, snapped to a sound onset when there is one, always low confidence, and `climax.candidates` filled from the top three S1 candidates; `VisionAdapter.estimate` set to the measured cost of a sheet call (about 0.0035 USD). No refining passes and no second look (2h; full design 5h) - US1, US2, FR-005, FR-007
+  Now (re-plan): ffprobe, the 3 to 30 s check, a 30 fps working copy with the sound kept. Rotation, vertical clips and capture-rate detection are added back later (cut item 12). Done when: the fixture clip produces a valid `clip_meta.json` and a 40 s clip is rejected with the reason.
+- [ ] T011 S1 Signal scan in the pipeline: move `tools/signal_scan.py` into `src/epic_replay/stages/` as the S1 stage writing `signals.json` (data-model.md section 4); camera-compensated motion, pixel change, cuts, sound onsets and loud peaks; motion only, `degraded`, when the clip has no sound (0.5h; full design 2h) - FR-007
+  Done when: on the clip from `tools/make_test_clip.py` the top candidate is within 2 frames of frame 90, its sound onset within 2 frames of 90, the cut at frame 135 is listed and not a candidate, and the same clip with its sound removed gives a `degraded` motion-only result.
+  Now (re-plan): as written; the code exists in `tools/signal_scan.py`.
+- [ ] T012 S2 and S3 looking with contact sheets, overview only (revision 8): `tools/contact_sheet.py` moved into `src/epic_replay/media/`; the tools `clip_info` and `look_sheets` over `VisionAdapter.look_sheet`, with its limit (at most five overview sheets per run) and the spike's retry on a reply that does not fit the schema; the five sheet calls sent in parallel; the fixed sequence from the T003 spike filling the play sheet with the description and a proposed start frame, snapped to a sound onset when there is one, always low confidence, and `climax.candidates` filled from the top three S1 candidates; `VisionAdapter.estimate` set to the measured cost of a sheet call (about 0.0035 USD). No refining passes and no second look (1.5h; full design 5h) - US1, US2, FR-005, FR-007
   Done when: the fixed sequence produces a valid play sheet on the starter clips with `agreement.passes` 1; a request for a sixth overview sheet is refused; a recorded reply that repeats the schema is retried once and then left out; the play sheet records `climax.method` as `sheets` or `sheets+sound` and lists the S1 candidates.
-- [ ] T038 Style system: loader that validates every pack at start-up, checks that its voices and assets exist, and works out its page colours with the contrast rule in contracts/design.md section 2; the Football commentator pack with the voice from T004; slot builder that reads speaking rate and reaction delay from the pack (plan.md section 4.7) (2h; full design 3h) - US5, FR-040, FR-041
+  Now (re-plan): as written.
+- [ ] T013 S2 and S3 validation: `submit_play_sheet` validating the schema, the descriptor rules including no age words, and the sensitivity flag with its reason, called by the fixed sequence; each sheet call emitted as a stage event; focus box and key frame written to `play_sheet.json`. The Spotter's ReAct loop is deferred: the fixed sequence runs on every clip (0.5h; full design 3h) - US1, US4, FR-005, FR-007, FR-008, FR-009
+  Done when: the outcome on the starter clips matches the T003 result to within one clip; a seeded sensitivity flag stops the run with its reason (US4 scenario 3); a play sheet containing an age word is rejected by `submit_play_sheet`.
+  Now (re-plan): `submit_play_sheet` validating the schema and the descriptor rules, no age words. The sensitivity stop with its reason is added back on Sat 24 (cut item 13). Done when: a play sheet containing an age word is rejected.
+- [ ] T038 Style system: loader that validates every pack at start-up, checks that its voices and assets exist, and works out its page colours with the contrast rule in contracts/design.md section 2; the Football commentator pack with the voice from T004; slot builder that reads speaking rate and reaction delay from the pack (plan.md section 4.7) (1.5h; full design 3h) - US5, FR-040, FR-041
   Placeholder (silent, licence-lined) assets stand in for sounds until T021 replaces them, and a local voice-id registry written after T004 lets the loader check voices with no network.
   Done when: slots built from the fixture storyboard with the football pack equal the slots in the fixture script; for each of the three example packs, and for 100 random valid storyboards, slots do not overlap and both key-line slots are kept; a pack with a missing asset, or with an accent that fails the contrast rule, is refused with a logged reason.
-
-## Day 6 - From play sheet to checked script - 8 h
-
-Monday 19 October.
-
-- [ ] T013 S2 and S3 validation: `submit_play_sheet` validating the schema, the descriptor rules including no age words, and the sensitivity flag with its reason, called by the fixed sequence; each sheet call emitted as a stage event; focus box and key frame written to `play_sheet.json`. The Spotter's ReAct loop is deferred: the fixed sequence runs on every clip (1h; full design 3h) - US1, US4, FR-005, FR-007, FR-008, FR-009
-  Done when: the outcome on the starter clips matches the T003 result to within one clip; a seeded sensitivity flag stops the run with its reason (US4 scenario 3); a play sheet containing an age word is rejected by `submit_play_sheet`.
-- [ ] T015 S4 Storyboard: the Classic and Short templates, trim rule, replay window, zoom, markers; no dependence on the narration style. In generic mode the replay is built around the moment the user picked (2h; full design 4h) - US1, FR-013, FR-014, FR-015, FR-041
+  Now (re-plan): the loader, the Football commentator pack and the slot builder. Page colours by the contrast rule are added back on Sat 24 with the style cards (cut item 9).
+- [ ] T015 S4 Storyboard: the Classic and Short templates, trim rule, replay window, zoom, markers; no dependence on the narration style. In generic mode the replay is built around the moment the user picked (1.5h; full design 4h) - US1, FR-013, FR-014, FR-015, FR-041
   Done when: the fixture play sheet produces exactly the fixture storyboard, and for 100 random valid play sheets segments are contiguous, the duration is within `EPIC_MIN_OUTPUT_S` to 60 s and the markers lie inside their segments.
+  Now (re-plan): the Classic template only. Done when: the fixture play sheet produces exactly the fixture storyboard.
+- [ ] T018 FFmpeg toolkit: cut, speed change, freeze, crop and zoom, concatenate, all frame-exact; duration unit tests. Zoom easing is deferred (1h; full design 5h) - S9, S10
+  Done when: each operation's output duration is within one frame of the expected value.
+  Now (re-plan): cut, speed change and concatenate; freeze, crop and zoom when the storyboard needs them.
+- [ ] T019 S9 Slow motion by FFmpeg frame blending, the method recorded in `visuals.json`; the real-frame path for clips filmed at 100 fps or more is deferred (none of the starter clips is). No call to any hosted service (0.5h; full design 4h) - US1, FR-028
+  Done when: a 30 fps clip produces a blended replay of the right length.
+  Now (re-plan): as written.
+
+## Day 8 - Wed 21 October - from play sheet to sound and picture - 7.5 h, 0.5 h buffer
+
 - [ ] T016 S5 Commentator agent: an agent-core `ReActAgent` whose prompt takes persona, rules, role notes and sample lines from the style pack and the slots from T038; tools `check_lines`, which runs the checks of T017 on a draft and returns each failure with its rule, and `submit_script`; the `hit_word` of each key line (the word that lands on the moment), which `submit_script` checks is in the line; headline and lower third; six iterations at most, then one structured draft with failing lines replaced by generic ones. `deepseek-flash` writes (2h; full design 4h) - US1, FR-016, FR-017, FR-018, FR-024
   Done when: scripts for the fixture and three starter clips validate against the schema, pass S6, and carry a `hit_word` on both key lines.
-- [ ] T017 S6 Code checks: rules 1, 4, 5, 6 and 8 of contracts/stage-contracts.md with a unit test each; the pack's banned terms added to the global list; five planted-error scripts in `tests/planted_errors/`, one for each kind of error code can see (invented name, invented number, missing reference, over budget, banned term) (1.5h; full design 4h) - FR-017, FR-018, FR-019, SC-3, SC-8
+  Now (re-plan): as written. The Commentator stays a ReAct agent on agent-core (owner, 2026-10-20).
+- [ ] T017 S6 Code checks: rules 1, 4, 5, 6 and 8 of contracts/stage-contracts.md with a unit test each; the pack's banned terms added to the global list; five planted-error scripts in `tests/planted_errors/`, one for each kind of error code can see (invented name, invented number, missing reference, over budget, banned term) (0.5h; full design 4h) - FR-017, FR-018, FR-019, SC-3, SC-8
   Done when: every built rule has a passing and a failing test, the fixture script passes them, and all five planted errors are caught.
-- [ ] T018 FFmpeg toolkit: cut, speed change, freeze, crop and zoom, concatenate, all frame-exact; duration unit tests. Zoom easing is deferred (1.5h; full design 5h) - S9, S10
-  Done when: each operation's output duration is within one frame of the expected value.
-
-**Gate 1a** (plan.md section 6).
-
-## Day 7 - From script to sound and pictures - 8 h
-
-Tuesday 20 October.
-
-- [ ] T019 S9 Slow motion by FFmpeg frame blending, the method recorded in `visuals.json`; the real-frame path for clips filmed at 100 fps or more is deferred (none of the starter clips is). No call to any hosted service (1h; full design 4h) - US1, FR-028
-  Done when: a 30 fps clip produces a blended replay of the right length.
-- [ ] T020 S7 Voice: the ElevenLabs adapter chosen in T004; voice and delivery from the style pack; one take per line in parallel; silence trim; measure; speed up by at most 12 percent; drop a line that still does not fit unless it is a key line; placement from anchors, the script's reaction delay and the key word's offset inside the take (character timings from ElevenLabs when the model returns them, otherwise the take's first strong sound onset), plan.md section 4.8; cache; one retry, then stop with "try again" (3h; full design 6h) - US1, FR-022, FR-023, FR-024, FR-025
+  Now (re-plan): the checks for an invented name, an invented number and a banned term, each with a passing and a failing test and a planted-error script. Missing reference and over budget are added back if time allows (cut item 5).
+- [ ] T020 S7 Voice: the ElevenLabs adapter chosen in T004; voice and delivery from the style pack; one take per line in parallel; silence trim; measure; speed up by at most 12 percent; drop a line that still does not fit unless it is a key line; placement from anchors, the script's reaction delay and the key word's offset inside the take (character timings from ElevenLabs when the model returns them, otherwise the take's first strong sound onset), plan.md section 4.8; cache; one retry, then stop with "try again" (2h; full design 6h) - US1, FR-022, FR-023, FR-024, FR-025
   Done when: the fixture script yields takes that all fit their slots, and each key line's key word starts within 50 ms of its target in `voice.json`.
-- [ ] T021 Sound set for the Football commentator style: one crowd bed, one roar, one sting; normalise; write `assets/LICENCES.md`; keep the generation script in `tools/` (1h; full design 3h) - FR-027
+  Now (re-plan): placement from the first strong sound onset of the take. Character timings for the `hit_word` are added back on Sat 24 (cut item 4). Done when: the fixture script yields takes that fit their slots and each key line starts within 50 ms of its target.
+- [ ] T021 Sound set for the Football commentator style: one crowd bed, one roar, one sting; normalise; write `assets/LICENCES.md`; keep the generation script in `tools/` (0.5h; full design 3h) - FR-027
   Done when: every asset has a licence line and plays at a consistent level.
+  Now (re-plan): one crowd bed and one roar. The sting and the further sounds are added back on Sun 25 (cut item 3).
 - [ ] T022 S8 Mix: filter graph from storyboard, voice timings and the style pack's sound set, any layer of which may be absent; ducking; original audio handling; loudness normalisation; measured values in `mix.json` (1h; full design 3h) - FR-026
   Done when: the fixture mix measures -14 LUFS within 1 LU and peaks no higher than -1 dBTP.
-- [ ] T023 S9 Graphics: brand tokens and font; HTML templates for title, REPLAY bug, end card and AI label, styled by a skin file and labelled from the style pack; the `stadium` skin; render to transparent PNG at output size; horizontal layout. The lower third and the vertical layout are deferred (2h; full design 6h) - US1, FR-029, FR-030
-  Done when: the four overlays render for 1920x1080 and the AI label is legible on a phone screen.
-
-## Day 8 - The video, the flow and the second narrator - 8 h
-
-Wednesday 21 October.
-
-- [ ] T024 S10 Compose: assemble segments, overlays and mix from the storyboard; fades; export; `render.json` with the measured onset of each key line; golden test from the fixture (2h; full design 6h) - US1, FR-031, SC-4
+  Now (re-plan): as written, with the layers T021 has.
+- [ ] T024 S10 Compose: assemble segments, overlays and mix from the storyboard; fades; export; `render.json` with the measured onset of each key line; golden test from the fixture (1.5h; full design 6h) - US1, FR-031, SC-4
   Done when: the fixture renders to 28.9 s within one frame and both key-line onsets are within 150 ms of target.
+  Now (re-plan): the overlays are FFmpeg text: title, REPLAY bug and the AI label. The HTML graphics of T023 are added back on Sun 25 (cut item 2).
 
-**Gate 1b** (plan.md section 6).
+## Day 9 - Thu 22 October - the flow, the play card, the page - 6.5 h, 1.5 h buffer
 
-- [ ] T027 Flow: the plain Python runner; stage events, including each sheet call and the Commentator's tool calls; skip-if-present; S9 in parallel with S5 to S7; re-run from a stage; express mode on by default; seeding a new run from an existing one for another style, from the command line (3h; full design 4h) - US3, FR-021, FR-033, FR-042
+- [ ] T027 Flow: the plain Python runner; stage events, including each sheet call and the Commentator's tool calls; skip-if-present; S9 in parallel with S5 to S7; re-run from a stage; express mode on by default; seeding a new run from an existing one for another style, from the command line (1h; full design 4h) - US3, FR-021, FR-033, FR-042
   Done when: the fixture runs from S0 to S10 in replay mode with one command, US3 scenario 3 passes, and a seeded run starts work at S5.
-- [ ] T014 Checkpoint A: play-card endpoints and the card itself; highlighted items with keep and remove; the outcome sentence editable; the key moment highlighted on every card, with the frame nudge (one frame and ten frames each way, buttons and arrow keys, Shift for ten) and S1's other candidates offered as other moments, all core (revision 8); the user's pick written as the climax with `climax.method` `user`; cost estimate; confirm, reject, generic with a picked moment (2h; full design 5h) - US2, FR-007, FR-010, FR-011, FR-012
+  Now (re-plan): a plain sequential runner from S0 to S10 with stage events written to the run folder and the command-line play-card prompt. Skip-if-present, re-run from a stage and re-telling are added back if time allows (cut item 10). Done when: the fixture runs from S0 to S10 in replay mode with one command.
+- [ ] T031, first part (1h): a real clip to video from the command line with live providers (expected cost stated first, the owner's yes before the run).
+
+**Gate 1, end of Thu 22** (plan.md section 6): a real clip to video from the command line.
+
+- [ ] T014 Checkpoint A: play-card endpoints and the card itself; highlighted items with keep and remove; the outcome sentence editable; the key moment highlighted on every card, with the frame nudge (one frame and ten frames each way, buttons and arrow keys, Shift for ten) and S1's other candidates offered as other moments, all core (revision 8); the user's pick written as the climax with `climax.method` `user`; cost estimate; confirm, reject, generic with a picked moment (1.5h; full design 5h) - US2, FR-007, FR-010, FR-011, FR-012
   Done when: US2 acceptance scenarios 2 to 4 pass as API tests (scenario 1 needs the second look, deferred in revision 8); confirm is refused until the key moment is answered; picking another moment and nudging it sets the climax to that frame; the card works by hand.
+  Now (re-plan): the endpoints and the card: the key moment highlighted, the one- and ten-frame nudge, other moments, "This one", confirm. Keep or remove, editing the outcome sentence and reject to generic are added back on Sat 24 (cut items 6 and 7); the cost line on Sun 25 (cut item 8). Done when: US2 scenario 3 passes as an API test, confirm is refused until the key moment is answered, and picking another moment and nudging it sets the climax to that frame.
+- [ ] T029 The page, following contracts/ui.md and looking as in contracts/design.md (one stylesheet with its tokens; fonts served by the app; the narrator's colour on the page; cut in the order of its section 9 as the hours run out): the remaining endpoints in contracts/http-api.md except restyle; one template with the start, progress, confirm and result states; file drop with preview and browser-side checks; style cards from `GET /styles`, without the sample player; the consent wording; eight plain-word steps driven by server-sent events with a polling fallback; a details view listing each stage's duration, cost and one-line summary, and the sheets the Spotter looked at; the play card from T014 inside the progress list; result with player, download, the script, and delete-now; reload restores state; a layout that works on a phone (2h; full design 7h) - US1, US3, FR-003, FR-004, FR-021, FR-036, FR-039, FR-043
+  Done when: US1 scenarios 5 and 6 and US3 scenarios 1 and 2 pass, a run can be completed with the mouse only and from a phone browser, and each state at 1280 px matches its artboard in contracts/design-canvas/ in layout, colour and type.
+  Now (re-plan): upload with the consent wording, progress by polling, the play card, the result with player and download. Server-sent events, style cards, the phone layout and reload restoring the state are added back on Sat 24 (cut item 9).
+- [ ] T031, second part (1h): the same clip through the page with live providers; fix what blocks.
+
+## Day 10 - Sat 24 October - add back, part 1 - 6 h, 2 h buffer
+
+- [ ] T029, added back (2h): server-sent events with the polling fallback, style cards from `GET /styles` with the page colours from T038, the phone layout, reload restores the state (cut item 9). Done when: the original "Done when" line of T029 is true.
+- [ ] T020, added back (0.5h): the key line placed by its `hit_word` from ElevenLabs character timings (cut item 4). Done when: the original "Done when" line of T020 is true.
 - [ ] T039 The News reporter pack: start from the example pack; the voice chosen in T004 and its measured speaking rate; delivery and reaction delay by ear; two stings and a transition with licence lines; the `bulletin` skin; render the fixture and listen. The Nature documentary pack is deferred (1h; full design 6h) - US5, FR-039, FR-040, FR-027
   Done when: the pack loads, the fixture renders in it from the command line, and its key line lands within tolerance of its own target.
-
-**Gate 2** (plan.md section 6).
-
-## Day 9 - The page, rehearsed - 8 h
-
-Thursday 22 October. The presentation is on Saturday 24 October.
-
-- [ ] T029 The page, following contracts/ui.md and looking as in contracts/design.md (one stylesheet with its tokens; fonts served by the app; the narrator's colour on the page; cut in the order of its section 9 as the hours run out): the remaining endpoints in contracts/http-api.md except restyle; one template with the start, progress, confirm and result states; file drop with preview and browser-side checks; style cards from `GET /styles`, without the sample player; the consent wording; eight plain-word steps driven by server-sent events with a polling fallback; a details view listing each stage's duration, cost and one-line summary, and the sheets the Spotter looked at; the play card from T014 inside the progress list; result with player, download, the script, and delete-now; reload restores state; a layout that works on a phone (3h; full design 7h) - US1, US3, FR-003, FR-004, FR-021, FR-036, FR-039, FR-043
-  Done when: US1 scenarios 5 and 6 and US3 scenarios 1 and 2 pass, a run can be completed with the mouse only and from a phone browser, and each state at 1280 px matches its artboard in contracts/design-canvas/ in layout, colour and type.
-- [ ] T031 End to end on two real clips on the page with live providers, one not sport; fix what blocks Gate 3 (1h; full design 6h)
-  Done when: Gate 3's lines are true.
-
-**Gate 3** (plan.md section 6).
-
+  Now (re-plan): as written; HTML skins come with T023 on Sun 25, so the pack uses the FFmpeg text overlays until then.
+- [ ] T014, added back (1.5h): keep or remove, the outcome sentence editable, reject to generic mode with a picked moment (cut items 6 and 7). Done when: US2 scenarios 2 to 4 pass as API tests.
+- [ ] T013, added back (0.5h): the sensitivity flag stops the run with its reason (cut item 13). Done when: a seeded flag stops the run (US4 scenario 3).
 - [ ] T033 Privacy and cleanup, reduced: the page wording states the service and country from configuration; `DELETE /runs/{id}` removes every version and the local sheets; the opt-out request to DeepSeek sent and noted. The automated single-endpoint test and the seven-day purge are deferred (0.5h; full design 2h) - FR-003, FR-037
   Done when: the consent text on the page matches the configured provider, and deleting a run leaves no sheets or frames on disk.
-- [ ] T034 Demo mode and rehearsal: a cached run in both styles, labelled; a backup video; three rehearsal runs in a row; the SC-1, SC-2, SC-4 and SC-5 values from the T003 report and these runs written into `docs/eval-notes.md`, with what was not measured stated plainly (1.5h; full design 5h) - FR-038, SC-7
-  Done when: the cached run and the backup video exist, the three runs completed without touching code, and the values are written down.
+  Now (re-plan): as written (cut item 11).
+
+**Gate 2, end of Sat 24**: the page with live progress, and a clip rendered in the News reporter style from the command line.
+
+## Day 11 - Sun 25 October - add back, part 2; demo and presentation - 5.25 h, 2.75 h buffer
+
+- [ ] T023 S9 Graphics: brand tokens and font; HTML templates for title, REPLAY bug, end card and AI label, styled by a skin file and labelled from the style pack; the `stadium` skin; render to transparent PNG at output size; horizontal layout. The lower third and the vertical layout are deferred (1.5h; full design 6h) - US1, FR-029, FR-030
+  Done when: the four overlays render for 1920x1080 and the AI label is legible on a phone screen.
+  Now (re-plan): as written (cut item 2).
+- [ ] T021, added back (0.5h): the sting and the rest of the football sound set (cut item 3).
+- [ ] T014, added back (0.25h): the cost of the rest of the run on the card (cut item 8).
+- [ ] T034, first part (1h): a cached run in both styles, labelled, and a backup video.
 - [ ] T037 Presentation: architecture diagram, the page walk-through, one clip in two styles, measured accuracy and cost, limits, what is deferred (2h; full design 3h)
   Done when: the deck follows plan.md section 10.
+  Now (re-plan): the deck on Sun 25; a run-through on Mon 26 (1 h, below).
 
-**Gate 4** (plan.md section 6).
+**Gate 3, end of Sun 25**: the cached run, the backup video and the deck exist.
+
+## Day 12 - Mon 26 October - rehearsed - 2 h, then 2 h if time allows, at least 2 h margin
+
+The presentation is on Tuesday 27 October.
+
+- [ ] T034, second part (1h): three rehearsal runs in a row without touching code (cut item 14); the SC-1, SC-2, SC-4 and SC-5 values written into `docs/eval-notes.md`, with what was not measured stated plainly.
+- [ ] T037, run-through (1h): the presentation once, timed, with the cached run as the fallback.
+
+If time allows, in this order:
+
+- [ ] T017, added back (0.5h): the missing-reference and over-budget checks (cut item 5).
+- [ ] T027, added back (1h): skip-if-present, re-run from a stage, re-telling from the command line (cut item 10).
+- [ ] T010, added back (0.5h): rotation, vertical clips and capture-rate detection (cut item 12).
+
+**Gate 4, end of Mon 26**: rehearsed.
 
 ## Deferred from the full design (not in the total)
 
@@ -166,22 +198,17 @@ The rest of partly built tasks, also deferred:
 - T003 settles the sheet procedure that T011, T012 and T013 build into the pipeline. T011 comes before T012.
 - T038 comes before T015 and T016. T015 comes before T016. T017's checks are the `check_lines` tool, so write the checks first if that is easier and wire the agent second.
 - T002 comes before T016.
-- T018 comes before T019 and T024. T020 comes before T022. T022 and T023 come before T024.
-- T021 can be done at any point on day 7; it is a good task for a tired hour.
+- T018 comes before T019 and T024. T020 comes before T022. T022 comes before T024; T024 uses FFmpeg text overlays until T023 is added back on Sun 25.
+- T021 can be done at any point on day 8; it is a good task for a tired hour.
 - T027 needs every stage. T014 and T029 need T027's stage events, whose shape is fixed in contracts/stage-contracts.md.
-- T039 needs T020, T022, T023 and T038, and a pipeline that passed Gate 1b.
-- T034 needs T029 and T039.
+- T039 needs T020, T022 and T038, and a pipeline that passed Gate 1.
+- T034 needs T029 and T039. Add-backs come after the Tue 20 to Thu 22 version of their task.
 
 ## If a day is lost
 
-Cut in this order. Each is a clean removal.
+Remove add-backs from the end of the owner's order (re-plan, 2026-10-20): first the Mon 26 "if time allows" items (12, 10, 5), then 14 down to one rehearsal run, then 2, 3 and 8, then 13 and 11, then 6 and 7, then the News reporter (1), then 4, then 9. Each is a clean removal back to the Tue 20 to Thu 22 version of its task.
 
-1. Page decorations and the phone layout polish (0.5 h): design.md section 9, in its order.
-2. The details view on the page (0.5 h): the progress list stays.
-3. Graphics down to the title card and the AI label (1 h).
-4. Slow motion as plain speed change without blending (0.5 h).
-
-Do not cut: Checkpoint A with its frame nudge and other moments (revision 8: the user's pick is the climax), the five code checks, the cost guard, the AI label, the consent wording and the deletion check in T033, the cached demo run, the second narrator.
+Do not cut: the shortest path built Tue 20 to Thu 22, Checkpoint A with its frame nudge and other moments (revision 8: the user's pick is the climax), the Commentator as a ReAct agent, the three code checks, the cost guard, the AI label, the consent wording, the cached demo run and the backup video.
 
 ## Requirement coverage
 

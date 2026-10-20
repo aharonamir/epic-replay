@@ -1,6 +1,6 @@
 # Epic Replay: working rules
 
-Live-demo MVP built by one person in about ten working days (Sun to Thu weeks; day 1 was Mon 2026-10-12). Presentation: 2026-10-24.
+Live-demo MVP built by one person in about ten working days (Sun to Thu weeks; day 1 was Mon 2026-10-12). Presentation: Tue 2026-10-27 (moved from 2026-10-24 on 2026-10-20); the days left are Tue 20, Wed 21, Thu 22, Sat 24, Sun 25 and Mon 26 October (tasks.md).
 Agents are ReAct agents on openJiuwen agent-core (`pip install openjiuwen`) with DeepSeek `deepseek-flash`. The flow between stages is a plain Python runner.
 
 Design, in `specs/001-epic-replay/`: `spec.md` (what and why; section 10 = what this build defers), `plan.md` (stages, styles, schedule, gates; 4.15 = what replaces each deferred part), `tasks.md` (34 tasks in day order, six deferred), `research.md`, `data-model.md`, `contracts/` (schemas, example style packs, stage contracts, `provider-adapters.md`, `http-api.md`, `ui.md`, `design.md`, `design-canvas/`). Principles: `.specify/memory/constitution.md`.
