@@ -142,7 +142,7 @@ Rules beyond the schema: exactly one pack has `default: true`; ids and `order` v
 
 ### Signal scan - `signals.json`
 
-Revision 7, as written by `tools/signal_scan.py` and then by the S1 stage:
+Revision 7, as written by the S1 stage (`src/epic_replay/stages/s1_signals.py`):
 
 | Field | Meaning |
 |-------|---------|
@@ -152,7 +152,7 @@ Revision 7, as written by `tools/signal_scan.py` and then by the S1 stage:
 | `loud_peaks_t[]` | Times of the loudest moments, loudest first (HotClip's method) |
 | `candidates[]` | Up to three moments, best first: `frame`, `t`, `score`, `motion_z`, `flow_z`, `change_z`, `sound_z`, and `sound_onset_t` / `sound_onset_frame` (the earliest onset from 0.25 s before to 0.1 s after) and `loud_peak_t` |
 
-The per-frame curves are not stored; `tools/signal_scan.py --curves` writes them to a CSV for plotting.
+The per-frame curves are not stored; `python -m epic_replay.stages.s1_signals <clip> --curves` writes them to a CSV for plotting.
 
 ### Check report - `checks.json`
 

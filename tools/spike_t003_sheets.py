@@ -6,7 +6,7 @@
     EPIC_PROVIDER_MODE=record python tools/spike_t003_sheets.py --clip "fk_1.mp4" --yes
 
 Per clip (eval/clips/ with a label in eval/labels/), per repeat:
-1. Signal scan (tools/signal_scan.py, local): top MAX_CANDIDATES candidates, cuts ignored,
+1. Signal scan (epic_replay.stages.s1_signals, local): top MAX_CANDIDATES candidates, cuts ignored,
    sound onsets.
 2. Overview: two sheets of 9 frames spread evenly over the clip, plus one sheet of 9 frames
    over +-1.5 s around each candidate. One call per sheet: what happens, how it ends, who,
@@ -41,12 +41,12 @@ REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "src"))
 sys.path.insert(0, str(REPO / "tools"))
 import contact_sheet as cs  # noqa: E402
-import signal_scan  # noqa: E402
 
 from epic_replay import config  # noqa: E402
 from epic_replay.guards.budget import CapExceeded, Ledger  # noqa: E402
 from epic_replay.providers.replay import ReplayMiss  # noqa: E402
 from epic_replay.providers.vision import VisionAdapter  # noqa: E402
+from epic_replay.stages import s1_signals as signal_scan  # noqa: E402
 
 OUT = REPO / "eval/spike"
 SHEETS = OUT / "frames/sheets"

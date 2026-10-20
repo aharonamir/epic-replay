@@ -1,8 +1,8 @@
-"""S1 signal scan (plan.md section 4.2): candidate key moments from cheap local signals.
-Nothing leaves the machine. T011 moves this into src/epic_replay/stages/; until then the
-T003 sheets spike imports it from here.
+"""S1 Signal scan (plan.md section 4.2, FR-007): candidate key moments from cheap local
+signals, written to `signals.json` (data-model.md section 4). Nothing leaves the machine.
+A clip with no sound gets motion only, and the stage is `degraded`.
 
-    python tools/signal_scan.py eval/clips/basket_ball_shot.mp4 --top 3 --curves curves.csv
+    python -m epic_replay.stages.s1_signals eval/clips/basket_ball_shot.mp4 --top 3 --curves c.csv
 
 Signals, one value per frame of the clip:
 - camera movement: dense optical flow (OpenCV DIS) fitted with a similarity transform by
@@ -36,6 +36,10 @@ import cv2
 import numpy as np
 from scipy.signal import find_peaks
 
+from epic_replay.stages.base import RunContext, StageResult
+
+WORK = "work.mp4"
+SIGNALS = "signals.json"
 SR = 22050
 N_FFT, HOP = 1024, 256
 
@@ -262,6 +266,18 @@ def scan(
     curves = {"t": t, "flow": flow_e, "change": change, "camera": camera, "share": share,
               "flow_z": fz, "change_z": cz, "motion_z": mz, "sound_z": sz, "score": score}  # fmt: skip
     return result, curves
+
+
+def run(ctx: RunContext) -> StageResult:
+    work = ctx.path(WORK)
+    if not work.exists():
+        return StageResult("failed", f"no {WORK} in the run folder")
+    result, _ = scan(work)
+    ctx.path(SIGNALS).write_text(json.dumps(result, indent=2) + "\n")
+    status = "ok" if result["has_sound"] else "degraded"
+    note = "" if result["has_sound"] else "no sound: motion only"
+    ctx.emit({"stage": "S1", "status": status, "candidates": len(result["candidates"])})
+    return StageResult(status, note, outputs=[SIGNALS])
 
 
 def main() -> None:

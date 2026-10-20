@@ -119,7 +119,7 @@ Full input and output contracts are in contracts/stage-contracts.md.
 ### 4.2 S0 Intake and S1 Signal scan
 
 - S0 validates the upload (FR-001), reads metadata with ffprobe, fixes rotation, and writes a constant-frame-rate working copy at up to 1080p, with the sound kept because S1 needs it. It keeps the true capture rate when the container reports one, because S9 needs it.
-- S1 (revision 7) proposes candidate moments from cheap local signals, one value per frame; nothing leaves the machine. Prototype and tests: `tools/signal_scan.py`, `tools/make_test_clip.py`.
+- S1 (revision 7) proposes candidate moments from cheap local signals, one value per frame; nothing leaves the machine. Code: `src/epic_replay/stages/s1_signals.py` (T011); test clip: `tools/make_test_clip.py`.
   - **Camera movement** is estimated from dense optical flow (OpenCV DIS) as a similarity transform fitted with RANSAC, so a shaky phone does not count as action. The handoff's motion curve (mean frame difference) was dominated by camera movement and cuts; this is the fix.
   - **Motion** is the larger of two curves taken with the camera removed: the flow left over (bodies, larger objects), and the pixel change left over once the previous frame is moved the way the camera moved (small fast objects such as a ball, which flow misses).
   - **Cuts** are frames where more than a third of the picture changed even after the camera fit, and far more than usual for the clip. Motion within 3 frames of a cut is ignored.

@@ -6,7 +6,7 @@ whole time (a decoy); a hard cut to another shot at 4.5 s (frame 135), which mus
 taken for action.
 
     python tools/make_test_clip.py eval/clips/synthetic_strike.mp4
-    python tools/signal_scan.py eval/clips/synthetic_strike.mp4
+    python -m epic_replay.stages.s1_signals eval/clips/synthetic_strike.mp4
     # expected: top candidate near frame 90, sound onset frame 90 +-2, cuts [135]
 """
 
