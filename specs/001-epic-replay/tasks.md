@@ -48,7 +48,7 @@ Both went to T003 and spec revision 8 (the results, Gate 0, the play card as the
 
 Until T014, a yes-or-no prompt on the command line stands in for the play card, and the pick is typed as a frame.
 
-- [ ] T010 S0 Intake: upload validation, ffprobe, rotation, constant-frame-rate working copy with the sound kept (S1 needs it), capture rate detection (1h; full design 3h) - US1, FR-001, FR-002
+- [x] T010 S0 Intake: upload validation, ffprobe, rotation, constant-frame-rate working copy with the sound kept (S1 needs it), capture rate detection (1h; full design 3h) - US1, FR-001, FR-002
   Done when: the fixture clip and a vertical phone clip both produce valid `clip_meta.json`; a 40 s clip is rejected with the reason.
   Now (re-plan): ffprobe, the 3 to 30 s check, a 30 fps working copy with the sound kept. Rotation, vertical clips and capture-rate detection are added back later (cut item 12). Done when: the fixture clip produces a valid `clip_meta.json` and a 40 s clip is rejected with the reason.
 - [ ] T011 S1 Signal scan in the pipeline: move `tools/signal_scan.py` into `src/epic_replay/stages/` as the S1 stage writing `signals.json` (data-model.md section 4); camera-compensated motion, pixel change, cuts, sound onsets and loud peaks; motion only, `degraded`, when the clip has no sound (0.5h; full design 2h) - FR-007
