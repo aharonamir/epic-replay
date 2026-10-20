@@ -131,7 +131,7 @@ One sheet call (one 3x3 image, high detail, `deepseek-flash`) costs more than th
 - Output tokens per call: median about 1,000, of which about 960 are reasoning; the most was 5,684 reasoning tokens. The prompt is 785 to 903 tokens, often with 768 cached.
 - So "upper bound" in the spike's `--dry-run` is not one: a per-call figure about twice the estimate, up to five or six times on a long reasoning reply, is what to plan with. The ledger records the real cost, so the caps still hold.
 - One clip with two repeats is 18 to 20 calls with 5 candidates: about 0.03 to 0.055 USD. With the design's 3 candidates and one look plus a second look it is about 16 calls, about 0.035 USD at the mean.
-- Two facts found on the way: the adapter's `record` mode always calls the provider and overwrites the recording (only `replay` reads it), so a re-run in record mode pays again; the spike now reads a recording when it exists (spike only). Sheets are byte-identical across runs, and each repeat has its own recording key.
+- Two facts found on the way: the adapter's `record` mode always calls the provider and overwrites the recording (only `replay` reads it), so a re-run in record mode pays again; the spike read a recording when it existed (spike only). Since the review fixes of 2026-10-20 the adapter's `record` mode does this itself, the adapter retries a misfit reply once, and the cap check uses 0.008 USD a sheet call. Sheets are byte-identical across runs, and each repeat has its own recording key.
 
 
 ### T003 contact sheets (2026-10-20): results and Gate 0

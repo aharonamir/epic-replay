@@ -14,6 +14,7 @@ class CallInfo:
     cost_usd: float
     latency_s: float
     cache_hit: bool
+    attempts: int = 1  # 2 when a reply that did not fit the schema was asked again
 
 
 @dataclass

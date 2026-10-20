@@ -3,11 +3,17 @@
 Every paid call goes through `paid_call`. It checks the three caps before the call and
 writes estimate and actual to the run's cost.json after it. A call that would pass a
 cap is not made: it is logged under `blocked` and CapExceeded is raised.
+
+Calls may run in parallel (S2 sends its sheets at once). The check and a reservation of the
+call's estimate happen together under one lock, so calls in flight count against the caps;
+the reservation is replaced by the actual cost when the call returns. Ledger writes to
+cost.json and the day file take the same lock.
 """
 
 from __future__ import annotations
 
 import json
+import threading
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import UTC, datetime
@@ -17,6 +23,9 @@ from typing import Any, Generic, TypeVar
 from epic_replay import config
 
 T = TypeVar("T")
+
+_LOCK = threading.RLock()  # one for every ledger: the day file is shared between runs
+_day_reserved = 0.0  # estimates of calls in flight, all runs in this process
 
 
 class CapExceeded(Exception):
@@ -59,9 +68,15 @@ class Ledger:
                 "blocked": [],
             }
             self._save()
+        self._reserved = 0.0
+        self._reserved_pre = 0.0
 
     # -- storage
     def _save(self) -> None:
+        with _LOCK:
+            self._write()
+
+    def _write(self) -> None:
         self.data["total_usd"] = round(sum(c["actual_usd"] or 0 for c in self.data["calls"]), 6)
         self.path.write_text(json.dumps(self.data, indent=2))
 
@@ -71,6 +86,10 @@ class Ledger:
         return json.loads(self.day_file.read_text()).get(datetime.now(UTC).strftime("%F"), 0.0)
 
     def _add_day(self, usd: float) -> None:
+        with _LOCK:
+            self._write_day(usd)
+
+    def _write_day(self, usd: float) -> None:
         self.day_file.parent.mkdir(parents=True, exist_ok=True)
         d = json.loads(self.day_file.read_text()) if self.day_file.exists() else {}
         k = datetime.now(UTC).strftime("%F")
@@ -89,27 +108,48 @@ class Ledger:
 
     # -- the check
     def check(self, estimate_usd: float, *, pre_checkpoint: bool) -> None:
+        """Raise CapExceeded if this call, added to what is spent and what is in flight,
+        would pass a cap."""
         caps = self.data["caps"]
-        tests = [
-            ("run", caps["run_usd"], self.total_usd + estimate_usd),
-            ("day", caps["day_usd"], self._day_total() + estimate_usd),
-        ]
-        if pre_checkpoint:
-            tests.append(
-                (
-                    "pre_checkpoint",
-                    caps["pre_checkpoint_usd"],
-                    self.pre_checkpoint_total() + estimate_usd,
+        with _LOCK:
+            tests = [
+                ("run", caps["run_usd"], self.total_usd + self._reserved + estimate_usd),
+                ("day", caps["day_usd"], self._day_total() + _day_reserved + estimate_usd),
+            ]
+            if pre_checkpoint:
+                tests.append(
+                    (
+                        "pre_checkpoint",
+                        caps["pre_checkpoint_usd"],
+                        self.pre_checkpoint_total() + self._reserved_pre + estimate_usd,
+                    )
                 )
-            )
         for cap, limit, would_be in tests:
             if would_be > limit + 1e-9:
                 raise CapExceeded(cap, limit, would_be)
 
+    def reserve(self, estimate_usd: float, *, pre_checkpoint: bool) -> None:
+        """Check the caps and hold the estimate against them, in one step."""
+        global _day_reserved
+        with _LOCK:
+            self.check(estimate_usd, pre_checkpoint=pre_checkpoint)
+            self._reserved += estimate_usd
+            self._reserved_pre += estimate_usd if pre_checkpoint else 0.0
+            _day_reserved += estimate_usd
+
+    def release(self, estimate_usd: float, *, pre_checkpoint: bool) -> None:
+        global _day_reserved
+        with _LOCK:
+            self._reserved = max(0.0, self._reserved - estimate_usd)
+            if pre_checkpoint:
+                self._reserved_pre = max(0.0, self._reserved_pre - estimate_usd)
+            _day_reserved = max(0.0, _day_reserved - estimate_usd)
+
     def record(self, **call: Any) -> None:
-        self.data["calls"].append(call)
-        self._save()
-        self._add_day(call["actual_usd"] or 0.0)
+        with _LOCK:
+            self.data["calls"].append(call)
+            self._write()
+            self._write_day(call["actual_usd"] or 0.0)
 
 
 def paid_call(
@@ -122,32 +162,40 @@ def paid_call(
     fn: Callable[[], PaidResult[T]],
     pre_checkpoint: bool = False,
 ) -> T:
-    """Check the caps, make the call, log estimate and actual. Replay hits cost nothing."""
+    """Check the caps and reserve the estimate, make the call, then replace the reservation
+    with the actual cost in the log. Replay hits cost nothing."""
+    with _LOCK:
+        try:
+            ledger.reserve(estimate_usd, pre_checkpoint=pre_checkpoint)
+        except CapExceeded as e:
+            ledger.data["blocked"].append(
+                {
+                    "stage": stage,
+                    "provider": provider,
+                    "model": model,
+                    "estimate_usd": estimate_usd,
+                    "cap": e.cap,
+                    "limit_usd": e.limit,
+                    "at": _now(),
+                }
+            )
+            ledger._write()
+            raise
     try:
-        ledger.check(estimate_usd, pre_checkpoint=pre_checkpoint)
-    except CapExceeded as e:
-        ledger.data["blocked"].append(
-            {
-                "stage": stage,
-                "provider": provider,
-                "model": model,
-                "estimate_usd": estimate_usd,
-                "cap": e.cap,
-                "limit_usd": e.limit,
-                "at": _now(),
-            }
-        )
-        ledger._save()
+        res = fn()
+    except BaseException:
+        ledger.release(estimate_usd, pre_checkpoint=pre_checkpoint)
         raise
-    res = fn()
-    ledger.record(
-        stage=stage,
-        provider=provider,
-        model=model,
-        estimate_usd=estimate_usd,
-        actual_usd=res.actual_usd,
-        cache_hit=res.cache_hit,
-        pre_checkpoint=pre_checkpoint,
-        at=_now(),
-    )
+    with _LOCK:  # no other check sees the call neither reserved nor recorded
+        ledger.release(estimate_usd, pre_checkpoint=pre_checkpoint)
+        ledger.record(
+            stage=stage,
+            provider=provider,
+            model=model,
+            estimate_usd=estimate_usd,
+            actual_usd=res.actual_usd,
+            cache_hit=res.cache_hit,
+            pre_checkpoint=pre_checkpoint,
+            at=_now(),
+        )
     return res.value

@@ -34,7 +34,6 @@ import sys
 import time
 from pathlib import Path
 
-import jsonschema
 import numpy as np
 
 REPO = Path(__file__).resolve().parents[1]
@@ -45,7 +44,7 @@ import contact_sheet as cs  # noqa: E402
 from epic_replay import config  # noqa: E402
 from epic_replay.guards.budget import CapExceeded, Ledger  # noqa: E402
 from epic_replay.providers.replay import ReplayMiss  # noqa: E402
-from epic_replay.providers.vision import VisionAdapter  # noqa: E402
+from epic_replay.providers.vision import SchemaMisfit, VisionAdapter  # noqa: E402
 from epic_replay.stages import s1_signals as signal_scan  # noqa: E402
 
 OUT = REPO / "eval/spike"
@@ -56,7 +55,6 @@ MAX_CANDIDATES = 5  # spike only (owner, 2026-10-18); the design keeps 3 (plan.m
 DESIGN_CANDIDATES = 3
 SPEND_CAP_USD = 0.60  # spike total over every clip's ledger, retries included (owner, 2026-10-18)
 CALL_CEILING_USD = 0.008  # the cap check assumes this per call: the dearest seen was 0.0071
-RETRY_LINE = "Fill in the fields; do not repeat the schema."
 OUTCOMES = OUT / "t003_outcomes.json"  # the owner's right or wrong per repeat, from the video
 
 OVERVIEW_Q = (
@@ -156,44 +154,23 @@ class Budget:
 BUDGET: Budget | None = None
 
 
-def replay_first(vis) -> None:
-    """Spike only: in record mode, read a recording when one exists and call the provider only
-    when it is missing (the adapter's record mode always calls). src/ is unchanged."""
-    rec, live_fetch = vis.rec, vis.rec.fetch
-
-    def fetch(adapter, key, live):
-        p = rec.path(adapter, key)
-        vis.last_hit = p.exists()
-        if vis.last_hit:
-            return json.loads(p.read_text()), True
-        return live_fetch(adapter, key, live)
-
-    rec.fetch = fetch
-
-
 def ask(vis, img: Path, cells: list[dict], q: str, schema: dict, trace: list, entry: dict):
-    """One sheet call. A reply that does not fit the schema is retried once with RETRY_LINE
-    added, as a new call; a second misfit raises SheetFailed (plan.md 4.3: fallback)."""
-    led = getattr(vis, "ledger", None)
-    estimate = vis.estimate(1, "high") if hasattr(vis, "estimate") else 0.0
-    for attempt in (0, 1):
-        question = q if attempt == 0 else q + "\n" + RETRY_LINE
-        if BUDGET is not None:
-            BUDGET.check(estimate)
-        before, t0 = (led.total_usd if led else 0.0), time.monotonic()
-        vis.last_hit = None
-        try:
-            r = vis.look_sheet(img, cells, question, schema=schema)
-        except jsonschema.ValidationError as err:
-            trace.append({**entry, "attempt": attempt, "answer": None, "cache_hit": vis.last_hit,
-                          "invalid": err.message[:200],
-                          "cost_usd": round((led.total_usd if led else 0.0) - before, 6),
-                          "latency_s": round(time.monotonic() - t0, 3)})  # fmt: skip
-            continue
-        trace.append({**entry, "attempt": attempt, "answer": r.data, "cache_hit": vis.last_hit,
-                      "cost_usd": r.info.cost_usd, "latency_s": r.info.latency_s})  # fmt: skip
-        return r.data
-    raise SheetFailed(f"{img.name}: two replies did not fit the schema")
+    """One sheet call. The adapter retries a reply that does not fit the schema once with
+    RETRY_LINE added, as a new call; a second misfit raises SheetFailed (plan.md 4.3)."""
+    estimate = vis.sheet_estimate() if hasattr(vis, "sheet_estimate") else 0.0
+    if BUDGET is not None:
+        BUDGET.check(2 * estimate)  # the call and its possible retry
+    t0 = time.monotonic()
+    try:
+        r = vis.look_sheet(img, cells, q, schema=schema)
+    except SchemaMisfit as err:
+        trace.append({**entry, "attempt": 1, "answer": None, "invalid": str(err)[:200],
+                      "latency_s": round(time.monotonic() - t0, 3)})  # fmt: skip
+        raise SheetFailed(f"{img.name}: two replies did not fit the schema") from err
+    trace.append({**entry, "attempt": r.info.attempts - 1, "answer": r.data,
+                  "cache_hit": r.info.cache_hit, "cost_usd": r.info.cost_usd,
+                  "latency_s": r.info.latency_s})  # fmt: skip
+    return r.data
 
 
 def clips(only: str | None):
@@ -527,9 +504,7 @@ def main() -> None:
             vis, led = FakeVision(), None
         else:
             led = Ledger(s.runs_dir / f"spike-t003s-{work.stem.replace(' ', '_')}", s)
-            vis = VisionAdapter(led, settings=s)
-            if s.provider_mode == "record":
-                replay_first(vis)
+            vis = VisionAdapter(led, settings=s)  # record mode reads recordings first
             if BUDGET is not None:
                 BUDGET.add(led)
         try:

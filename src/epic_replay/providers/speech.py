@@ -51,17 +51,16 @@ class SpeechAdapter:
             self.out_dir.mkdir(parents=True, exist_ok=True)
             if src.exists():
                 shutil.copyfile(src, wav)
-            return PaidResult(payload, 0.0 if hit else payload.get("usage_usd", 0.0), hit)
+            return PaidResult((payload, hit), 0.0 if hit else payload.get("usage_usd", 0.0), hit)
 
-        payload = paid_call(
+        payload, hit = paid_call(
             self.ledger,
             stage=self.stage,
             provider=provider,
             model=provider,
-            estimate_usd=self.estimate(text),
+            estimate_usd=0.0 if self.rec.has(self.name, key) else self.estimate(text),
             fn=run,
         )
-        hit = self.rec.mode == "replay"
         info = CallInfo(
             provider,
             provider,

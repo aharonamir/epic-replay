@@ -145,3 +145,120 @@ def test_sheet_replays_and_cells_change_the_key(tmp_path, no_network):
     shifted = [dict(c, frame=c["frame"] + 1) for c in cells]
     with pytest.raises(ReplayMiss):
         v.look_sheet(sheet, shifted, "which cell?")
+
+
+def vision_retry_line():
+    from epic_replay.providers.vision import RETRY_LINE
+
+    return RETRY_LINE
+
+
+SCHEMA = {"type": "object", "required": ["cell"], "properties": {"cell": {"type": "integer"}}}
+
+
+class FakeVision:
+    """Stands in for httpx.post: answers each call with the next reply, counts the calls."""
+
+    def __init__(self, *replies):
+        self.replies, self.questions = list(replies), []
+
+    def __call__(self, url, json, timeout, headers):
+        self.questions.append(json["messages"][0]["content"][-1]["text"].split("\nAnswer")[0])
+        text = self.replies.pop(0)
+        body = {"choices": [{"message": {"content": text}}],
+                "usage": {"prompt_tokens": 1000, "completion_tokens": 100}}  # fmt: skip
+
+        class R:
+            def raise_for_status(self):
+                pass
+
+            def json(self):
+                return body
+
+        return R()
+
+
+def sheet_setup(tmp_path, monkeypatch, mode, *replies):
+    from epic_replay.providers import vision
+
+    s = replace(config.load(), provider_mode=mode, vision_api_key="test-key")
+    led = Ledger(tmp_path / "run", s, day_file=tmp_path / "day.json")
+    fake = FakeVision(*replies)
+    monkeypatch.setattr(vision.httpx, "post", fake)
+    sheet = tmp_path / "sheet.jpg"
+    sheet.write_bytes(b"jpeg-sheet")
+    cells = [{"cell": k + 1, "frame": 80 + k, "t": (80 + k) / 30} for k in range(9)]
+    v = VisionAdapter(led, settings=s, recorder=Recorder(mode, tmp_path / "rec"))
+    return v, led, fake, sheet, cells
+
+
+def test_record_mode_reads_a_recording_first(tmp_path, monkeypatch):
+    v, led, fake, sheet, cells = sheet_setup(tmp_path, monkeypatch, "record", '{"cell": 4}')
+    first = v.look_sheet(sheet, cells, "which cell?", schema=SCHEMA)
+    assert first.data == {"cell": 4} and not first.info.cache_hit and len(fake.questions) == 1
+    again = v.look_sheet(sheet, cells, "which cell?", schema=SCHEMA)  # no reply left to give
+    assert again.data == {"cell": 4} and again.info.cache_hit and again.info.cost_usd == 0
+    assert len(fake.questions) == 1
+    estimates = [c["estimate_usd"] for c in led.data["calls"]]
+    assert estimates == [0.008, 0.0]  # the ceiling for a new call, nothing for a recorded one
+
+
+def test_a_misfit_is_retried_once_and_both_replies_are_recorded(tmp_path, monkeypatch):
+    v, led, fake, sheet, cells = sheet_setup(
+        tmp_path, monkeypatch, "record", json.dumps(SCHEMA), '{"cell": 7}'
+    )
+    out = v.look_sheet(sheet, cells, "which cell?", schema=SCHEMA)
+    assert out.data == {"cell": 7} and out.info.attempts == 2
+    assert fake.questions == ["which cell?", "which cell?\n" + vision_retry_line()]
+    assert len(list((tmp_path / "rec" / "vision").glob("*.json"))) == 2
+    assert len(led.data["calls"]) == 2
+    # replay gives the same answer from the two recordings, with no network
+    rv = VisionAdapter(led, settings=v.s, recorder=Recorder("replay", tmp_path / "rec"))
+    again = rv.look_sheet(sheet, cells, "which cell?", schema=SCHEMA)
+    assert again.data == {"cell": 7} and again.info.attempts == 2 and again.info.cache_hit
+
+
+def test_two_misfits_raise_and_the_sheet_is_left_out(tmp_path, monkeypatch):
+    from epic_replay.providers.vision import SchemaMisfit
+
+    v, led, fake, sheet, cells = sheet_setup(
+        tmp_path, monkeypatch, "record", "not json at all", '{"cell": "four"}'
+    )
+    with pytest.raises(SchemaMisfit):
+        v.look_sheet(sheet, cells, "which cell?", schema=SCHEMA)
+    recs = [json.loads(p.read_text()) for p in (tmp_path / "rec" / "vision").glob("*.json")]
+    assert sorted(r["text"] for r in recs) == sorted(['{"cell": "four"}', "not json at all"])
+    assert len(led.data["calls"]) == 2 and led.total_usd > 0  # both attempts were paid
+
+
+def test_no_schema_means_no_retry(tmp_path, monkeypatch):
+    v, _, fake, sheet, cells = sheet_setup(tmp_path, monkeypatch, "record", "a free kick")
+    assert v.look_sheet(sheet, cells, "what happens?").text == "a free kick"
+    assert len(fake.questions) == 1
+
+
+def test_sheet_cost_ceiling_and_shown_cost_are_separate():
+    from epic_replay.providers import vision
+
+    assert vision.SHEET_CALL_CEILING_USD == 0.008
+    assert VisionAdapter.expected_sheets_usd(5) == pytest.approx(5 * 0.0035)
+
+
+def test_recorder_in_record_mode_calls_only_for_a_missing_recording(tmp_path):
+    rec = Recorder("record", tmp_path / "rec")
+    calls = []
+
+    def live():
+        calls.append(1)
+        return {"text": "new", "data": None, "usage_usd": 0.003}
+
+    put_recording(rec, "vision", "k1", {"text": "old", "data": None, "usage_usd": 0.002})
+    assert rec.has("vision", "k1") and not rec.has("vision", "k2")
+    assert rec.fetch("vision", "k1", live) == (
+        {"text": "old", "data": None, "usage_usd": 0.002},
+        True,
+    )
+    assert calls == []
+    assert rec.fetch("vision", "k2", live)[1] is False and calls == [1]
+    assert rec.has("vision", "k2")  # stored for next time
+    assert not Recorder("live", tmp_path / "rec").has("vision", "k1")  # live never reads

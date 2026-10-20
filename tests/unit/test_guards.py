@@ -118,3 +118,73 @@ def test_clean_text_passes(text):
 
 def test_pack_terms_are_added():
     assert lexicon.find_banned("a rare specimen", extra=["specimen"]) == ["specimen"]
+
+
+def parallel(led, n, estimate, actual):
+    """n calls at once; each call's provider waits until every call has been let in or
+    blocked, so all the checks happen while the admitted calls are still in flight."""
+    import threading
+    import time
+
+    go, lock = threading.Event(), threading.Lock()
+    state = {"in": 0, "blocked": 0}
+
+    def provider():
+        with lock:
+            state["in"] += 1
+        go.wait(5)
+        return budget.PaidResult("v", actual)
+
+    def one():
+        try:
+            call(led, estimate, provider)
+        except budget.CapExceeded:
+            with lock:
+                state["blocked"] += 1
+
+    threads = [threading.Thread(target=one) for _ in range(n)]
+    for t in threads:
+        t.start()
+    deadline = time.monotonic() + 5
+    while state["in"] + state["blocked"] < n and time.monotonic() < deadline:
+        time.sleep(0.005)
+    go.set()
+    for t in threads:
+        t.join(5)
+    return state
+
+
+def test_parallel_calls_reserve_their_estimates(tmp_path):
+    led = ledger(tmp_path, cap_run_usd=0.02)
+    state = parallel(led, 5, estimate=0.008, actual=0.003)
+    assert state == {"in": 2, "blocked": 3}  # 2 x 0.008 fits in 0.02, a third does not
+    assert len(led.data["calls"]) == 2 and led.total_usd == pytest.approx(0.006)
+    assert len(led.data["blocked"]) == 3
+    saved = json.loads(led.path.read_text())  # every write finished whole
+    assert len(saved["calls"]) == 2 and len(saved["blocked"]) == 3
+    assert led._reserved == 0
+    call(led, 0.008, ok(0.003))  # reservations were replaced by actual cost: room again
+    assert led.total_usd == pytest.approx(0.009)
+
+
+def test_a_failed_call_releases_its_reservation(tmp_path):
+    led = ledger(tmp_path, cap_run_usd=0.01)
+
+    def boom():
+        raise RuntimeError("provider down")
+
+    with pytest.raises(RuntimeError):
+        call(led, 0.008, boom)
+    assert led._reserved == 0 and budget._day_reserved == 0
+    call(led, 0.008, ok(0.003))
+    assert led.total_usd == pytest.approx(0.003)
+
+
+def test_parallel_records_all_reach_cost_json(tmp_path):
+    led = ledger(tmp_path, cap_run_usd=10.0)
+    state = parallel(led, 20, estimate=0.008, actual=0.001)
+    assert state["in"] == 20
+    saved = json.loads(led.path.read_text())
+    assert len(saved["calls"]) == 20 and saved["total_usd"] == pytest.approx(0.02)
+    day = json.loads((tmp_path / "day.json").read_text())
+    assert sum(day.values()) == pytest.approx(0.02)

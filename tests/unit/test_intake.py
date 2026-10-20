@@ -82,3 +82,69 @@ def test_a_2s_clip_is_rejected(tmp_path):
 
 def test_no_upload_fails(tmp_path):
     assert s0_intake.run(ctx(tmp_path)).status == "failed"
+
+
+def test_a_clip_cut_short_is_rejected_on_its_readable_length(tmp_path):
+    # the header still says 10 s; only about 2 s can be decoded
+    whole = tmp_path / "whole.mp4"
+    subprocess.run(["ffmpeg", "-v", "error", "-f", "lavfi", "-i", "testsrc=s=320x180:r=30:d=10",
+                    "-pix_fmt", "yuv420p", "-movflags", "+faststart", str(whole)],
+                   check=True)  # fmt: skip
+    data = whole.read_bytes()
+    run_dir = tmp_path / "run"
+    run_dir.mkdir()
+    (run_dir / "upload.mp4").write_bytes(data[: len(data) // 3])
+    res = s0_intake.run(ctx(run_dir))
+    assert res.status == "failed" and res.note.startswith("Only ") and "3 to 30" in res.note
+    assert not (run_dir / "clip_meta.json").exists() and not (run_dir / "work.mp4").exists()
+
+
+def test_a_conversion_error_is_a_failed_result_not_an_exception(tmp_path, monkeypatch):
+    make(tmp_path / "upload.mp4", 3, size="64x36", audio=False)
+    real = subprocess.run
+
+    def broken(args, **kw):
+        if args[0] == "ffmpeg":
+            return subprocess.CompletedProcess(args, 1, "", "boom")
+        return real(args, **kw)
+
+    monkeypatch.setattr(s0_intake.subprocess, "run", broken)
+    res = s0_intake.run(ctx(tmp_path))
+    assert res.status == "failed" and "could not be converted" in res.note
+
+
+def test_unreadable_probe_output_is_a_rejection(tmp_path, monkeypatch):
+    (tmp_path / "upload.mp4").write_bytes(b"x")
+    monkeypatch.setattr(
+        s0_intake.subprocess,
+        "run",
+        lambda args, **kw: subprocess.CompletedProcess(args, 0, "not json", ""),
+    )
+    res = s0_intake.run(ctx(tmp_path))
+    assert res.status == "failed" and "could not be read" in res.note
+
+
+def test_exactly_30s_is_accepted(tmp_path):
+    make(tmp_path / "upload.mp4", 30, size="64x36")
+    res = s0_intake.run(ctx(tmp_path))
+    assert res.status == "ok", res.note
+    assert abs(json.loads((tmp_path / "clip_meta.json").read_text())["duration_s"] - 30) < 0.1
+
+
+def test_a_rotated_clip_comes_out_upright(tmp_path):
+    plain = make(tmp_path / "plain.mp4", 3, size="320x180", audio=False)
+    subprocess.run(["ffmpeg", "-v", "error", "-display_rotation", "90", "-i", str(plain),
+                    "-c", "copy", str(tmp_path / "upload.mp4")], check=True)  # fmt: skip
+    plain.unlink()
+    assert s0_intake.run(ctx(tmp_path)).status == "ok"
+    meta = json.loads((tmp_path / "clip_meta.json").read_text())
+    assert (meta["width"], meta["height"], meta["rotation"]) == (180, 320, 0)
+
+
+def test_the_source_hash_is_of_the_whole_upload(tmp_path):
+    import hashlib
+
+    up = make(tmp_path / "upload.mp4", 3, size="64x36", audio=False)
+    s0_intake.run(ctx(tmp_path))
+    meta = json.loads((tmp_path / "clip_meta.json").read_text())
+    assert meta["source_sha256"] == hashlib.sha256(up.read_bytes()).hexdigest()
