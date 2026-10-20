@@ -1,0 +1,25 @@
+{
+  "text": "{\"type\":\"object\",\"activity\":\"A person in black clothing shoots a basketball at a hoop while another person in grey watches.\",\"outcome\":\"The ball bounces away and is eventually held by the person in grey.\",\"actor\":\"person in black clothing\",\"high_point_cell\":2,\"sure\":7}",
+  "data": {
+    "type": "object",
+    "activity": "A person in black clothing shoots a basketball at a hoop while another person in grey watches.",
+    "outcome": "The ball bounces away and is eventually held by the person in grey.",
+    "actor": "person in black clothing",
+    "high_point_cell": 2,
+    "sure": 7
+  },
+  "usage": {
+    "prompt_tokens": 903,
+    "completion_tokens": 4006,
+    "total_tokens": 4909,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 3941
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 903
+  },
+  "usage_usd": 0.005078
+}

@@ -1,0 +1,24 @@
+{
+  "text": "{\"activity\":\"soccer set piece/cross into the penalty area\",\"outcome\":\"a header is saved/cleared away; no goal\",\"actor\":\"player in yellow\",\"high_point_cell\":7,\"sure\":5}",
+  "data": {
+    "activity": "soccer set piece/cross into the penalty area",
+    "outcome": "a header is saved/cleared away; no goal",
+    "actor": "player in yellow",
+    "high_point_cell": 7,
+    "sure": 5
+  },
+  "usage": {
+    "prompt_tokens": 1270,
+    "completion_tokens": 13281,
+    "total_tokens": 14551,
+    "prompt_tokens_details": {
+      "cached_tokens": 896
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 13233
+    },
+    "prompt_cache_hit_tokens": 896,
+    "prompt_cache_miss_tokens": 374
+  },
+  "usage_usd": 0.016318
+}

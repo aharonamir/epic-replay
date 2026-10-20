@@ -1,0 +1,24 @@
+{
+  "text": "{\"activity\":\"A German Shepherd is described as being good at catching a ball, but no dog or ball is visible in the frames.\",\"outcome\":\"No catch or motion is shown; the frames only display the same caption.\",\"actor\":\"German Shepherd\",\"high_point_cell\":0,\"sure\":8}",
+  "data": {
+    "activity": "A German Shepherd is described as being good at catching a ball, but no dog or ball is visible in the frames.",
+    "outcome": "No catch or motion is shown; the frames only display the same caption.",
+    "actor": "German Shepherd",
+    "high_point_cell": 0,
+    "sure": 8
+  },
+  "usage": {
+    "prompt_tokens": 903,
+    "completion_tokens": 494,
+    "total_tokens": 1397,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 429
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 903
+  },
+  "usage_usd": 0.000864
+}

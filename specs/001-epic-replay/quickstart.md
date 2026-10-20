@@ -21,6 +21,19 @@ cp .env.example .env        # then add keys
 pytest                      # everything runs in replay mode, no keys needed
 ```
 
+**The install that works (checked 2026-10-15).** `pip install -e ".[dev]"` does not resolve: openjiuwen 0.1.19 depends on `intelli-router` by a git URL (gitcode.com), which uv and pip refuse to take from another package's dependency list. agent-core runs without it (T002). Install agent-core from a local checkout with `--no-deps`, add the project's own dependencies, then the project with `--no-deps`:
+
+```bash
+uv venv --python 3.12 && source .venv/bin/activate
+uv pip install -e ../agent-core --no-deps              # openjiuwen, local checkout
+uv pip install openai fastapi "uvicorn[standard]" python-multipart jinja2 jsonschema \
+  "pydantic>=2" numpy scipy opencv-python-headless playwright httpx python-dotenv pytest ruff
+uv pip install -e ".[dev]" --no-deps
+playwright install chromium
+```
+
+When `pyproject.toml` gains a dependency, install that one package by name and re-run the last `--no-deps` line. agent-core's own imports that are missing on a fresh machine (it lists about 40 packages) show up as `ModuleNotFoundError` on the first agent run; install them by name, and leave out `intelli-router` and the `opentelemetry-instrumentation-*` packages, which are not needed. If PyPI downloads stall, fetch the wheel with `curl -C -` and use `uv pip install --find-links <dir>`.
+
 `.env`:
 
 ```
@@ -115,7 +128,7 @@ uvicorn epic_replay.web.app:app --port 8000
 | Symptom | Look at |
 |---------|---------|
 | Run stops before the play card | `manifest.json` for the stage note; `cost.json` `blocked` list for a cap |
-| Wrong outcome or moment on the play card | `spotter_trace.json` for the sheets the Spotter was shown and the cells it chose, `signals.json` for the candidates, and `second_look.json`. `python tools/spike_t003_sheets.py --clip <name>` reruns one clip and writes a report with the sheets |
+| Wrong outcome or moment on the play card | `spotter_trace.json` for the sheets the Spotter was shown and the cells it chose, `signals.json` for the candidates. The key moment is always the user's pick (revision 8); the proposal is a starting point. `python tools/spike_t003_sheets.py --clip <name>` reruns one clip and writes a report with the sheets |
 | The Spotter loops or never submits | `spotter_trace.json`; the fixed-sequence fallback should have taken over, and the stage note says so |
 | Agent calls fail at once | `docs/api-notes.md` from T002; the model name (`deepseek-flash`) and base URL in `.env` |
 | Shout lands off the moment | `render.json` `climax_onsets`; then the climax frame in `play_sheet.json` |

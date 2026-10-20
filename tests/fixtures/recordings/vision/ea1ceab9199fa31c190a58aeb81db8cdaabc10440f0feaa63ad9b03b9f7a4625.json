@@ -1,0 +1,21 @@
+{
+  "text": "{\"cell\": 5, \"seen\": \"The ball is crossing the goal line and entering the net.\"}",
+  "data": {
+    "cell": 5,
+    "seen": "The ball is crossing the goal line and entering the net."
+  },
+  "usage": {
+    "prompt_tokens": 787,
+    "completion_tokens": 910,
+    "total_tokens": 1697,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 882
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 787
+  },
+  "usage_usd": 0.001328
+}

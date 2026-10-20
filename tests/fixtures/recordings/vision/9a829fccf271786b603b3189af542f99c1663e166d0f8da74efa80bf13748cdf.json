@@ -1,0 +1,24 @@
+{
+  "text": "{\"activity\":\"skateboarder performing a flip trick\",\"outcome\":\"lands the trick and rides away, leaving the court empty in the final frames\",\"actor\":\"person in tan trousers\",\"high_point_cell\":6,\"sure\":7}",
+  "data": {
+    "activity": "skateboarder performing a flip trick",
+    "outcome": "lands the trick and rides away, leaving the court empty in the final frames",
+    "actor": "person in tan trousers",
+    "high_point_cell": 6,
+    "sure": 7
+  },
+  "usage": {
+    "prompt_tokens": 905,
+    "completion_tokens": 978,
+    "total_tokens": 1883,
+    "prompt_tokens_details": {
+      "cached_tokens": 640
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 927
+    },
+    "prompt_cache_hit_tokens": 640,
+    "prompt_cache_miss_tokens": 265
+  },
+  "usage_usd": 0.001445
+}

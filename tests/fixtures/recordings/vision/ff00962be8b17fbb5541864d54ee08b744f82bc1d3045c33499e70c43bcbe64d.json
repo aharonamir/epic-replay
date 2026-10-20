@@ -1,0 +1,21 @@
+{
+  "text": "{\"cell\": 3, \"seen\": \"Soccer players jumping to contest a ball crossed into the penalty area, with the ball near its highest point.\"}",
+  "data": {
+    "cell": 3,
+    "seen": "Soccer players jumping to contest a ball crossed into the penalty area, with the ball near its highest point."
+  },
+  "usage": {
+    "prompt_tokens": 1173,
+    "completion_tokens": 2220,
+    "total_tokens": 3393,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 2182
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 1173
+  },
+  "usage_usd": 0.003016
+}

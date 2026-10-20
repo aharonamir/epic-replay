@@ -1,0 +1,54 @@
+{
+  "text": "{\"type\":\"object\",\"required\":[\"activity\",\"outcome\",\"actor\",\"high_point_cell\",\"sure\"],\"properties\":{\"activity\":{\"type\":\"string\"},\"outcome\":{\"type\":\"string\"},\"actor\":{\"type\":\"string\"},\"high_point_cell\":{\"type\":\"integer\",\"minimum\":0,\"maximum\":9},\"sure\":{\"type\":\"integer\",\"minimum\":0,\"maximum\":10}},\"additionalProperties\":false,\"activity\":\"flipping pancakes on a griddle\",\"outcome\":\"both pancakes are flipped and cooking golden-brown\",\"actor\":\"a person's hand using a spatula; clothing not visible\",\"high_point_cell\":7,\"sure\":9}",
+  "data": {
+    "type": "object",
+    "required": [
+      "activity",
+      "outcome",
+      "actor",
+      "high_point_cell",
+      "sure"
+    ],
+    "properties": {
+      "activity": {
+        "type": "string"
+      },
+      "outcome": {
+        "type": "string"
+      },
+      "actor": {
+        "type": "string"
+      },
+      "high_point_cell": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 9
+      },
+      "sure": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 10
+      }
+    },
+    "additionalProperties": false,
+    "activity": "flipping pancakes on a griddle",
+    "outcome": "both pancakes are flipped and cooking golden-brown",
+    "actor": "a person's hand using a spatula; clothing not visible",
+    "high_point_cell": 7,
+    "sure": 9
+  },
+  "usage": {
+    "prompt_tokens": 903,
+    "completion_tokens": 987,
+    "total_tokens": 1890,
+    "prompt_tokens_details": {
+      "cached_tokens": 768
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 850
+    },
+    "prompt_cache_hit_tokens": 768,
+    "prompt_cache_miss_tokens": 135
+  },
+  "usage_usd": 0.001455
+}

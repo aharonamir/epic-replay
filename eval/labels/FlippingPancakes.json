@@ -7,5 +7,8 @@
   "climax_t": 2,
   "followed_actor": "person",
   "capture_fps": 29.94,
-  "notes": ""
+  "notes": "climax_t 2.0 is the original whole-second label. other_climax_t: the second flip, the owner's cell 4 on the pass-1 sheet around 3.95 s (frame 107, cell precision about 0.37 s; pass 2 skipped).",
+  "other_climax_t": [
+    3.574
+  ]
 }

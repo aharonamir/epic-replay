@@ -1,0 +1,24 @@
+{
+  "text": "{\"activity\":\"a soccer player in yellow and blue takes a free kick\",\"outcome\":\"the ball is blocked by the wall of defenders in blue and white\",\"actor\":\"a soccer player in yellow and blue\",\"high_point_cell\":6,\"sure\":6}",
+  "data": {
+    "activity": "a soccer player in yellow and blue takes a free kick",
+    "outcome": "the ball is blocked by the wall of defenders in blue and white",
+    "actor": "a soccer player in yellow and blue",
+    "high_point_cell": 6,
+    "sure": 6
+  },
+  "usage": {
+    "prompt_tokens": 903,
+    "completion_tokens": 11021,
+    "total_tokens": 11924,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 10966
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 903
+  },
+  "usage_usd": 0.013496
+}

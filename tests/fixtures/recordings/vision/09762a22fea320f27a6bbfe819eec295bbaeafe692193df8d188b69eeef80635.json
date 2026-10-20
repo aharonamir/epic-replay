@@ -1,0 +1,24 @@
+{
+  "text": "{\"activity\": \"soccer player shooting a ball towards the goal\", \"outcome\": \"the ball travels towards the net while the goalkeeper watches\", \"actor\": \"player in a yellow shirt\", \"high_point_cell\": 4, \"sure\": 9}",
+  "data": {
+    "activity": "soccer player shooting a ball towards the goal",
+    "outcome": "the ball travels towards the net while the goalkeeper watches",
+    "actor": "player in a yellow shirt",
+    "high_point_cell": 4,
+    "sure": 9
+  },
+  "usage": {
+    "prompt_tokens": 903,
+    "completion_tokens": 814,
+    "total_tokens": 1717,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 757
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 903
+  },
+  "usage_usd": 0.001248
+}

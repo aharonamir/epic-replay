@@ -1,0 +1,53 @@
+{
+  "text": "{\"type\":\"object\",\"required\":[\"activity\",\"outcome\",\"actor\",\"high_point_cell\",\"sure\"],\"properties\":{\"activity\":{\"type\":\"string\"},\"outcome\":{\"type\":\"string\"},\"actor\":{\"type\":\"string\"},\"high_point_cell\":{\"type\":\"integer\",\"minimum\":0,\"maximum\":9},\"sure\":{\"type\":\"integer\",\"minimum\":0,\"maximum\":10}},\"activity\":\"flipping tortillas on a hot griddle with a metal spatula\",\"outcome\":\"one tortilla is flipped to its browned side, then the other tortilla is lifted on the spatula\",\"actor\":\"a person using a metal spatula\",\"high_point_cell\":5,\"sure\":9}",
+  "data": {
+    "type": "object",
+    "required": [
+      "activity",
+      "outcome",
+      "actor",
+      "high_point_cell",
+      "sure"
+    ],
+    "properties": {
+      "activity": {
+        "type": "string"
+      },
+      "outcome": {
+        "type": "string"
+      },
+      "actor": {
+        "type": "string"
+      },
+      "high_point_cell": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 9
+      },
+      "sure": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 10
+      }
+    },
+    "activity": "flipping tortillas on a hot griddle with a metal spatula",
+    "outcome": "one tortilla is flipped to its browned side, then the other tortilla is lifted on the spatula",
+    "actor": "a person using a metal spatula",
+    "high_point_cell": 5,
+    "sure": 9
+  },
+  "usage": {
+    "prompt_tokens": 903,
+    "completion_tokens": 3453,
+    "total_tokens": 4356,
+    "prompt_tokens_details": {
+      "cached_tokens": 768
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 3306
+    },
+    "prompt_cache_hit_tokens": 768,
+    "prompt_cache_miss_tokens": 135
+  },
+  "usage_usd": 0.004414
+}

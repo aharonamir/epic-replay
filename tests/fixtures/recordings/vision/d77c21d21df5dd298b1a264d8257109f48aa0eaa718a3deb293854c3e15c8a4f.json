@@ -1,0 +1,24 @@
+{
+  "text": "{\"activity\":\"shooting a basketball at an outdoor hoop\",\"outcome\":\"the ball goes through the hoop and scores\",\"actor\":\"the person in the grey hoodie and dark shorts\",\"high_point_cell\":3,\"sure\":8}",
+  "data": {
+    "activity": "shooting a basketball at an outdoor hoop",
+    "outcome": "the ball goes through the hoop and scores",
+    "actor": "the person in the grey hoodie and dark shorts",
+    "high_point_cell": 3,
+    "sure": 8
+  },
+  "usage": {
+    "prompt_tokens": 904,
+    "completion_tokens": 4314,
+    "total_tokens": 5218,
+    "prompt_tokens_details": {
+      "cached_tokens": 640
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 4264
+    },
+    "prompt_cache_hit_tokens": 640,
+    "prompt_cache_miss_tokens": 264
+  },
+  "usage_usd": 0.005448
+}

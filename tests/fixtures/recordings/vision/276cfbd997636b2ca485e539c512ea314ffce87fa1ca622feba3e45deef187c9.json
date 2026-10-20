@@ -1,0 +1,24 @@
+{
+  "text": "{\"activity\": \"skateboarder performing a kickflip trick\", \"outcome\": \"lands the trick and rides away on the skateboard\", \"actor\": \"person in tan trousers\", \"high_point_cell\": 1, \"sure\": 8}",
+  "data": {
+    "activity": "skateboarder performing a kickflip trick",
+    "outcome": "lands the trick and rides away on the skateboard",
+    "actor": "person in tan trousers",
+    "high_point_cell": 1,
+    "sure": 8
+  },
+  "usage": {
+    "prompt_tokens": 904,
+    "completion_tokens": 1659,
+    "total_tokens": 2563,
+    "prompt_tokens_details": {
+      "cached_tokens": 640
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 1602
+    },
+    "prompt_cache_hit_tokens": 640,
+    "prompt_cache_miss_tokens": 264
+  },
+  "usage_usd": 0.002262
+}

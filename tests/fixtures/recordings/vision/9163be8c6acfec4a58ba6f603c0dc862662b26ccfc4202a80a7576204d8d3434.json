@@ -1,0 +1,24 @@
+{
+  "text": "{\n  \"activity\": \"An arm moving into the frame from the left towards a water bottle on a ledge\",\n  \"outcome\": \"The arm continues to move across the left side of the view\",\n  \"actor\": \"a person's arm\",\n  \"high_point_cell\": 8,\n  \"sure\": 7\n}",
+  "data": {
+    "activity": "An arm moving into the frame from the left towards a water bottle on a ledge",
+    "outcome": "The arm continues to move across the left side of the view",
+    "actor": "a person's arm",
+    "high_point_cell": 8,
+    "sure": 7
+  },
+  "usage": {
+    "prompt_tokens": 903,
+    "completion_tokens": 1272,
+    "total_tokens": 2175,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 1196
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 903
+  },
+  "usage_usd": 0.001797
+}

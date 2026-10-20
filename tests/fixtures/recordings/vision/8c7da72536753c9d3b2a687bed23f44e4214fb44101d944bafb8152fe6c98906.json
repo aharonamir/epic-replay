@@ -1,0 +1,49 @@
+{
+  "text": "{\"type\":\"object\",\"required\":[\"activity\",\"outcome\",\"actor\",\"high_point_cell\",\"sure\"],\"properties\":{\"activity\":{\"type\":\"string\"},\"outcome\":{\"type\":\"string\"},\"actor\":{\"type\":\"string\"},\"high_point_cell\":{\"type\":\"integer\",\"minimum\":0,\"maximum\":9},\"sure\":{\"type\":\"integer\",\"minimum\":0,\"maximum\":10}},\"additionalProperties\":false}",
+  "data": {
+    "type": "object",
+    "required": [
+      "activity",
+      "outcome",
+      "actor",
+      "high_point_cell",
+      "sure"
+    ],
+    "properties": {
+      "activity": {
+        "type": "string"
+      },
+      "outcome": {
+        "type": "string"
+      },
+      "actor": {
+        "type": "string"
+      },
+      "high_point_cell": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 9
+      },
+      "sure": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 10
+      }
+    },
+    "additionalProperties": false
+  },
+  "usage": {
+    "prompt_tokens": 903,
+    "completion_tokens": 597,
+    "total_tokens": 1500,
+    "prompt_tokens_details": {
+      "cached_tokens": 768
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 509
+    },
+    "prompt_cache_hit_tokens": 768,
+    "prompt_cache_miss_tokens": 135
+  },
+  "usage_usd": 0.000987
+}

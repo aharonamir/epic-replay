@@ -2,7 +2,7 @@
 
 **Feature branch**: `001-epic-replay`
 **Created**: 2026-10-11
-**Status**: Draft, revision 7
+**Status**: Draft, revision 8
 **Input**: "You film your own goal or trick. The agent watches the clip, writes and voices an excited broadcast-style call of what actually happened, then adds a slow-motion replay and a score graphic."
 **Added in revision 2**: "In the MVP it is a web page: upload the video, choose a narration style (football enthusiast, news reporter and so on), see the progress, see the result."
 **Added in revision 3**: one person builds it in two weeks; the clip does not have to be a sport event; children are likely to appear in the footage; the confirmation step and the three styles stay.
@@ -62,7 +62,7 @@ A user uploads a clip of their own goal, picks a narration style, watches the pr
 
 ### US2 - Confirm what happened (Priority: P1)
 
-Before any commentary is written, the user sees a play card: the activity, the events in order, the outcome, and the frame the system thinks is the key moment. The user confirms, corrects a field, nudges the key moment, or rejects.
+Before any commentary is written, the user sees a play card: the activity, the events in order, the outcome, the frame the system proposes as the key moment, and the other moments it found. The user picks the key moment (the proposed frame, another moment, or a nudge from either), confirms, corrects a field, or rejects. The key moment is always the user's pick (revision 8).
 
 **Why this priority**: a confident wrong call is the worst failure this product can have. One tap of confirmation removes most of it and costs the user a few seconds.
 
@@ -154,13 +154,13 @@ Before starting, the user picks a narration style from a small set of cards and 
 
 - **FR-005**: The system MUST produce a play sheet containing: the activity (whatever is going on; it need not be a sport), setting, actors, ordered events with start and end time, action, outcome and confidence, the climax time, an outcome summary, a focus box and a sensitivity flag (contracts/play_sheet.schema.json).
 - **FR-006**: The system MUST analyse the clip in two independent passes and MUST mark any field on which they disagree as low confidence.
-- **FR-007**: The system MUST locate the climax to within one frame of a specific frame of the working copy, and MUST record the method used and its confidence. Candidate moments are proposed by code from motion and sound; the vision model chooses only among frames shown to it, by their position on a contact sheet; every time is taken from a frame or a sound onset, never from the model's text (revision 7).
+- **FR-007**: The system MUST locate the climax to within one frame of a specific frame of the working copy, and MUST record the method used and its confidence. Candidate moments are proposed by code from motion and sound; the vision model chooses only among frames shown to it, by their position on a contact sheet; every time is taken from a frame or a sound onset, never from the model's text (revision 7). In the MVP the model's frame is a proposal: the climax is the frame the user picks at the play card (revision 8).
 - **FR-008**: The system MUST refer to people only by a user-given name or a neutral visible descriptor, and MUST NOT infer or state identity, age, ethnicity, body characteristics or ability. Because the MVP scope is declared by the user as adult men, "he", "him" and "his" may be used for a person; female terms and any word that marks someone's age are in the banned lexicon. Words the user typed may be used as typed.
 - **FR-009**: The system MUST stop the run, with an explanation, when the clip shows injury, violence, distress or humiliation, or anyone undressed. A clip with no discernible action is not stopped; it goes to the play card with a request to pick the moment.
 
 **Checkpoint A - play card**
 
-- **FR-010**: The system MUST show a play card with the events in plain language, the outcome, the climax frame with a frame-by-frame nudge, highlighted low-confidence fields and the estimated cost of the rest of the run. The user MUST be able to confirm, edit or reject.
+- **FR-010**: The system MUST show a play card with the events in plain language, the outcome, the climax frame with a frame-by-frame nudge, the other candidate moments to pick from, highlighted low-confidence fields and the estimated cost of the rest of the run. The key moment is always highlighted and must be answered (revision 8). The user MUST be able to confirm, edit or reject.
 - **FR-011**: No script, voice or render stage may start before the play card is confirmed. User edits override model output and are stored with `source: user`.
 - **FR-012**: When the user rejects the play card and does not correct it, the system MUST offer generic mode, in which commentary makes no specific claim about the play.
 
@@ -243,11 +243,11 @@ Field-level definitions are in data-model.md.
 
 Targets marked (provisional) are re-set at Gate 0 from the spike measurements, and the new values are written here. These are the criteria of the full design; section 10 says how each is measured in the one-person MVP.
 
-- **SC-1 Speed**: for a 20 second clip, upload to play card takes at most 60 seconds, and confirmed play card to finished video takes at most 90 seconds, at the median of 10 runs. A further style of the same play takes at most 60 seconds (provisional).
-- **SC-2 Understanding**: on the 30-clip evaluation set, before any user correction, the outcome is correct in at least 85 percent of clips and the climax is within 0.3 seconds of the label in at least 80 percent (provisional).
+- **SC-1 Speed**: for a 20 second clip, upload to play card takes at most 60 seconds, and confirmed play card to finished video takes at most 90 seconds, at the median of 10 runs. A further style of the same play takes at most 60 seconds. Upload to play card is set from T003 (revision 8): one overview look of five sheet calls sent in parallel takes as long as its slowest call, measured at a median of 26 s and at most 71 s; S0 and S1 have 25 s between them (contracts/stage-contracts.md), so a slow call can push a single run past 60 s. The other two parts stay provisional until T034.
+- **SC-2 Understanding**: on the 30-clip evaluation set, before any user correction, the outcome is correct in at least 80 percent of clips (T003 measured 13 of 16 repeats on eight starter clips). The climax is user-confirmed: on every run the user picks the key moment on the play card before anything is written, and the share of picks that are the proposed frame or one of the other offered moments, without a nudge, is reported, not targeted (revision 8; T003 measured the model's own frame within a quarter second of a labelled moment on 3 of 16 repeats).
 - **SC-3 Verification**: the checks catch at least 8 of 10 planted errors in a seeded test script, and the code checks alone catch every planted name and number error.
 - **SC-4 Timing**: in every render, the climax call starts within 150 ms of its target time (the climax time plus the style's reaction delay), measured by onset detection on the output audio.
-- **SC-5 Cost**: a run with the default provider set costs at most 0.25 USD, and no run exceeds the 1.00 USD cap (provisional).
+- **SC-5 Cost**: a run with the default provider set costs at most 0.25 USD, and no run exceeds the 1.00 USD cap. Analysis is set from T003 (revision 8): a sheet call costs about 0.0035 USD (mostly reasoning tokens, about three times the adapter's first estimate), so the five-call overview is about 0.02 USD. The rest of the run stays provisional until T034.
 - **SC-6 Reception**: five people who did not build the app each watch five results; the average "would you share this" rating is at least 4 of 5, and in at least 20 of the 25 viewings the viewer says the commentary describes what happened.
 - **SC-7 Reliability**: ten consecutive runs on rehearsal clips complete without touching code or the terminal.
 - **SC-8 Honesty**: across all evaluation and rehearsal outputs, in every style, zero scripts contain a name or number that is not in the play sheet or user context, zero contain a banned term, and every video carries the AI label.
@@ -315,6 +315,14 @@ Targets marked (provisional) are re-set at Gate 0 from the spike measurements, a
 - The cuts in tasks.md are applied: five of the ten code checks, re-telling from the command line only, no sample player, blending only for slow motion, no lower third, a reduced privacy check, and the evaluation write-up reduced to four criteria.
 - The speech provider is ElevenLabs `eleven_v3`, as T004 chose (docs/provider-notes.md); this replaces the interim OpenAI default of revision 6.
 
+**Decided by the owner on 2026-10-20 (revision 8)**
+
+- Gate 0's key-moment line is no: the model's frame was within a quarter second of a labelled moment on 3 of 16 repeats, and the repeats agreed on 2 of 8 clips, both on a wrong frame (docs/provider-notes.md, T003 contact sheets). Plan.md section 6's fallback applies.
+- The play card always opens with the key moment highlighted and the nudge active; the S1 candidates are offered as other moments; the user's pick is the climax (`climax.method` `user`).
+- The Spotter is overview-only: it describes the clip and proposes a start frame from the overview sheets. Refining passes and the second look are deferred (section 10).
+- SC-1, SC-2 and SC-5 are re-set from the T003 measurements (section 5).
+- The outcome was right on 13 of 16 repeats, above the Gate 0 bar of three in four; fk_save was not run (spend cap), and the labelling passes beyond the first were skipped.
+
 **Still open**
 
 None.
@@ -352,6 +360,8 @@ Sections 3 to 5 describe the full design. One person in ten working days builds 
 | The Nature documentary pack (revision 7) | Two styles: Football commentator and News reporter | FR-039 (two of three styles) |
 | Re-telling from the result page, and the sample player (revision 7) | Re-telling from the command line; the cached demo run shows both versions; style cards without audio | FR-042 (part), FR-039 (sample), US5 scenarios 1, 2 and 5 |
 | The Spotter's ReAct loop (revision 7) | A fixed sequence of the same tools | none; plan.md section 4.3 |
+| The second look (revision 8) | One overview look; every field can be corrected on the play card, and the key moment is always the user's pick | FR-006, US2 scenario 1 |
+| Refining passes on the key moment (revision 8) | The overview's cell, snapped to a sound onset, is the proposed frame; the user picks and nudges | none; FR-007 is met by the user's pick |
 | Code-check rules 2, 3, 7, 9 and 10 (revision 7) | Rules 1, 4, 5, 6 and 8 | FR-019 (part) |
 | Real-frame slow motion, the lower third, the vertical layout (revision 7) | Blending only; title, REPLAY bug, end card and AI label, horizontal | FR-028 (one of three methods), FR-029 (part) |
 | The sound set beyond a crowd bed, a roar and a sting (revision 7) | Those three per style | FR-026 (part) |
@@ -359,11 +369,12 @@ Sections 3 to 5 describe the full design. One person in ten working days builds 
 
 Success criteria as measured in the one-person MVP:
 
-- **SC-1**, **SC-2**, **SC-4** and **SC-5** are the four criteria measured (T003 report and T034's rehearsal runs). SC-2 is reported on the nine starter clips, with the count stated, from the T003 spike report.
+- **SC-1**, **SC-2**, **SC-4** and **SC-5** are the four criteria measured (T003 report and T034's rehearsal runs). SC-2's outcome share is reported on the starter clips, with the count stated, from the T003 spike report (eight of the nine were run); its key-moment part is the user's pick, reported from T034's runs.
 - **SC-3** becomes: the code checks (rules 1, 4, 5, 6 and 8) catch every planted error of the five kinds code can see (invented name, invented number, missing reference, over budget, banned term). The other five kinds are caught only by the user at the play card until the Verifier is built, and are reported as not covered.
 - **SC-6** and **SC-9** are not measured in the MVP.
 - **SC-7** is three consecutive runs, not ten.
 - **US4 scenario 1** is not met until a fallback voice provider is added.
+- **US2 scenario 1** is not met until the second look is added back (revision 8): with one look there is no disagreement to show.
 
 ## 11. Revision history
 
@@ -374,3 +385,4 @@ Success criteria as measured in the one-person MVP:
 - Revision 6 (2026-10-12): adults only, men only in the MVP; DeepSeek sees frames, with a disclaimer, FR-037 waived for the demo (section 8). FR-003 and FR-008 reworded. Minimum output length is configuration (default 20 s, FR-014). Frame sampling default 4 per second with optional motion thinning; key-frame tolerance a quarter second. FFmpeg 8. The name check compares case-insensitively and runs on a sentence-cased copy of shouted lines. Existing ids are unchanged.
 - Revision 5 (2026-10-11): the owner approved the visual design of the page, made on the design canvas. Added contracts/design.md (colours, type, layout, parts) and a copy of the canvas files in contracts/design-canvas/. contracts/ui.md redrawn to the approved layout, with a table of all wording. Style packs gain an optional `graphics.accent_text`; the page takes its colour from the chosen pack. The descriptions of two example packs shortened, and the News reporter's no longer says "goal". No requirement, success criterion or task hour changed.
 - Revision 7 (2026-10-15): nine working days. The signal scan (S1) is built; the Spotter looks at contact sheets and answers with a cell, code refines and snaps to a sound onset; the Spotter runs as a fixed sequence (plan.md sections 4.2 to 4.4). Key lines are placed by their key word (`hit_word`, plan.md section 4.8). FR-007 and FR-024 extended. The MVP ships two styles; section 10 lists the other cuts. Section 8 records the decisions. Existing ids are unchanged.
+- Revision 8 (2026-10-20): Gate 0's key-moment line is no (T003 contact sheets). The play card always opens with the nudge active, offers the S1 candidates as other moments, and the user's pick is the climax. The Spotter is overview-only; refining passes and the second look are deferred (section 10). SC-1, SC-2 and SC-5 re-set from T003. US2, FR-007 and FR-010 amended. Existing ids are unchanged.

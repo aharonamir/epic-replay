@@ -1,0 +1,24 @@
+{
+  "text": "{\n  \"activity\": \"skateboarding across a paved area\",\n  \"outcome\": \"the skateboarder exits the frame\",\n  \"actor\": \"person in light-colored pants\",\n  \"high_point_cell\": 1,\n  \"sure\": 9\n}",
+  "data": {
+    "activity": "skateboarding across a paved area",
+    "outcome": "the skateboarder exits the frame",
+    "actor": "person in light-colored pants",
+    "high_point_cell": 1,
+    "sure": 9
+  },
+  "usage": {
+    "prompt_tokens": 903,
+    "completion_tokens": 785,
+    "total_tokens": 1688,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 722
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 903
+  },
+  "usage_usd": 0.001213
+}

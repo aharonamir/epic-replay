@@ -1,0 +1,21 @@
+{
+  "text": "{\"cell\": 8, \"seen\": \"The skateboard is fully airborne and at its highest point relative to the ground.\"}",
+  "data": {
+    "cell": 8,
+    "seen": "The skateboard is fully airborne and at its highest point relative to the ground."
+  },
+  "usage": {
+    "prompt_tokens": 789,
+    "completion_tokens": 594,
+    "total_tokens": 1383,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 562
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 789
+  },
+  "usage_usd": 0.00095
+}

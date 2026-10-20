@@ -1,0 +1,24 @@
+{
+  "text": "{\"activity\": \"playing basketball\", \"outcome\": \"shooting hoops\", \"actor\": \"person in black clothes\", \"high_point_cell\": 4, \"sure\": 8}",
+  "data": {
+    "activity": "playing basketball",
+    "outcome": "shooting hoops",
+    "actor": "person in black clothes",
+    "high_point_cell": 4,
+    "sure": 8
+  },
+  "usage": {
+    "prompt_tokens": 904,
+    "completion_tokens": 686,
+    "total_tokens": 1590,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 643
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 904
+  },
+  "usage_usd": 0.001094
+}

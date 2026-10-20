@@ -1,0 +1,21 @@
+{
+  "text": "{\"cell\": 6, \"seen\": \"The tortilla is at the highest point of its toss in the air.\"}",
+  "data": {
+    "cell": 6,
+    "seen": "The tortilla is at the highest point of its toss in the air."
+  },
+  "usage": {
+    "prompt_tokens": 798,
+    "completion_tokens": 467,
+    "total_tokens": 1265,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 436
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 798
+  },
+  "usage_usd": 0.0008
+}

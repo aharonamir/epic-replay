@@ -1,0 +1,25 @@
+{
+  "text": "{\"type\":\"object\",\"activity\":\"A water bottle is flipped/thrown onto the pavement, then a hand reaches for it.\",\"outcome\":\"The bottle lands upright and stays standing before being picked up.\",\"actor\":\"a person in dark clothing\",\"high_point_cell\":4,\"sure\":6}",
+  "data": {
+    "type": "object",
+    "activity": "A water bottle is flipped/thrown onto the pavement, then a hand reaches for it.",
+    "outcome": "The bottle lands upright and stays standing before being picked up.",
+    "actor": "a person in dark clothing",
+    "high_point_cell": 4,
+    "sure": 6
+  },
+  "usage": {
+    "prompt_tokens": 903,
+    "completion_tokens": 1685,
+    "total_tokens": 2588,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 1622
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 903
+  },
+  "usage_usd": 0.002293
+}

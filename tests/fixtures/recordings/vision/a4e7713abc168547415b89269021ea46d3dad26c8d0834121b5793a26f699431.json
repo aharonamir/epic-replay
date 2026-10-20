@@ -1,0 +1,24 @@
+{
+  "text": "{\"activity\": \"catching a ball\", \"outcome\": \"the dog catches the ball\", \"actor\": \"German Shepherd dog\", \"high_point_cell\": 9, \"sure\": 9}",
+  "data": {
+    "activity": "catching a ball",
+    "outcome": "the dog catches the ball",
+    "actor": "German Shepherd dog",
+    "high_point_cell": 9,
+    "sure": 9
+  },
+  "usage": {
+    "prompt_tokens": 905,
+    "completion_tokens": 870,
+    "total_tokens": 1775,
+    "prompt_tokens_details": {
+      "cached_tokens": 640
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 825
+    },
+    "prompt_cache_hit_tokens": 640,
+    "prompt_cache_miss_tokens": 265
+  },
+  "usage_usd": 0.001316
+}

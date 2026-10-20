@@ -1,0 +1,21 @@
+{
+  "text": "{\"cell\": 5, \"seen\": \"the player in red kicks the ball, sending it into the air towards the goal\"}",
+  "data": {
+    "cell": 5,
+    "seen": "the player in red kicks the ball, sending it into the air towards the goal"
+  },
+  "usage": {
+    "prompt_tokens": 792,
+    "completion_tokens": 1254,
+    "total_tokens": 2046,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 1222
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 792
+  },
+  "usage_usd": 0.001742
+}

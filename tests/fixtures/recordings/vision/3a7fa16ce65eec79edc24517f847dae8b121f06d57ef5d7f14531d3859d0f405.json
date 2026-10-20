@@ -1,0 +1,21 @@
+{
+  "text": "{\"cell\": 6, \"seen\": \"The skateboard is popped up with the front foot at its highest point before descending.\"}",
+  "data": {
+    "cell": 6,
+    "seen": "The skateboard is popped up with the front foot at its highest point before descending."
+  },
+  "usage": {
+    "prompt_tokens": 789,
+    "completion_tokens": 976,
+    "total_tokens": 1765,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 943
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 789
+  },
+  "usage_usd": 0.001408
+}

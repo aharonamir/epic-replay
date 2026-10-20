@@ -1,0 +1,21 @@
+{
+  "text": "{\"cell\": 6, \"seen\": \"The tortilla is in mid-air at the highest point of its flip.\"}",
+  "data": {
+    "cell": 6,
+    "seen": "The tortilla is in mid-air at the highest point of its flip."
+  },
+  "usage": {
+    "prompt_tokens": 798,
+    "completion_tokens": 1003,
+    "total_tokens": 1801,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 976
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 798
+  },
+  "usage_usd": 0.001443
+}

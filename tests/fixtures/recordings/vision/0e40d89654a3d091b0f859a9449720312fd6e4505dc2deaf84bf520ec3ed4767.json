@@ -1,0 +1,21 @@
+{
+  "text": "{\"cell\":3,\"seen\":\"The small flatbread is airborne near the top of its flip above the griddle.\"}",
+  "data": {
+    "cell": 3,
+    "seen": "The small flatbread is airborne near the top of its flip above the griddle."
+  },
+  "usage": {
+    "prompt_tokens": 808,
+    "completion_tokens": 651,
+    "total_tokens": 1459,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 625
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 808
+  },
+  "usage_usd": 0.001024
+}

@@ -74,8 +74,8 @@ The diagram and table show the full design. Section 4.15 lists what the one-pers
 flowchart TD
     U[One page: upload + narration style + consent + optional names and score] --> S0[S0 Intake and probe - code]
     S0 --> S1[S1 Signal scan: motion and audio peaks - code]
-    S1 --> S2[S2 The Spotter agent looks at numbered frames, then a second look - agent-core + vision model]
-    S2 --> S3[S3 The Spotter zooms in on the key moment, frame by frame - agent-core + vision model]
+    S1 --> S2[S2 The Spotter looks at contact sheets: what happened, and a proposed start frame - vision model]
+    S2 --> S3[S3 Key moment: the proposed frame and the S1 candidates, for the user to pick - code]
     S3 --> A{{Checkpoint A: play card + cost estimate - human}}
     A -->|confirmed or corrected| S4[S4 Storyboard - code]
     A -->|rejected| G[Generic mode: no specific claims]
@@ -102,8 +102,8 @@ flowchart TD
 |-------|------|------|-------|-------------|
 | S0 Intake | code | no | upload | `clip_meta.json`, `work.mp4` |
 | S1 Signal scan | code | no | `work.mp4` | `signals.json` |
-| S2 Analysis | ReAct agent + vision model | yes | `frames/`, user context | `spotter_trace.json`, `second_look.json` |
-| S3 Key moment | same agent, `zoom` tool | yes | dense frames around the candidate | `play_sheet.json` |
+| S2 Analysis | fixed sequence + vision model (revision 8: overview only) | yes | `sheets/`, `signals.json`, user context | `spotter_trace.json` |
+| S3 Key moment | code | no | the overview's answer, `signals.json` | `play_sheet.json` |
 | Checkpoint A | human | no | `play_sheet.json` | `play_sheet.json` (confirmed) |
 | S4 Storyboard | code | no | play sheet, clip meta | `storyboard.json` |
 | S5 Script | code + agent | yes | play sheet, storyboard, context, style pack | `script.json` |
@@ -138,30 +138,28 @@ DeepSeek's API takes still images, not video or sound. Revision 7 changes how th
   |------|-----------|------|---------|
   | `clip_info` | none | Reads `clip_meta.json`, `signals.json` and the user context | Duration, frame rate, orientation, the S1 candidates, anything the user typed |
   | `look_sheets` | none | Sends the overview: two sheets spread evenly over the clip and one sheet over plus or minus 1.5 s around each S1 candidate, one call per sheet, at high detail. Each call asks what is going on, how it ends, who or what does it, the cell of the high point if this sheet shows it (0 if not), and how sure the model is, 0 to 10 | Per sheet: description, cell, sureness |
-  | `refine` | `sheet`, `cell` | Sends a sheet spanning from the cell before the chosen one to the cell after it, and asks which cell shows the exact moment | The cell, and what it shows |
   | `submit_play_sheet` | the play sheet | Validates it against the schema and the descriptor rules | "accepted", or the list of errors to fix |
 
-- **The sequence:** `clip_info`; `look_sheets`; the surest sheet that shows the high point wins, a candidate sheet winning a tie; `refine` until the cells are consecutive frames, at most `EPIC_SHEET_PASSES` passes (from a 3 s candidate window two passes reach single frames); then the snap of section 4.4; `submit_play_sheet`. If no sheet shows the high point, the strongest S1 candidate is refined instead and the climax is marked low confidence. Limits in the tools: at most five overview sheets and `EPIC_SHEET_PASSES` refining passes per look.
-- **Second look (FR-006).** The overview is run a second time with the same sheets and a question that differs only in whitespace, as an independent recording. A comparison function marks the activity, the outcome, the actor and the final frame as agreed or disagreed. Disagreement lowers the field's confidence and highlights it on the play card.
+- **The sequence (revision 8: overview only):** `clip_info`; `look_sheets` over two sheets spread over the clip and one around each of the top three S1 candidates, five calls sent in parallel; the surest sheet that shows the high point gives the proposed start frame, a candidate sheet winning a tie; the snap of section 4.4; `submit_play_sheet`. If no sheet shows the high point, the strongest S1 candidate is the proposed frame. Limit in the tool: at most five overview sheets per run.
+- **No refining passes and no second look in the MVP (revision 8).** T003 measured the model's final frame after refining within a quarter second of a labelled moment on 3 of 16 repeats, and the repeats agreed on 2 of 8 clips, both on a wrong frame (docs/provider-notes.md). Six of the thirteen misses were 2.8 s or more from any valid moment, a different moment that refining cannot fix; the others were within about a second, where the user's nudge is quicker than more calls. So the key moment is the user's pick (section 4.5). Both are listed in section 4.15. `agreement.passes` is 1.
 - **Rules in the prompt and enforced by `submit_play_sheet`:** people are described only by clothing colour, role and position, animals by kind (FR-008); no age words, so "the rider in the yellow helmet", never "the little boy"; a sensitivity flag with its reason: injury, violence, distress, humiliation, or someone undressed (FR-009).
 - The prompt does not assume sport. It asks what is going on, who or what does it, what the high point is and how it ends. "Outcome" is how the moment ended: the ball went in, the dog caught it, the pancake landed in the pan.
 - If the user gave an activity or a name at upload, it is in `clip_info` and marked `source: user`.
 - **Sound.** The model never hears the clip, but S1 does: sound onsets choose candidate windows and fix the exact frame of a contact.
-- **Fallback.** If a sheet call fails twice, the strongest S1 candidate becomes the climax with low confidence, and the play card opens with the nudge active.
+- **Fallback.** A reply that does not fit the schema is asked once more with one added line ("Fill in the fields; do not repeat the schema."); T003 saw the model return the schema itself 3 times. If a sheet call still fails, that sheet is left out; if every sheet fails, the strongest S1 candidate is the proposed frame and the description fields are empty and highlighted.
 
-### 4.4 S3 Key moment: coarse to fine, then the sound
+### 4.4 S3 Key moment: a proposal, then the user's pick (revision 8)
 
-1. The overview gives a cell on one sheet: within about a third of a second on a candidate sheet, within about two seconds on an overview sheet.
-2. `refine` narrows the window about fourfold per pass until the cells are consecutive frames.
-3. **Snap to the sound.** If S1 found a sound onset from `EPIC_SOUND_SNAP_S` (default 0.25 s) before the chosen frame to 0.1 s after it, the climax moves to the onset's frame: for a contact (a kick, a catch, a landing) the sound starts at the moment of contact. `climax.method` is `sheets+sound`; otherwise `sheets`.
-4. The second look gives an independent final frame. If the two are within `EPIC_KEYFRAME_TOL_S` (default a quarter of a second), the frame is accepted. Otherwise the climax is marked low confidence and the play card opens with the nudge active.
-5. `climax.candidates` keeps the other S1 candidates and any second high point the overview reported, so a clip with two valid moments (the basketball clip has two baskets) offers both on the play card.
+1. The overview gives a cell on one sheet: the proposed start frame. It is a third of a second from its neighbours on a candidate sheet and about two seconds on an overview sheet.
+2. **Snap to the sound.** If S1 found a sound onset from `EPIC_SOUND_SNAP_S` (default 0.25 s) before the proposed frame to 0.1 s after it, the proposal moves to the onset's frame: for a contact (a kick, a catch, a landing) the sound starts at the moment of contact. `climax.method` is `sheets+sound`; otherwise `sheets`. The confidence is always low, so the play card highlights the key moment.
+3. `climax.candidates` keeps the top three S1 candidates, each at its sound onset when it has one, and any second high point the overview reported. T003 found several clips with more than one valid moment (two baskets, two flips); the model picks one of them, differently on each repeat, and only the user knows which they meant.
+4. At Checkpoint A the user picks the proposed frame or another moment, and may nudge it frame by frame. That frame is the climax, `climax.method` `user` (FR-007, FR-010).
 
-Method and confidence are stored (FR-007). The user's nudge at Checkpoint A always wins.
+Method and confidence are stored (FR-007). The user's pick at Checkpoint A is the climax on every run.
 
 ### 4.5 Checkpoint A: the play card
 
-Shown inside the progress list on the page (contracts/ui.md, state 3). One card: the activity; three to six events in plain sentences; the outcome; the climax frame with back and forward buttons; fields for player name, teams and score; the estimated cost of the rest of the run; Confirm, Fix, Reject. Highlighted fields must be answered. Confirm writes `confirmed_by_user: true`; edits are stored with `source: user` (FR-010, FR-011). Reject offers a retry with a typed one-line description, or generic mode (FR-012).
+Shown inside the progress list on the page (contracts/ui.md, state 3). One card: the activity; three to six events in plain sentences; the outcome; the climax frame with back and forward buttons, always highlighted and active (revision 8), with the other moments beside it as small frames to pick; fields for player name, teams and score; the estimated cost of the rest of the run; Confirm, Fix, Reject. Highlighted fields must be answered. Confirm writes `confirmed_by_user: true`; edits are stored with `source: user` (FR-010, FR-011). Reject offers a retry with a typed one-line description, or generic mode (FR-012).
 
 ### 4.6 S4 Storyboard
 
@@ -302,6 +300,8 @@ The page address carries the run id, so a reload or a second device shows the sa
 | 30-clip evaluation set, five-person viewer test | evaluation | 8 to 12 clips; three viewers during rehearsal | 6 h |
 | Blind read to choose the writer model | S5 | DeepSeek Flash writes, as chosen by the owner | 1 h |
 | The Spotter's ReAct loop (revision 7) | S2, S3 | The fixed sequence of section 4.3 runs on every clip, with the same tools and validators. The Commentator is the only ReAct agent | 1 to 2 h |
+| Refining passes on the key moment (revision 8) | S3 | The overview's cell, snapped to a sound onset, is a proposal; the user picks the moment on the play card. `EPIC_SHEET_PASSES` and `tools/spike_t003_sheets.py` keep the procedure for when a model does better | 1 h |
+| The second look (revision 8) | S2 | One overview look; the play card is where fields are corrected. US2 scenario 1 is not met | 1 h |
 | Code-check rules 2, 3, 7, 9 and 10 (revision 7) | S6 | Rules 1, 4, 5, 6 and 8, which catch all five kinds of planted error code can see | 2 h |
 | The Nature documentary pack (revision 7) | styles | Two narrators: Football commentator and News reporter | 2 h |
 | Re-telling from the result page, and the sample player (revision 7) | page | Re-telling from the command line (T027); the cached demo run shows both versions | 3 h |
@@ -355,6 +355,8 @@ epic-replay/
 
 ## 6. Schedule and gates
 
+Revision 8 (2026-10-20): Gate 0's key-moment line is no; the fallback below is applied. T012 drops refinement and the second look (3 h to 2 h), and the play card's nudge and other moments are no longer in the cut list. The freed hour is margin.
+
 Revision 7 (2026-10-15): nine working days, not ten. Friday 23 October is not a working day and the presentation is on Saturday 24 October. Days 1 and 2 built the foundations and measured the voices and the agent framework; days 3 and 4 went to the key-moment problem (docs/provider-notes.md). From the afternoon of day 4, 43 hours remain, and 43 are planned.
 
 | Day | Date | Tasks | Hours | What exists at the end |
@@ -363,7 +365,7 @@ Revision 7 (2026-10-15): nine working days, not ten. Friday 23 October is not a 
 | 2 | Tue 13 Oct | T002, T004 | 4 | Agent framework and voices chosen |
 | 3 | Wed 14 Oct | T003 (first pass, numbered frames) | | The key-moment problem measured |
 | 4 | Thu 15 Oct, afternoon | T003 (contact sheets) | 3 | Gate 0 |
-| 5 | Sun 18 Oct | T011, T010, T012, T038 | 8 | Clip to play sheet from the command line |
+| 5 | Sun 18 Oct | T011, T010, T012, T038 | 7 | Clip to play sheet from the command line |
 | 6 | Mon 19 Oct | T013, T015, T016, T017, T018 | 8 | Gate 1a: clip to checked script from the command line |
 | 7 | Tue 20 Oct | T019, T020, T021, T022, T023 | 8 | Voice placed by key word, mix, slow motion, graphics |
 | 8 | Wed 21 Oct | T024, T027, T014, T039 | 8 | Gate 1b: clip to video; Gate 2: the flow, the play card, a second narrator |
@@ -378,6 +380,8 @@ There is no margin. The protection is the order: the pipeline is finished before
 - SC-1, SC-2 and SC-5 targets re-set from the measurements and written into spec.md.
 
 If the key moment misses the bar: the play card opens with the nudge active on every clip, the S1 candidates are offered as the choices, and the user's pick is the climax. The model then describes what happened and the user says when. Decide on day 4, not later.
+
+Result (2026-10-20, docs/provider-notes.md): Spotter yes, 13 of 16 repeats right; key moment no, 3 of 16 within tolerance; voice, agents, privacy and guards yes; SC-1, SC-2 and SC-5 re-set in spec.md section 5. The fallback above is applied (revision 8).
 
 **Gate 1a, end of day 6: clip to checked script.**
 - From the command line, a clip produces a printed play card; after a yes, a storyboard and a script in the Football commentator style that passes the five code checks and names a `hit_word` on both key lines. On the fixture and on three starter clips, one of them not sport.
@@ -406,8 +410,8 @@ A second person joining part-way should take, in order: the Verifier, the two ex
 
 | Risk | Likelihood | Effect | Response |
 |------|------------|--------|----------|
-| The vision model gets the outcome wrong on fast action, seen as frames a quarter of a second apart and without sound | High | Wrong narration | Zoom at every frame, the second look, Checkpoint A, generic mode; measured at Gate 0 with a pivot defined |
-| The key moment is off by half a second | Medium | Shout lands early or late | S1 candidates, contact sheets refined to single frames, the snap to the sound onset, the user's nudge |
+| The vision model gets the outcome wrong on fast action, seen as frames a quarter of a second apart and without sound | High | Wrong narration | Checkpoint A, generic mode; measured at Gate 0: right on 13 of 16 repeats (revision 8) |
+| The key moment is off by half a second | Medium | Shout lands early or late | Revision 8: the user picks the moment on every play card, from the proposed frame and the S1 candidates, and nudges it; the snap to the sound onset |
 | The voice sounds like an assistant, not a commentator | Medium | Low wow | Bake-off with blind listening; style per line; ElevenLabs as the stronger option |
 | Take length varies, lines overrun | Medium | Overlapping speech | Per-line budget, speed-up limit, shorten loop, worst-case overlap check |
 | Blended slow motion looks soft on clips filmed at normal speed | High | Less impressive replay | The page tells users to film in slo-mo, which gives real frames; RIFE on the machine is a stretch item |

@@ -1,0 +1,21 @@
+{
+  "text": "{\"cell\":9,\"seen\":\"The flatbread is at the highest point of the flip, near the top of the frame.\"}",
+  "data": {
+    "cell": 9,
+    "seen": "The flatbread is at the highest point of the flip, near the top of the frame."
+  },
+  "usage": {
+    "prompt_tokens": 795,
+    "completion_tokens": 3418,
+    "total_tokens": 4213,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 3390
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 795
+  },
+  "usage_usd": 0.00434
+}

@@ -1,0 +1,21 @@
+{
+  "text": "{\"cell\":5,\"seen\":\"dog at the highest point of its jump, with the ball near its apex\"}",
+  "data": {
+    "cell": 5,
+    "seen": "dog at the highest point of its jump, with the ball near its apex"
+  },
+  "usage": {
+    "prompt_tokens": 783,
+    "completion_tokens": 7726,
+    "total_tokens": 8509,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 7702
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 783
+  },
+  "usage_usd": 0.009506
+}

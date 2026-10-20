@@ -33,7 +33,7 @@ Built with openJiuwen agent-core's `ReActAgent`. The import paths and call signa
 
 | Agent | Model | Max iterations | Tools | Ends when |
 |-------|-------|----------------|-------|-----------|
-| Spotter | `EPIC_AGENT_MODEL` | 8 | `clip_info`, `look_sheets`, `refine`, `submit_play_sheet` | `submit_play_sheet` accepts. In the MVP the Spotter runs as its fixed sequence, not as an agent (revision 7, plan.md section 4.3) |
+| Spotter | `EPIC_AGENT_MODEL` | 8 | `clip_info`, `look_sheets`, `submit_play_sheet` (`refine` is deferred, revision 8) | `submit_play_sheet` accepts. In the MVP the Spotter runs as its fixed sequence, not as an agent (revision 7, plan.md section 4.3), overview only (revision 8) |
 | Commentator | `EPIC_AGENT_MODEL` | 6 | `check_lines`, `submit_script` | `submit_script` accepts |
 
 Rules for both:

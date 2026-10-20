@@ -1,0 +1,24 @@
+{
+  "text": "{\"activity\":\"corner kick in a football match\",\"outcome\":\"the ball ends up in the goal and a goal is scored\",\"actor\":\"footballers in yellow and pink shirts, with a light-blue goalkeeper\",\"high_point_cell\":9,\"sure\":7}",
+  "data": {
+    "activity": "corner kick in a football match",
+    "outcome": "the ball ends up in the goal and a goal is scored",
+    "actor": "footballers in yellow and pink shirts, with a light-blue goalkeeper",
+    "high_point_cell": 9,
+    "sure": 7
+  },
+  "usage": {
+    "prompt_tokens": 1270,
+    "completion_tokens": 5765,
+    "total_tokens": 7035,
+    "prompt_tokens_details": {
+      "cached_tokens": 896
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 5708
+    },
+    "prompt_cache_hit_tokens": 896,
+    "prompt_cache_miss_tokens": 374
+  },
+  "usage_usd": 0.007299
+}

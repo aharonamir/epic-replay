@@ -1,0 +1,21 @@
+{
+  "text": "{\"cell\": 1, \"seen\": \"The water bottle is at its highest point in the air in cell 1.\"}",
+  "data": {
+    "cell": 1,
+    "seen": "The water bottle is at its highest point in the air in cell 1."
+  },
+  "usage": {
+    "prompt_tokens": 799,
+    "completion_tokens": 468,
+    "total_tokens": 1267,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 436
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 799
+  },
+  "usage_usd": 0.000801
+}

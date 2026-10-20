@@ -1,0 +1,24 @@
+{
+  "text": "{\"activity\":\"Cooking pancakes on a flat griddle and flipping them with a spatula.\",\"outcome\":\"Both pancakes are golden brown and still on the griddle.\",\"actor\":\"A person in pink.\",\"high_point_cell\":5,\"sure\":6}",
+  "data": {
+    "activity": "Cooking pancakes on a flat griddle and flipping them with a spatula.",
+    "outcome": "Both pancakes are golden brown and still on the griddle.",
+    "actor": "A person in pink.",
+    "high_point_cell": 5,
+    "sure": 6
+  },
+  "usage": {
+    "prompt_tokens": 904,
+    "completion_tokens": 5668,
+    "total_tokens": 6572,
+    "prompt_tokens_details": {
+      "cached_tokens": 768
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 5611
+    },
+    "prompt_cache_hit_tokens": 768,
+    "prompt_cache_miss_tokens": 136
+  },
+  "usage_usd": 0.007073
+}

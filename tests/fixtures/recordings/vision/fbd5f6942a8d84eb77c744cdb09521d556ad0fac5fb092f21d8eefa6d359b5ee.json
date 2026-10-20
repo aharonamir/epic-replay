@@ -1,0 +1,21 @@
+{
+  "text": "{\"cell\": 1, \"seen\": \"The water bottle is captured at its highest point in the air, visibly blurred from the fast motion of the flip.\"}",
+  "data": {
+    "cell": 1,
+    "seen": "The water bottle is captured at its highest point in the air, visibly blurred from the fast motion of the flip."
+  },
+  "usage": {
+    "prompt_tokens": 786,
+    "completion_tokens": 849,
+    "total_tokens": 1635,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 810
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 786
+  },
+  "usage_usd": 0.001255
+}

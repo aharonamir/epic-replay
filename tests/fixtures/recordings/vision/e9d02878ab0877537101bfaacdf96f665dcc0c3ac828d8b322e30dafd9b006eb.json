@@ -1,0 +1,24 @@
+{
+  "text": "{\"activity\":\"soccer set piece: a cross into the penalty area is headed toward goal\",\"outcome\":\"the ball goes into the net for a goal\",\"actor\":\"player in yellow\",\"high_point_cell\":9,\"sure\":7}",
+  "data": {
+    "activity": "soccer set piece: a cross into the penalty area is headed toward goal",
+    "outcome": "the ball goes into the net for a goal",
+    "actor": "player in yellow",
+    "high_point_cell": 9,
+    "sure": 7
+  },
+  "usage": {
+    "prompt_tokens": 1269,
+    "completion_tokens": 5850,
+    "total_tokens": 7119,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 5799
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 1269
+  },
+  "usage_usd": 0.007401
+}

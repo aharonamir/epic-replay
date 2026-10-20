@@ -1,0 +1,24 @@
+{
+  "text": "{\"activity\":\"skateboarder attempts a flip trick (kickflip)\",\"outcome\":\"the skateboard is airborne mid-flip; the landing is not shown in this grid\",\"actor\":\"person in black trousers and light beige/grey shoes\",\"high_point_cell\":8,\"sure\":8}",
+  "data": {
+    "activity": "skateboarder attempts a flip trick (kickflip)",
+    "outcome": "the skateboard is airborne mid-flip; the landing is not shown in this grid",
+    "actor": "person in black trousers and light beige/grey shoes",
+    "high_point_cell": 8,
+    "sure": 8
+  },
+  "usage": {
+    "prompt_tokens": 904,
+    "completion_tokens": 2293,
+    "total_tokens": 3197,
+    "prompt_tokens_details": {
+      "cached_tokens": 768
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 2228
+    },
+    "prompt_cache_hit_tokens": 768,
+    "prompt_cache_miss_tokens": 136
+  },
+  "usage_usd": 0.003023
+}

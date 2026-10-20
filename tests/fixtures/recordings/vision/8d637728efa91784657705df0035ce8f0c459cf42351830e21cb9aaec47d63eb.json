@@ -1,0 +1,24 @@
+{
+  "text": "{\"activity\": \"A plastic water bottle is thrown at a wall and bounces/falls back down.\", \"outcome\": \"The bottle ends up upright on the ground near the wall.\", \"actor\": \"a plastic water bottle\", \"high_point_cell\": 5, \"sure\": 8}",
+  "data": {
+    "activity": "A plastic water bottle is thrown at a wall and bounces/falls back down.",
+    "outcome": "The bottle ends up upright on the ground near the wall.",
+    "actor": "a plastic water bottle",
+    "high_point_cell": 5,
+    "sure": 8
+  },
+  "usage": {
+    "prompt_tokens": 905,
+    "completion_tokens": 778,
+    "total_tokens": 1683,
+    "prompt_tokens_details": {
+      "cached_tokens": 640
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 714
+    },
+    "prompt_cache_hit_tokens": 640,
+    "prompt_cache_miss_tokens": 265
+  },
+  "usage_usd": 0.001205
+}

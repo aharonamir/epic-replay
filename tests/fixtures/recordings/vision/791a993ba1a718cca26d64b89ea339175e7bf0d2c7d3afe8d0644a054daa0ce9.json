@@ -1,0 +1,24 @@
+{
+  "text": "{\"activity\": \"Tossing a plastic water bottle to land it upright (bottle flip)\", \"outcome\": \"The bottle lands successfully and remains standing upright on the ground\", \"actor\": \"A person\", \"high_point_cell\": 5, \"sure\": 9}",
+  "data": {
+    "activity": "Tossing a plastic water bottle to land it upright (bottle flip)",
+    "outcome": "The bottle lands successfully and remains standing upright on the ground",
+    "actor": "A person",
+    "high_point_cell": 5,
+    "sure": 9
+  },
+  "usage": {
+    "prompt_tokens": 903,
+    "completion_tokens": 1224,
+    "total_tokens": 2127,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 1164
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 903
+  },
+  "usage_usd": 0.00174
+}

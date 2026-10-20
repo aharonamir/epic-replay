@@ -1,0 +1,24 @@
+{
+  "text": "{\"activity\":\"A soccer goalkeeper practises handling and distribution in solo drills, then plays in a match.\",\"outcome\":\"The clip ends with the goalkeeper standing on the field during gameplay.\",\"actor\":\"goalkeeper in black clothing and gloves\",\"high_point_cell\":7,\"sure\":6}",
+  "data": {
+    "activity": "A soccer goalkeeper practises handling and distribution in solo drills, then plays in a match.",
+    "outcome": "The clip ends with the goalkeeper standing on the field during gameplay.",
+    "actor": "goalkeeper in black clothing and gloves",
+    "high_point_cell": 7,
+    "sure": 6
+  },
+  "usage": {
+    "prompt_tokens": 1294,
+    "completion_tokens": 3120,
+    "total_tokens": 4414,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 3057
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 1294
+  },
+  "usage_usd": 0.004132
+}

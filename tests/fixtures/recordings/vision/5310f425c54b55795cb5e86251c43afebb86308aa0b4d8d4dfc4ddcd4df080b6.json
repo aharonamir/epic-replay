@@ -1,0 +1,24 @@
+{
+  "text": "{\"activity\":\"A person in black shoots a basketball at the hoop.\",\"outcome\":\"The ball goes through the net and bounces away; the player then runs to retrieve it.\",\"actor\":\"person wearing a black top and black shorts\",\"high_point_cell\":3,\"sure\":8}",
+  "data": {
+    "activity": "A person in black shoots a basketball at the hoop.",
+    "outcome": "The ball goes through the net and bounces away; the player then runs to retrieve it.",
+    "actor": "person wearing a black top and black shorts",
+    "high_point_cell": 3,
+    "sure": 8
+  },
+  "usage": {
+    "prompt_tokens": 904,
+    "completion_tokens": 5494,
+    "total_tokens": 6398,
+    "prompt_tokens_details": {
+      "cached_tokens": 640
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 5432
+    },
+    "prompt_cache_hit_tokens": 640,
+    "prompt_cache_miss_tokens": 264
+  },
+  "usage_usd": 0.006864
+}

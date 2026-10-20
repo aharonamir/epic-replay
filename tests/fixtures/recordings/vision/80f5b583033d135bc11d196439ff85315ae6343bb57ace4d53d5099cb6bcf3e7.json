@@ -1,0 +1,24 @@
+{
+  "text": "{\"activity\": \"skateboarding trick\", \"outcome\": \"lands the trick and rides away\", \"actor\": \"person in khaki pants\", \"high_point_cell\": 2, \"sure\": 10}",
+  "data": {
+    "activity": "skateboarding trick",
+    "outcome": "lands the trick and rides away",
+    "actor": "person in khaki pants",
+    "high_point_cell": 2,
+    "sure": 10
+  },
+  "usage": {
+    "prompt_tokens": 903,
+    "completion_tokens": 585,
+    "total_tokens": 1488,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 537
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 903
+  },
+  "usage_usd": 0.000973
+}

@@ -15,7 +15,7 @@ runs/<run_id>/
   signals.json           # S1: candidates, sound onsets, cuts
   sheets/                # S2, S3: the contact sheets sent to the vision model
   spotter_trace.json     # S2, S3: each sheet call, the cells shown and the cell chosen
-  second_look.json       # S2: the independent answers used for comparison
+  second_look.json       # S2: the independent answers used for comparison (deferred, revision 8)
   commentator_trace.json # S5: each draft, check result and rewrite
   play_sheet.json        # S3, then confirmed at Checkpoint A
   storyboard.json        # S4
@@ -54,10 +54,10 @@ Schema: [contracts/play_sheet.schema.json](contracts/play_sheet.schema.json). Ex
 | `activity`, `outcome_summary` | A value with its confidence and source. The activity is whatever is going on; it need not be a sport |
 | `actors[]` | People or groups, with a neutral descriptor, a role, an optional name the user gave, and which one the commentary follows |
 | `events[]` | What happened, in order: who, what, to what, with what result, when, how sure |
-| `climax` | The key moment: the event, its time and frame, how it was found (`sheets` or `sheets+sound` in revision 7), and the other candidates (S1's, and any second high point the overview reported) |
+| `climax` | The key moment: the event, its time and frame, how it was found (`sheets` or `sheets+sound` for the Spotter's proposal; `user` once picked at the play card, which in revision 8 is every run), and the other candidates (S1's, and any second high point the overview reported), offered on the play card |
 | `focus_box` | Where to zoom on the climax frame, as fractions of the frame |
 | `sensitive` | A flag that stops the run, with the reason |
-| `agreement` | How many independent looks there were (the agent's and the second look), which fields they disagreed on, whether an escalation model was used |
+| `agreement` | How many independent looks there were (the agent's and the second look; 1 in the MVP, revision 8), which fields they disagreed on, whether an escalation model was used |
 | `confirmed_by_user` | False until Checkpoint A |
 
 Rules beyond the schema: event times lie within the clip; the climax event exists; at most one actor is `followed`; if `mode` is `generic` the script may reference no events.

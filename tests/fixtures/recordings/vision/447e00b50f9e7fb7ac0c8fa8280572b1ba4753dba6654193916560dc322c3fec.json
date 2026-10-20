@@ -1,0 +1,21 @@
+{
+  "text": "{\"cell\": 3, \"seen\": \"The goalkeeper is at the highest point of his dive, fully extended in the air reaching for the ball.\"}",
+  "data": {
+    "cell": 3,
+    "seen": "The goalkeeper is at the highest point of his dive, fully extended in the air reaching for the ball."
+  },
+  "usage": {
+    "prompt_tokens": 1178,
+    "completion_tokens": 652,
+    "total_tokens": 1830,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 619
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 1178
+  },
+  "usage_usd": 0.001136
+}

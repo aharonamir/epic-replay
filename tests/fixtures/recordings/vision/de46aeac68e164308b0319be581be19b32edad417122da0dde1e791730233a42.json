@@ -1,0 +1,24 @@
+{
+  "text": "{\"activity\": \"Text caption typing on screen about a dog's catching skills\", \"outcome\": \"The full caption is revealed: 'German Shepherd Skills: He is really good in catching the ball.'\", \"actor\": \"German Shepherd (dog)\", \"high_point_cell\": 7, \"sure\": 6}",
+  "data": {
+    "activity": "Text caption typing on screen about a dog's catching skills",
+    "outcome": "The full caption is revealed: 'German Shepherd Skills: He is really good in catching the ball.'",
+    "actor": "German Shepherd (dog)",
+    "high_point_cell": 7,
+    "sure": 6
+  },
+  "usage": {
+    "prompt_tokens": 903,
+    "completion_tokens": 204,
+    "total_tokens": 1107,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 136
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 903
+  },
+  "usage_usd": 0.000516
+}

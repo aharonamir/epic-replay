@@ -1,0 +1,21 @@
+{
+  "text": "{\"cell\": 4, \"seen\": \"The dog is at the highest point of its jump, with its mouth open to catch the ball.\"}",
+  "data": {
+    "cell": 4,
+    "seen": "The dog is at the highest point of its jump, with its mouth open to catch the ball."
+  },
+  "usage": {
+    "prompt_tokens": 783,
+    "completion_tokens": 1499,
+    "total_tokens": 2282,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 1463
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 783
+  },
+  "usage_usd": 0.002034
+}

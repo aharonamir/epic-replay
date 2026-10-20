@@ -1,0 +1,21 @@
+{
+  "text": "{\"cell\":7,\"seen\":\"The pancake is at the top of its toss, motion-blurred near the upper edge above the griddle.\"}",
+  "data": {
+    "cell": 7,
+    "seen": "The pancake is at the top of its toss, motion-blurred near the upper edge above the griddle."
+  },
+  "usage": {
+    "prompt_tokens": 793,
+    "completion_tokens": 5717,
+    "total_tokens": 6510,
+    "prompt_tokens_details": {
+      "cached_tokens": 512
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 5684
+    },
+    "prompt_cache_hit_tokens": 512,
+    "prompt_cache_miss_tokens": 281
+  },
+  "usage_usd": 0.007098
+}

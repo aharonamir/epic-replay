@@ -1,0 +1,21 @@
+{
+  "text": "{\"cell\": 2, \"seen\": \"The goalkeeper is fully extended in mid-air at the peak of his dive.\"}",
+  "data": {
+    "cell": 2,
+    "seen": "The goalkeeper is fully extended in mid-air at the peak of his dive."
+  },
+  "usage": {
+    "prompt_tokens": 1178,
+    "completion_tokens": 683,
+    "total_tokens": 1861,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 652
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 1178
+  },
+  "usage_usd": 0.001173
+}

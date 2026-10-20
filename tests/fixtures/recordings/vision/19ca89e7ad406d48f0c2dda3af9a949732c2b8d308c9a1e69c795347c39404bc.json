@@ -1,0 +1,54 @@
+{
+  "text": "{\"type\":\"object\",\"required\":[\"activity\",\"outcome\",\"actor\",\"high_point_cell\",\"sure\"],\"properties\":{\"activity\":{\"type\":\"string\"},\"outcome\":{\"type\":\"string\"},\"actor\":{\"type\":\"string\"},\"high_point_cell\":{\"type\":\"integer\",\"minimum\":0,\"maximum\":9},\"sure\":{\"type\":\"integer\",\"minimum\":0,\"maximum\":10}},\"additionalProperties\":false,\"activity\":\"A soccer corner kick is swung into the penalty area while players jump for it.\",\"outcome\":\"The ball arcs into the goal without being stopped.\",\"actor\":\"player in yellow\",\"high_point_cell\":9,\"sure\":7}",
+  "data": {
+    "type": "object",
+    "required": [
+      "activity",
+      "outcome",
+      "actor",
+      "high_point_cell",
+      "sure"
+    ],
+    "properties": {
+      "activity": {
+        "type": "string"
+      },
+      "outcome": {
+        "type": "string"
+      },
+      "actor": {
+        "type": "string"
+      },
+      "high_point_cell": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 9
+      },
+      "sure": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 10
+      }
+    },
+    "additionalProperties": false,
+    "activity": "A soccer corner kick is swung into the penalty area while players jump for it.",
+    "outcome": "The ball arcs into the goal without being stopped.",
+    "actor": "player in yellow",
+    "high_point_cell": 9,
+    "sure": 7
+  },
+  "usage": {
+    "prompt_tokens": 1269,
+    "completion_tokens": 8523,
+    "total_tokens": 9792,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 8384
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 1269
+  },
+  "usage_usd": 0.010608
+}

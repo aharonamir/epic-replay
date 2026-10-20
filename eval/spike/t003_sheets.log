@@ -1,0 +1,15 @@
+3 candidates: 9 clips x 2 repeats x at most 8 calls = 144 calls, one sheet each; upper bound 0.182 USD
+5 candidates (used): 9 clips x 2 repeats x at most 10 calls = 180 calls, one sheet each; upper bound 0.228 USD
+0.00127 USD per call; real cost lower
+spike cap 0.60 USD; already spent 0.2557
+FlippingPancakes.mp4         errors strict [-1, 60], any [-1, 60] frames, agreed False, retries 1, fallbacks 0, spike total 0.2557 USD
+Skateboard_trick.mp4         errors strict [187, -8], any [187, -8] frames, agreed False, retries 0, fallbacks 0, spike total 0.2557 USD
+SlowMotion-skater.mp4        errors strict [142, 139], any [142, 139] frames, agreed True, retries 0, fallbacks 0, spike total 0.2557 USD
+basket_ball_shot.mp4         errors strict [141, 151], any [-12, -2] frames, agreed False, retries 1, fallbacks 0, spike total 0.2751 USD
+bottle flip.mp4              errors strict [-26, -26], any [-26, -26] frames, agreed True, retries 0, fallbacks 0, spike total 0.3019 USD
+dog_catch_ball.mp4           errors strict [21, -85], any [21, -85] frames, agreed False, retries 0, fallbacks 0, spike total 0.3584 USD
+fk_1.mp4                     errors strict [32, 89], any [32, 89] frames, agreed False, retries 0, fallbacks 0, spike total 0.4387 USD
+fk_miss.mp4                  errors strict [118, 32], any [118, 32] frames, agreed False, retries 0, fallbacks 0, spike total 0.5665 USD
+STOP: the next call (0.00800 USD) would take the spike from 0.5964 past its cap of 0.60 USD
+report: /home/amir/workspace/epic-replay/eval/spike/frames/sheets/t003_sheets_report.html
+retries 2, fallbacks 0, spike total 0.5964 USD

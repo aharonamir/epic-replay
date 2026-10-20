@@ -10,7 +10,7 @@ Served by FastAPI. The page (contracts/ui.md) uses only these endpoints. No auth
 | `GET /runs/{id}` | Run state | none | manifest: status, style, current stage, per-stage results, cost so far, and `versions`: every run of the same play with its style and status |
 | `POST /runs/{id}/restyle` | Tell the same play in another style | `{"style": "news_reporter"}` | `201 {"run_id": "..."}` for the new run, seeded from the first run of this play; `409` if that run has not passed Checkpoint A; `200` with the existing run id if that style was already made |
 | `GET /runs/{id}/events` | Live progress | none | server-sent events, one stage event per message (contracts/stage-contracts.md) |
-| `GET /runs/{id}/play-card` | Data for Checkpoint A | none | play sheet, URLs of the climax frame and its neighbours, highlighted fields, cost estimate for the rest of the run |
+| `GET /runs/{id}/play-card` | Data for Checkpoint A | none | play sheet, URLs of the climax frame and its neighbours, the frame of each other moment in `climax.candidates` (revision 8), highlighted fields (always including the key moment), cost estimate for the rest of the run |
 | `POST /runs/{id}/play-card` | Answer Checkpoint A | `{"action": "confirm" or "reject" or "generic", "edits": {...}, "context": {...}}` | `200`; the flow resumes |
 | `GET /runs/{id}/script` | Data for Checkpoint B | none | script and check report |
 | `POST /runs/{id}/script` | Answer Checkpoint B, or ask for a new script after the result | `{"action": "approve" or "regenerate"}` | `200`; the flow resumes, or re-runs from S5 |

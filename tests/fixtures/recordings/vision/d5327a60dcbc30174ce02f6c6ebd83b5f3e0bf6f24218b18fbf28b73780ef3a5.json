@@ -1,0 +1,24 @@
+{
+  "text": "{\"activity\":\"flipping pancakes/crepes on a hot griddle with a spatula\",\"outcome\":\"both pancakes are flipped and finish cooking golden\",\"actor\":\"a person using a spatula, with only the hand/forearm visible\",\"high_point_cell\":2,\"sure\":7}",
+  "data": {
+    "activity": "flipping pancakes/crepes on a hot griddle with a spatula",
+    "outcome": "both pancakes are flipped and finish cooking golden",
+    "actor": "a person using a spatula, with only the hand/forearm visible",
+    "high_point_cell": 2,
+    "sure": 7
+  },
+  "usage": {
+    "prompt_tokens": 904,
+    "completion_tokens": 4826,
+    "total_tokens": 5730,
+    "prompt_tokens_details": {
+      "cached_tokens": 768
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 4764
+    },
+    "prompt_cache_hit_tokens": 768,
+    "prompt_cache_miss_tokens": 136
+  },
+  "usage_usd": 0.006062
+}

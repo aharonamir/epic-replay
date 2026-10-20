@@ -1,0 +1,24 @@
+{
+  "text": "{\"activity\":\"A person flips/tosses a plastic water bottle, attempting a bottle flip\",\"outcome\":\"The bottle lands upright on the ground and stays standing\",\"actor\":\"person (only a hand is visible)\",\"high_point_cell\":6,\"sure\":9}",
+  "data": {
+    "activity": "A person flips/tosses a plastic water bottle, attempting a bottle flip",
+    "outcome": "The bottle lands upright on the ground and stays standing",
+    "actor": "person (only a hand is visible)",
+    "high_point_cell": 6,
+    "sure": 9
+  },
+  "usage": {
+    "prompt_tokens": 903,
+    "completion_tokens": 1369,
+    "total_tokens": 2272,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 1311
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 903
+  },
+  "usage_usd": 0.001914
+}

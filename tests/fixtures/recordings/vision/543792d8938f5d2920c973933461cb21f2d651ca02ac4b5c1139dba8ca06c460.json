@@ -1,0 +1,24 @@
+{
+  "text": "{\"activity\":\"basketball shooting practice: one player shoots toward the hoop while another watches\",\"outcome\":\"the ball reaches the rim and appears to go in; play continues as the ball is retrieved\",\"actor\":\"person in a grey top and blue jeans (shooter); person in black shirt and shorts also present\",\"high_point_cell\":3,\"sure\":8}",
+  "data": {
+    "activity": "basketball shooting practice: one player shoots toward the hoop while another watches",
+    "outcome": "the ball reaches the rim and appears to go in; play continues as the ball is retrieved",
+    "actor": "person in a grey top and blue jeans (shooter); person in black shirt and shorts also present",
+    "high_point_cell": 3,
+    "sure": 8
+  },
+  "usage": {
+    "prompt_tokens": 903,
+    "completion_tokens": 5617,
+    "total_tokens": 6520,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 5540
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 903
+  },
+  "usage_usd": 0.007011
+}

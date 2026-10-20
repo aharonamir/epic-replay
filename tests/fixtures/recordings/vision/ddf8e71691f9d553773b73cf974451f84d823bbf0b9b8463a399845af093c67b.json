@@ -1,0 +1,24 @@
+{
+  "text": "{\"activity\": \"Flipping a water bottle\", \"outcome\": \"The bottle lands upright on the ground and stays there\", \"actor\": \"A person in dark clothing and a plastic water bottle\", \"high_point_cell\": 3, \"sure\": 8}",
+  "data": {
+    "activity": "Flipping a water bottle",
+    "outcome": "The bottle lands upright on the ground and stays there",
+    "actor": "A person in dark clothing and a plastic water bottle",
+    "high_point_cell": 3,
+    "sure": 8
+  },
+  "usage": {
+    "prompt_tokens": 904,
+    "completion_tokens": 706,
+    "total_tokens": 1610,
+    "prompt_tokens_details": {
+      "cached_tokens": 640
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 647
+    },
+    "prompt_cache_hit_tokens": 640,
+    "prompt_cache_miss_tokens": 264
+  },
+  "usage_usd": 0.001118
+}

@@ -122,3 +122,76 @@ Update: the owner confirms a second basket at about 8 s, so the clip has two val
 
 The motion windows did not help on these. Model answers (overview / zoom, seconds) against labels: bottle flip 6.4 / 6.0 (label 2.0; window 2.2-5.2 contains it, the answer is in 4.7-7.7); dog_catch_ball 8.6 / 8.3 (label 13.0); fk_miss 10.9 / 11.4 (label 3.0; outcome text says the ball goes over the wall into the goalmouth, the label says it misses); fk_1 31.8 / 32.4 (label 16.0, which lies OUTSIDE the five windows chosen from the motion curve).
 Open: whether the labels or the model are right on these (the owner is to look at the times the model named), and a motion curve that is dominated by camera movement and cuts.
+
+### T003 contact sheets: cost per call (2026-10-18, for SC-5)
+
+One sheet call (one 3x3 image, high detail, `deepseek-flash`) costs more than the adapter's estimate, because most of the output is reasoning tokens. `VisionAdapter.estimate` assumes 1024 image tokens in and 800 tokens out: 0.00127 USD a call. Measured on the first 82 live calls of the spike (ledgers `runs/spike-t003s-*`):
+
+- Cost per call: mean 0.00222 USD, median 0.00152, range 0.00062 to 0.00710. FlippingPancakes in the second run averaged about 0.0029 (19 calls, 0.055 USD).
+- Output tokens per call: median about 1,000, of which about 960 are reasoning; the most was 5,684 reasoning tokens. The prompt is 785 to 903 tokens, often with 768 cached.
+- So "upper bound" in the spike's `--dry-run` is not one: a per-call figure about twice the estimate, up to five or six times on a long reasoning reply, is what to plan with. The ledger records the real cost, so the caps still hold.
+- One clip with two repeats is 18 to 20 calls with 5 candidates: about 0.03 to 0.055 USD. With the design's 3 candidates and one look plus a second look it is about 16 calls, about 0.035 USD at the mean.
+- Two facts found on the way: the adapter's `record` mode always calls the provider and overwrites the recording (only `replay` reads it), so a re-run in record mode pays again; the spike now reads a recording when it exists (spike only). Sheets are byte-identical across runs, and each repeat has its own recording key.
+
+
+### T003 contact sheets (2026-10-20): results and Gate 0
+
+`tools/spike_t003_sheets.py`, `deepseek-flash`, high detail, two repeats per clip. Per repeat: two overview sheets and one sheet of plus or minus 1.5 s around each of the top **5** signal candidates (spike only; the design uses 3), then refining passes on the surest sheet, then the sound snap. Working copies at 30 fps; tolerance `EPIC_KEYFRAME_TOL_S` 0.25 s = 8 frames. Eight of the nine clips were run: **fk_save was not run**; the 0.60 USD spend cap stopped the spike before it (12 of its calls are recorded, unused). Scores are from a replay rescore with no new calls (`EPIC_PROVIDER_MODE=replay`), after the FlippingPancakes label gained its second flip.
+
+Strict: `climax_t` only. Any: the nearest valid moment (`climax_t` or `other_climax_t`). Errors in frames, the model's frame minus the label. No-snap: before the sound snap. Outcome (owner): the owner's verdict on the model's outcome against the real video (`eval/spike/t003_outcomes.json`). The `s` column is the repeat's call time, the calls made one after another; basket_ball_shot repeat 0 shows 0.0 because its answers came from the recordings of a run that crashed before writing its results, so its latency was not kept.
+
+| clip | label (s) | near a candidate | repeat | outcome (model) | outcome (owner) | method | answer (s) | err strict | err any | no-snap strict | no-snap any | within tol strict | within tol any | agreed | retries | s | USD |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| FlippingPancakes.mp4 | [2, 3.574] | True | 0 | The tortilla is flipped in the air and lands back on the gri | right | sheets+sound | 1.97 | -1 | -1 | 6 | 6 | True | True | False | 1 | 109.6 | 0.02757 |
+| FlippingPancakes.mp4 | [2, 3.574] | True | 1 | the pancake is flipped and lands back on the griddle | wrong | sheets+sound | 4.0 | 60 | 13 | 58 | 11 | False | False | False | 0 | 110.6 | 0.0273 |
+| Skateboard_trick.mp4 | [6] | True | 0 | lands the trick and continues riding | right | sheets | 12.23 | 187 | 187 | 187 | 187 | False | False | False | 0 | 80.2 | 0.01866 |
+| Skateboard_trick.mp4 | [6] | True | 1 | rider pops the front of the skateboard to perform a trick | right | sheets | 5.73 | -8 | -8 | -8 | -8 | True | True | False | 0 | 97.7 | 0.02106 |
+| SlowMotion-skater.mp4 | [6] | False | 0 | lands the trick and rides away | right | sheets | 10.73 | 142 | 142 | 142 | 142 | False | False | True | 0 | 57.2 | 0.01368 |
+| SlowMotion-skater.mp4 | [6] | False | 1 | lands the trick and rides away successfully | right | sheets | 10.63 | 139 | 139 | 139 | 139 | False | False | True | 0 | 70.9 | 0.01756 |
+| basket_ball_shot.mp4 | [2.9, 8.0] | True | 0 | The ball reaches the rim and bounces away; the person in bla | right | sheets | 7.6 | 141 | -12 | 141 | -12 | False | False | False | 1 | 0.0 | 0.04288 |
+| basket_ball_shot.mp4 | [2.9, 8.0] | True | 1 | he scores a basket | right | sheets+sound | 7.93 | 151 | -2 | 158 | 5 | False | True | False | 0 | 77.4 | 0.05327 |
+| bottle flip.mp4 | [2.0] | True | 0 | The bottle lands successfully and remains standing upright o | right | sheets+sound | 1.13 | -26 | -26 | -28 | -28 | False | False | True | 0 | 53.6 | 0.01343 |
+| bottle flip.mp4 | [2.0] | True | 1 | the bottle lands upright and is picked up | right | sheets+sound | 1.13 | -26 | -26 | -27 | -27 | False | False | True | 0 | 52.2 | 0.01336 |
+| dog_catch_ball.mp4 | [13.0] | True | 0 | The dog reaches the bottom right corner of the frame | wrong | sheets+sound | 13.7 | 21 | 21 | 28 | 28 | False | False | False | 0 | 64.3 | 0.01574 |
+| dog_catch_ball.mp4 | [13.0] | True | 1 | the dog catches the ball | right | sheets | 10.17 | -85 | -85 | -85 | -85 | False | False | False | 0 | 153.0 | 0.04083 |
+| fk_1.mp4 | [16.0] | True | 0 | the ball travels towards the net while the goalkeeper watche | right | sheets+sound | 17.07 | 32 | 32 | 39 | 39 | False | False | False | 0 | 200.7 | 0.0493 |
+| fk_1.mp4 | [16.0] | True | 1 | the ball enters the goal net | right | sheets+sound | 18.97 | 89 | 89 | 89 | 89 | False | False | False | 0 | 142.4 | 0.03097 |
+| fk_miss.mp4 | [3.0] | False | 0 | The ball is kicked toward the goal. | wrong | sheets+sound | 6.93 | 118 | 118 | 121 | 121 | False | False | False | 0 | 310.9 | 0.07458 |
+| fk_miss.mp4 | [3.0] | False | 1 | the ball is crossed into the penalty area where players cont | wrong | sheets+sound | 4.07 | 32 | 32 | 32 | 32 | False | False | False | 0 | 220.4 | 0.0532 |
+
+| clip | repeats | fallbacks | retries | outcome right | within tol strict | within tol any |
+|---|---|---|---|---|---|---|
+| FlippingPancakes.mp4 | 2 | 0 | 1 | 1/2 | 1/2 | 1/2 |
+| Skateboard_trick.mp4 | 2 | 0 | 0 | 2/2 | 1/2 | 1/2 |
+| SlowMotion-skater.mp4 | 2 | 0 | 0 | 2/2 | 0/2 | 0/2 |
+| basket_ball_shot.mp4 | 2 | 0 | 1 | 2/2 | 0/2 | 1/2 |
+| bottle flip.mp4 | 2 | 0 | 0 | 2/2 | 0/2 | 0/2 |
+| dog_catch_ball.mp4 | 2 | 0 | 0 | 1/2 | 0/2 | 0/2 |
+| fk_1.mp4 | 2 | 0 | 0 | 2/2 | 0/2 | 0/2 |
+| fk_miss.mp4 | 2 | 0 | 0 | 0/2 | 0/2 | 0/2 |
+| fk_save.mp4 | not run | | | | | |
+| total | 16 | 0 | 2 | 12/16 | 2/16 | 3/16 |
+
+**The labels are whole seconds** for most clips (`climax_t` 2, 6, 13, 16 ...), so a label can itself be up to half a second off, which is two tolerances. Counted generously, answers within 0.75 s of a valid moment: 6 of 16 (any), 3 of 16 (strict). Below 0.75 s nothing else changes the verdict: half the strict errors (8 of 16) and 6 of 16 "any" errors are 2.8 to 6.2 s, which no label rounding explains. The remaining labelling passes were skipped by the owner's decision.
+
+- **Outcome right (owner's verdict): 13 of 16 repeats (81 percent).** By clip: right on both repeats on 6 of 8 clips, on at least one on 7 of 8. fk_miss was wrong on both repeats (the miss is shown in the video; the model said the ball was kicked or crossed), as in the first pass, where it was called a goal. The other wrong answer: dog_catch_ball repeat 0 ("reaches the corner of the frame"; the dog catches the ball). FlippingPancakes repeat 1 was first marked wrong and then right. SlowMotion-skater is right, but the skater also does a flip.
+- **Within tolerance: 2 of 16 strict, 3 of 16 any** (FlippingPancakes repeat 0, Skateboard_trick repeat 1, basket_ball_shot repeat 1 on the second basket). No clip was within tolerance on both repeats.
+- **Repeats agree** (final frames within 8 frames) on 2 of 8 clips, bottle flip and SlowMotion-skater, and both agree on a wrong frame (26 and about 140 frames off). Agreement does not signal a right answer.
+- **Median absolute error: 72.5 frames strict (2.4 s), 29 frames any (1.0 s).** Before the snap: 71.5 and 30.
+- **Sound snap used on 10 of 16 repeats.** It moved the answer by at most 7 frames: towards the label on 7, away on 1 (FlippingPancakes repeat 1, 2 frames), not at all on 2. It moved no repeat across the tolerance (the two within tolerance were within it before the snap) and brought dog_catch_ball repeat 0 inside the 0.75 s band.
+- **Candidate recall:** with the top 5 the label is within 1.5 s of a candidate on 7 of 9 clips (top 3: 4 of 9; the minimum gap between candidates does not change it). SlowMotion-skater is never covered and fk_miss only at some gaps. When the label was near a candidate (6 of the 8 clips run), the model still missed it on 10 of 12 repeats: the candidates are not what limits the key moment, the choice is.
+- **Two valid moments are common.** basket_ball_shot has two baskets and both repeats chose the second (about 8 s), against a strict label of 2.9 s. FlippingPancakes has a second flip (labelled from a pass-1 cell, 3.57 s); repeat 1 chose 4.0 s. SlowMotion-skater: both repeats chose about 10.7 s, and the owner notes a flip besides the labelled moment; it may be a third case, not labelled. A model asked for "the high point" picks one of several, differently on each repeat; only the user knows which one they meant.
+- **Replies that repeat the schema.** Three replies over the spike's runs returned the JSON schema itself instead of filling it. The first stopped run 1 (Skateboard_trick, overview sheet 6). After that, one retry with the line "Fill in the fields; do not repeat the schema." was added: 2 retries in the final table (FlippingPancakes, basket_ball_shot), both answered on the retry; 0 fallbacks.
+- **Latency.** Per sheet call: median 7.1 s, 90th percentile 33 s, longest 72 s (131 calls with a recorded time). One repeat (overview plus refining, calls in sequence) took 52 to 311 s, median 98 s; one clip with two repeats 106 to 531 s. An overview alone, seven sheets in sequence, took median 82 s, at most 260 s; sent in parallel it would take as long as its slowest call, median 26 s, at most 71 s.
+- **Cost.** Measured over the 147 calls in the table: 0.513 USD, **0.0035 USD a call** on average (median 0.0018; 0.0029 was the FlippingPancakes average of the second run), **0.064 USD a clip** for two repeats of 18 to 19 calls (0.057 if divided over all nine clips). Per clip: 0.027 (bottle flip) to 0.128 USD (fk_miss). Reasoning tokens are the cause (section above). The spike as a whole spent 0.5964 USD, including the run that stopped and calls paid twice in record mode. An overview-only look (2 plus 3 sheets) would be about 5 x 0.0036 = 0.018 USD.
+
+**Gate 0 (plan.md section 6), answered from this table:**
+
+| Line | Answer | Evidence |
+|------|--------|----------|
+| Spotter: the outcome is right on at least three in four | **Yes** | 13 of 16 repeats (owner's verdicts); 6 of 8 clips right on both repeats |
+| Key moment: within tolerance on at least two in three clips, and the repeats agree on most of those | **No** | 2 of 16 strict, 3 of 16 any; no clip right on both repeats; the two agreeing clips agree on a wrong frame |
+| Voice, agents, privacy and guards | **Yes** | Days 1 and 2 (sections above, docs/api-notes.md, spec.md section 8) |
+| SC-1, SC-2 and SC-5 re-set from the measurements | Drafted in revision 8, waiting for the owner | Latency and cost above |
+
+The key-moment line is no, so plan.md section 6 applies: the play card opens with the nudge active on every clip, the S1 candidates are offered as the choices, and the user's pick is the climax. The model describes what happened; the user says when. Revision 8 writes this into the spec.

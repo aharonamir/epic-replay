@@ -1,0 +1,21 @@
+{
+  "text": "{\"cell\": 3, \"seen\": \"Skateboarder is at the peak of their jump, with the board high in the air directly below their feet.\"}",
+  "data": {
+    "cell": 3,
+    "seen": "Skateboarder is at the peak of their jump, with the board high in the air directly below their feet."
+  },
+  "usage": {
+    "prompt_tokens": 783,
+    "completion_tokens": 1016,
+    "total_tokens": 1799,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 980
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 783
+  },
+  "usage_usd": 0.001454
+}

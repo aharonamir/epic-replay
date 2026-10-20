@@ -1,0 +1,25 @@
+{
+  "text": "{\"type\":\"json_object\",\"activity\":\"taking a soccer free kick\",\"outcome\":\"the ball is kicked over the wall and goes wide of the goal\",\"actor\":\"player in a yellow shirt and blue shorts\",\"high_point_cell\":4,\"sure\":8}",
+  "data": {
+    "type": "json_object",
+    "activity": "taking a soccer free kick",
+    "outcome": "the ball is kicked over the wall and goes wide of the goal",
+    "actor": "player in a yellow shirt and blue shorts",
+    "high_point_cell": 4,
+    "sure": 8
+  },
+  "usage": {
+    "prompt_tokens": 905,
+    "completion_tokens": 5397,
+    "total_tokens": 6302,
+    "prompt_tokens_details": {
+      "cached_tokens": 640
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 5342
+    },
+    "prompt_cache_hit_tokens": 640,
+    "prompt_cache_miss_tokens": 265
+  },
+  "usage_usd": 0.006748
+}

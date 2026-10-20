@@ -1,0 +1,24 @@
+{
+  "text": "{\"activity\": \"A soccer corner kick is crossed into the penalty area during a match.\", \"outcome\": \"The ball goes high over the goal without a score, and a player in pink is left on the ground.\", \"actor\": \"players in pink and yellow, plus a goalkeeper in blue\", \"high_point_cell\": 9, \"sure\": 5}",
+  "data": {
+    "activity": "A soccer corner kick is crossed into the penalty area during a match.",
+    "outcome": "The ball goes high over the goal without a score, and a player in pink is left on the ground.",
+    "actor": "players in pink and yellow, plus a goalkeeper in blue",
+    "high_point_cell": 9,
+    "sure": 5
+  },
+  "usage": {
+    "prompt_tokens": 1269,
+    "completion_tokens": 10554,
+    "total_tokens": 11823,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 10476
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 1269
+  },
+  "usage_usd": 0.013045
+}

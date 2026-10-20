@@ -1,0 +1,24 @@
+{
+  "text": "{\"activity\": \"A dog walking through a doorway into a room.\", \"outcome\": \"The dog enters the room, and the video concludes with 'thank you' and 'subscribe' text screens.\", \"actor\": \"dog\", \"high_point_cell\": 4, \"sure\": 8}",
+  "data": {
+    "activity": "A dog walking through a doorway into a room.",
+    "outcome": "The dog enters the room, and the video concludes with 'thank you' and 'subscribe' text screens.",
+    "actor": "dog",
+    "high_point_cell": 4,
+    "sure": 8
+  },
+  "usage": {
+    "prompt_tokens": 905,
+    "completion_tokens": 506,
+    "total_tokens": 1411,
+    "prompt_tokens_details": {
+      "cached_tokens": 640
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 442
+    },
+    "prompt_cache_hit_tokens": 640,
+    "prompt_cache_miss_tokens": 265
+  },
+  "usage_usd": 0.000879
+}

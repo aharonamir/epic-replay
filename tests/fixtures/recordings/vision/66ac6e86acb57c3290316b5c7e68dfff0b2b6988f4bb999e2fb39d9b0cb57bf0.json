@@ -1,0 +1,24 @@
+{
+  "text": "{\"activity\":\"A clear plastic water bottle stands motionless on a ledge in front of a white wall.\",\"outcome\":\"Nothing changes; the bottle remains upright and in the same position.\",\"actor\":\"water bottle\",\"high_point_cell\":0,\"sure\":8}",
+  "data": {
+    "activity": "A clear plastic water bottle stands motionless on a ledge in front of a white wall.",
+    "outcome": "Nothing changes; the bottle remains upright and in the same position.",
+    "actor": "water bottle",
+    "high_point_cell": 0,
+    "sure": 8
+  },
+  "usage": {
+    "prompt_tokens": 903,
+    "completion_tokens": 637,
+    "total_tokens": 1540,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 580
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 903
+  },
+  "usage_usd": 0.001035
+}

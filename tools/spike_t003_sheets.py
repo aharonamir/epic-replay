@@ -6,7 +6,8 @@
     EPIC_PROVIDER_MODE=record python tools/spike_t003_sheets.py --clip "fk_1.mp4" --yes
 
 Per clip (eval/clips/ with a label in eval/labels/), per repeat:
-1. Signal scan (tools/signal_scan.py, local): top 3 candidates, cuts ignored, sound onsets.
+1. Signal scan (tools/signal_scan.py, local): top MAX_CANDIDATES candidates, cuts ignored,
+   sound onsets.
 2. Overview: two sheets of 9 frames spread evenly over the clip, plus one sheet of 9 frames
    over +-1.5 s around each candidate. One call per sheet: what happens, how it ends, who,
    and the cell of the high point if this sheet shows it (0 if not), with how sure (0-10).
@@ -30,8 +31,10 @@ import html
 import json
 import subprocess
 import sys
+import time
 from pathlib import Path
 
+import jsonschema
 import numpy as np
 
 REPO = Path(__file__).resolve().parents[1]
@@ -42,13 +45,19 @@ import signal_scan  # noqa: E402
 
 from epic_replay import config  # noqa: E402
 from epic_replay.guards.budget import CapExceeded, Ledger  # noqa: E402
+from epic_replay.providers.replay import ReplayMiss  # noqa: E402
 from epic_replay.providers.vision import VisionAdapter  # noqa: E402
 
 OUT = REPO / "eval/spike"
 SHEETS = OUT / "frames/sheets"
 UNIFORM_FRAMES = 18  # two overview sheets
 CANDIDATE_HALF_S = 1.5
-MAX_CANDIDATES = 3
+MAX_CANDIDATES = 5  # spike only (owner, 2026-10-18); the design keeps 3 (plan.md 4.2)
+DESIGN_CANDIDATES = 3
+SPEND_CAP_USD = 0.60  # spike total over every clip's ledger, retries included (owner, 2026-10-18)
+CALL_CEILING_USD = 0.008  # the cap check assumes this per call: the dearest seen was 0.0071
+RETRY_LINE = "Fill in the fields; do not repeat the schema."
+OUTCOMES = OUT / "t003_outcomes.json"  # the owner's right or wrong per repeat, from the video
 
 OVERVIEW_Q = (
     "The image is a grid of up to 9 frames from one short video, in time order, numbered 1 to "
@@ -107,6 +116,86 @@ class FakeVision:
         return r
 
 
+class SpendCap(Exception):
+    pass
+
+
+class SheetFailed(Exception):
+    pass
+
+
+class Budget:
+    """The spike's own cap: what the spike ledgers already hold plus this process's calls."""
+
+    def __init__(self, cap: float, runs_dir: Path):
+        self.cap = cap
+        self.base = sum(
+            json.loads(f.read_text()).get("total_usd", 0.0)
+            for f in runs_dir.glob("spike-t003s-*/cost.json")
+            if f.parent.name != "spike-t003s-est"
+        )
+        self.ledgers: list[tuple[Ledger, float]] = []
+
+    def add(self, led: Ledger) -> None:
+        self.ledgers.append((led, led.total_usd))
+
+    def total(self) -> float:
+        return self.base + sum(led.total_usd - start for led, start in self.ledgers)
+
+    def check(self, estimate: float) -> None:
+        # the adapter's estimate is about half the mean real cost (reasoning tokens), so the
+        # check uses a ceiling instead; otherwise one dear call can pass the cap
+        estimate = max(estimate, CALL_CEILING_USD)
+        if self.total() + estimate > self.cap:
+            raise SpendCap(
+                f"the next call ({estimate:.5f} USD) would take the spike from "
+                f"{self.total():.4f} past its cap of {self.cap:.2f} USD"
+            )
+
+
+BUDGET: Budget | None = None
+
+
+def replay_first(vis) -> None:
+    """Spike only: in record mode, read a recording when one exists and call the provider only
+    when it is missing (the adapter's record mode always calls). src/ is unchanged."""
+    rec, live_fetch = vis.rec, vis.rec.fetch
+
+    def fetch(adapter, key, live):
+        p = rec.path(adapter, key)
+        vis.last_hit = p.exists()
+        if vis.last_hit:
+            return json.loads(p.read_text()), True
+        return live_fetch(adapter, key, live)
+
+    rec.fetch = fetch
+
+
+def ask(vis, img: Path, cells: list[dict], q: str, schema: dict, trace: list, entry: dict):
+    """One sheet call. A reply that does not fit the schema is retried once with RETRY_LINE
+    added, as a new call; a second misfit raises SheetFailed (plan.md 4.3: fallback)."""
+    led = getattr(vis, "ledger", None)
+    estimate = vis.estimate(1, "high") if hasattr(vis, "estimate") else 0.0
+    for attempt in (0, 1):
+        question = q if attempt == 0 else q + "\n" + RETRY_LINE
+        if BUDGET is not None:
+            BUDGET.check(estimate)
+        before, t0 = (led.total_usd if led else 0.0), time.monotonic()
+        vis.last_hit = None
+        try:
+            r = vis.look_sheet(img, cells, question, schema=schema)
+        except jsonschema.ValidationError as err:
+            trace.append({**entry, "attempt": attempt, "answer": None, "cache_hit": vis.last_hit,
+                          "invalid": err.message[:200],
+                          "cost_usd": round((led.total_usd if led else 0.0) - before, 6),
+                          "latency_s": round(time.monotonic() - t0, 3)})  # fmt: skip
+            continue
+        trace.append({**entry, "attempt": attempt, "answer": r.data, "cache_hit": vis.last_hit,
+                      "cost_usd": r.info.cost_usd, "latency_s": r.info.latency_s})  # fmt: skip
+        return r.data
+    raise SheetFailed(f"{img.name}: two replies did not fit the schema")
+
+
 def clips(only: str | None):
     for lab in sorted((REPO / "eval/labels").glob("*.json")):
         label = json.loads(lab.read_text())
@@ -126,8 +215,8 @@ def normalise(src: Path, dst: Path) -> None:
     )  # fmt: skip
 
 
-def calls_per_repeat(passes: int) -> int:
-    return 2 + MAX_CANDIDATES + passes
+def calls_per_repeat(passes: int, n_candidates: int = MAX_CANDIDATES) -> int:
+    return 2 + n_candidates + passes
 
 
 def run_clip(vis, work: Path, label: dict, s: config.Settings, repeats: int) -> dict:
@@ -135,7 +224,8 @@ def run_clip(vis, work: Path, label: dict, s: config.Settings, repeats: int) -> 
     sdir = SHEETS / stem
     sdir.mkdir(parents=True, exist_ok=True)
     fps, n = cs.clip_info(work)
-    scan, _ = signal_scan.scan(work, top=MAX_CANDIDATES)
+    # tie_break=False keeps the candidates of the recorded run, so replay finds its calls
+    scan, _ = signal_scan.scan(work, top=MAX_CANDIDATES, tie_break=False)
     (sdir / "signals.json").write_text(json.dumps(scan, indent=2) + "\n")
     dur = n / fps
     even = cs.sheet_frames(0.3, max(0.3, dur - 0.3), fps, n)  # 9 frames; widen to 18 below
@@ -153,77 +243,118 @@ def run_clip(vis, work: Path, label: dict, s: config.Settings, repeats: int) -> 
         for c in candidates:
             frames = cs.sheet_frames(c["t"] - CANDIDATE_HALF_S, c["t"] + CANDIDATE_HALF_S, fps, n)
             overview.append(("candidate", frames, WHERE_CANDIDATE))
-        best = None
-        for k, (kind, frames, where) in enumerate(overview):
-            img = sdir / f"r{rep}_o{k}_{kind}.jpg"
-            cells = cs.write_sheet(work, frames, img)
-            q = OVERVIEW_Q.format(where=where) + pad
-            r = vis.look_sheet(img, cells, q, schema=OVERVIEW_SCHEMA)
-            d = r.data
-            trace.append({"pass": "overview", "kind": kind, "sheet": img.name, "cells": cells,
-                          "answer": d, "cost_usd": r.info.cost_usd,
-                          "latency_s": r.info.latency_s})  # fmt: skip
-            cell = d.get("high_point_cell", 0)
-            if 1 <= cell <= len(cells):
-                key = (d.get("sure", 0), kind == "candidate")
-                if best is None or key > best[0]:
-                    best = (key, cells, cell, d)
-        if best is None:  # nobody saw it: fall back to the strongest signal candidate
-            if not candidates:
-                reps.append({"repeat": rep, "frame": None, "method": "none", "trace": trace})
-                continue
-            frames = cs.sheet_frames(candidates[0]["t"] - 0.5, candidates[0]["t"] + 0.5, fps, n)
-            best = ((0, True), cs.write_sheet(work, frames, sdir / f"r{rep}_fallback.jpg"), 5,
-                    {"activity": "", "outcome": ""})  # fmt: skip
-        _, cells, cell, desc = best
-        frames = [c["frame"] for c in cells]
-        for p in range(s.sheet_passes):
-            if frames[-1] - frames[0] + 1 <= len(frames):  # consecutive: done
-                break
-            frames = cs.refine(frames, cell, fps, n)
-            img = sdir / f"r{rep}_p{p + 1}.jpg"
-            cells = cs.write_sheet(work, frames, img)
-            q = REFINE_Q.format(activity=desc.get("activity", ""), outcome=desc.get("outcome", ""))
-            r = vis.look_sheet(img, cells, q + pad, schema=REFINE_SCHEMA)
-            cell = min(max(r.data["cell"], 1), len(cells))
-            trace.append({"pass": f"refine {p + 1}", "sheet": img.name, "cells": cells,
-                          "answer": r.data, "cost_usd": r.info.cost_usd,
-                          "latency_s": r.info.latency_s})  # fmt: skip
-        chosen = cells[cell - 1]["frame"]
-        t_chosen = chosen / fps
-        near = [o for o in scan["onsets_t"] if t_chosen - s.sound_snap_s <= o <= t_chosen + 0.1]
-        final, method = (
-            (int(round(min(near) * fps)), "sheets+sound") if near else (chosen, "sheets")
-        )
-        reps.append({"repeat": rep, "description": desc, "chosen_frame": chosen,
-                     "frame": final, "method": method, "trace": trace})  # fmt: skip
+        try:
+            reps.append(look(vis, work, sdir, rep, pad, overview, candidates, scan, fps, n, s,
+                             trace))  # fmt: skip
+        except SheetFailed as err:
+            # plan.md 4.3: the strongest S1 candidate becomes the climax, low confidence
+            f = candidates[0]["frame"] if candidates else None
+            reps.append({"repeat": rep, "description": None, "chosen_frame": f, "frame": f,
+                         "method": "fallback", "confidence": "low", "fallback_reason": str(err),
+                         "trace": trace})  # fmt: skip
+    return score(reps, label, candidates, scan, fps, s)
 
+
+def look(vis, work, sdir, rep, pad, overview, candidates, scan, fps, n, s, trace) -> dict:
+    best = None
+    for k, (kind, frames, where) in enumerate(overview):
+        img = sdir / f"r{rep}_o{k}_{kind}.jpg"
+        cells = cs.write_sheet(work, frames, img)
+        q = OVERVIEW_Q.format(where=where) + pad
+        entry = {"pass": "overview", "kind": kind, "sheet": img.name, "cells": cells}
+        d = ask(vis, img, cells, q, OVERVIEW_SCHEMA, trace, entry)
+        cell = d.get("high_point_cell", 0)
+        if 1 <= cell <= len(cells):
+            key = (d.get("sure", 0), kind == "candidate")
+            if best is None or key > best[0]:
+                best = (key, cells, cell, d)
+    if best is None:  # nobody saw it: fall back to the strongest signal candidate
+        if not candidates:
+            return {"repeat": rep, "frame": None, "method": "none", "trace": trace}
+        frames = cs.sheet_frames(candidates[0]["t"] - 0.5, candidates[0]["t"] + 0.5, fps, n)
+        best = ((0, True), cs.write_sheet(work, frames, sdir / f"r{rep}_fallback.jpg"), 5,
+                {"activity": "", "outcome": ""})  # fmt: skip
+    _, cells, cell, desc = best
+    frames = [c["frame"] for c in cells]
+    for p in range(s.sheet_passes):
+        if frames[-1] - frames[0] + 1 <= len(frames):  # consecutive: done
+            break
+        frames = cs.refine(frames, cell, fps, n)
+        img = sdir / f"r{rep}_p{p + 1}.jpg"
+        cells = cs.write_sheet(work, frames, img)
+        q = REFINE_Q.format(activity=desc.get("activity", ""), outcome=desc.get("outcome", ""))
+        entry = {"pass": f"refine {p + 1}", "sheet": img.name, "cells": cells}
+        d = ask(vis, img, cells, q + pad, REFINE_SCHEMA, trace, entry)
+        cell = min(max(d["cell"], 1), len(cells))
+    chosen = cells[cell - 1]["frame"]
+    t_chosen = chosen / fps
+    near = [o for o in scan["onsets_t"] if t_chosen - s.sound_snap_s <= o <= t_chosen + 0.1]
+    final, method = (int(round(min(near) * fps)), "sheets+sound") if near else (chosen, "sheets")
+    return {"repeat": rep, "description": desc, "chosen_frame": chosen,
+            "frame": final, "method": method, "trace": trace}  # fmt: skip
+
+
+def score(reps, label, candidates, scan, fps, s) -> dict:
     wants = [label["climax_t"]] + list(label.get("other_climax_t", []))
     tol = round(s.keyframe_tol_s * fps)
+
+    def err(frame: int, moments: list[float]) -> int:
+        return min((frame - round(w * fps) for w in moments), key=abs)
+
     for r in reps:
         if r["frame"] is None:
-            r["err_frames"] = None
+            r["err_frames"] = r["err_strict_frames"] = None
             continue
-        errs = [r["frame"] - round(w * fps) for w in wants]
-        r["err_frames"] = min(errs, key=abs)
-        r["within_tol"] = abs(r["err_frames"]) <= tol
+        # strict: climax_t only; any: the nearest of climax_t and other_climax_t
+        r["err_strict_frames"] = err(r["frame"], wants[:1])
+        r["err_frames"] = err(r["frame"], wants)
+        r["err_nosnap_strict_frames"] = err(r["chosen_frame"], wants[:1])  # before the snap
+        r["err_nosnap_frames"] = err(r["chosen_frame"], wants)
+        fb = r["method"] == "fallback"  # left out of the accuracy share (owner, 2026-10-18)
+        r["within_tol_strict"] = None if fb else abs(r["err_strict_frames"]) <= tol
+        r["within_tol"] = None if fb else abs(r["err_frames"]) <= tol
         r["cost_usd"] = round(sum(x["cost_usd"] for x in r["trace"]), 5)
         r["latency_s"] = round(sum(x["latency_s"] for x in r["trace"]), 1)
-    got = [r["frame"] for r in reps if r["frame"] is not None]
-    agreed = len(got) == len(reps) and max(got) - min(got) <= tol if got else False
+    for r in reps:
+        r["retries"] = sum(1 for x in r["trace"] if x.get("attempt") == 1)
+    looked = [r["frame"] for r in reps if r["frame"] is not None and r["method"] != "fallback"]
+    if len(looked) < 2:  # agreement needs two repeats that looked
+        agreed = None
+    else:
+        agreed = len(looked) == len(reps) and max(looked) - min(looked) <= tol
     label_in_candidates = any(
         abs(c["t"] - w) <= CANDIDATE_HALF_S for c in candidates for w in wants
     )
     return {"clip": label["clip"], "label_t": wants, "fps": fps, "tolerance_frames": tol,
-            "candidates": candidates, "label_near_a_candidate": label_in_candidates,
-            "agreed": agreed, "repeats": reps}  # fmt: skip
+            "candidates": candidates, "n_candidates": MAX_CANDIDATES,
+            "transitions": scan["transitions"], "label_near_a_candidate": label_in_candidates,
+            "agreed": agreed, "retries": sum(r["retries"] for r in reps),
+            "fallbacks": sum(1 for r in reps if r["method"] == "fallback"),
+            "repeats": reps}  # fmt: skip
 
 
-def write_md(results: list[dict]) -> str:
+def verdicts() -> dict:
+    return json.loads(OUTCOMES.read_text()) if OUTCOMES.exists() else {}
+
+
+def write_md(results: list[dict], not_run: list[str] = ()) -> str:
+    owner = verdicts()
+
+    def mark(clip: str, i: int) -> str:
+        v = (owner.get(clip, {}).get("verdicts") or [])[i : i + 1]
+        return "" if not v or v[0] is None else ("right" if v[0] else "wrong")
+
     lines = [
-        "| clip | label (s) | near a candidate | repeat | outcome (model) | method | answer (s) "
-        "| err (fr) | within tol | agreed | s | USD |",
-        "|---|---|---|---|---|---|---|---|---|---|---|---|",
+        f"Signal candidates per clip: {MAX_CANDIDATES} (the design uses {DESIGN_CANDIDATES}).",
+        "",
+        "Strict: climax_t only. Any: the nearest valid moment (climax_t or other_climax_t). "
+        "Errors in frames; no-snap is the answer before the sound snap.",
+        "",
+        "| clip | label (s) | near a candidate | repeat | outcome (model) | outcome (owner) "
+        "| method | answer (s) "
+        "| err strict | err any | no-snap strict | no-snap any | within tol strict "
+        "| within tol any | agreed | retries | s | USD |",
+        "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|",
     ]
     for c in results:
         for r in c["repeats"]:
@@ -231,9 +362,37 @@ def write_md(results: list[dict]) -> str:
             out = (r.get("description") or {}).get("outcome", "")[:60]
             lines.append(
                 f"| {c['clip']} | {c['label_t']} | {c['label_near_a_candidate']} | {r['repeat']} "
-                f"| {out} | {r['method']} | {ans} | {r['err_frames']} | {r.get('within_tol')} "
-                f"| {c['agreed']} | {r.get('latency_s')} | {r.get('cost_usd')} |"
+                f"| {out} | {mark(c['clip'], r['repeat'])} | {r['method']} | {ans} | {r.get('err_strict_frames')} "
+                f"| {r['err_frames']} | {r.get('err_nosnap_strict_frames')} "
+                f"| {r.get('err_nosnap_frames')} | {r.get('within_tol_strict')} "
+                f"| {r.get('within_tol')} | {c['agreed']} | {r.get('retries', 0)} "
+                f"| {r.get('latency_s')} | {r.get('cost_usd')} |"
             )
+    lines += ["", "Per clip: retries are second calls after a reply that did not fit the schema; "
+              "fallbacks are repeats where the retry failed too (plan.md 4.3: the strongest "
+              "signal candidate, low confidence), left out of the accuracy share.", "",
+              "| clip | repeats | fallbacks | retries | outcome right | within tol strict "
+              "| within tol any |",
+              "|---|---|---|---|---|---|---|"]  # fmt: skip
+    tot = {"n": 0, "fb": 0, "rt": 0, "st": 0, "an": 0, "ok": 0, "marked": 0}
+    for c in results:
+        looked = [r for r in c["repeats"] if r["method"] != "fallback"]
+        st = sum(1 for r in looked if r.get("within_tol_strict"))
+        an = sum(1 for r in looked if r.get("within_tol"))
+        marks = [mark(c["clip"], r["repeat"]) for r in looked]
+        ok, marked = marks.count("right"), sum(1 for m in marks if m)
+        lines.append(f"| {c['clip']} | {len(c['repeats'])} | {c.get('fallbacks', 0)} "
+                     f"| {c.get('retries', 0)} | {ok}/{marked} | {st}/{len(looked)} "
+                     f"| {an}/{len(looked)} |")  # fmt: skip
+        for k, v in (("n", len(looked)), ("fb", c.get("fallbacks", 0)),
+                     ("rt", c.get("retries", 0)), ("st", st), ("an", an), ("ok", ok),
+                     ("marked", marked)):  # fmt: skip
+            tot[k] += v
+    for clip in not_run:
+        lines.append(f"| {clip} | not run | | | | | |")
+    lines.append(f"| total | {tot['n'] + tot['fb']} | {tot['fb']} | {tot['rt']} "
+                 f"| {tot['ok']}/{tot['marked']} | {tot['st']}/{tot['n']} "
+                 f"| {tot['an']}/{tot['n']} |")  # fmt: skip
     return "\n".join(lines) + "\n"
 
 
@@ -251,17 +410,26 @@ def write_report(results: list[dict], path: Path) -> None:
     ]
     for c in results:
         good = sum(1 for r in c["repeats"] if r.get("within_tol"))
+        strict = sum(1 for r in c["repeats"] if r.get("within_tol_strict"))
         parts.append(f"<section><h2>{e(c['clip'])}</h2><p class='m'>label {c['label_t']} s · "
-                     f"within tolerance {good}/{len(c['repeats'])} · agreed {c['agreed']} · "
+                     f"within tolerance strict {strict}/{len(c['repeats'])}, any valid moment "
+                     f"{good}/{len(c['repeats'])} · agreed {c['agreed']} · "
                      f"label near a candidate {c['label_near_a_candidate']}</p>")  # fmt: skip
         cands = ", ".join(f"{x['t']} s (score {x['score']}, onset {x['sound_onset_t']})"
                           for x in c["candidates"])  # fmt: skip
-        parts.append(f"<p class='m'>signal candidates: {e(cands) or 'none'}</p>")
+        parts.append(
+            f"<p class='m'>signal candidates ({c.get('n_candidates')}): {e(cands) or 'none'}</p>"
+        )
+        trans = ", ".join(f"{x['start_t']}-{x['end_t']} s ({x['frames']} fr)"
+                          for x in c.get("transitions", []))  # fmt: skip
+        parts.append(f"<p class='m'>transitions: {e(trans) or 'none'}</p>")
         for r in c["repeats"]:
             cls = "ok" if r.get("within_tol") else "bad"
             ans = "none" if r["frame"] is None else f"frame {r['frame']} ({r['method']})"
             parts.append(f"<h3>repeat {r['repeat']}: <span class='{cls}'>{e(ans)}, "
-                         f"error {r['err_frames']} frames</span></h3>")  # fmt: skip
+                         f"error strict {r.get('err_strict_frames')}, any {r['err_frames']} "
+                         f"frames; before the snap strict {r.get('err_nosnap_strict_frames')}, "
+                         f"any {r.get('err_nosnap_frames')}</span></h3>")  # fmt: skip
             if r.get("description"):
                 d = r["description"]
                 parts.append(f"<p>{e(d.get('activity', ''))}. Ends: {e(d.get('outcome', ''))}</p>")
@@ -277,6 +445,26 @@ def write_report(results: list[dict], path: Path) -> None:
         parts.append("</section>")
     parts.append("</body></html>")
     path.write_text("\n".join(parts))
+
+
+def carry(res: dict, recorded: dict) -> None:
+    """Calls answered from a recording: put the recorded run's latency and cost back."""
+    for r in res["repeats"]:
+        for t in r["trace"]:
+            if t.get("cache_hit") is False:  # a live call this run: keep its own numbers
+                continue
+            old = recorded.get((res["clip"], r["repeat"], t["sheet"], t.get("attempt", 0)))
+            if old is not None:
+                t["latency_s"], t["cost_usd"] = old["latency_s"], old["cost_usd"]
+        if r["frame"] is not None:
+            r["cost_usd"] = round(sum(x["cost_usd"] for x in r["trace"]), 5)
+            r["latency_s"] = round(sum(x["latency_s"] for x in r["trace"]), 1)
+
+
+def write_outputs(results: list[dict], tag: str, not_run: list[str] = ()) -> None:
+    (OUT / f"t003_sheets{tag}.json").write_text(json.dumps(results, indent=2, default=float))
+    (OUT / f"t003_sheets{tag}.md").write_text(write_md(results, not_run))
+    write_report(results, SHEETS / f"t003_sheets{tag}_report.html")
 
 
 def main() -> None:
@@ -306,16 +494,32 @@ def main() -> None:
     )
     probe.rec.mode = "live"  # estimates are for the live price
     per_call = probe.estimate(1, "high")
-    n_calls = len(todo) * a.repeats * calls_per_repeat(s.sheet_passes)
-    print(f"{len(todo)} clips x {a.repeats} repeats x at most {calls_per_repeat(s.sheet_passes)} "
-          f"calls = {n_calls} calls, one sheet each")  # fmt: skip
-    print(f"upper bound {per_call * n_calls:.3f} USD ({per_call:.5f} per call; real cost lower)")
+    for k in sorted({DESIGN_CANDIDATES, MAX_CANDIDATES}):
+        per_rep = calls_per_repeat(s.sheet_passes, k)
+        n_calls = len(todo) * a.repeats * per_rep
+        used = " (used)" if k == MAX_CANDIDATES else ""
+        print(f"{k} candidates{used}: {len(todo)} clips x {a.repeats} repeats x at most {per_rep} "
+              f"calls = {n_calls} calls, one sheet each; upper bound "
+              f"{per_call * n_calls:.3f} USD")  # fmt: skip
+    print(f"{per_call:.5f} USD per call; real cost lower")
     if a.dry_run or (not a.yes and not a.fake):
         return
-    if not a.fake and s.provider_mode == "replay":
-        sys.exit("set EPIC_PROVIDER_MODE=record (or live), or use --fake")
+    # A call answered from a recording (replay, or record with replay-first) has no latency
+    # or cost of its own; both are carried over from the previous run's JSON.
+    recorded = {}
+    if not a.fake and (OUT / "t003_sheets.json").exists():
+        for c in json.loads((OUT / "t003_sheets.json").read_text()):
+            for r in c["repeats"]:
+                for t in r["trace"]:
+                    recorded[(c["clip"], r["repeat"], t["sheet"], t.get("attempt", 0))] = t
 
-    results, spent = [], 0.0
+    global BUDGET
+    if not a.fake and s.provider_mode != "replay":
+        BUDGET = Budget(SPEND_CAP_USD, s.runs_dir)
+        print(f"spike cap {SPEND_CAP_USD:.2f} USD; already spent {BUDGET.total():.4f}")
+
+    tag = "_fake" if a.fake else ""
+    results, not_run = [], []
     for path, label in todo:
         work = OUT / "work" / (Path(label["clip"]).stem + ".mp4")
         normalise(path, work)
@@ -324,22 +528,33 @@ def main() -> None:
         else:
             led = Ledger(s.runs_dir / f"spike-t003s-{work.stem.replace(' ', '_')}", s)
             vis = VisionAdapter(led, settings=s)
+            if s.provider_mode == "record":
+                replay_first(vis)
+            if BUDGET is not None:
+                BUDGET.add(led)
         try:
             res = run_clip(vis, work, label, s, a.repeats)
-        except CapExceeded as err:
-            print("STOP:", err)
+        except (CapExceeded, SpendCap) as err:
+            print("STOP:", err, flush=True)
             break
+        except ReplayMiss:  # replay rescore: a clip the paid run never finished
+            print(f"{label['clip']:<28} not run (a recording is missing)", flush=True)
+            not_run.append(label["clip"])
+            write_outputs(results, tag, not_run)
+            continue
+        if recorded:
+            carry(res, recorded)
         results.append(res)
-        spent += led.total_usd if led else 0.0
+        strict = [r.get("err_strict_frames") for r in res["repeats"]]
         errs = [r["err_frames"] for r in res["repeats"]]
-        print(f"{label['clip']:<28} errors {errs} frames, agreed {res['agreed']}", flush=True)
-
-    tag = "_fake" if a.fake else ""
-    (OUT / f"t003_sheets{tag}.json").write_text(json.dumps(results, indent=2, default=float))
-    (OUT / f"t003_sheets{tag}.md").write_text(write_md(results))
-    write_report(results, SHEETS / f"t003_sheets{tag}_report.html")
+        print(f"{label['clip']:<28} errors strict {strict}, any {errs} frames, "
+              f"agreed {res['agreed']}, retries {res['retries']}, fallbacks {res['fallbacks']}, "
+              f"spike total {BUDGET.total() if BUDGET else 0.0:.4f} USD", flush=True)  # fmt: skip
+        write_outputs(results, tag, not_run)  # after every clip, so a stop keeps what is done
     print("report:", SHEETS / f"t003_sheets{tag}_report.html")
-    print("total cost", round(spent, 4))
+    print(f"retries {sum(r['retries'] for r in results)}, "
+          f"fallbacks {sum(r['fallbacks'] for r in results)}, "
+          f"spike total {BUDGET.total() if BUDGET else 0.0:.4f} USD")  # fmt: skip
 
 
 if __name__ == "__main__":

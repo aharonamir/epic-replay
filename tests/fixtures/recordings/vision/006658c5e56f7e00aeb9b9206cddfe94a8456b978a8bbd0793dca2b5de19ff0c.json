@@ -1,0 +1,24 @@
+{
+  "text": "{\"activity\": \"taking a football kick\", \"outcome\": \"the ball is kicked towards the goal\", \"actor\": \"a person in a yellow shirt and blue shorts\", \"high_point_cell\": 4, \"sure\": 9}",
+  "data": {
+    "activity": "taking a football kick",
+    "outcome": "the ball is kicked towards the goal",
+    "actor": "a person in a yellow shirt and blue shorts",
+    "high_point_cell": 4,
+    "sure": 9
+  },
+  "usage": {
+    "prompt_tokens": 903,
+    "completion_tokens": 844,
+    "total_tokens": 1747,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 791
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 903
+  },
+  "usage_usd": 0.001284
+}

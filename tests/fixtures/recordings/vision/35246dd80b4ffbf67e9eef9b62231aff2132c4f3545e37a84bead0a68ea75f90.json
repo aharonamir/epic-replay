@@ -1,0 +1,24 @@
+{
+  "text": "{\n  \"activity\": \"soccer goalkeeper training and gameplay\",\n  \"outcome\": \"goalkeeper demonstrates handling and kicking the ball\",\n  \"actor\": \"goalie in black kit\",\n  \"high_point_cell\": 5,\n  \"sure\": 8\n}",
+  "data": {
+    "activity": "soccer goalkeeper training and gameplay",
+    "outcome": "goalkeeper demonstrates handling and kicking the ball",
+    "actor": "goalie in black kit",
+    "high_point_cell": 5,
+    "sure": 8
+  },
+  "usage": {
+    "prompt_tokens": 1293,
+    "completion_tokens": 1291,
+    "total_tokens": 2584,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 1227
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 1293
+  },
+  "usage_usd": 0.001937
+}

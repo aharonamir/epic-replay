@@ -1,0 +1,24 @@
+{
+  "text": "{\"activity\": \"skateboarding\", \"outcome\": \"rider pops the front of the skateboard to perform a trick\", \"actor\": \"person in black pants and beige shoes\", \"high_point_cell\": 9, \"sure\": 9}",
+  "data": {
+    "activity": "skateboarding",
+    "outcome": "rider pops the front of the skateboard to perform a trick",
+    "actor": "person in black pants and beige shoes",
+    "high_point_cell": 9,
+    "sure": 9
+  },
+  "usage": {
+    "prompt_tokens": 904,
+    "completion_tokens": 990,
+    "total_tokens": 1894,
+    "prompt_tokens_details": {
+      "cached_tokens": 640
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 933
+    },
+    "prompt_cache_hit_tokens": 640,
+    "prompt_cache_miss_tokens": 264
+  },
+  "usage_usd": 0.001459
+}

@@ -1,0 +1,21 @@
+{
+  "text": "{\"cell\": 1, \"seen\": \"The skateboarder is at the highest point of the jump, with the board tucked up significantly off the ground.\"}",
+  "data": {
+    "cell": 1,
+    "seen": "The skateboarder is at the highest point of the jump, with the board tucked up significantly off the ground."
+  },
+  "usage": {
+    "prompt_tokens": 785,
+    "completion_tokens": 924,
+    "total_tokens": 1709,
+    "prompt_tokens_details": {
+      "cached_tokens": 512
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 885
+    },
+    "prompt_cache_hit_tokens": 512,
+    "prompt_cache_miss_tokens": 273
+  },
+  "usage_usd": 0.001344
+}

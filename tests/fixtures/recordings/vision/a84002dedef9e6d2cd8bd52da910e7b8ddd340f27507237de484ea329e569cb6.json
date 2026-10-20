@@ -1,0 +1,24 @@
+{
+  "text": "{\"activity\": \"performing a skateboarding trick\", \"outcome\": \"lands the trick and continues riding\", \"actor\": \"person in black pants and light shoes\", \"high_point_cell\": 5, \"sure\": 9}",
+  "data": {
+    "activity": "performing a skateboarding trick",
+    "outcome": "lands the trick and continues riding",
+    "actor": "person in black pants and light shoes",
+    "high_point_cell": 5,
+    "sure": 9
+  },
+  "usage": {
+    "prompt_tokens": 903,
+    "completion_tokens": 806,
+    "total_tokens": 1709,
+    "prompt_tokens_details": {
+      "cached_tokens": 768
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 754
+    },
+    "prompt_cache_hit_tokens": 768,
+    "prompt_cache_miss_tokens": 135
+  },
+  "usage_usd": 0.001238
+}

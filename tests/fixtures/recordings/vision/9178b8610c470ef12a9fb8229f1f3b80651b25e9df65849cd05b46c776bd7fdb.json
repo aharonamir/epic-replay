@@ -1,0 +1,21 @@
+{
+  "text": "{\n  \"cell\": 6,\n  \"seen\": \"The player's kicking leg reaches its highest point during the backswing.\"\n}",
+  "data": {
+    "cell": 6,
+    "seen": "The player's kicking leg reaches its highest point during the backswing."
+  },
+  "usage": {
+    "prompt_tokens": 1154,
+    "completion_tokens": 1023,
+    "total_tokens": 2177,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 989
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 1154
+  },
+  "usage_usd": 0.001574
+}

@@ -1,0 +1,21 @@
+{
+  "text": "{\"cell\": 3, \"seen\": \"A flatbread is suspended in mid-air at the peak of its flip above the hot griddle.\"}",
+  "data": {
+    "cell": 3,
+    "seen": "A flatbread is suspended in mid-air at the peak of its flip above the hot griddle."
+  },
+  "usage": {
+    "prompt_tokens": 808,
+    "completion_tokens": 471,
+    "total_tokens": 1279,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 435
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 808
+  },
+  "usage_usd": 0.000808
+}

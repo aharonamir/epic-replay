@@ -1,0 +1,21 @@
+{
+  "text": "{\"cell\": 4, \"seen\": \"The skateboarder is at the highest point of the jump, with the board fully flipped and legs tucked at their maximum height before descending.\"}",
+  "data": {
+    "cell": 4,
+    "seen": "The skateboarder is at the highest point of the jump, with the board fully flipped and legs tucked at their maximum height before descending."
+  },
+  "usage": {
+    "prompt_tokens": 783,
+    "completion_tokens": 1103,
+    "total_tokens": 1886,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 1059
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 783
+  },
+  "usage_usd": 0.001558
+}

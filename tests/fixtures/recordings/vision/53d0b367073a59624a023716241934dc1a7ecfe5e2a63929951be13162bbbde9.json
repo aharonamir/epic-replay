@@ -1,0 +1,21 @@
+{
+  "text": "{\"cell\": 6, \"seen\": \"the ball is inside the goal net\"}",
+  "data": {
+    "cell": 6,
+    "seen": "the ball is inside the goal net"
+  },
+  "usage": {
+    "prompt_tokens": 787,
+    "completion_tokens": 1560,
+    "total_tokens": 2347,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 1541
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 787
+  },
+  "usage_usd": 0.002108
+}

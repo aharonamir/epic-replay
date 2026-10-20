@@ -1,0 +1,24 @@
+{
+  "text": "{\"activity\":\"soccer/football set-piece compilation, with free kicks and corner situations\",\"outcome\":\"part 1 ends with a free kick being taken; no clear goal is shown in this grid\",\"actor\":\"players in dark/black, yellow, white, red, and pink kits\",\"high_point_cell\":0,\"sure\":5}",
+  "data": {
+    "activity": "soccer/football set-piece compilation, with free kicks and corner situations",
+    "outcome": "part 1 ends with a free kick being taken; no clear goal is shown in this grid",
+    "actor": "players in dark/black, yellow, white, red, and pink kits",
+    "high_point_cell": 0,
+    "sure": 5
+  },
+  "usage": {
+    "prompt_tokens": 1271,
+    "completion_tokens": 2464,
+    "total_tokens": 3735,
+    "prompt_tokens_details": {
+      "cached_tokens": 1024
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 2391
+    },
+    "prompt_cache_hit_tokens": 1024,
+    "prompt_cache_miss_tokens": 247
+  },
+  "usage_usd": 0.003338
+}

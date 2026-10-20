@@ -1,0 +1,21 @@
+{
+  "text": "{\"cell\":7,\"seen\":\"The player's kicking leg is raised highest behind him at the peak of the backswing, just before the ball is struck.\"}",
+  "data": {
+    "cell": 7,
+    "seen": "The player's kicking leg is raised highest behind him at the peak of the backswing, just before the ball is struck."
+  },
+  "usage": {
+    "prompt_tokens": 1154,
+    "completion_tokens": 9246,
+    "total_tokens": 10400,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 9211
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 1154
+  },
+  "usage_usd": 0.011441
+}

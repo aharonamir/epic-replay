@@ -1,0 +1,53 @@
+{
+  "text": "{\"type\":\"object\",\"required\":[\"activity\",\"outcome\",\"actor\",\"high_point_cell\",\"sure\"],\"properties\":{\"activity\":{\"type\":\"string\"},\"outcome\":{\"type\":\"string\"},\"actor\":{\"type\":\"string\"},\"high_point_cell\":{\"type\":\"integer\",\"minimum\":0,\"maximum\":9},\"sure\":{\"type\":\"integer\",\"minimum\":0,\"maximum\":10}},\"activity\":\"soccer goalkeeper practicing catching crosses and handling the ball\",\"outcome\":\"the goalkeeper collects/catches the ball\",\"actor\":\"goalkeeper wearing black with pink shoes\",\"high_point_cell\":6,\"sure\":7}",
+  "data": {
+    "type": "object",
+    "required": [
+      "activity",
+      "outcome",
+      "actor",
+      "high_point_cell",
+      "sure"
+    ],
+    "properties": {
+      "activity": {
+        "type": "string"
+      },
+      "outcome": {
+        "type": "string"
+      },
+      "actor": {
+        "type": "string"
+      },
+      "high_point_cell": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 9
+      },
+      "sure": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 10
+      }
+    },
+    "activity": "soccer goalkeeper practicing catching crosses and handling the ball",
+    "outcome": "the goalkeeper collects/catches the ball",
+    "actor": "goalkeeper wearing black with pink shoes",
+    "high_point_cell": 6,
+    "sure": 7
+  },
+  "usage": {
+    "prompt_tokens": 1293,
+    "completion_tokens": 590,
+    "total_tokens": 1883,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 460
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 1293
+  },
+  "usage_usd": 0.001096
+}

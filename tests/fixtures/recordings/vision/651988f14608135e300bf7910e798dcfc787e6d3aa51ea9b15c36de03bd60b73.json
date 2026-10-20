@@ -1,0 +1,21 @@
+{
+  "text": "{\"cell\": 1, \"seen\": \"The water bottle is high in the air near the top of the white wall.\"}",
+  "data": {
+    "cell": 1,
+    "seen": "The water bottle is high in the air near the top of the white wall."
+  },
+  "usage": {
+    "prompt_tokens": 786,
+    "completion_tokens": 689,
+    "total_tokens": 1475,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 661
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 786
+  },
+  "usage_usd": 0.001063
+}

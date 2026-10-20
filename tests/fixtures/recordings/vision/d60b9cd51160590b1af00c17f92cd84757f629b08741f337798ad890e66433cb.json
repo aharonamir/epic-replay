@@ -1,0 +1,24 @@
+{
+  "text": "{\"activity\":\"A water bottle sits upright on a low ledge while the camera views the scene.\",\"outcome\":\"The bottle remains in place and nothing else happens.\",\"actor\":\"water bottle\",\"high_point_cell\":0,\"sure\":8}",
+  "data": {
+    "activity": "A water bottle sits upright on a low ledge while the camera views the scene.",
+    "outcome": "The bottle remains in place and nothing else happens.",
+    "actor": "water bottle",
+    "high_point_cell": 0,
+    "sure": 8
+  },
+  "usage": {
+    "prompt_tokens": 905,
+    "completion_tokens": 1491,
+    "total_tokens": 2396,
+    "prompt_tokens_details": {
+      "cached_tokens": 640
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 1439
+    },
+    "prompt_cache_hit_tokens": 640,
+    "prompt_cache_miss_tokens": 265
+  },
+  "usage_usd": 0.002061
+}

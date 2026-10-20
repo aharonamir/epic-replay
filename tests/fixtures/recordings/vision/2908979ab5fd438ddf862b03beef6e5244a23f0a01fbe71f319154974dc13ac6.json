@@ -1,0 +1,24 @@
+{
+  "text": "{\"activity\": \"shooting a basketball\", \"outcome\": \"the ball is released and flies through the air\", \"actor\": \"person in a grey top and patterned leggings\", \"high_point_cell\": 4, \"sure\": 8}",
+  "data": {
+    "activity": "shooting a basketball",
+    "outcome": "the ball is released and flies through the air",
+    "actor": "person in a grey top and patterned leggings",
+    "high_point_cell": 4,
+    "sure": 8
+  },
+  "usage": {
+    "prompt_tokens": 904,
+    "completion_tokens": 1290,
+    "total_tokens": 2194,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 1235
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 904
+  },
+  "usage_usd": 0.001819
+}

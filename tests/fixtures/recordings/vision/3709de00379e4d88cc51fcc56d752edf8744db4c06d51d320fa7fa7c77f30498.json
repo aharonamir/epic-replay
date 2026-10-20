@@ -1,0 +1,24 @@
+{
+  "text": "{\"activity\": \"soccer free kick\", \"outcome\": \"the free kick is taken toward goal but no goal is scored; the shot appears saved or missed\", \"actor\": \"player in yellow and blue\", \"high_point_cell\": 4, \"sure\": 7}",
+  "data": {
+    "activity": "soccer free kick",
+    "outcome": "the free kick is taken toward goal but no goal is scored; the shot appears saved or missed",
+    "actor": "player in yellow and blue",
+    "high_point_cell": 4,
+    "sure": 7
+  },
+  "usage": {
+    "prompt_tokens": 904,
+    "completion_tokens": 3827,
+    "total_tokens": 4731,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 3766
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 904
+  },
+  "usage_usd": 0.004864
+}

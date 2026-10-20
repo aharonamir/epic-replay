@@ -1,0 +1,24 @@
+{
+  "text": "{\"activity\":\"A person reaches or waves a hand into the foreground while a water bottle sits on a ledge.\",\"outcome\":\"The bottle stays upright; the hand appears at the left edge and remains in view.\",\"actor\":\"person in dark clothing\",\"high_point_cell\":3,\"sure\":6}",
+  "data": {
+    "activity": "A person reaches or waves a hand into the foreground while a water bottle sits on a ledge.",
+    "outcome": "The bottle stays upright; the hand appears at the left edge and remains in view.",
+    "actor": "person in dark clothing",
+    "high_point_cell": 3,
+    "sure": 6
+  },
+  "usage": {
+    "prompt_tokens": 904,
+    "completion_tokens": 1915,
+    "total_tokens": 2819,
+    "prompt_tokens_details": {
+      "cached_tokens": 640
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 1851
+    },
+    "prompt_cache_hit_tokens": 640,
+    "prompt_cache_miss_tokens": 264
+  },
+  "usage_usd": 0.002569
+}

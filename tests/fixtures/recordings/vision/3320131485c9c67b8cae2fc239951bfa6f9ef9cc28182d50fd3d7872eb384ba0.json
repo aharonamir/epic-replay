@@ -1,0 +1,21 @@
+{
+  "text": "{\"cell\":3,\"seen\":\"The small pancake is at its highest point above the griddle, near the top edge of the frame.\"}",
+  "data": {
+    "cell": 3,
+    "seen": "The small pancake is at its highest point above the griddle, near the top edge of the frame."
+  },
+  "usage": {
+    "prompt_tokens": 793,
+    "completion_tokens": 1208,
+    "total_tokens": 2001,
+    "prompt_tokens_details": {
+      "cached_tokens": 512
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 1177
+    },
+    "prompt_cache_hit_tokens": 512,
+    "prompt_cache_miss_tokens": 281
+  },
+  "usage_usd": 0.001687
+}

@@ -1,0 +1,21 @@
+{
+  "text": "{\"cell\": 7, \"seen\": \"The dog is moving quickly towards the bottom right corner. In cell 7, the dog has just reached the bottom right corner, marking the high point of the described action before settling.\"}",
+  "data": {
+    "cell": 7,
+    "seen": "The dog is moving quickly towards the bottom right corner. In cell 7, the dog has just reached the bottom right corner, marking the high point of the described action before settling."
+  },
+  "usage": {
+    "prompt_tokens": 792,
+    "completion_tokens": 1083,
+    "total_tokens": 1875,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 1030
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 792
+  },
+  "usage_usd": 0.001537
+}

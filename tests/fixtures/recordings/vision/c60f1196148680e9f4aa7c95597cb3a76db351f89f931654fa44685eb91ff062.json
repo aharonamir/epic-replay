@@ -1,0 +1,24 @@
+{
+  "text": "{\"activity\":\"A person in black trousers and tan shoes performs a skateboard flip trick on a sidewalk.\",\"outcome\":\"The skateboard flips through the air and is shown coming down near the ground; a clean landing is not clearly visible.\",\"actor\":\"person in black trousers and tan shoes\",\"high_point_cell\":5,\"sure\":7}",
+  "data": {
+    "activity": "A person in black trousers and tan shoes performs a skateboard flip trick on a sidewalk.",
+    "outcome": "The skateboard flips through the air and is shown coming down near the ground; a clean landing is not clearly visible.",
+    "actor": "person in black trousers and tan shoes",
+    "high_point_cell": 5,
+    "sure": 7
+  },
+  "usage": {
+    "prompt_tokens": 903,
+    "completion_tokens": 2975,
+    "total_tokens": 3878,
+    "prompt_tokens_details": {
+      "cached_tokens": 768
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 2901
+    },
+    "prompt_cache_hit_tokens": 768,
+    "prompt_cache_miss_tokens": 135
+  },
+  "usage_usd": 0.003841
+}

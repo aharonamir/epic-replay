@@ -1,0 +1,21 @@
+{
+  "text": "{\"cell\": 2, \"seen\": \"The ball is seen at the highest point of its trajectory during the cross into the penalty area.\"}",
+  "data": {
+    "cell": 2,
+    "seen": "The ball is seen at the highest point of its trajectory during the cross into the penalty area."
+  },
+  "usage": {
+    "prompt_tokens": 1173,
+    "completion_tokens": 1414,
+    "total_tokens": 2587,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 1379
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 1173
+  },
+  "usage_usd": 0.002049
+}

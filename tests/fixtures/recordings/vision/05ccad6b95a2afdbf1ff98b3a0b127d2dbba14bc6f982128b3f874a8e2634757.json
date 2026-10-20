@@ -1,0 +1,25 @@
+{
+  "text": "{\"type\":\"json_object\",\"activity\":\"soccer free kick\",\"outcome\":\"the ball is kicked toward goal and the play ends in a scramble near the goal\",\"actor\":\"player in yellow and blue kit\",\"high_point_cell\":6,\"sure\":4}",
+  "data": {
+    "type": "json_object",
+    "activity": "soccer free kick",
+    "outcome": "the ball is kicked toward goal and the play ends in a scramble near the goal",
+    "actor": "player in yellow and blue kit",
+    "high_point_cell": 6,
+    "sure": 4
+  },
+  "usage": {
+    "prompt_tokens": 904,
+    "completion_tokens": 6093,
+    "total_tokens": 6997,
+    "prompt_tokens_details": {
+      "cached_tokens": 640
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 6038
+    },
+    "prompt_cache_hit_tokens": 640,
+    "prompt_cache_miss_tokens": 264
+  },
+  "usage_usd": 0.007583
+}

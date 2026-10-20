@@ -1,0 +1,24 @@
+{
+  "text": "{\"activity\":\"A person is shooting a basketball on an outdoor court.\",\"outcome\":\"The shot goes through the hoop and the ball drops through the net.\",\"actor\":\"person in a dark top and grey leggings\",\"high_point_cell\":4,\"sure\":8}",
+  "data": {
+    "activity": "A person is shooting a basketball on an outdoor court.",
+    "outcome": "The shot goes through the hoop and the ball drops through the net.",
+    "actor": "person in a dark top and grey leggings",
+    "high_point_cell": 4,
+    "sure": 8
+  },
+  "usage": {
+    "prompt_tokens": 904,
+    "completion_tokens": 4074,
+    "total_tokens": 4978,
+    "prompt_tokens_details": {
+      "cached_tokens": 640
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 4016
+    },
+    "prompt_cache_hit_tokens": 640,
+    "prompt_cache_miss_tokens": 264
+  },
+  "usage_usd": 0.00516
+}

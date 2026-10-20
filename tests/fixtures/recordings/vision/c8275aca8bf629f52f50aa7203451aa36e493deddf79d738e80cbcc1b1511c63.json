@@ -1,0 +1,25 @@
+{
+  "text": "{\"type\":\"json_object\",\"activity\":\"A person shooting a basketball at an outdoor hoop.\",\"outcome\":\"The ball comes off the hoop and is recovered/passed back to the player in grey leggings, who ends up dribbling.\",\"actor\":\"person in grey leggings and dark top\",\"high_point_cell\":4,\"sure\":7}",
+  "data": {
+    "type": "json_object",
+    "activity": "A person shooting a basketball at an outdoor hoop.",
+    "outcome": "The ball comes off the hoop and is recovered/passed back to the player in grey leggings, who ends up dribbling.",
+    "actor": "person in grey leggings and dark top",
+    "high_point_cell": 4,
+    "sure": 7
+  },
+  "usage": {
+    "prompt_tokens": 903,
+    "completion_tokens": 8450,
+    "total_tokens": 9353,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 8377
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 903
+  },
+  "usage_usd": 0.010411
+}

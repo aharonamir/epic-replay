@@ -1,0 +1,24 @@
+{
+  "text": "{\"activity\":\"cooking pancakes on a griddle and flipping one\",\"outcome\":\"the pancakes are cooked, with one left on the griddle\",\"actor\":\"person in red\",\"high_point_cell\":6,\"sure\":5}",
+  "data": {
+    "activity": "cooking pancakes on a griddle and flipping one",
+    "outcome": "the pancakes are cooked, with one left on the griddle",
+    "actor": "person in red",
+    "high_point_cell": 6,
+    "sure": 5
+  },
+  "usage": {
+    "prompt_tokens": 904,
+    "completion_tokens": 5205,
+    "total_tokens": 6109,
+    "prompt_tokens_details": {
+      "cached_tokens": 768
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 5156
+    },
+    "prompt_cache_hit_tokens": 768,
+    "prompt_cache_miss_tokens": 136
+  },
+  "usage_usd": 0.006517
+}

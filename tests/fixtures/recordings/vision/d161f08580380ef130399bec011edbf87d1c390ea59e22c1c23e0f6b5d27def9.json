@@ -1,0 +1,24 @@
+{
+  "text": "{\"activity\":\"two people playing basketball on an outdoor court, dribbling and shooting at a hoop\",\"outcome\":\"the ball is shot and becomes loose/rebounded, and play continues without a clear score shown before the clip ends\",\"actor\":\"a person in black athletic clothes and a person in grey athletic clothes\",\"high_point_cell\":0,\"sure\":7}",
+  "data": {
+    "activity": "two people playing basketball on an outdoor court, dribbling and shooting at a hoop",
+    "outcome": "the ball is shot and becomes loose/rebounded, and play continues without a clear score shown before the clip ends",
+    "actor": "a person in black athletic clothes and a person in grey athletic clothes",
+    "high_point_cell": 0,
+    "sure": 7
+  },
+  "usage": {
+    "prompt_tokens": 905,
+    "completion_tokens": 3449,
+    "total_tokens": 4354,
+    "prompt_tokens_details": {
+      "cached_tokens": 640
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 3373
+    },
+    "prompt_cache_hit_tokens": 640,
+    "prompt_cache_miss_tokens": 265
+  },
+  "usage_usd": 0.00441
+}

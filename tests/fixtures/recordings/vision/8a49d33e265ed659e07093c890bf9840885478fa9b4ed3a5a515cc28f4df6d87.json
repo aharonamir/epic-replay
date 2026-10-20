@@ -1,0 +1,21 @@
+{
+  "text": "{\"cell\":3,\"seen\":\"The basketball is at its highest visible point near the rim in cell 3, before descending through the net in later frames.\"}",
+  "data": {
+    "cell": 3,
+    "seen": "The basketball is at its highest visible point near the rim in cell 3, before descending through the net in later frames."
+  },
+  "usage": {
+    "prompt_tokens": 781,
+    "completion_tokens": 10288,
+    "total_tokens": 11069,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 10254
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 781
+  },
+  "usage_usd": 0.01258
+}

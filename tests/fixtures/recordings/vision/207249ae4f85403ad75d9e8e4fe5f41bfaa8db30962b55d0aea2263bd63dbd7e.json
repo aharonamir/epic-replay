@@ -1,0 +1,24 @@
+{
+  "text": "{\"activity\":\"A person in a grey top shoots a basketball at an outdoor hoop while another person watches.\",\"outcome\":\"The shot misses and the ball bounces away to the right; the person in black moves after it.\",\"actor\":\"person in a grey top\",\"high_point_cell\":2,\"sure\":8}",
+  "data": {
+    "activity": "A person in a grey top shoots a basketball at an outdoor hoop while another person watches.",
+    "outcome": "The shot misses and the ball bounces away to the right; the person in black moves after it.",
+    "actor": "person in a grey top",
+    "high_point_cell": 2,
+    "sure": 8
+  },
+  "usage": {
+    "prompt_tokens": 904,
+    "completion_tokens": 6575,
+    "total_tokens": 7479,
+    "prompt_tokens_details": {
+      "cached_tokens": 640
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 6507
+    },
+    "prompt_cache_hit_tokens": 640,
+    "prompt_cache_miss_tokens": 264
+  },
+  "usage_usd": 0.008161
+}

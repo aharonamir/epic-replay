@@ -1,0 +1,21 @@
+{
+  "text": "{\n  \"cell\": 5,\n  \"seen\": \"The skateboard is at its highest point off the ground with the skater's legs tucked up.\"\n}",
+  "data": {
+    "cell": 5,
+    "seen": "The skateboard is at its highest point off the ground with the skater's legs tucked up."
+  },
+  "usage": {
+    "prompt_tokens": 785,
+    "completion_tokens": 657,
+    "total_tokens": 1442,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 618
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 785
+  },
+  "usage_usd": 0.001024
+}

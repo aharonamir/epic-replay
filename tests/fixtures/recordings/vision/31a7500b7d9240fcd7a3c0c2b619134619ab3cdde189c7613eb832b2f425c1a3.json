@@ -1,0 +1,24 @@
+{
+  "text": "{\"activity\":\"taking a free kick in a soccer match\",\"outcome\":\"the ball curls into the goal\",\"actor\":\"a player in a yellow shirt\",\"high_point_cell\":2,\"sure\":7}",
+  "data": {
+    "activity": "taking a free kick in a soccer match",
+    "outcome": "the ball curls into the goal",
+    "actor": "a player in a yellow shirt",
+    "high_point_cell": 2,
+    "sure": 7
+  },
+  "usage": {
+    "prompt_tokens": 904,
+    "completion_tokens": 5263,
+    "total_tokens": 6167,
+    "prompt_tokens_details": {
+      "cached_tokens": 640
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 5219
+    },
+    "prompt_cache_hit_tokens": 640,
+    "prompt_cache_miss_tokens": 264
+  },
+  "usage_usd": 0.006587
+}

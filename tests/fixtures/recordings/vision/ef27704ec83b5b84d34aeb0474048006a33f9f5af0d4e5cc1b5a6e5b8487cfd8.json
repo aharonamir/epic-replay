@@ -1,0 +1,24 @@
+{
+  "text": "{\"activity\":\"A player in a grey top shoots a basketball toward an outdoor hoop while another player in black watches.\",\"outcome\":\"The ball reaches the rim/backboard and bounces away, and play continues.\",\"actor\":\"player in a grey top\",\"high_point_cell\":6,\"sure\":8}",
+  "data": {
+    "activity": "A player in a grey top shoots a basketball toward an outdoor hoop while another player in black watches.",
+    "outcome": "The ball reaches the rim/backboard and bounces away, and play continues.",
+    "actor": "player in a grey top",
+    "high_point_cell": 6,
+    "sure": 8
+  },
+  "usage": {
+    "prompt_tokens": 903,
+    "completion_tokens": 1066,
+    "total_tokens": 1969,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 1000
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 903
+  },
+  "usage_usd": 0.00155
+}

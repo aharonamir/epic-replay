@@ -1,0 +1,21 @@
+{
+  "text": "{\"cell\": 5, \"seen\": \"skateboarder at the peak of the jump\"}",
+  "data": {
+    "cell": 5,
+    "seen": "skateboarder at the peak of the jump"
+  },
+  "usage": {
+    "prompt_tokens": 785,
+    "completion_tokens": 770,
+    "total_tokens": 1555,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 748
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 785
+  },
+  "usage_usd": 0.001159
+}

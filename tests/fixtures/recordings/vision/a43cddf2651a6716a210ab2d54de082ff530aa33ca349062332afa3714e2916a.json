@@ -1,0 +1,24 @@
+{
+  "text": "{\"activity\": \"skateboarding\", \"outcome\": \"rides across the court\", \"actor\": \"person in a red shirt\", \"high_point_cell\": 7, \"sure\": 9}",
+  "data": {
+    "activity": "skateboarding",
+    "outcome": "rides across the court",
+    "actor": "person in a red shirt",
+    "high_point_cell": 7,
+    "sure": 9
+  },
+  "usage": {
+    "prompt_tokens": 903,
+    "completion_tokens": 833,
+    "total_tokens": 1736,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 784
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 903
+  },
+  "usage_usd": 0.00127
+}

@@ -1,0 +1,24 @@
+{
+  "text": "{\"activity\": \"soccer player taking a free kick\", \"outcome\": \"kicks the ball towards the goal\", \"actor\": \"soccer player in a yellow and blue uniform\", \"high_point_cell\": 6, \"sure\": 8}",
+  "data": {
+    "activity": "soccer player taking a free kick",
+    "outcome": "kicks the ball towards the goal",
+    "actor": "soccer player in a yellow and blue uniform",
+    "high_point_cell": 6,
+    "sure": 8
+  },
+  "usage": {
+    "prompt_tokens": 904,
+    "completion_tokens": 681,
+    "total_tokens": 1585,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 625
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 904
+  },
+  "usage_usd": 0.001088
+}

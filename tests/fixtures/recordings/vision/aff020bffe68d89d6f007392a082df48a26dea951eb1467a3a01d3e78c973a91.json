@@ -1,0 +1,24 @@
+{
+  "text": "{\"activity\":\"a person skateboarding across an empty paved court\",\"outcome\":\"the skateboarder rides toward the camera and passes partly out of frame\",\"actor\":\"person in a red shirt and khaki pants\",\"high_point_cell\":0,\"sure\":8}",
+  "data": {
+    "activity": "a person skateboarding across an empty paved court",
+    "outcome": "the skateboarder rides toward the camera and passes partly out of frame",
+    "actor": "person in a red shirt and khaki pants",
+    "high_point_cell": 0,
+    "sure": 8
+  },
+  "usage": {
+    "prompt_tokens": 904,
+    "completion_tokens": 624,
+    "total_tokens": 1528,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 568
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 904
+  },
+  "usage_usd": 0.00102
+}

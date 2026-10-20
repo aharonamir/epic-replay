@@ -1,0 +1,24 @@
+{
+  "text": "{\"activity\":\"skateboarding across a paved court\",\"outcome\":\"the skater rides toward the camera and exits the frame\",\"actor\":\"a person in a red shirt and dark trousers\",\"high_point_cell\":7,\"sure\":5}",
+  "data": {
+    "activity": "skateboarding across a paved court",
+    "outcome": "the skater rides toward the camera and exits the frame",
+    "actor": "a person in a red shirt and dark trousers",
+    "high_point_cell": 7,
+    "sure": 5
+  },
+  "usage": {
+    "prompt_tokens": 905,
+    "completion_tokens": 5107,
+    "total_tokens": 6012,
+    "prompt_tokens_details": {
+      "cached_tokens": 640
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 5056
+    },
+    "prompt_cache_hit_tokens": 640,
+    "prompt_cache_miss_tokens": 265
+  },
+  "usage_usd": 0.0064
+}

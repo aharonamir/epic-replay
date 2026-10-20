@@ -1,0 +1,24 @@
+{
+  "text": "{\"activity\":\"skateboarding and attempting an ollie/flip trick\",\"outcome\":\"The rider jumps and the skateboard lifts and angles off the ground; the final frame is mid-air, and the landing is not shown.\",\"actor\":\"person in black trousers and light beige sneakers\",\"high_point_cell\":9,\"sure\":7}",
+  "data": {
+    "activity": "skateboarding and attempting an ollie/flip trick",
+    "outcome": "The rider jumps and the skateboard lifts and angles off the ground; the final frame is mid-air, and the landing is not shown.",
+    "actor": "person in black trousers and light beige sneakers",
+    "high_point_cell": 9,
+    "sure": 7
+  },
+  "usage": {
+    "prompt_tokens": 903,
+    "completion_tokens": 3522,
+    "total_tokens": 4425,
+    "prompt_tokens_details": {
+      "cached_tokens": 768
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 3449
+    },
+    "prompt_cache_hit_tokens": 768,
+    "prompt_cache_miss_tokens": 135
+  },
+  "usage_usd": 0.004497
+}

@@ -1,0 +1,24 @@
+{
+  "text": "{\n  \"activity\": \"A dog moving quickly inside a kennel\",\n  \"outcome\": \"The dog reaches the bottom right corner of the frame\",\n  \"actor\": \"A dog\",\n  \"high_point_cell\": 8,\n  \"sure\": 7\n}",
+  "data": {
+    "activity": "A dog moving quickly inside a kennel",
+    "outcome": "The dog reaches the bottom right corner of the frame",
+    "actor": "A dog",
+    "high_point_cell": 8,
+    "sure": 7
+  },
+  "usage": {
+    "prompt_tokens": 903,
+    "completion_tokens": 715,
+    "total_tokens": 1618,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 651
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 903
+  },
+  "usage_usd": 0.001129
+}

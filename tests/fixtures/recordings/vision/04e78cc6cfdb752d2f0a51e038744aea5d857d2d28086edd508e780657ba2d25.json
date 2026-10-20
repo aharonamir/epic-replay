@@ -1,0 +1,24 @@
+{
+  "text": "{\"activity\":\"Pancakes are cooking on a griddle while the camera zooms in on them and pans around the griddle.\",\"outcome\":\"The pancakes are left cooking on the griddle, with one pancake visible at the end; no flip is shown.\",\"actor\":\"pancakes\",\"high_point_cell\":6,\"sure\":6}",
+  "data": {
+    "activity": "Pancakes are cooking on a griddle while the camera zooms in on them and pans around the griddle.",
+    "outcome": "The pancakes are left cooking on the griddle, with one pancake visible at the end; no flip is shown.",
+    "actor": "pancakes",
+    "high_point_cell": 6,
+    "sure": 6
+  },
+  "usage": {
+    "prompt_tokens": 905,
+    "completion_tokens": 1377,
+    "total_tokens": 2282,
+    "prompt_tokens_details": {
+      "cached_tokens": 768
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 1302
+    },
+    "prompt_cache_hit_tokens": 768,
+    "prompt_cache_miss_tokens": 137
+  },
+  "usage_usd": 0.001924
+}

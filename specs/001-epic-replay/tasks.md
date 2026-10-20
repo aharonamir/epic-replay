@@ -4,7 +4,7 @@ Revision 7 (2026-10-15): nine working days, not ten (Friday 23 October is not a 
 
 `US#`, `FR-###` and `SC-#` refer to spec.md; `S#` refers to the stages in plan.md section 4. Tasks are listed in the order to do them.
 
-Done before revision 7: T001, T002, T004, T006, T007, T008, T009. From the afternoon of Thursday 15 October: 43 h planned of 43 h available (3 h that afternoon, then 8 h a day from Sunday 18 to Thursday 22 October). The full design is 152 h.
+Done before revision 7: T001, T002, T004, T006, T007, T008, T009. From the afternoon of Thursday 15 October: 43 h planned of 43 h available (3 h that afternoon, then 8 h a day from Sunday 18 to Thursday 22 October). The full design is 152 h. Revision 8 (2026-10-20): T012 drops from 3 h to 2 h, so 42 h are planned and 1 h is margin.
 
 A task is done when its "Done when" line is true and its tests pass with providers in replay mode.
 
@@ -34,12 +34,13 @@ T003 started on day 2 and continues on day 4 (revision 7).
 
 The afternoon of Thursday 15 October. Numbered frames at 4 per second were tried first (results in `docs/provider-notes.md`); revision 7 replaces them with contact sheets.
 
-- [ ] T003 Spotter spike with contact sheets, calling the vision model directly without an agent: `tools/spike_t003_sheets.py` on the nine starter clips, two repeats each. Per repeat: the signal scan (`tools/signal_scan.py`); two overview sheets spread over the clip and one sheet around each of the top three candidates; the surest sheet that shows the high point is refined by passes of sheets until the cells are consecutive frames; the earliest sound onset just before the chosen frame moves it there. First `--synthetic --fake` (no cost), then `--dry-run`, then the paid run after the owner's yes. Refine the labels to the frame with `tools/contact_sheet.py` where `climax_t` was written in whole seconds. Record outcome right or wrong, key-moment error in frames, agreement between repeats, latency and cost per clip in `docs/provider-notes.md` (3h; full design 6h) - S1, S2, S3, SC-2
+- [x] T003 Spotter spike with contact sheets, calling the vision model directly without an agent: `tools/spike_t003_sheets.py` on the nine starter clips, two repeats each. Per repeat: the signal scan (`tools/signal_scan.py`); two overview sheets spread over the clip and one sheet around each of the top three candidates; the surest sheet that shows the high point is refined by passes of sheets until the cells are consecutive frames; the earliest sound onset just before the chosen frame moves it there. First `--synthetic --fake` (no cost), then `--dry-run`, then the paid run after the owner's yes. Refine the labels to the frame with `tools/contact_sheet.py` where `climax_t` was written in whole seconds. Record outcome right or wrong, key-moment error in frames, agreement between repeats, latency and cost per clip in `docs/provider-notes.md` (3h; full design 6h) - S1, S2, S3, SC-2
   Done when: the Gate 0 Spotter and key-moment lines can be answered yes or no from the table, and SC-2's key-moment target is re-set in spec.md from it.
 
 **Gate 0** (plan.md section 6). Re-set SC-1, SC-2 and SC-5 in spec.md from the measurements.
+Result (2026-10-20): Spotter yes (13 of 16 repeats), key moment no (3 of 16 within tolerance); revision 8 applies plan.md section 6's fallback: the user picks the key moment on every play card.
 
-## Day 5 - From clip to play sheet - 8 h
+## Day 5 - From clip to play sheet - 7 h
 
 Sunday 18 October. Until T014, a yes-or-no prompt on the command line stands in for the play card.
 
@@ -47,8 +48,8 @@ Sunday 18 October. Until T014, a yes-or-no prompt on the command line stands in 
   Done when: on the clip from `tools/make_test_clip.py` the top candidate is within 2 frames of frame 90, its sound onset within 2 frames of 90, the cut at frame 135 is listed and not a candidate, and the same clip with its sound removed gives a `degraded` motion-only result.
 - [ ] T010 S0 Intake: upload validation, ffprobe, rotation, constant-frame-rate working copy with the sound kept (S1 needs it), capture rate detection (1.5h; full design 3h) - US1, FR-001, FR-002
   Done when: the fixture clip and a vertical phone clip both produce valid `clip_meta.json`; a 40 s clip is rejected with the reason.
-- [ ] T012 S2 and S3 looking with contact sheets: `tools/contact_sheet.py` moved into `src/epic_replay/media/`; the tools `clip_info`, `look_sheets` and `refine` over `VisionAdapter.look_sheet`, with their limits (at most five overview sheets and `EPIC_SHEET_PASSES` refining passes per look); the fixed sequence from the T003 spike filling the play sheet, with the climax snapped to a sound onset when there is one and `climax.candidates` filled from S1; the second look (FR-006) is a repeat of the overview with the same sheets, compared in code (3h; full design 5h) - US1, US2, FR-005, FR-006, FR-007
-  Done when: the fixed sequence produces a valid play sheet on the starter clips; a seeded disagreement between the two looks is reported in `agreement.disagreed_fields`; a request for a sixth overview sheet is refused; the play sheet records `climax.method` as `sheets` or `sheets+sound`.
+- [ ] T012 S2 and S3 looking with contact sheets, overview only (revision 8): `tools/contact_sheet.py` moved into `src/epic_replay/media/`; the tools `clip_info` and `look_sheets` over `VisionAdapter.look_sheet`, with its limit (at most five overview sheets per run) and the spike's retry on a reply that does not fit the schema; the five sheet calls sent in parallel; the fixed sequence from the T003 spike filling the play sheet with the description and a proposed start frame, snapped to a sound onset when there is one, always low confidence, and `climax.candidates` filled from the top three S1 candidates; `VisionAdapter.estimate` set to the measured cost of a sheet call (about 0.0035 USD). No refining passes and no second look (2h; full design 5h) - US1, US2, FR-005, FR-007
+  Done when: the fixed sequence produces a valid play sheet on the starter clips with `agreement.passes` 1; a request for a sixth overview sheet is refused; a recorded reply that repeats the schema is retried once and then left out; the play sheet records `climax.method` as `sheets` or `sheets+sound` and lists the S1 candidates.
 - [ ] T038 Style system: loader that validates every pack at start-up, checks that its voices and assets exist, and works out its page colours with the contrast rule in contracts/design.md section 2; the Football commentator pack with the voice from T004; slot builder that reads speaking rate and reaction delay from the pack (plan.md section 4.7) (2h; full design 3h) - US5, FR-040, FR-041
   Placeholder (silent, licence-lined) assets stand in for sounds until T021 replaces them, and a local voice-id registry written after T004 lets the loader check voices with no network.
   Done when: slots built from the fixture storyboard with the football pack equal the slots in the fixture script; for each of the three example packs, and for 100 random valid storyboards, slots do not overlap and both key-line slots are kept; a pack with a missing asset, or with an accent that fails the contrast rule, is refused with a logged reason.
@@ -58,7 +59,7 @@ Sunday 18 October. Until T014, a yes-or-no prompt on the command line stands in 
 Monday 19 October.
 
 - [ ] T013 S2 and S3 validation: `submit_play_sheet` validating the schema, the descriptor rules including no age words, and the sensitivity flag with its reason, called by the fixed sequence; each sheet call emitted as a stage event; focus box and key frame written to `play_sheet.json`. The Spotter's ReAct loop is deferred: the fixed sequence runs on every clip (1h; full design 3h) - US1, US4, FR-005, FR-007, FR-008, FR-009
-  Done when: key-moment error on the starter clips matches the T003 result to within one clip; a seeded sensitivity flag stops the run with its reason (US4 scenario 3); a play sheet containing an age word is rejected by `submit_play_sheet`.
+  Done when: the outcome on the starter clips matches the T003 result to within one clip; a seeded sensitivity flag stops the run with its reason (US4 scenario 3); a play sheet containing an age word is rejected by `submit_play_sheet`.
 - [ ] T015 S4 Storyboard: the Classic and Short templates, trim rule, replay window, zoom, markers; no dependence on the narration style. In generic mode the replay is built around the moment the user picked (2h; full design 4h) - US1, FR-013, FR-014, FR-015, FR-041
   Done when: the fixture play sheet produces exactly the fixture storyboard, and for 100 random valid play sheets segments are contiguous, the duration is within `EPIC_MIN_OUTPUT_S` to 60 s and the markers lie inside their segments.
 - [ ] T016 S5 Commentator agent: an agent-core `ReActAgent` whose prompt takes persona, rules, role notes and sample lines from the style pack and the slots from T038; tools `check_lines`, which runs the checks of T017 on a draft and returns each failure with its rule, and `submit_script`; the `hit_word` of each key line (the word that lands on the moment), which `submit_script` checks is in the line; headline and lower third; six iterations at most, then one structured draft with failing lines replaced by generic ones. `deepseek-flash` writes (2h; full design 4h) - US1, FR-016, FR-017, FR-018, FR-024
@@ -96,8 +97,8 @@ Wednesday 21 October.
 
 - [ ] T027 Flow: the plain Python runner; stage events, including each sheet call and the Commentator's tool calls; skip-if-present; S9 in parallel with S5 to S7; re-run from a stage; express mode on by default; seeding a new run from an existing one for another style, from the command line (3h; full design 4h) - US3, FR-021, FR-033, FR-042
   Done when: the fixture runs from S0 to S10 in replay mode with one command, US3 scenario 3 passes, and a seeded run starts work at S5.
-- [ ] T014 Checkpoint A: play-card endpoints and the card itself; highlighted items with keep and remove; the outcome sentence editable; frame nudge; S1's other candidates offered as other moments; cost estimate; confirm, reject, generic with a picked moment (2h; full design 5h) - US2, FR-010, FR-011, FR-012
-  Done when: the four US2 acceptance scenarios pass as API tests and the card works by hand.
+- [ ] T014 Checkpoint A: play-card endpoints and the card itself; highlighted items with keep and remove; the outcome sentence editable; the key moment highlighted on every card, with the frame nudge (one frame and ten frames each way, buttons and arrow keys, Shift for ten) and S1's other candidates offered as other moments, all core (revision 8); the user's pick written as the climax with `climax.method` `user`; cost estimate; confirm, reject, generic with a picked moment (2h; full design 5h) - US2, FR-007, FR-010, FR-011, FR-012
+  Done when: US2 acceptance scenarios 2 to 4 pass as API tests (scenario 1 needs the second look, deferred in revision 8); confirm is refused until the key moment is answered; picking another moment and nudging it sets the climax to that frame; the card works by hand.
 - [ ] T039 The News reporter pack: start from the example pack; the voice chosen in T004 and its measured speaking rate; delivery and reaction delay by ear; two stings and a transition with licence lines; the `bulletin` skin; render the fixture and listen. The Nature documentary pack is deferred (1h; full design 6h) - US5, FR-039, FR-040, FR-027
   Done when: the pack loads, the fixture renders in it from the command line, and its key line lands within tolerance of its own target.
 
@@ -177,11 +178,10 @@ Cut in this order. Each is a clean removal.
 
 1. Page decorations and the phone layout polish (0.5 h): design.md section 9, in its order.
 2. The details view on the page (0.5 h): the progress list stays.
-3. The play card's frame nudge and other moments (1 h): confirm, keep or remove, reject.
-4. Graphics down to the title card and the AI label (1 h).
-5. Slow motion as plain speed change without blending (0.5 h).
+3. Graphics down to the title card and the AI label (1 h).
+4. Slow motion as plain speed change without blending (0.5 h).
 
-Do not cut: Checkpoint A, the five code checks, the cost guard, the AI label, the consent wording and the deletion check in T033, the cached demo run, the second narrator.
+Do not cut: Checkpoint A with its frame nudge and other moments (revision 8: the user's pick is the climax), the five code checks, the cost guard, the AI label, the consent wording and the deletion check in T033, the cached demo run, the second narrator.
 
 ## Requirement coverage
 
@@ -191,7 +191,7 @@ Do not cut: Checkpoint A, the five code checks, the cost guard, the AI label, th
 | FR-003 | T008, T029, T033 |
 | FR-004 | T029 |
 | FR-005 | T007, T012, T013 |
-| FR-006 | T012 |
+| FR-006 | T012 (deferred in revision 8: one look) |
 | FR-007 | T003, T011, T012, T013 |
 | FR-008, FR-009 | T013 |
 | FR-010, FR-011, FR-012 | T014 |

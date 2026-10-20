@@ -1,0 +1,24 @@
+{
+  "text": "{\"activity\":\"A title card for a German Shepherd catching a ball appears\",\"outcome\":\"The full title card is displayed; the actual catch is not shown\",\"actor\":\"German Shepherd\",\"high_point_cell\":0,\"sure\":7}",
+  "data": {
+    "activity": "A title card for a German Shepherd catching a ball appears",
+    "outcome": "The full title card is displayed; the actual catch is not shown",
+    "actor": "German Shepherd",
+    "high_point_cell": 0,
+    "sure": 7
+  },
+  "usage": {
+    "prompt_tokens": 904,
+    "completion_tokens": 13716,
+    "total_tokens": 14620,
+    "prompt_tokens_details": {
+      "cached_tokens": 640
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 13666
+    },
+    "prompt_cache_hit_tokens": 640,
+    "prompt_cache_miss_tokens": 264
+  },
+  "usage_usd": 0.01673
+}

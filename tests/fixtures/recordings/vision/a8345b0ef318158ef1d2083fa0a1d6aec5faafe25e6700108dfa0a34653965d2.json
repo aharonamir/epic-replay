@@ -1,0 +1,21 @@
+{
+  "text": "{\"cell\":6,\"seen\":\"ball at its highest point in the air above the pitch, mid-flight toward the goal\"}",
+  "data": {
+    "cell": 6,
+    "seen": "ball at its highest point in the air above the pitch, mid-flight toward the goal"
+  },
+  "usage": {
+    "prompt_tokens": 792,
+    "completion_tokens": 15684,
+    "total_tokens": 16476,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 15658
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 792
+  },
+  "usage_usd": 0.019058
+}

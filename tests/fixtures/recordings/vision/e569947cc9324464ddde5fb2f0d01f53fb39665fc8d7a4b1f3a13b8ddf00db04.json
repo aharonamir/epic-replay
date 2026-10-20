@@ -1,0 +1,24 @@
+{
+  "text": "{\"activity\":\"A person in black pants and tan shoes performs a skateboard flip trick on a sidewalk.\",\"outcome\":\"The skateboard flips up into the air, and the clip ends before a landing is shown.\",\"actor\":\"Person in black pants and tan shoes\",\"high_point_cell\":9,\"sure\":7}",
+  "data": {
+    "activity": "A person in black pants and tan shoes performs a skateboard flip trick on a sidewalk.",
+    "outcome": "The skateboard flips up into the air, and the clip ends before a landing is shown.",
+    "actor": "Person in black pants and tan shoes",
+    "high_point_cell": 9,
+    "sure": 7
+  },
+  "usage": {
+    "prompt_tokens": 904,
+    "completion_tokens": 3774,
+    "total_tokens": 4678,
+    "prompt_tokens_details": {
+      "cached_tokens": 640
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 3705
+    },
+    "prompt_cache_hit_tokens": 640,
+    "prompt_cache_miss_tokens": 264
+  },
+  "usage_usd": 0.0048
+}

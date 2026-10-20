@@ -1,0 +1,21 @@
+{
+  "text": "{\"cell\": 8, \"seen\": \"The flatbread is seen flipping in mid-air, reaching the peak of its ascent after being tossed by the spatula.\"}",
+  "data": {
+    "cell": 8,
+    "seen": "The flatbread is seen flipping in mid-air, reaching the peak of its ascent after being tossed by the spatula."
+  },
+  "usage": {
+    "prompt_tokens": 795,
+    "completion_tokens": 855,
+    "total_tokens": 1650,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 815
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 795
+  },
+  "usage_usd": 0.001264
+}

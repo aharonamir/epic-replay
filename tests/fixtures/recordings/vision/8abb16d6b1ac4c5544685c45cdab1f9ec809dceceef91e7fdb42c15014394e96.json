@@ -1,0 +1,24 @@
+{
+  "text": "{\"activity\": \"skateboarding trick\", \"outcome\": \"the skateboard flips in mid-air\", \"actor\": \"person in black trousers and beige sneakers\", \"high_point_cell\": 6, \"sure\": 9}",
+  "data": {
+    "activity": "skateboarding trick",
+    "outcome": "the skateboard flips in mid-air",
+    "actor": "person in black trousers and beige sneakers",
+    "high_point_cell": 6,
+    "sure": 9
+  },
+  "usage": {
+    "prompt_tokens": 903,
+    "completion_tokens": 827,
+    "total_tokens": 1730,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 769
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 903
+  },
+  "usage_usd": 0.001263
+}

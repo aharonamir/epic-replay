@@ -1,0 +1,24 @@
+{
+  "text": "{\"activity\":\"A football/soccer free kick is taken toward goal.\",\"outcome\":\"The ball ends up in the net for a goal.\",\"actor\":\"Player in pink\",\"high_point_cell\":9,\"sure\":8}",
+  "data": {
+    "activity": "A football/soccer free kick is taken toward goal.",
+    "outcome": "The ball ends up in the net for a goal.",
+    "actor": "Player in pink",
+    "high_point_cell": 9,
+    "sure": 8
+  },
+  "usage": {
+    "prompt_tokens": 1270,
+    "completion_tokens": 4391,
+    "total_tokens": 5661,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 4342
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 1270
+  },
+  "usage_usd": 0.00565
+}

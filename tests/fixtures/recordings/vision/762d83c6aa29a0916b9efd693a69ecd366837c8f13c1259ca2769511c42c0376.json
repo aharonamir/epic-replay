@@ -1,0 +1,24 @@
+{
+  "text": "{\"activity\":\"A soccer player in a black kit takes a direct free kick.\",\"outcome\":\"The free kick misses the goal, going over the crossbar.\",\"actor\":\"soccer player in a black kit\",\"high_point_cell\":6,\"sure\":5}",
+  "data": {
+    "activity": "A soccer player in a black kit takes a direct free kick.",
+    "outcome": "The free kick misses the goal, going over the crossbar.",
+    "actor": "soccer player in a black kit",
+    "high_point_cell": 6,
+    "sure": 5
+  },
+  "usage": {
+    "prompt_tokens": 1269,
+    "completion_tokens": 6173,
+    "total_tokens": 7442,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 6116
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 1269
+  },
+  "usage_usd": 0.007788
+}

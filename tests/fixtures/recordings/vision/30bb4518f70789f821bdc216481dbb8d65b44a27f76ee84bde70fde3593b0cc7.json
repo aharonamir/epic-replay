@@ -1,0 +1,21 @@
+{
+  "text": "{\"cell\": 1, \"seen\": \"The water bottle is at its highest vertical position in the air, near the top edge of the white wall, before descending in the subsequent frames.\"}",
+  "data": {
+    "cell": 1,
+    "seen": "The water bottle is at its highest vertical position in the air, near the top edge of the white wall, before descending in the subsequent frames."
+  },
+  "usage": {
+    "prompt_tokens": 799,
+    "completion_tokens": 782,
+    "total_tokens": 1581,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 737
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 799
+  },
+  "usage_usd": 0.001178
+}

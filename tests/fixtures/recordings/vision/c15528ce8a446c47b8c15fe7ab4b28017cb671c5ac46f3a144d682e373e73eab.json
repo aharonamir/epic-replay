@@ -1,0 +1,24 @@
+{
+  "text": "{\"activity\": \"A soccer goalkeeper demonstrating handling and distribution techniques, transitioning from solo drills to game situations.\", \"outcome\": \"The goalkeeper successfully catches a high ball and later kicks a ground ball.\", \"actor\": \"A person in a black uniform with pink shoes.\", \"high_point_cell\": 5, \"sure\": 8}",
+  "data": {
+    "activity": "A soccer goalkeeper demonstrating handling and distribution techniques, transitioning from solo drills to game situations.",
+    "outcome": "The goalkeeper successfully catches a high ball and later kicks a ground ball.",
+    "actor": "A person in a black uniform with pink shoes.",
+    "high_point_cell": 5,
+    "sure": 8
+  },
+  "usage": {
+    "prompt_tokens": 1293,
+    "completion_tokens": 1143,
+    "total_tokens": 2436,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 1072
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 1293
+  },
+  "usage_usd": 0.001759
+}

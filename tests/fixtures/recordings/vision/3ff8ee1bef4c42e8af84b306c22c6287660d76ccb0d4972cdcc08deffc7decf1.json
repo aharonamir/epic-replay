@@ -1,0 +1,24 @@
+{
+  "text": "{\"activity\":\"a dog walking through a doorway toward the camera\",\"outcome\":\"the dog reaches the camera and the video ends with thank-you/subscribe cards\",\"actor\":\"dog\",\"high_point_cell\":6,\"sure\":7}",
+  "data": {
+    "activity": "a dog walking through a doorway toward the camera",
+    "outcome": "the dog reaches the camera and the video ends with thank-you/subscribe cards",
+    "actor": "dog",
+    "high_point_cell": 6,
+    "sure": 7
+  },
+  "usage": {
+    "prompt_tokens": 904,
+    "completion_tokens": 1258,
+    "total_tokens": 2162,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 1209
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 904
+  },
+  "usage_usd": 0.001781
+}

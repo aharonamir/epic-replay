@@ -1,0 +1,21 @@
+{
+  "text": "{\"cell\": 3, \"seen\": \"The dog is jumping or lunging upwards, reaching its highest vertical position in the sequence before descending towards the bottom right corner.\"}",
+  "data": {
+    "cell": 3,
+    "seen": "The dog is jumping or lunging upwards, reaching its highest vertical position in the sequence before descending towards the bottom right corner."
+  },
+  "usage": {
+    "prompt_tokens": 792,
+    "completion_tokens": 902,
+    "total_tokens": 1694,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 861
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 792
+  },
+  "usage_usd": 0.00132
+}

@@ -1,0 +1,24 @@
+{
+  "text": "{\"activity\": \"A dog is running toward the camera, seemingly to catch a ball as indicated by the text overlay.\", \"outcome\": \"The dog is mid-run and the catch is not shown.\", \"actor\": \"Dog\", \"high_point_cell\": 0, \"sure\": 9}",
+  "data": {
+    "activity": "A dog is running toward the camera, seemingly to catch a ball as indicated by the text overlay.",
+    "outcome": "The dog is mid-run and the catch is not shown.",
+    "actor": "Dog",
+    "high_point_cell": 0,
+    "sure": 9
+  },
+  "usage": {
+    "prompt_tokens": 904,
+    "completion_tokens": 618,
+    "total_tokens": 1522,
+    "prompt_tokens_details": {
+      "cached_tokens": 640
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 554
+    },
+    "prompt_cache_hit_tokens": 640,
+    "prompt_cache_miss_tokens": 264
+  },
+  "usage_usd": 0.001013
+}

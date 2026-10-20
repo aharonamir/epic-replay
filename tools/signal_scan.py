@@ -11,7 +11,9 @@ Signals, one value per frame of the clip:
 - pixel change left over once the previous frame is moved the way the camera moved (small
   fast objects such as a ball, which flow misses)
 - cuts: frames where more than a third of the picture changed even after the camera fit,
-  and far more than usual for the clip; motion within 3 frames of a cut is ignored
+  and far more than usual for the clip; motion within 3 frames of a cut is ignored. Cut
+  frames up to 3 frames apart are grouped into one transition (start to end): a hard cut is
+  one frame, a wipe or dissolve is a run of them
 - sound onsets: spectral flux of the clip's own audio, backtracked to where the rise
   begins (a kick, a bat, a splash, a clap); about 12 ms resolution
 - loud peaks, as HotClip finds them: largest sample per 10 ms block, blocks above 75 % of
@@ -19,7 +21,7 @@ Signals, one value per frame of the clip:
 
 The score of a frame is motion plus sound, each as a robust z-score capped at 12, so two
 signals agreeing beat one signal shouting. Candidates are the highest-scoring peaks at least
-0.5 s apart. Each carries the earliest sound onset from 0.25 s before to 0.1 s after it: the
+0.5 s apart; equal scores are ranked by the uncapped sum of the z-scores. Each carries the earliest sound onset from 0.25 s before to 0.1 s after it: the
 best guess for the exact frame of a contact.
 """
 
@@ -108,6 +110,18 @@ def find_cuts(share: np.ndarray, level: float = 0.35) -> list[int]:
     return [int(i) for i in np.flatnonzero((share > level) & (share > 8 * usual))]
 
 
+def group_cuts(cuts: list[int], fps: float, gap: int = 3) -> list[dict]:
+    """Cut frames up to `gap` frames apart form one transition."""
+    runs: list[list[int]] = []
+    for c in cuts:
+        if runs and c - runs[-1][-1] <= gap:
+            runs[-1].append(c)
+        else:
+            runs.append([c])
+    return [{"start_frame": r[0], "end_frame": r[-1], "start_t": round(r[0] / fps, 3),
+             "end_t": round(r[-1] / fps, 3), "frames": len(r)} for r in runs]  # fmt: skip
+
+
 def read_audio(path: Path, sr: int = SR) -> np.ndarray:
     raw = subprocess.run(
         ["ffmpeg", "-v", "error", "-i", str(path), "-vn", "-ac", "1", "-ar", str(sr),
@@ -176,7 +190,9 @@ def robust_z(x: np.ndarray) -> np.ndarray:
     return np.clip((x - med) / mad, 0, None)
 
 
-def scan(path: Path, top: int = 3, min_gap_s: float = 0.5) -> tuple[dict, dict]:
+def scan(
+    path: Path, top: int = 3, min_gap_s: float = 0.5, tie_break: bool = True
+) -> tuple[dict, dict]:
     path = Path(path)
     fps, flow_e, change, camera, share = motion_curves(path)
     n = len(flow_e)
@@ -211,7 +227,10 @@ def scan(path: Path, top: int = 3, min_gap_s: float = 0.5) -> tuple[dict, dict]:
 
     score = np.minimum(mz, 12) + np.minimum(sz, 12)
     peaks, _ = find_peaks(score, distance=max(1, int(min_gap_s * fps)), prominence=2.0)
-    order = peaks[np.argsort(score[peaks])[::-1]][:top]
+    if tie_break:  # equal capped scores are ranked by the uncapped sum of the z-scores
+        order = peaks[np.lexsort((-(mz + sz)[peaks], -score[peaks]))][:top]
+    else:
+        order = peaks[np.argsort(score[peaks])[::-1]][:top]
     candidates = []
     for f in order:
         near = onsets[(onsets >= t[f] - 0.25) & (onsets <= t[f] + 0.1)]
@@ -235,6 +254,7 @@ def scan(path: Path, top: int = 3, min_gap_s: float = 0.5) -> tuple[dict, dict]:
         "frames": n,
         "has_sound": bool(has_sound),
         "cuts": cuts,
+        "transitions": group_cuts(cuts, fps),
         "onsets_t": [round(float(x), 3) for x in onsets],
         "loud_peaks_t": [round(e["at"], 3) for e in loud],
         "candidates": candidates,

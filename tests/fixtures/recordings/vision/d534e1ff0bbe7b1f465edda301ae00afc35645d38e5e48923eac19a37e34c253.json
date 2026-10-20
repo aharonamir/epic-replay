@@ -1,0 +1,24 @@
+{
+  "text": "{\"activity\": \"displaying a static text caption about a dog's skill\", \"outcome\": \"the text remains unchanged across all frames\", \"actor\": \"German Shepherd\", \"high_point_cell\": 0, \"sure\": 10}",
+  "data": {
+    "activity": "displaying a static text caption about a dog's skill",
+    "outcome": "the text remains unchanged across all frames",
+    "actor": "German Shepherd",
+    "high_point_cell": 0,
+    "sure": 10
+  },
+  "usage": {
+    "prompt_tokens": 904,
+    "completion_tokens": 995,
+    "total_tokens": 1899,
+    "prompt_tokens_details": {
+      "cached_tokens": 640
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 942
+    },
+    "prompt_cache_hit_tokens": 640,
+    "prompt_cache_miss_tokens": 264
+  },
+  "usage_usd": 0.001465
+}

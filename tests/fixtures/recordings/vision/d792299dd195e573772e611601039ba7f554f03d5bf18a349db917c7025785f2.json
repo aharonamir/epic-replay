@@ -1,0 +1,24 @@
+{
+  "text": "{\"activity\":\"practicing a basketball shot, with another person rebounding/returning the ball\",\"outcome\":\"the shot misses and is rebounded/returned; no made basket is shown\",\"actor\":\"person in a grey top and dark leggings\",\"high_point_cell\":4,\"sure\":7}",
+  "data": {
+    "activity": "practicing a basketball shot, with another person rebounding/returning the ball",
+    "outcome": "the shot misses and is rebounded/returned; no made basket is shown",
+    "actor": "person in a grey top and dark leggings",
+    "high_point_cell": 4,
+    "sure": 7
+  },
+  "usage": {
+    "prompt_tokens": 905,
+    "completion_tokens": 5460,
+    "total_tokens": 6365,
+    "prompt_tokens_details": {
+      "cached_tokens": 640
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 5394
+    },
+    "prompt_cache_hit_tokens": 640,
+    "prompt_cache_miss_tokens": 265
+  },
+  "usage_usd": 0.006823
+}

@@ -1,0 +1,24 @@
+{
+  "text": "{\"activity\":\"A caption about a German Shepherd catching a ball is revealed on screen.\",\"outcome\":\"The full sentence becomes visible and remains on screen.\",\"actor\":\"German Shepherd\",\"high_point_cell\":5,\"sure\":5}",
+  "data": {
+    "activity": "A caption about a German Shepherd catching a ball is revealed on screen.",
+    "outcome": "The full sentence becomes visible and remains on screen.",
+    "actor": "German Shepherd",
+    "high_point_cell": 5,
+    "sure": 5
+  },
+  "usage": {
+    "prompt_tokens": 904,
+    "completion_tokens": 3827,
+    "total_tokens": 4731,
+    "prompt_tokens_details": {
+      "cached_tokens": 640
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 3777
+    },
+    "prompt_cache_hit_tokens": 640,
+    "prompt_cache_miss_tokens": 264
+  },
+  "usage_usd": 0.004864
+}

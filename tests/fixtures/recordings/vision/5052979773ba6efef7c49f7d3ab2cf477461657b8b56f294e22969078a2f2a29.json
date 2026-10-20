@@ -1,0 +1,21 @@
+{
+  "text": "{\"cell\": 1, \"seen\": \"The basketball is at the peak of its trajectory, located near the top edge of the frame.\"}",
+  "data": {
+    "cell": 1,
+    "seen": "The basketball is at the peak of its trajectory, located near the top edge of the frame."
+  },
+  "usage": {
+    "prompt_tokens": 803,
+    "completion_tokens": 1541,
+    "total_tokens": 2344,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 1510
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 803
+  },
+  "usage_usd": 0.00209
+}

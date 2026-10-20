@@ -1,0 +1,66 @@
+{
+  "_about": "Owner's verdict on the model's outcome against the real video, per repeat (2026-10-20). null = not run.",
+  "FlippingPancakes.mp4": {
+    "verdicts": [
+      true,
+      true
+    ],
+    "note": "repeat 1 first marked wrong, changed to right by the owner on 2026-10-20"
+  },
+  "Skateboard_trick.mp4": {
+    "verdicts": [
+      true,
+      true
+    ],
+    "note": ""
+  },
+  "SlowMotion-skater.mp4": {
+    "verdicts": [
+      true,
+      true
+    ],
+    "note": "right, but the skater also does a flip"
+  },
+  "basket_ball_shot.mp4": {
+    "verdicts": [
+      true,
+      true
+    ],
+    "note": ""
+  },
+  "bottle flip.mp4": {
+    "verdicts": [
+      true,
+      true
+    ],
+    "note": ""
+  },
+  "dog_catch_ball.mp4": {
+    "verdicts": [
+      false,
+      true
+    ],
+    "note": "repeat 0 wrong: the dog catches the ball"
+  },
+  "fk_1.mp4": {
+    "verdicts": [
+      true,
+      true
+    ],
+    "note": ""
+  },
+  "fk_miss.mp4": {
+    "verdicts": [
+      false,
+      false
+    ],
+    "note": "wrong: the miss is shown in the video"
+  },
+  "fk_save.mp4": {
+    "verdicts": [
+      null,
+      null
+    ],
+    "note": "not run: the spend cap stopped the spike before it"
+  }
+}

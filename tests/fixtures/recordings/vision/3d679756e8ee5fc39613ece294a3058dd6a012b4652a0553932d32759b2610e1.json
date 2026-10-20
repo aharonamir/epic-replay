@@ -1,0 +1,24 @@
+{
+  "text": "{\"activity\": \"A dog walking and moving around in an indoor space.\", \"outcome\": \"The dog moves towards the foreground and exits or gets very close to the camera.\", \"actor\": \"A dog\", \"high_point_cell\": 9, \"sure\": 7}",
+  "data": {
+    "activity": "A dog walking and moving around in an indoor space.",
+    "outcome": "The dog moves towards the foreground and exits or gets very close to the camera.",
+    "actor": "A dog",
+    "high_point_cell": 9,
+    "sure": 7
+  },
+  "usage": {
+    "prompt_tokens": 904,
+    "completion_tokens": 711,
+    "total_tokens": 1615,
+    "prompt_tokens_details": {
+      "cached_tokens": 640
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 651
+    },
+    "prompt_cache_hit_tokens": 640,
+    "prompt_cache_miss_tokens": 264
+  },
+  "usage_usd": 0.001124
+}

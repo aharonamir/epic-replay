@@ -7,6 +7,7 @@ runs/
 .DS_Store
 graft/
 eval/clips/
+eval/originals/
 node_modules/
 *.egg-info/
 eval/spike/voices/

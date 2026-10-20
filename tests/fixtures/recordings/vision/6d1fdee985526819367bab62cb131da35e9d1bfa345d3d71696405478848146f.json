@@ -1,0 +1,24 @@
+{
+  "text": "{\"activity\":\"soccer free kicks are being taken during matches\",\"outcome\":\"the ball is struck toward goal, but no clear goal or save is shown in this part of the video\",\"actor\":\"players in black kits, with defenders in yellow/red and goalkeepers in green/yellow/pink\",\"high_point_cell\":0,\"sure\":7}",
+  "data": {
+    "activity": "soccer free kicks are being taken during matches",
+    "outcome": "the ball is struck toward goal, but no clear goal or save is shown in this part of the video",
+    "actor": "players in black kits, with defenders in yellow/red and goalkeepers in green/yellow/pink",
+    "high_point_cell": 0,
+    "sure": 7
+  },
+  "usage": {
+    "prompt_tokens": 1270,
+    "completion_tokens": 6169,
+    "total_tokens": 7439,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 6094
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 1270
+  },
+  "usage_usd": 0.007784
+}

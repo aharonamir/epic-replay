@@ -123,8 +123,11 @@ Step 4 opens in place. The bar shows three segments filled and the fourth outlin
 |      |  |  key moment      |       for a free kick.                       |  |
 |      |  +------------------+    2  Four players in blue line up as a wall.|  |
 |      |  Frame 313 · 10.43 s     3  The player in red strikes the ball.    |  |
-|      |  [< Earlier] [Later >]   4  The ball goes into the top-left        |  |
-|      |                             corner.  [GOAL]                        |  |
+|      |  [<<][< Earlier]         4  The ball goes into the top-left        |  |
+|      |  [Later >][>>]              corner.  [GOAL]                        |  |
+|      |  [This one]                                                        |  |
+|      |  Other moments:                                                    |  |
+|      |  [7.9 s] [12.2 s] [15.0 s]                                         |  |
 |      |                          + - - - - - - - - - - - - - - - - - - -+  |  |
 |      |                          | 5  The goalkeeper does not dive.      |  |  |
 |      |                          |    CHECK THIS    [ Keep ] [ Remove ]  |  |  |
@@ -135,12 +138,13 @@ Step 4 opens in place. The bar shows three segments filled and the fourth outlin
 |      +--------------------------------------------------------------------+  |
 ```
 
-Order on a phone: frame, frame number, nudge buttons, activity, events, the three buttons one under another, cost.
+Order on a phone: frame, frame number, nudge buttons, other moments, activity, events, the three buttons one under another, cost.
 
 - Items the system is unsure about are outlined, carry the words "Check this", and have "Keep" and "Remove". They must be answered before "Yes, that's it" is enabled (FR-010).
 - "Fix something" makes the activity and the outcome sentence editable in place. Editing each event is in the full design; in the one-person MVP events can be kept or removed, not rewritten.
 - "Not at all" offers two choices: type one line about what happened and try again, or continue with a narration that makes no specific claims (FR-012).
-- "Earlier" and "Later" move the key moment one frame at a time, and the frame number and time under the picture follow; holding a button moves five frames a second.
+- "Earlier" and "Later" move the key moment one frame at a time, and the frame number and time under the picture follow; holding a button moves five frames a second. "10 back" and "10 on" (the `<<` and `>>` buttons) move it ten frames at a time, by the same mechanism.
+- The key moment is always an item to check (revision 8): it carries "Pick the moment" and is outlined until the user nudges it, picks one of the other moments, or presses "This one" under the frame. "Other moments" shows each `climax.candidates` frame as a small picture with its time; choosing one makes it the key moment, which can then be nudged.
 - If nobody answers for ten minutes the run stays waiting. It is not approved automatically.
 
 ## 4. Result
@@ -210,7 +214,7 @@ All text on the page lives in one file, `web/copy.py`, so wording can be reviewe
 | Go | Make my replay |
 | Progress | Making your replay / Step N of 8 / Working / Show details / Hide details |
 | Time left | A few seconds to go. / About half a minute to go. / About a minute to go. |
-| Confirm | Your turn. / Is this what happened? / Earlier / Later / Frame N · T s / Check this / Keep / Remove / Yes, that's it / Fix something / Not at all / The rest will cost about $X. |
+| Confirm | Your turn. / Is this what happened? / 10 back / Earlier / Later / 10 on / Frame N · T s / Pick the moment / This one / Other moments / Check this / Keep / Remove / Yes, that's it / Fix something / Not at all / The rest will cost about $X. |
 | Result | Your replay / making / Download / AI commentary / Try another narrator / Same moment, new voice. No need to confirm again. |
 | Panels | What we saw / The script / Write it again / Every line passed its checks. / Time and cost |
 | End of page | Start over with a new clip / Keep for the demo / Delete this clip now |
@@ -223,5 +227,5 @@ Accounts, a gallery of past runs, share links, editing single script lines, vert
 
 - Server-rendered template with HTMX for the partial updates and plain JavaScript for the file preview, the sample player, the narrator colour, the frame nudge and the event stream. No build step.
 - One stylesheet with the tokens of design.md as custom properties; the layout uses wrapping rows and no media queries.
-- Keyboard: every control reachable by Tab; the style cards are a radio group with arrow-key movement; the frame nudge responds to left and right arrows when focused.
+- Keyboard: every control reachable by Tab; the style cards are a radio group with arrow-key movement; the frame nudge responds to left and right arrows when focused, and to Shift with left and right for ten frames.
 - Colour is never the only signal: step states differ in mark and wording, and highlighted play-card items carry the words "Check this".

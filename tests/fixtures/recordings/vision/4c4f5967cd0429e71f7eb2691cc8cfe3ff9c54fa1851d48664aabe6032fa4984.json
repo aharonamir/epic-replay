@@ -1,0 +1,24 @@
+{
+  "text": "{\"activity\":\"taking a football free kick\",\"outcome\":\"the ball goes into the net for a goal\",\"actor\":\"pink\",\"high_point_cell\":9,\"sure\":8}",
+  "data": {
+    "activity": "taking a football free kick",
+    "outcome": "the ball goes into the net for a goal",
+    "actor": "pink",
+    "high_point_cell": 9,
+    "sure": 8
+  },
+  "usage": {
+    "prompt_tokens": 1271,
+    "completion_tokens": 4226,
+    "total_tokens": 5497,
+    "prompt_tokens_details": {
+      "cached_tokens": 1024
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 4186
+    },
+    "prompt_cache_hit_tokens": 1024,
+    "prompt_cache_miss_tokens": 247
+  },
+  "usage_usd": 0.005452
+}

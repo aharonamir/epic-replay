@@ -1,0 +1,24 @@
+{
+  "text": "{\"activity\": \"soccer players taking free kicks\", \"outcome\": \"the ball is crossed into the penalty area where players contest it, then the video cuts to a different player preparing to take another free kick\", \"actor\": \"soccer player in a pink and white uniform, and a soccer player in a black uniform\", \"high_point_cell\": 1, \"sure\": 8}",
+  "data": {
+    "activity": "soccer players taking free kicks",
+    "outcome": "the ball is crossed into the penalty area where players contest it, then the video cuts to a different player preparing to take another free kick",
+    "actor": "soccer player in a pink and white uniform, and a soccer player in a black uniform",
+    "high_point_cell": 1,
+    "sure": 8
+  },
+  "usage": {
+    "prompt_tokens": 1270,
+    "completion_tokens": 2483,
+    "total_tokens": 3753,
+    "prompt_tokens_details": {
+      "cached_tokens": 896
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 2399
+    },
+    "prompt_cache_hit_tokens": 896,
+    "prompt_cache_miss_tokens": 374
+  },
+  "usage_usd": 0.003361
+}

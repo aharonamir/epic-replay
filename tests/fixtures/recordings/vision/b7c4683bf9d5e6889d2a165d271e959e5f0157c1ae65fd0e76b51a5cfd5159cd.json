@@ -1,0 +1,24 @@
+{
+  "text": "{\"activity\":\"A German Shepherd is playing with/chasing a large ball in an indoor room, after title screens.\",\"outcome\":\"The dog moves toward the ball, but the actual catch is not shown in this part.\",\"actor\":\"German Shepherd\",\"high_point_cell\":0,\"sure\":8}",
+  "data": {
+    "activity": "A German Shepherd is playing with/chasing a large ball in an indoor room, after title screens.",
+    "outcome": "The dog moves toward the ball, but the actual catch is not shown in this part.",
+    "actor": "German Shepherd",
+    "high_point_cell": 0,
+    "sure": 8
+  },
+  "usage": {
+    "prompt_tokens": 904,
+    "completion_tokens": 1297,
+    "total_tokens": 2201,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 1233
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 904
+  },
+  "usage_usd": 0.001828
+}
