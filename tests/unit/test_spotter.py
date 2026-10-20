@@ -288,3 +288,17 @@ def test_a_user_activity_wins():
     looks = [{"kind": "candidate", "name": "o2", "cells": CELLS, "answer": answer(6)}]
     s = spotter.build_play_sheet("r", i, looks, {}, snap_s=0.25, model="m")
     assert s["activity"] == {"value": "pancake flip", "confidence": 1.0, "source": "user"}
+
+
+def test_s3_empties_a_descriptor_with_an_age_word(tmp_path, prepared, monkeypatch):
+    ctx, _, _ = run_ctx(tmp_path, prepared, "record", monkeypatch, tmp_path / "rec")
+    s2_analysis.run(ctx)
+    trace = json.loads(ctx.path("spotter_trace.json").read_text())
+    for e in trace["events_call"]["events"]:
+        e["actor"] = e["actor"].replace("player", "young player")
+    ctx.path("spotter_trace.json").write_text(json.dumps(trace))
+    res = s3_key_moment.run(ctx)
+    assert res.status == "ok" and "actors/0/descriptor" in res.note
+    sheet = json.loads(ctx.path("play_sheet.json").read_text())
+    assert sheet["actors"][0]["descriptor"] == ""
+    assert "young" not in json.dumps(sheet).lower()

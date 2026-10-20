@@ -17,6 +17,8 @@ from pathlib import Path
 import httpx
 import numpy as np
 
+from epic_replay import contracts
+from epic_replay.guards import lexicon
 from epic_replay.media import contact_sheet as cs
 from epic_replay.providers.vision import SchemaMisfit
 from epic_replay.stages.base import RunContext
@@ -382,3 +384,55 @@ def build_play_sheet(run_id: str, info: dict, looks: list[dict], signals: dict, 
         "confirmed_by_user": False,
         "models": {"analysis": model, "refine": "none"},
     }
+
+
+def descriptor_breaches(ps: dict) -> list[tuple[str, list[str]]]:
+    """(field path, banned words) for every model-written text that breaks the descriptor
+    rules (FR-008). Text the user typed, and the user's names, are left as typed."""
+    found = []
+
+    def look(path: str, text) -> None:
+        words = lexicon.find_descriptor_banned(text) if isinstance(text, str) else []
+        if words:
+            found.append((path, words))
+
+    for key in ("activity", "outcome_summary"):
+        if ps.get(key, {}).get("source") == "model":
+            look(f"{key}/value", ps[key].get("value"))
+    look("setting", ps.get("setting"))
+    for i, a in enumerate(ps.get("actors", [])):
+        look(f"actors/{i}/descriptor", a.get("descriptor"))
+        look(f"actors/{i}/role", a.get("role"))
+    for i, e in enumerate(ps.get("events", [])):
+        if e.get("source") == "model":
+            for k in ("action", "object", "outcome"):
+                look(f"events/{i}/{k}", e.get(k))
+    return found
+
+
+def submit_play_sheet(ps: dict, clip_meta: dict) -> dict:
+    """The Spotter's last tool: the schema, the cross-file rules of data-model.md section 3
+    and the descriptor rules. {"accepted": True} or {"accepted": False, "errors": [...]}."""
+    errors = contracts.validate("play_sheet", ps)
+    if not errors:
+        errors = contracts.check_play_sheet(ps, clip_meta)
+    errors += [f"{path}: may not say {', '.join(sorted(set(w)))} (FR-008)"
+               for path, w in descriptor_breaches(ps)]  # fmt: skip
+    return {"accepted": True} if not errors else {"accepted": False, "errors": errors}
+
+
+def clear_breaches(ps: dict) -> list[str]:
+    """The fixed sequence's answer to a descriptor breach, as there is no agent to rewrite
+    it: the field is emptied and, where it has one, its confidence set to 0, so the play card
+    asks the user. Returns the paths cleared."""
+    cleared = []
+    for path, _ in descriptor_breaches(ps):
+        parts = path.split("/")
+        node = ps
+        for p in parts[:-1]:
+            node = node[int(p)] if p.isdigit() else node[p]
+        node[parts[-1]] = None if parts[-1] in ("object", "outcome") else ""
+        if "confidence" in node:
+            node["confidence"] = 0.0
+        cleared.append(path)
+    return cleared

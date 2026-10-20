@@ -157,3 +157,13 @@ def find_banned(text: str, extra: list[str] | tuple[str, ...] = ()) -> list[str]
     if pat:
         found += [m.group(0).lower() for m in pat.finditer(text)]
     return found
+
+
+# The play sheet's descriptor rules (FR-008): what may describe someone in the model's text.
+DESCRIPTOR_BANNED = AGE + FEMALE + APPEARANCE + ABILITY
+_DESCRIPTOR = _pattern(DESCRIPTOR_BANNED)
+
+
+def find_descriptor_banned(text: str) -> list[str]:
+    """Age words, female terms, appearance and ability words in `text`."""
+    return [m.group(0).lower() for m in _DESCRIPTOR.finditer(text or "")]
