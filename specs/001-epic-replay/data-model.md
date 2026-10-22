@@ -98,7 +98,7 @@ Rules beyond the schema are the ten code checks in [contracts/stage-contracts.md
 
 Schema: [contracts/style_pack.schema.json](contracts/style_pack.schema.json). Examples: [football_commentator](contracts/examples/styles/football_commentator.json), [news_reporter](contracts/examples/styles/news_reporter.json), [nature_documentary](contracts/examples/styles/nature_documentary.json).
 
-Not part of a run: packs live in the repository and are loaded at start-up.
+Not part of a run: packs live in the repository and are loaded at start-up (`styles/loader.py`, T038). A pack is refused, with the reason logged, if it fails the schema, names a voice missing from `styles/voices.json` (the voice ids the T004 results allow, so the check needs no network), or names an asset missing under `assets/`; exactly one loaded pack is the default. The Football commentator pack in the build uses the ElevenLabs voice chosen in T004; its fallback is the OpenAI voice `shimmer` (loudest shout in T004, not chosen by ear, unused until T030), and its sounds are the crowd bed and the roar only (the other layers are null since add-back 3 was dropped on 2026-10-22), as silent placeholders until T021.
 
 | Field | Meaning |
 |-------|---------|

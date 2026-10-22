@@ -1,0 +1,12 @@
+{
+  "_note": "Voice ids the packs may use, written from the T004 results (docs/provider-notes.md) so the loader checks voices with no network. Add a voice here when a pack starts using it.",
+  "elevenlabs": {
+    "fGIZlgPQ75MMlvQ6WxgY": "Gerald, Exciting Older Character (football, chosen by ear 2026-10-12)",
+    "pNInz6obpgDQGcFmaJgB": "Adam (news, chosen by ear 2026-10-12)",
+    "mDYJ5aI19GeZeL0uKqb3": "Rachel, Clear, Calm, Natural, Neutral, Narrative (news fallback)",
+    "83q1pBDDePRioCY8grPY": "Josh, Deep & Full (nature, chosen by ear 2026-10-12)"
+  },
+  "openai": {
+    "shimmer": "gpt-4o-mini-tts; loudest football shout in the T004 follow-up, not chosen by ear; unused until T030"
+  }
+}

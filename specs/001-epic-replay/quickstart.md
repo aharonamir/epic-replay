@@ -90,7 +90,7 @@ Everything happens on that one page: upload, choose the narrator, watch progress
 ### Add a narration style (T038)
 
 1. Copy a pack in `src/epic_replay/styles/` and give it a new `id`, `name` and `order`.
-2. Edit the persona, rules and sample lines; choose a voice on both providers; measure its speaking rate with `python -m epic_replay.flow measure-voice <style_id>`.
+2. Edit the persona, rules and sample lines; choose a voice on both providers and add both ids to `src/epic_replay/styles/voices.json`; measure its speaking rate with `python -m epic_replay.flow measure-voice <style_id>`.
 3. Set the accent colour, and a lighter `accent_text` if the accent is too dark to read as small text on the page (contracts/design.md section 2). Name the sounds and the skin, adding files under `assets/` and `graphics/skins/` if they are new, with a line in `assets/LICENCES.md`.
 4. Make the sample: `python tools/make_sound_library.py --sample <style_id>`.
 5. Restart. The style appears in the picker if the pack validates; if not, the log says why.

@@ -1,0 +1,78 @@
+{
+  "schema_version": "1.0",
+  "id": "football_commentator",
+  "name": "Football commentator",
+  "description": "Excited play-by-play from the stadium booth.",
+  "sample_audio": "samples/football_commentator.mp3",
+  "default": true,
+  "order": 1,
+  "script": {
+    "persona": "A play-by-play commentator in a stadium booth who treats every moment as the big match. Short sentences in the present tense. The voice rises with the action and peaks on the key moment.",
+    "rules": [
+      "Name the action as it happens. Do not explain it.",
+      "One idea per line.",
+      "The key line is at most two short exclamations.",
+      "Call whatever happens as if it were a cup final, in the words the play sheet uses for it. It does not have to be a sport.",
+      "After the key moment, come down: one line of disbelief or admiration."
+    ],
+    "role_notes": {
+      "opening": "Set the scene in a few words.",
+      "build_up": "The last beat before the moment. Leave it hanging.",
+      "climax": "The shout. Say what just happened, then one burst of feeling.",
+      "reaction": "Come down from the shout with one observed detail.",
+      "replay_watch": "Invite the viewer to look again and point at one thing.",
+      "replay_climax": "Name where it ended up, warmly, without shouting.",
+      "sign_off": "A short tribute to the player."
+    },
+    "example_lines": {
+      "opening": "Corner kick, and the box is crowded.",
+      "build_up": "He shapes to shoot...",
+      "climax": "OFF THE POST AND IN! Unbelievable!",
+      "reaction": "Nobody got near it.",
+      "replay_watch": "Look at this again. Watch the first touch.",
+      "replay_climax": "And there it goes, just inside the post.",
+      "sign_off": "Take a bow."
+    },
+    "labels": {
+      "replay_bug": "REPLAY",
+      "end_card_kicker": "PLAY OF THE DAY"
+    },
+    "banned_terms": []
+  },
+  "voice": {
+    "primary": {
+      "provider": "elevenlabs",
+      "voice_id": "fGIZlgPQ75MMlvQ6WxgY"
+    },
+    "fallback": {
+      "provider": "openai",
+      "voice_id": "shimmer"
+    },
+    "delivery": {
+      "opening": "measured, expectant",
+      "build_up": "rising, quick",
+      "climax": "shouting, full voice",
+      "reaction": "amazed, coming down",
+      "replay_watch": "calm, analytical",
+      "replay_climax": "warm, admiring",
+      "sign_off": "smiling"
+    },
+    "words_per_second": 2.6,
+    "reaction_delay_s": 0.15
+  },
+  "sound": {
+    "bed": "sfx/crowd_bed_01.wav",
+    "bed_gain_db": -18,
+    "climax": "sfx/crowd_roar_01.wav",
+    "replay_climax": null,
+    "transition": null,
+    "sting_in": null,
+    "sting_out": null,
+    "original_audio_gain_db": -12
+  },
+  "graphics": {
+    "skin": "stadium",
+    "accent": "#FFD23F",
+    "lower_third_layout": "strap"
+  }
+}
