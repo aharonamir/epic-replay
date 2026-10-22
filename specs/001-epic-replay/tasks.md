@@ -46,16 +46,20 @@ Both went to T003 and spec revision 8 (the results, Gate 0, the play card as the
 
 ## Re-plan, Thu 22 October evening (owner, 2026-10-22)
 
-Tue 20 to Thu 22 built T010 to T013, the review fixes and the T012 changes; T038, T015, T018, T019 and the Wed 21 and Thu 22 tasks are not done and carry over in the order below. "If a day is lost" is applied: add-backs 5, 10 and 12 (Mon 26, if time allows) and 2, 3 and 8 (Sun 25) are dropped and listed with the deferred items. The safety items 13 and 11 and the rehearsals stay. Gate 1 (a real clip to video from the command line) moves to Sat 24 midday.
+Tue 20 to Thu 22 built T010 to T013, the review fixes and the T012 changes; T038, T015, T018, T019 and the Wed 21 and Thu 22 tasks are not done and carry over in the order below. "If a day is lost" is applied: add-backs 5, 10 and 12 (Mon 26, if time allows) and 2, 3 and 8 (Sun 25) are dropped and listed with the deferred items. The safety items 13 and 11 and the rehearsals stay. Then, on the owner's decision of the same evening, add-backs 6 + 7, 4 and 9 are dropped too, and Gate 1 (a real clip to video from the command line) moves to Sun 25 morning. The News reporter (1) is the first add-back on Mon 26 after 13 and 11, and is dropped only if Monday overruns.
 
 | When | Hours | Tasks, in order | Hours of tasks | End of day |
 |------|-------|-----------------|----------------|------------|
 | Thu 22 evening | about 3 | T038, T015 | 3 | Slots and the Classic storyboard from the fixture |
-| Sat 24 | 8 | T018, T019, T016, T017, T020, T021, T022, T024 (first 0.5 h) | 8 | Script by the Commentator agent, voice, mix; compose started. Gate 1 target: midday |
+| Sat 24 | 8 | T018, T019, T016, T017, T020, T021, T022, T024 (first 0.5 h) | 8 | Script by the Commentator agent, voice, mix; compose started |
 | Sun 25 | 8 | T024 (rest), T027, T031 command line (Gate 1), T014, T029, T031 page, T034 first part | 8.5 | Gate 1; the play card and the page, core; cached run and backup video in one style |
-| Mon 26 | 6 + 2 margin | T037 deck, T034 rehearsals, T037 run-through; then add-backs 13 + 11 (T013 sensitivity stop, T033), 4, 9, 1, 6 + 7 as hours allow | 4 + 6 of add-backs | Gate 4: rehearsed |
+| Mon 26 | 6 + 2 margin | Add-backs 13 + 11 (T013 sensitivity stop, T033), then 1 (T039, News reporter); T037 deck, T034 rehearsals, T037 run-through | 2 + 4 | Gate 4: rehearsed |
 
-Open (for the owner, 2026-10-22): by the task hours, Gate 1 needs 14 h of work from Thu evening and about 7 h fall before Sat midday, so the hours put Gate 1 on Sun 25 late morning. The days hold 29.5 h of tasks against about 25 h: after the deck and the rehearsals, about 1.5 h is left on Mon 26 for the 6 h of kept add-backs, so 13 + 11 fit and 9, 1 and 6 + 7 do not. Next cuts in the owner's order: 6 + 7, then 1 (one style only: the cached run, the deck and Gate 4 then show the Football commentator alone), then 4, then 9.
+The days hold 25.5 h of tasks against about 25 h; Sunday is 0.5 h over. If Monday overruns, the News reporter goes: the cached run, the deck and the rehearsals then show the Football commentator alone, and Gate 2 does not happen.
+
+Owner decisions of 2026-10-22 that the tasks below follow:
+- The Commentator (T016) does not treat on-screen captions or text as events: dog_catch_ball's play sheet lists two such events, and no line may be written about them.
+- The demo and the cached run use single-shot clips only: FlippingPancakes, Skateboard_trick, bottle flip and basket_ball_shot. Not the compilations fk_miss and fk_save.
 
 ## Day 7 - Tue 20 October - from clip to slow-motion segments - 8 h (carried over: see the re-plan above)
 
@@ -93,7 +97,7 @@ Until T014, a yes-or-no prompt on the command line stands in for the play card, 
 
 - [ ] T016 S5 Commentator agent: an agent-core `ReActAgent` whose prompt takes persona, rules, role notes and sample lines from the style pack and the slots from T038; tools `check_lines`, which runs the checks of T017 on a draft and returns each failure with its rule, and `submit_script`; the `hit_word` of each key line (the word that lands on the moment), which `submit_script` checks is in the line; headline and lower third; six iterations at most, then one structured draft with failing lines replaced by generic ones. `deepseek-flash` writes (2h; full design 4h) - US1, FR-016, FR-017, FR-018, FR-024
   Done when: scripts for the fixture and three starter clips validate against the schema, pass S6, and carry a `hit_word` on both key lines.
-  Now (re-plan): as written. The Commentator stays a ReAct agent on agent-core (owner, 2026-10-20).
+  Now (re-plan): as written. The Commentator stays a ReAct agent on agent-core (owner, 2026-10-20). It ignores events that are on-screen captions or text (owner, 2026-10-22; dog_catch_ball lists two).
 - [ ] T017 S6 Code checks: rules 1, 4, 5, 6 and 8 of contracts/stage-contracts.md with a unit test each; the pack's banned terms added to the global list; five planted-error scripts in `tests/planted_errors/`, one for each kind of error code can see (invented name, invented number, missing reference, over budget, banned term) (0.5h; full design 4h) - FR-017, FR-018, FR-019, SC-3, SC-8
   Done when: every built rule has a passing and a failing test, the fixture script passes them, and all five planted errors are caught.
   Now (re-plan): the checks for an invented name, an invented number and a banned term, each with a passing and a failing test and a planted-error script. Missing reference and over budget are added back if time allows (cut item 5).
@@ -127,24 +131,21 @@ Until T014, a yes-or-no prompt on the command line stands in for the play card, 
   Now (re-plan): upload with the consent wording, progress by polling, the play card, the result with player and download. Server-sent events, style cards, the phone layout and reload restoring the state are added back on Sat 24 (cut item 9).
 - [ ] T031, second part (1h): the same clip through the page with live providers; fix what blocks.
 
-## Day 10 - Sat 24 October - add back, part 1 - 6 h, 2 h buffer (moved to Mon 26 by the re-plan, as hours allow)
+## Day 10 - Sat 24 October - add back, part 1 - 6 h, 2 h buffer (moved to Mon 26 by the re-plan; 9, 4, 6 and 7 dropped)
 
-- [ ] T029, added back (2h): server-sent events with the polling fallback, style cards from `GET /styles` with the page colours from T038, the phone layout, reload restores the state (cut item 9). Done when: the original "Done when" line of T029 is true.
-- [ ] T020, added back (0.5h): the key line placed by its `hit_word` from ElevenLabs character timings (cut item 4). Done when: the original "Done when" line of T020 is true.
 - [ ] T039 The News reporter pack: start from the example pack; the voice chosen in T004 and its measured speaking rate; delivery and reaction delay by ear; two stings and a transition with licence lines; the `bulletin` skin; render the fixture and listen. The Nature documentary pack is deferred (1h; full design 6h) - US5, FR-039, FR-040, FR-027
   Done when: the pack loads, the fixture renders in it from the command line, and its key line lands within tolerance of its own target.
   Now (re-plan): as written; HTML skins come with T023 on Sun 25, so the pack uses the FFmpeg text overlays until then.
-- [ ] T014, added back (1.5h): keep or remove, the outcome sentence editable, reject to generic mode with a picked moment (cut items 6 and 7). Done when: US2 scenarios 2 to 4 pass as API tests.
 - [ ] T013, added back (0.5h): the sensitivity flag stops the run with its reason (cut item 13). Done when: a seeded flag stops the run (US4 scenario 3).
 - [ ] T033 Privacy and cleanup, reduced: the page wording states the service and country from configuration; `DELETE /runs/{id}` removes every version and the local sheets; the opt-out request to DeepSeek sent and noted. The automated single-endpoint test and the seven-day purge are deferred (0.5h; full design 2h) - FR-003, FR-037
   Done when: the consent text on the page matches the configured provider, and deleting a run leaves no sheets or frames on disk.
   Now (re-plan): as written (cut item 11).
 
-**Gate 2** (was end of Sat 24; by the re-plan of 2026-10-22 only if items 9 and 1 fit on Mon 26): the page with live progress, and a clip rendered in the News reporter style from the command line.
+**Gate 2** (was end of Sat 24; by the re-plan of 2026-10-22 on Mon 26, only if the News reporter fits; live progress was dropped with item 9): a clip rendered in the News reporter style from the command line.
 
 ## Day 11 - Sun 25 October - add back, part 2; demo and presentation - 5.25 h, 2.75 h buffer (items 2, 3 and 8 dropped 2026-10-22; the deck moves to Mon 26)
 
-- [ ] T034, first part (1h): a cached run in both styles, labelled, and a backup video.
+- [ ] T034, first part (1h): a cached run in both styles, labelled, and a backup video. Single-shot clips only (FlippingPancakes, Skateboard_trick, bottle flip, basket_ball_shot), not the compilations fk_miss and fk_save (owner, 2026-10-22). In the Football commentator style on Sun 25; in the News reporter style on Mon 26 if item 1 fits.
 - [ ] T037 Presentation: architecture diagram, the page walk-through, one clip in two styles, measured accuracy and cost, limits, what is deferred (2h; full design 3h)
   Done when: the deck follows plan.md section 10.
   Now (re-plan): the deck on Sun 25; a run-through on Mon 26 (1 h, below).
@@ -155,7 +156,7 @@ Until T014, a yes-or-no prompt on the command line stands in for the play card, 
 
 The presentation is on Tuesday 27 October.
 
-- [ ] T034, second part (1h): three rehearsal runs in a row without touching code (cut item 14); the SC-1, SC-2, SC-4 and SC-5 values written into `docs/eval-notes.md`, with what was not measured stated plainly.
+- [ ] T034, second part (1h): three rehearsal runs in a row without touching code (cut item 14), on the single-shot clips; the SC-1, SC-2, SC-4 and SC-5 values written into `docs/eval-notes.md`, with what was not measured stated plainly.
 - [ ] T037, run-through (1h): the presentation once, timed, with the cached run as the fallback.
 
 **Gate 4, end of Mon 26**: rehearsed.
@@ -184,6 +185,9 @@ Add-backs dropped by the re-plan of 2026-10-22 ("If a day is lost"):
 - [ ] T017, added back (0.5h): the missing-reference and over-budget checks (cut item 5).
 - [ ] T027, added back (1h): skip-if-present, re-run from a stage, re-telling from the command line (cut item 10).
 - [ ] T010, added back (0.5h): rotation, vertical clips and capture-rate detection (cut item 12).
+- [ ] T029, added back (2h): server-sent events with the polling fallback, style cards from `GET /styles` with the page colours from T038, the phone layout, reload restores the state (cut item 9). Done when: the original "Done when" line of T029 is true.
+- [ ] T020, added back (0.5h): the key line placed by its `hit_word` from ElevenLabs character timings (cut item 4). Done when: the original "Done when" line of T020 is true.
+- [ ] T014, added back (1.5h): keep or remove, the outcome sentence editable, reject to generic mode with a picked moment (cut items 6 and 7). Done when: US2 scenarios 2 to 4 pass as API tests.
 
 The rest of partly built tasks, also deferred:
 
