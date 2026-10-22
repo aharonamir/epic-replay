@@ -179,7 +179,8 @@ Code selects a template and computes the timeline (FR-013 to FR-015).
 | Generic | generic mode | title 1.0 s, live at 1x, replay of the highest signal peak at 0.5x, end card 2.5 s |
 
 - Replay window: 1.5 s before the climax to 1.0 s after, clamped to the clip.
-- Minimum length: when the total would be under `EPIC_MIN_OUTPUT_S` (default 20 s), S4 first widens the replay window symmetrically (at most 3.5 s in all), then holds the end card longer; the rule is written down in T015 and tested.
+- Minimum length: when the total would be under `EPIC_MIN_OUTPUT_S` (default 20 s), S4 first widens the replay window symmetrically (at most 3.5 s in all), then holds the end card longer. As built in T015: the window widens by what the shortfall needs at 0.25x, up to 1.0 s, half on each side; a side stopped by the edge of the live segment hands its share to the other side; whatever is still missing is added to the end card.
+- Still frames (T015): the title holds the live segment's first frame, the transition its last frame, and the end card the frame where the climax event ends (its outcome), clamped to the live segment. The lower third runs from 1 s into the live segment for 4 s, ending with it at the latest. Times are rounded to the millisecond.
 - Trim: when the clip is longer than 20 s the live segment starts at most 10 s before the climax and ends at most 3 s after.
 - Zoom: the replay crops toward the focus box at up to 1.25x, eased in over the first second.
 - For every segment the storyboard gives timeline start and end. It also gives the two markers the audio needs: the climax time in the live segment and in the replay segment.
