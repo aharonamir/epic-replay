@@ -156,6 +156,11 @@
                 }
               }
             ]
+          },
+          "hold_s": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Replay only, optional: seconds the last replay frame is held after the moving part, so the replay key line has room when the clip ends soon after the climax (review fixes, 2026-10-22). A replay segment's length is (out_s - in_s) / speed + hold_s."
           }
         }
       }

@@ -38,7 +38,8 @@
     },
     "sample_audio": {
       "type": "string",
-      "description": "Path under assets/ to a clip of about five seconds in this style, made once."
+      "description": "Path under assets/ to a clip of about five seconds in this style, made once. Relative, with no '..' part.",
+      "pattern": "^(?!/)(?!(?:.*/)?\\.\\.(?:/|$))[^\\\\]+$"
     },
     "default": {
       "type": "boolean",
@@ -160,7 +161,8 @@
             "string",
             "null"
           ],
-          "description": "Looping background under the whole video. Null for none."
+          "description": "Looping background under the whole video. Null for none.",
+          "pattern": "^(?!/)(?!(?:.*/)?\\.\\.(?:/|$))[^\\\\]+$"
         },
         "bed_gain_db": {
           "type": [
@@ -174,31 +176,36 @@
             "string",
             "null"
           ],
-          "description": "One-shot at the key moment in the live segment."
+          "description": "One-shot at the key moment in the live segment.",
+          "pattern": "^(?!/)(?!(?:.*/)?\\.\\.(?:/|$))[^\\\\]+$"
         },
         "replay_climax": {
           "type": [
             "string",
             "null"
-          ]
+          ],
+          "pattern": "^(?!/)(?!(?:.*/)?\\.\\.(?:/|$))[^\\\\]+$"
         },
         "transition": {
           "type": [
             "string",
             "null"
-          ]
+          ],
+          "pattern": "^(?!/)(?!(?:.*/)?\\.\\.(?:/|$))[^\\\\]+$"
         },
         "sting_in": {
           "type": [
             "string",
             "null"
-          ]
+          ],
+          "pattern": "^(?!/)(?!(?:.*/)?\\.\\.(?:/|$))[^\\\\]+$"
         },
         "sting_out": {
           "type": [
             "string",
             "null"
-          ]
+          ],
+          "pattern": "^(?!/)(?!(?:.*/)?\\.\\.(?:/|$))[^\\\\]+$"
         },
         "original_audio_gain_db": {
           "type": [

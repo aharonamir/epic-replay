@@ -7,7 +7,8 @@ budget. The rules:
   previous slot's worst-case end plus 0.1 s;
 - a slot is shortened so it ends by its limit: the longest in the table, 0.1 s before the next
   `hit_at` slot starts, its segment's end where the table says so, and the end of the video;
-- a slot left shorter than 1.2 s is dropped, except the two climax slots, which are kept;
+- a slot left shorter than 1.2 s is dropped, except the two climax slots, which are kept; a
+  climax slot shorter than 0.8 s is a storyboard bug (S4 leaves room for it) and raises;
 - the word budget is floor(max_duration_s x words_per_second).
 """
 
@@ -18,6 +19,13 @@ from dataclasses import dataclass
 
 GAP_S = 0.1
 MIN_SLOT_S = 1.2
+MIN_KEY_SLOT_S = 0.8
+
+
+class NoRoom(ValueError):
+    pass
+
+
 EPS = 1e-6
 
 
@@ -79,6 +87,8 @@ def build(storyboard: dict, pack: dict, *, climax_event_id: str | None = None) -
         if sp.ends_with_segment:
             limit = min(limit, seg["timeline_end"])
         dur = math.floor((limit - start) * 1000 + EPS) / 1000  # never rounded up past a limit
+        if sp.role in KEY_ROLES and dur < MIN_KEY_SLOT_S - EPS:
+            raise NoRoom(f"the {sp.role} slot would last {dur:.3f} s, under {MIN_KEY_SLOT_S} s")
         if sp.role not in KEY_ROLES and dur < MIN_SLOT_S - EPS:
             continue
         prev_end = round(start + dur, 3)

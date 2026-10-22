@@ -6,6 +6,7 @@ import shutil
 import pytest
 
 from epic_replay import contracts
+from epic_replay.stages import s4_storyboard as s4
 from epic_replay.styles import loader, slots
 
 FIXTURE = "tests/fixtures/sample_run"
@@ -32,28 +33,12 @@ def test_slots_from_the_fixture_storyboard_equal_the_fixture_script():
 
 
 def random_storyboard(rng):
-    live = rng.uniform(3, 30)
-    window, speed = rng.uniform(1.5, 4), rng.choice([0.25, 1 / 3, 0.5])
-    replay = window / speed
-    t_live = 1.0 + rng.uniform(0.05, 0.98) * live
-    r0 = 1.0 + live + 0.4
-    t_replay = r0 + rng.uniform(0.3, 0.9) * replay
-    bounds = [0.0, 1.0, 1.0 + live, r0, r0 + replay, r0 + replay + 2.5]
-    kinds = ["title", "live", "transition", "replay", "endcard"]
-    segs = [
-        {
-            "id": f"s{k + 1}",
-            "kind": kind,
-            "timeline_start": bounds[k],
-            "timeline_end": bounds[k + 1],
-        }
-        for k, kind in enumerate(kinds)
-    ]
-    return {
-        "segments": segs,
-        "markers": {"climax_live_t": t_live, "climax_replay_t": t_replay},
-        "duration_s": bounds[-1],
-    }
+    """A storyboard from S4 for a random clip length and climax, anywhere in the clip."""
+    dur = round(rng.uniform(3, 30), 3)
+    t = round(rng.uniform(0, dur), 3)
+    ps = read(f"{FIXTURE}/play_sheet.json")
+    ps["climax"]["t"] = t
+    return s4.build(ps, dict(read(f"{FIXTURE}/clip_meta.json"), duration_s=dur), 20.0)
 
 
 @pytest.mark.parametrize("pack_path", EXAMPLE_PACKS, ids=lambda p: p.stem)
@@ -132,3 +117,46 @@ def test_two_defaults_stop_the_start_up(styles_dir):
     write_variant(styles_dir, "second", lambda p: p.update(default=True))
     with pytest.raises(loader.NoStyles, match="exactly one"):
         loader.load(styles_dir)
+
+
+@pytest.mark.parametrize("rel", ["../.env", "/etc/hostname", "sfx/../../pyproject.toml", ".."])
+def test_an_asset_path_out_of_assets_is_refused_by_the_schema(rel):
+    pack = read(loader.STYLES / "football_commentator.json")
+    pack["sound"]["climax"] = rel
+    voices = read(loader.STYLES / "voices.json")
+    assert any("sound/climax" in e for e in loader.problems(pack, voices, loader.ASSETS))
+
+
+def test_an_asset_that_links_out_of_assets_is_refused(tmp_path):
+    assets = tmp_path / "assets"
+    (assets / "sfx").mkdir(parents=True)
+    (tmp_path / "secret.wav").write_bytes(b"x")
+    (assets / "sfx" / "roar.wav").symlink_to(tmp_path / "secret.wav")
+    pack = read(loader.STYLES / "football_commentator.json")
+    pack["sample_audio"], pack["sound"]["bed"], pack["sound"]["climax"] = (
+        "sfx/roar.wav", None, "sfx/roar.wav")  # fmt: skip
+    errs = loader.problems(pack, read(loader.STYLES / "voices.json"), assets)
+    assert errs and all("outside assets/" in e for e in errs)
+
+
+def test_the_registry_note_is_not_a_provider():
+    pack = read(loader.STYLES / "football_commentator.json")
+    pack["voice"]["primary"] = {"provider": "_note", "voice_id": "Voice"}
+    errs = loader.problems(pack, read(loader.STYLES / "voices.json"), loader.ASSETS)
+    assert errs == ["voice/primary: _note voice Voice is not known"]
+
+
+def test_a_key_slot_with_no_room_raises():
+    sb = read(f"{FIXTURE}/storyboard.json")
+    sb["markers"]["climax_replay_t"] = 26.0  # 0.4 s before the replay ends
+    with pytest.raises(slots.NoRoom, match="replay_climax"):
+        slots.build(sb, read(EXAMPLES / "football_commentator.json"))
+
+
+@pytest.mark.parametrize("pack_path", EXAMPLE_PACKS, ids=lambda p: p.stem)
+def test_a_climax_on_the_last_frame_still_leaves_a_full_replay_slot(pack_path):
+    ps = read(f"{FIXTURE}/play_sheet.json")
+    ps["climax"]["t"] = 15.0  # the clip's end
+    sb = s4.build(ps, read(f"{FIXTURE}/clip_meta.json"), 20.0)
+    key = next(s for s in slots.build(sb, read(pack_path)) if s["role"] == "replay_climax")
+    assert key["max_duration_s"] >= slots.MIN_SLOT_S - 1e-6

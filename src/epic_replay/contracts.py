@@ -62,9 +62,9 @@ def check_storyboard(sb: dict, ps: dict) -> list[str]:
     for s in segs:
         if s["kind"] in ("live", "replay"):
             span = s["timeline_end"] - s["timeline_start"]
-            want = (s["source"]["out_s"] - s["source"]["in_s"]) / s["speed"]
+            want = (s["source"]["out_s"] - s["source"]["in_s"]) / s["speed"] + s.get("hold_s", 0)
             if abs(span - want) > EPS:
-                errs.append(f"{s['id']}: length {span} != (out - in) / speed = {want}")
+                errs.append(f"{s['id']}: length {span} != (out - in) / speed + hold = {want}")
         if s["kind"] == "live":
             live = s
         if s["kind"] == "replay":

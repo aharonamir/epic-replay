@@ -88,7 +88,14 @@ AGE = [
     "grandpa",
     "grandfather",
     "grandma",
-]
+    # inflections and further age words (review fixes, 2026-10-22)
+    "kiddo", "kiddos", "teenagers", "youngsters", "younger", "youngest", "older", "oldest",
+    "aged", "youth", "youths", "babies", "toddlers", "minors", "seniors", "juveniles",
+    "infant", "infants", "preteen", "preteens", "tween", "tweens", "adolescent", "adolescents",
+    "underage", "schoolboy", "schoolboys", "schoolgirl", "schoolgirls", "boyish",
+    "grandmother", "grandmothers", "grandmas", "grandpas", "grandfathers", "granddad",
+    "granddads",
+]  # fmt: skip
 FEMALE = [
     "she",
     "her",
@@ -107,7 +114,8 @@ FEMALE = [
     "daughter",
     "wife",
     "girlfriend",
-]
+    "females", "mothers", "moms", "mums", "daughters", "wives", "girlfriends", "girlish",
+]  # fmt: skip
 APPEARANCE = [
     "fat",
     "skinny",
@@ -122,7 +130,9 @@ APPEARANCE = [
     "sexy",
     "hot body",
     "gorgeous",
-]
+    "fatter", "fattest", "skinnier", "uglier", "prettier", "prettiest", "slimmer", "slimmest",
+    "balding",
+]  # fmt: skip
 ABILITY = ["disabled", "handicapped", "crippled", "retarded", "cripple", "spastic"]
 # Profanity. Extend as needed; this is the floor, not a moderation system.
 PROFANITY = ["fuck", "fucking", "shit", "bitch", "cunt", "bastard", "asshole", "nigger", "faggot"]

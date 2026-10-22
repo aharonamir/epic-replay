@@ -79,6 +79,25 @@ def test_random_play_sheets_give_valid_storyboards():
         for kind, marker in (("live", "climax_live_t"), ("replay", "climax_replay_t")):
             s = seg(sb, kind)
             assert s["timeline_start"] <= sb["markers"][marker] <= s["timeline_end"]
+        room = seg(sb, "replay")["timeline_end"] - sb["markers"]["climax_replay_t"]
+        assert room >= s4.KEY_ROOM_S - 1e-6
         live = seg(sb, "live")["source"]
         for kind in ("title", "transition", "endcard"):
             assert live["in_s"] <= seg(sb, kind)["freeze_at_s"] < live["out_s"]
+
+
+@pytest.mark.parametrize("t", [15.0, 14.9, 14.5])
+def test_a_climax_near_the_clip_end_holds_the_last_replay_frame(t):
+    ps = read("play_sheet.json")
+    ps["climax"]["t"] = t
+    sb = s4.build(ps, read("clip_meta.json"), 20.0)
+    replay = seg(sb, "replay")
+    assert replay["source"]["out_s"] == 15.0 and replay["hold_s"] > 0
+    assert replay["timeline_end"] - sb["markers"]["climax_replay_t"] >= s4.KEY_ROOM_S - 1e-6
+    assert contracts.validate("storyboard", sb) == [] and contracts.check_storyboard(sb, ps) == []
+
+
+def test_no_hold_when_the_clip_runs_on_after_the_climax():
+    assert "hold_s" not in seg(
+        s4.build(read("play_sheet.json"), read("clip_meta.json"), 20.0), "replay"
+    )

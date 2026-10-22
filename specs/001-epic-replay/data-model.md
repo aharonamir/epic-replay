@@ -74,7 +74,7 @@ Schema: [contracts/storyboard.schema.json](contracts/storyboard.schema.json). Ex
 
 The storyboard holds nothing that depends on the narration style.
 
-Rules beyond the schema: segments are contiguous from 0 to `duration_s`; a moving segment's length equals `(out_s - in_s) / speed`; `climax_live_t = live.timeline_start + (climax.t - live.source.in_s)`; `climax_replay_t = replay.timeline_start + (climax.t - replay.source.in_s) / replay.speed`.
+Rules beyond the schema: segments are contiguous from 0 to `duration_s`; a moving segment's length equals `(out_s - in_s) / speed`, plus `hold_s` for a replay that holds its last frame; `climax_live_t = live.timeline_start + (climax.t - live.source.in_s)`; `climax_replay_t = replay.timeline_start + (climax.t - replay.source.in_s) / replay.speed`.
 
 In the example: a 15 s clip with the climax at 10.433 s gives a 28.9 s video. Title 0 to 1.0; live 1.0 to 16.0; transition to 16.4; replay of source 8.933 to 11.433 at 0.25x, which is 10 s, to 26.4; end card to 28.9. The climax falls at 11.433 in the live segment and 22.4 in the replay.
 
@@ -98,7 +98,7 @@ Rules beyond the schema are the ten code checks in [contracts/stage-contracts.md
 
 Schema: [contracts/style_pack.schema.json](contracts/style_pack.schema.json). Examples: [football_commentator](contracts/examples/styles/football_commentator.json), [news_reporter](contracts/examples/styles/news_reporter.json), [nature_documentary](contracts/examples/styles/nature_documentary.json).
 
-Not part of a run: packs live in the repository and are loaded at start-up (`styles/loader.py`, T038). A pack is refused, with the reason logged, if it fails the schema, names a voice missing from `styles/voices.json` (the voice ids the T004 results allow, so the check needs no network), or names an asset missing under `assets/`; exactly one loaded pack is the default. The Football commentator pack in the build uses the ElevenLabs voice chosen in T004; its fallback is the OpenAI voice `shimmer` (loudest shout in T004, not chosen by ear, unused until T030), and its sounds are the crowd bed and the roar only (the other layers are null since add-back 3 was dropped on 2026-10-22), as silent placeholders until T021.
+Not part of a run: packs live in the repository and are loaded at start-up (`styles/loader.py`, T038). A pack is refused, with the reason logged, if it fails the schema, names a voice missing from `styles/voices.json` (the voice ids the T004 results allow, so the check needs no network), or names an asset that is missing or resolves outside `assets/` (the schema forbids a leading "/" and ".." parts; keys starting with "_" in `voices.json` are notes); exactly one loaded pack is the default. The Football commentator pack in the build uses the ElevenLabs voice chosen in T004; its fallback is the OpenAI voice `shimmer` (loudest shout in T004, not chosen by ear, unused until T030), and its sounds are the crowd bed and the roar only (the other layers are null since add-back 3 was dropped on 2026-10-22), as silent placeholders until T021.
 
 | Field | Meaning |
 |-------|---------|

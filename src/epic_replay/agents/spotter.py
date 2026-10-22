@@ -423,8 +423,9 @@ def submit_play_sheet(ps: dict, clip_meta: dict) -> dict:
 
 def clear_breaches(ps: dict) -> list[str]:
     """The fixed sequence's answer to a descriptor breach, as there is no agent to rewrite
-    it: the field is emptied and, where it has one, its confidence set to 0, so the play card
-    asks the user. Returns the paths cleared."""
+    it: the field is emptied and, where it has one, its confidence set to 0; every cleared path
+    is added to `agreement.disagreed_fields`, which the play card asks the user about, and
+    the overall confidence drops below the highlight line. Returns the paths cleared."""
     cleared = []
     for path, _ in descriptor_breaches(ps):
         parts = path.split("/")
@@ -435,4 +436,8 @@ def clear_breaches(ps: dict) -> list[str]:
         if "confidence" in node:
             node["confidence"] = 0.0
         cleared.append(path)
+    if cleared:  # fields with no confidence of their own (actors, setting) are flagged here
+        ag = ps["agreement"]["disagreed_fields"]
+        ag += [p for p in cleared if p not in ag]
+        ps["overall_confidence"] = min(ps["overall_confidence"], LOW)
     return cleared

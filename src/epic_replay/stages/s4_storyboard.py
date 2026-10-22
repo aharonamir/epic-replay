@@ -10,6 +10,9 @@ The rules, as built in T015:
   widens, half on each side, to at most 3.5 s in all (a side stopped by the edge of the
   live segment hands its share to the other side); what is still missing is
   added to the end card.
+- Room for the replay key line: the replay runs at least `KEY_ROOM_S` past its climax marker
+  (the largest reaction delay a pack may set, 1.5 s, plus the 1.2 s shortest slot). When the
+  clip ends too soon after the climax, the last replay frame is held (`hold_s`) for the rest.
 - Still frames: the title holds the live segment's first frame, the transition its last, and
   the end card the frame where the climax event ends (the outcome), clamped to the live segment.
 - Zoom: 1.25x toward the focus box, eased in over 1 s, when the play sheet has one.
@@ -33,6 +36,7 @@ BEFORE_S, AFTER_S, WIDEST_S = 1.5, 1.0, 3.5
 TRIM_OVER_S, TRIM_BEFORE_S, TRIM_AFTER_S = 20.0, 10.0, 3.0
 ZOOM = {"scale": 1.25, "ease_in_s": 1.0}
 LOWER_THIRD_AT_S, LOWER_THIRD_S = 1.0, 4.0
+KEY_ROOM_S = 1.5 + 1.2  # style_pack.schema.json reaction_delay_s maximum + slots.MIN_SLOT_S
 
 
 def r(t: float) -> float:
@@ -58,14 +62,18 @@ def build(ps: dict, meta: dict, min_output_s: float) -> dict:
             lo, hi = max(live_in, lo - (hi - live_out)), live_out
         return r(lo), r(hi)
 
+    def hold(w_out: float) -> float:
+        return r(max(0.0, KEY_ROOM_S - (w_out - t) / REPLAY_SPEED))
+
     def total(w_in: float, w_out: float) -> float:
         fixed = TITLE_S + TRANSITION_S + ENDCARD_S
-        return fixed + (live_out - live_in) + (w_out - w_in) / REPLAY_SPEED
+        return fixed + (live_out - live_in) + (w_out - w_in) / REPLAY_SPEED + hold(w_out)
 
     w_in, w_out = window(0.0)
     short = min_output_s - total(w_in, w_out)
     if short > 0:
         w_in, w_out = window(min(WIDEST_S - BEFORE_S - AFTER_S, short * REPLAY_SPEED))
+    hold_s = hold(w_out)
     endcard_s = r(ENDCARD_S + max(0.0, min_output_s - total(w_in, w_out)))
 
     events = {e["id"]: e for e in ps.get("events", [])}
@@ -77,24 +85,25 @@ def build(ps: dict, meta: dict, min_output_s: float) -> dict:
         ("title", TITLE_S, None, None, live_in, None),
         ("live", live_out - live_in, (live_in, live_out), 1.0, None, None),
         ("transition", TRANSITION_S, None, None, last_frame, None),
-        ("replay", (w_out - w_in) / REPLAY_SPEED, (w_in, w_out), REPLAY_SPEED, None, zoom),
+        ("replay", (w_out - w_in) / REPLAY_SPEED + hold_s, (w_in, w_out), REPLAY_SPEED, None, zoom),
         ("endcard", endcard_s, None, None, r(min(max(outcome_t, live_in), last_frame)), None),
     ]
     segments, at = [], 0.0
     for k, (kind, length, src, speed, freeze, z) in enumerate(parts, 1):
         end = r(at + length)
-        segments.append(
-            {
-                "id": f"s{k}",
-                "kind": kind,
-                "timeline_start": at,
-                "timeline_end": end,
-                "source": {"in_s": src[0], "out_s": src[1]} if src else None,
-                "speed": speed,
-                "freeze_at_s": freeze,
-                "zoom": z,
-            }
-        )
+        segment = {
+            "id": f"s{k}",
+            "kind": kind,
+            "timeline_start": at,
+            "timeline_end": end,
+            "source": {"in_s": src[0], "out_s": src[1]} if src else None,
+            "speed": speed,
+            "freeze_at_s": freeze,
+            "zoom": z,
+        }
+        if kind == "replay" and hold_s:
+            segment["hold_s"] = hold_s
+        segments.append(segment)
         at = end
     seg = {s["kind"]: s for s in segments}
     live, replay = seg["live"], seg["replay"]

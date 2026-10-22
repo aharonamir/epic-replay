@@ -2,7 +2,9 @@
 
 A pack is refused, with the reason logged, if it does not validate against
 contracts/style_pack.schema.json, names a voice missing from `voices.json` (the voices the
-T004 results allow, so the check needs no network), or names an asset missing under `assets/`.
+T004 results allow, so the check needs no network; keys starting with "_" are notes), or names
+an asset that is missing or that resolves outside `assets/`. The schema already forbids a
+leading "/" and ".." parts; the resolved-path check also catches links that lead out.
 Exactly one loaded pack is the default. Code never branches on a pack's id (working rule 9).
 
 The skin is not checked until the HTML graphics exist (T023, dropped 2026-10-22), and page
@@ -36,12 +38,17 @@ def problems(pack: dict, voices: dict, assets: Path) -> list[str]:
         return errs
     for which in ("primary", "fallback"):
         ref = pack["voice"][which]
-        if ref["voice_id"] not in voices.get(ref["provider"], {}):
+        known = {} if ref["provider"].startswith("_") else voices.get(ref["provider"], {})
+        if not isinstance(known, dict) or ref["voice_id"] not in known:
             errs.append(f"voice/{which}: {ref['provider']} voice {ref['voice_id']} is not known")
     named = [pack["sample_audio"]] + [pack["sound"][k] for k in SOUNDS if pack["sound"][k]]
-    errs += [
-        f"asset {rel} is missing under assets/" for rel in named if not (assets / rel).is_file()
-    ]
+    root = assets.resolve()
+    for rel in named:
+        path = (assets / rel).resolve()
+        if not path.is_relative_to(root):
+            errs.append(f"asset {rel} is outside assets/")
+        elif not path.is_file():
+            errs.append(f"asset {rel} is missing under assets/")
     return errs
 
 

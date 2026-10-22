@@ -69,3 +69,37 @@ def test_the_fixed_sequence_empties_a_breaching_field_for_the_user():
     assert s["actors"][0]["descriptor"] == "" and s["events"][3]["outcome"] is None
     assert s["events"][3]["confidence"] == 0.0
     assert submit_play_sheet(s, META) == {"accepted": True}
+
+
+AGE_FORMS = """child children kid kids kiddo kiddos boy boys baby babies infant infants toddler
+toddlers teen teens teenager teenagers preteen preteens tween tweens adolescent adolescents
+juvenile juveniles minor minors underage schoolboy schoolboys schoolgirl schoolgirls youngster
+youngsters young younger youngest youth youths old older oldest aged elderly senior seniors
+boyish grandpa grandpas grandma grandmas grandfather grandfathers grandmother grandmothers
+granddad granddads""".split()
+FEMALE_FORMS = """she her hers herself woman women girl girls girlish lady ladies female females
+mum mums mom moms mother mothers daughter daughters wife wives girlfriend girlfriends""".split()
+APPEARANCE_FORMS = """fat fatter fattest skinny skinnier ugly uglier pretty prettier prettiest
+slim slimmer slimmest bald balding""".split()
+
+
+@pytest.mark.parametrize("word", AGE_FORMS + FEMALE_FORMS + APPEARANCE_FORMS)
+def test_every_listed_form_is_rejected_in_model_text(word):
+    verdict = submit_play_sheet(sheet(actors__0__descriptor=f"the {word} in red"), META)
+    assert verdict["accepted"] is False and word in " ".join(verdict["errors"]).lower()
+
+
+@pytest.mark.parametrize("word", ["bold", "holds", "shepherds", "herald", "gold", "kidney"])
+def test_words_that_contain_a_banned_word_pass(word):
+    assert submit_play_sheet(sheet(actors__0__descriptor=f"the {word} player"), META) == {
+        "accepted": True
+    }
+
+
+def test_a_cleared_field_without_a_confidence_is_flagged_for_the_card():
+    s = sheet(actors__1__descriptor="older keeper in green", setting="a field full of kids")
+    cleared = clear_breaches(s)
+    assert sorted(cleared) == ["actors/1/descriptor", "setting"]
+    assert set(cleared) <= set(s["agreement"]["disagreed_fields"])
+    assert s["overall_confidence"] < 0.7
+    assert submit_play_sheet(s, META) == {"accepted": True}
