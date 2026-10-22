@@ -1,0 +1,49 @@
+{
+  "text": "{\"events\":[{\"first_grid\":1,\"first_cell\":4,\"last_grid\":1,\"last_cell\":9,\"actor\":\"red-shirted person\",\"action\":\"rides a skateboard across the court\",\"outcome\":\"prepares to jump\"},{\"first_grid\":2,\"first_cell\":1,\"last_grid\":2,\"last_cell\":5,\"actor\":\"red-shirted person\",\"action\":\"jumps into the air and flips the skateboard\",\"outcome\":\"lands back on the skateboard\"},{\"first_grid\":2,\"first_cell\":6,\"last_grid\":2,\"last_cell\":7,\"actor\":\"red-shirted person\",\"action\":\"rides the skateboard away\",\"outcome\":\"leaves the view\"}],\"sure\":8}",
+  "data": {
+    "events": [
+      {
+        "first_grid": 1,
+        "first_cell": 4,
+        "last_grid": 1,
+        "last_cell": 9,
+        "actor": "red-shirted person",
+        "action": "rides a skateboard across the court",
+        "outcome": "prepares to jump"
+      },
+      {
+        "first_grid": 2,
+        "first_cell": 1,
+        "last_grid": 2,
+        "last_cell": 5,
+        "actor": "red-shirted person",
+        "action": "jumps into the air and flips the skateboard",
+        "outcome": "lands back on the skateboard"
+      },
+      {
+        "first_grid": 2,
+        "first_cell": 6,
+        "last_grid": 2,
+        "last_cell": 7,
+        "actor": "red-shirted person",
+        "action": "rides the skateboard away",
+        "outcome": "leaves the view"
+      }
+    ],
+    "sure": 8
+  },
+  "usage": {
+    "prompt_tokens": 1638,
+    "completion_tokens": 7787,
+    "total_tokens": 9425,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 7628
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 1638
+  },
+  "usage_usd": 0.009836
+}

@@ -1,0 +1,79 @@
+{
+  "text": "{\"type\":\"object\",\"required\":[\"events\",\"sure\"],\"properties\":{\"events\":{\"type\":\"array\",\"minItems\":3,\"maxItems\":6,\"items\":{\"type\":\"object\",\"required\":[\"first_grid\",\"first_cell\",\"last_grid\",\"last_cell\",\"actor\",\"action\",\"outcome\"],\"properties\":{\"first_grid\":{\"type\":\"integer\",\"minimum\":1,\"maximum\":2},\"first_cell\":{\"type\":\"integer\",\"minimum\":1,\"maximum\":9},\"last_grid\":{\"type\":\"integer\",\"minimum\":1,\"maximum\":2},\"last_cell\":{\"type\":\"integer\",\"minimum\":1,\"maximum\":9},\"actor\":{\"type\":\"string\"},\"action\":{\"type\":\"string\"},\"outcome\":{\"type\":\"string\"}}}}},\"sure\":{\"type\":\"integer\",\"minimum\":0,\"maximum\":10}},\"events\":[{\"first_grid\":1,\"first_cell\":1,\"last_grid\":1,\"last_cell\":5,\"actor\":\"person in black pants and light-colored shoes\",\"action\":\"crouches onto and rides the skateboard along the paved path\",\"outcome\":\"settles into a riding stance\"},{\"first_grid\":1,\"first_cell\":6,\"last_grid\":1,\"last_cell\":9,\"actor\":\"person in black pants and light-colored shoes\",\"action\":\"jumps and flips the skateboard in the air\",\"outcome\":\"skateboard is airborne and rotated, showing its red underside\"},{\"first_grid\":2,\"first_cell\":1,\"last_grid\":2,\"last_cell\":2,\"actor\":\"person in black pants and light-colored shoes\",\"action\":\"lands back onto the skateboard\",\"outcome\":\"both feet are back on the board\"},{\"first_grid\":2,\"first_cell\":2,\"last_grid\":2,\"last_cell\":4,\"actor\":\"person in black pants and light-colored shoes\",\"action\":\"rides away on the skateboard along the pavement\",\"outcome\":\"continues riding off\"}],\"sure\":8}",
+  "data": {
+    "type": "object",
+    "required": [
+      "events",
+      "sure"
+    ],
+    "properties": {
+      "events": {
+        "type": "array",
+        "minItems": 3,
+        "maxItems": 6,
+        "items": {
+          "type": "object",
+          "required": [
+            "first_grid",
+            "first_cell",
+            "last_grid",
+            "last_cell",
+            "actor",
+            "action",
+            "outcome"
+          ],
+          "properties": {
+            "first_grid": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 2
+            },
+            "first_cell": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9
+            },
+            "last_grid": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 2
+            },
+            "last_cell": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9
+            },
+            "actor": {
+              "type": "string"
+            },
+            "action": {
+              "type": "string"
+            },
+            "outcome": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "sure": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 10
+    }
+  },
+  "usage": {
+    "prompt_tokens": 1638,
+    "completion_tokens": 1549,
+    "total_tokens": 3187,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 1137
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 1638
+  },
+  "usage_usd": 0.00235
+}

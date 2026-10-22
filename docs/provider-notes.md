@@ -195,3 +195,4 @@ Strict: `climax_t` only. Any: the nearest valid moment (`climax_t` or `other_cli
 | SC-1, SC-2 and SC-5 re-set from the measurements | Drafted in revision 8, waiting for the owner | Latency and cost above |
 
 The key-moment line is no, so plan.md section 6 applies: the play card opens with the nudge active on every clip, the S1 candidates are offered as the choices, and the user's pick is the climax. The model describes what happened; the user says when. Revision 8 writes this into the spec.
+- Events call, recorded 2026-10-22 on the nine starter clips (two grids a call, T012 owner change 1): 10 paid attempts (one misfit on Skateboard_trick, fixed by the retry), 0.0623 USD in all, 0.0069 USD per events call on average, dearest 0.0098, so the 0.016 ceiling (two sheet ceilings) holds. 3 to 6 events on every clip. A timed-out call is now counted as spent at its estimate (it may be billed).

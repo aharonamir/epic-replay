@@ -145,7 +145,9 @@ def test_a_timed_out_sheet_is_left_out(tmp_path, prepared, monkeypatch):
     trace = json.loads(ctx.path("spotter_trace.json").read_text())
     second = trace["sheets"][1]
     assert second["answer"] is None and "ReadTimeout" in second["left_out"]
-    assert ctx.ledger._reserved == 0  # the reservation of the timed-out call was released
+    assert ctx.ledger._reserved == 0
+    spent = [c for c in ctx.ledger.data["calls"] if c.get("failed") == "ReadTimeout"]
+    assert len(spent) == 1 and spent[0]["actual_usd"] == spent[0]["estimate_usd"] > 0
     assert s3_key_moment.run(ctx).status == "ok"
 
 

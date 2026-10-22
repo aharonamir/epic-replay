@@ -1,0 +1,67 @@
+{
+  "text": "{\"events\":[{\"first_grid\":1,\"first_cell\":1,\"last_grid\":1,\"last_cell\":2,\"actor\":\"pancakes\",\"action\":\"cook on the hot griddle\",\"outcome\":\"\"},{\"first_grid\":1,\"first_cell\":3,\"last_grid\":1,\"last_cell\":3,\"actor\":\"person in pink sleeve\",\"action\":\"scrapes the griddle with a blue spatula\",\"outcome\":\"the griddle is scraped\"},{\"first_grid\":1,\"first_cell\":4,\"last_grid\":1,\"last_cell\":5,\"actor\":\"person in pink sleeve\",\"action\":\"slides a metal spatula under the pancakes and flips them\",\"outcome\":\"both pancakes are flipped\"},{\"first_grid\":1,\"first_cell\":6,\"last_grid\":2,\"last_cell\":6,\"actor\":\"pancakes\",\"action\":\"cook and brown on the griddle\",\"outcome\":\"\"},{\"first_grid\":2,\"first_cell\":7,\"last_grid\":2,\"last_cell\":9,\"actor\":\"person in pink sleeve\",\"action\":\"uses a metal spatula to remove a pancake from the griddle\",\"outcome\":\"one pancake remains on the griddle\"}],\"sure\":6}",
+  "data": {
+    "events": [
+      {
+        "first_grid": 1,
+        "first_cell": 1,
+        "last_grid": 1,
+        "last_cell": 2,
+        "actor": "pancakes",
+        "action": "cook on the hot griddle",
+        "outcome": ""
+      },
+      {
+        "first_grid": 1,
+        "first_cell": 3,
+        "last_grid": 1,
+        "last_cell": 3,
+        "actor": "person in pink sleeve",
+        "action": "scrapes the griddle with a blue spatula",
+        "outcome": "the griddle is scraped"
+      },
+      {
+        "first_grid": 1,
+        "first_cell": 4,
+        "last_grid": 1,
+        "last_cell": 5,
+        "actor": "person in pink sleeve",
+        "action": "slides a metal spatula under the pancakes and flips them",
+        "outcome": "both pancakes are flipped"
+      },
+      {
+        "first_grid": 1,
+        "first_cell": 6,
+        "last_grid": 2,
+        "last_cell": 6,
+        "actor": "pancakes",
+        "action": "cook and brown on the griddle",
+        "outcome": ""
+      },
+      {
+        "first_grid": 2,
+        "first_cell": 7,
+        "last_grid": 2,
+        "last_cell": 9,
+        "actor": "person in pink sleeve",
+        "action": "uses a metal spatula to remove a pancake from the griddle",
+        "outcome": "one pancake remains on the griddle"
+      }
+    ],
+    "sure": 6
+  },
+  "usage": {
+    "prompt_tokens": 1638,
+    "completion_tokens": 6267,
+    "total_tokens": 7905,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 6004
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 1638
+  },
+  "usage_usd": 0.008012
+}

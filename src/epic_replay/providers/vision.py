@@ -39,6 +39,7 @@ SHEET_CALL_MEAN_USD = 0.0035
 
 # Per-call timeout (plan.md 4.4): S2 waits for its slowest parallel call, and T003's
 # longest was 72 s. A call that times out raises httpx.TimeoutException; S2 leaves it out.
+# It may still be billed, so the ledger counts it as spent at its estimate (billed_on).
 TIMEOUT_S = 45.0
 
 # A reply that does not fit the schema is asked once more with this line (T003 spike).
@@ -239,6 +240,7 @@ class VisionAdapter:
                 estimate_usd=0.0 if self.rec.has(self.name, key) else estimate,
                 fn=run,
                 pre_checkpoint=self.pre_checkpoint,
+                billed_on=(httpx.TimeoutException,),
             )
             cost += 0.0 if hit else payload["usage_usd"]
             hits.append(hit)

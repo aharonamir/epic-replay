@@ -180,6 +180,20 @@ def test_a_failed_call_releases_its_reservation(tmp_path):
     assert led.total_usd == pytest.approx(0.003)
 
 
+def test_a_call_that_may_be_billed_is_counted_at_its_estimate(tmp_path):
+    led = ledger(tmp_path, cap_run_usd=0.01)
+
+    def slow():
+        raise TimeoutError("timed out")
+
+    with pytest.raises(TimeoutError):
+        call(led, 0.008, slow, billed_on=(TimeoutError,))
+    assert led._reserved == 0 and led.total_usd == pytest.approx(0.008)
+    assert led.data["calls"][0]["failed"] == "TimeoutError"
+    with pytest.raises(budget.CapExceeded):  # the 0.008 still counts against the cap
+        call(led, 0.008, ok(0.003))
+
+
 def test_parallel_records_all_reach_cost_json(tmp_path):
     led = ledger(tmp_path, cap_run_usd=10.0)
     state = parallel(led, 20, estimate=0.008, actual=0.001)

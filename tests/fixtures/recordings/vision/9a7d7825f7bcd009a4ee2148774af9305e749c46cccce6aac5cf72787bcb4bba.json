@@ -1,0 +1,49 @@
+{
+  "text": "{\"events\":[{\"first_grid\":1,\"first_cell\":1,\"last_grid\":1,\"last_cell\":5,\"actor\":\"person in black pants and light-colored shoes\",\"action\":\"steps onto the skateboard and rides along the sidewalk\",\"outcome\":\"starts a flip trick\"},{\"first_grid\":1,\"first_cell\":6,\"last_grid\":2,\"last_cell\":1,\"actor\":\"person in black pants and light-colored shoes\",\"action\":\"kicks the skateboard so it flips in the air\",\"outcome\":\"lands back on the skateboard\"},{\"first_grid\":2,\"first_cell\":2,\"last_grid\":2,\"last_cell\":4,\"actor\":\"person in black pants and light-colored shoes\",\"action\":\"rides away on the skateboard\",\"outcome\":\"continues riding out of view\"}],\"sure\":8}",
+  "data": {
+    "events": [
+      {
+        "first_grid": 1,
+        "first_cell": 1,
+        "last_grid": 1,
+        "last_cell": 5,
+        "actor": "person in black pants and light-colored shoes",
+        "action": "steps onto the skateboard and rides along the sidewalk",
+        "outcome": "starts a flip trick"
+      },
+      {
+        "first_grid": 1,
+        "first_cell": 6,
+        "last_grid": 2,
+        "last_cell": 1,
+        "actor": "person in black pants and light-colored shoes",
+        "action": "kicks the skateboard so it flips in the air",
+        "outcome": "lands back on the skateboard"
+      },
+      {
+        "first_grid": 2,
+        "first_cell": 2,
+        "last_grid": 2,
+        "last_cell": 4,
+        "actor": "person in black pants and light-colored shoes",
+        "action": "rides away on the skateboard",
+        "outcome": "continues riding out of view"
+      }
+    ],
+    "sure": 8
+  },
+  "usage": {
+    "prompt_tokens": 1649,
+    "completion_tokens": 2055,
+    "total_tokens": 3704,
+    "prompt_tokens_details": {
+      "cached_tokens": 1152
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 1877
+    },
+    "prompt_cache_hit_tokens": 1152,
+    "prompt_cache_miss_tokens": 497
+  },
+  "usage_usd": 0.002961
+}

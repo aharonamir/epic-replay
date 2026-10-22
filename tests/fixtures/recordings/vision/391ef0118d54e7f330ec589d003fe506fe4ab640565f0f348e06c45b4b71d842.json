@@ -1,0 +1,76 @@
+{
+  "text": "{\"events\":[{\"first_grid\":1,\"first_cell\":1,\"last_grid\":1,\"last_cell\":2,\"actor\":\"goalkeeper in black kit with pink boots\",\"action\":\"dives to save a ball in a solo diving drill\",\"outcome\":\"ends holding the ball on the ground\"},{\"first_grid\":1,\"first_cell\":3,\"last_grid\":1,\"last_cell\":4,\"actor\":\"goalkeeper in black kit with pink boots\",\"action\":\"dives during a game diving phase\",\"outcome\":\"ends lying on the grass after the dive\"},{\"first_grid\":1,\"first_cell\":5,\"last_grid\":1,\"last_cell\":6,\"actor\":\"goalkeeper in black kit with pink boots\",\"action\":\"practices catching/handling a cross in a solo crossing drill\",\"outcome\":\"ends standing and holding the ball\"},{\"first_grid\":1,\"first_cell\":7,\"last_grid\":1,\"last_cell\":8,\"actor\":\"players in dark and white kits\",\"action\":\"contest a cross during a game crossing phase\",\"outcome\":\"\"},{\"first_grid\":1,\"first_cell\":9,\"last_grid\":2,\"last_cell\":3,\"actor\":\"goalkeeper in black kit with pink boots\",\"action\":\"holds/catches a yellow ball in a solo handling drill, then stands in a game handling phase\",\"outcome\":\"ends with the goalkeeper facing play from behind\"},{\"first_grid\":2,\"first_cell\":4,\"last_grid\":2,\"last_cell\":9,\"actor\":\"goalkeeper in black kit with pink boots\",\"action\":\"kicks a white ball in a solo distribution drill, then distributes during a game distribution phase\",\"outcome\":\"ends with the goalkeeper standing on the field and the ball in play\"}],\"sure\":8}",
+  "data": {
+    "events": [
+      {
+        "first_grid": 1,
+        "first_cell": 1,
+        "last_grid": 1,
+        "last_cell": 2,
+        "actor": "goalkeeper in black kit with pink boots",
+        "action": "dives to save a ball in a solo diving drill",
+        "outcome": "ends holding the ball on the ground"
+      },
+      {
+        "first_grid": 1,
+        "first_cell": 3,
+        "last_grid": 1,
+        "last_cell": 4,
+        "actor": "goalkeeper in black kit with pink boots",
+        "action": "dives during a game diving phase",
+        "outcome": "ends lying on the grass after the dive"
+      },
+      {
+        "first_grid": 1,
+        "first_cell": 5,
+        "last_grid": 1,
+        "last_cell": 6,
+        "actor": "goalkeeper in black kit with pink boots",
+        "action": "practices catching/handling a cross in a solo crossing drill",
+        "outcome": "ends standing and holding the ball"
+      },
+      {
+        "first_grid": 1,
+        "first_cell": 7,
+        "last_grid": 1,
+        "last_cell": 8,
+        "actor": "players in dark and white kits",
+        "action": "contest a cross during a game crossing phase",
+        "outcome": ""
+      },
+      {
+        "first_grid": 1,
+        "first_cell": 9,
+        "last_grid": 2,
+        "last_cell": 3,
+        "actor": "goalkeeper in black kit with pink boots",
+        "action": "holds/catches a yellow ball in a solo handling drill, then stands in a game handling phase",
+        "outcome": "ends with the goalkeeper facing play from behind"
+      },
+      {
+        "first_grid": 2,
+        "first_cell": 4,
+        "last_grid": 2,
+        "last_cell": 9,
+        "actor": "goalkeeper in black kit with pink boots",
+        "action": "kicks a white ball in a solo distribution drill, then distributes during a game distribution phase",
+        "outcome": "ends with the goalkeeper standing on the field and the ball in play"
+      }
+    ],
+    "sure": 8
+  },
+  "usage": {
+    "prompt_tokens": 2418,
+    "completion_tokens": 3963,
+    "total_tokens": 6381,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 3584
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 2418
+  },
+  "usage_usd": 0.005481
+}

@@ -1,0 +1,76 @@
+{
+  "text": "{\"events\":[{\"first_grid\":1,\"first_cell\":2,\"last_grid\":1,\"last_cell\":5,\"actor\":\"title text\",\"action\":\"displays the German Shepherd Skills caption\",\"outcome\":\"\"},{\"first_grid\":1,\"first_cell\":6,\"last_grid\":1,\"last_cell\":7,\"actor\":\"German Shepherd\",\"action\":\"catches the ball\",\"outcome\":\"\"},{\"first_grid\":1,\"first_cell\":8,\"last_grid\":2,\"last_cell\":2,\"actor\":\"German Shepherd\",\"action\":\"moves near the doorway with the ball\",\"outcome\":\"\"},{\"first_grid\":2,\"first_cell\":3,\"last_grid\":2,\"last_cell\":5,\"actor\":\"German Shepherd\",\"action\":\"walks toward the camera\",\"outcome\":\"\"},{\"first_grid\":2,\"first_cell\":6,\"last_grid\":2,\"last_cell\":6,\"actor\":\"German Shepherd\",\"action\":\"stands close to the camera as THANK YOU appears\",\"outcome\":\"THANK YOU overlay shown\"},{\"first_grid\":2,\"first_cell\":7,\"last_grid\":2,\"last_cell\":8,\"actor\":\"outro text\",\"action\":\"displays THANK YOU and SUBSCRIBE messages\",\"outcome\":\"\"}],\"sure\":7}",
+  "data": {
+    "events": [
+      {
+        "first_grid": 1,
+        "first_cell": 2,
+        "last_grid": 1,
+        "last_cell": 5,
+        "actor": "title text",
+        "action": "displays the German Shepherd Skills caption",
+        "outcome": ""
+      },
+      {
+        "first_grid": 1,
+        "first_cell": 6,
+        "last_grid": 1,
+        "last_cell": 7,
+        "actor": "German Shepherd",
+        "action": "catches the ball",
+        "outcome": ""
+      },
+      {
+        "first_grid": 1,
+        "first_cell": 8,
+        "last_grid": 2,
+        "last_cell": 2,
+        "actor": "German Shepherd",
+        "action": "moves near the doorway with the ball",
+        "outcome": ""
+      },
+      {
+        "first_grid": 2,
+        "first_cell": 3,
+        "last_grid": 2,
+        "last_cell": 5,
+        "actor": "German Shepherd",
+        "action": "walks toward the camera",
+        "outcome": ""
+      },
+      {
+        "first_grid": 2,
+        "first_cell": 6,
+        "last_grid": 2,
+        "last_cell": 6,
+        "actor": "German Shepherd",
+        "action": "stands close to the camera as THANK YOU appears",
+        "outcome": "THANK YOU overlay shown"
+      },
+      {
+        "first_grid": 2,
+        "first_cell": 7,
+        "last_grid": 2,
+        "last_cell": 8,
+        "actor": "outro text",
+        "action": "displays THANK YOU and SUBSCRIBE messages",
+        "outcome": ""
+      }
+    ],
+    "sure": 7
+  },
+  "usage": {
+    "prompt_tokens": 1638,
+    "completion_tokens": 3515,
+    "total_tokens": 5153,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 3244
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 1638
+  },
+  "usage_usd": 0.004709
+}

@@ -1,0 +1,118 @@
+{
+  "text": "{\"type\":\"object\",\"required\":[\"events\",\"sure\"],\"properties\":{\"events\":{\"type\":\"array\",\"minItems\":3,\"maxItems\":6,\"items\":{\"type\":\"object\",\"required\":[\"first_grid\",\"first_cell\",\"last_grid\",\"last_cell\",\"actor\",\"action\",\"outcome\"],\"properties\":{\"first_grid\":{\"type\":\"integer\",\"minimum\":1,\"maximum\":2},\"first_cell\":{\"type\":\"integer\",\"minimum\":1,\"maximum\":9},\"last_grid\":{\"type\":\"integer\",\"minimum\":1,\"maximum\":2},\"last_cell\":{\"type\":\"integer\",\"minimum\":1,\"maximum\":9},\"actor\":{\"type\":\"string\"},\"action\":{\"type\":\"string\"},\"outcome\":{\"type\":\"string\"}}}},\"sure\":{\"type\":\"integer\",\"minimum\":0,\"maximum\":10}},\"events\":[{\"first_grid\":1,\"first_cell\":2,\"last_grid\":1,\"last_cell\":3,\"actor\":\"clear plastic water bottle\",\"action\":\"stands upright near the wall\",\"outcome\":\"remains upright\"},{\"first_grid\":1,\"first_cell\":5,\"last_grid\":1,\"last_cell\":6,\"actor\":\"clear plastic water bottle\",\"action\":\"flies through the air while tilted\",\"outcome\":\"comes down near the wall\"},{\"first_grid\":1,\"first_cell\":7,\"last_grid\":1,\"last_cell\":9,\"actor\":\"clear plastic water bottle\",\"action\":\"moves across the ground from left to right\",\"outcome\":\"stops near the right side\"},{\"first_grid\":2,\"first_cell\":1,\"last_grid\":2,\"last_cell\":9,\"actor\":\"clear plastic water bottle\",\"action\":\"stays upright and nearly stationary near the wall\",\"outcome\":\"remains in place\"}],\"sure\":6}",
+  "data": {
+    "type": "object",
+    "required": [
+      "events",
+      "sure"
+    ],
+    "properties": {
+      "events": {
+        "type": "array",
+        "minItems": 3,
+        "maxItems": 6,
+        "items": {
+          "type": "object",
+          "required": [
+            "first_grid",
+            "first_cell",
+            "last_grid",
+            "last_cell",
+            "actor",
+            "action",
+            "outcome"
+          ],
+          "properties": {
+            "first_grid": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 2
+            },
+            "first_cell": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9
+            },
+            "last_grid": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 2
+            },
+            "last_cell": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9
+            },
+            "actor": {
+              "type": "string"
+            },
+            "action": {
+              "type": "string"
+            },
+            "outcome": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "sure": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 10
+      }
+    },
+    "events": [
+      {
+        "first_grid": 1,
+        "first_cell": 2,
+        "last_grid": 1,
+        "last_cell": 3,
+        "actor": "clear plastic water bottle",
+        "action": "stands upright near the wall",
+        "outcome": "remains upright"
+      },
+      {
+        "first_grid": 1,
+        "first_cell": 5,
+        "last_grid": 1,
+        "last_cell": 6,
+        "actor": "clear plastic water bottle",
+        "action": "flies through the air while tilted",
+        "outcome": "comes down near the wall"
+      },
+      {
+        "first_grid": 1,
+        "first_cell": 7,
+        "last_grid": 1,
+        "last_cell": 9,
+        "actor": "clear plastic water bottle",
+        "action": "moves across the ground from left to right",
+        "outcome": "stops near the right side"
+      },
+      {
+        "first_grid": 2,
+        "first_cell": 1,
+        "last_grid": 2,
+        "last_cell": 9,
+        "actor": "clear plastic water bottle",
+        "action": "stays upright and nearly stationary near the wall",
+        "outcome": "remains in place"
+      }
+    ],
+    "sure": 6
+  },
+  "usage": {
+    "prompt_tokens": 1638,
+    "completion_tokens": 6363,
+    "total_tokens": 8001,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 5989
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 1638
+  },
+  "usage_usd": 0.008127
+}

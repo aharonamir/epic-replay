@@ -1,0 +1,67 @@
+{
+  "text": "{\"events\":[{\"first_grid\":1,\"first_cell\":1,\"last_grid\":1,\"last_cell\":4,\"actor\":\"person in grey shirt\",\"action\":\"dribbles and shoots the basketball toward the hoop\",\"outcome\":\"the ball reaches the hoop area\"},{\"first_grid\":1,\"first_cell\":5,\"last_grid\":1,\"last_cell\":5,\"actor\":\"person in black shirt\",\"action\":\"catches/rebounds the basketball\",\"outcome\":\"the person in black shirt has the ball\"},{\"first_grid\":1,\"first_cell\":6,\"last_grid\":2,\"last_cell\":4,\"actor\":\"person in grey shirt\",\"action\":\"handles the ball and shoots again\",\"outcome\":\"the ball is in the air near the hoop\"},{\"first_grid\":2,\"first_cell\":5,\"last_grid\":2,\"last_cell\":6,\"actor\":\"person in black shirt\",\"action\":\"catches/rebounds the ball and shoots\",\"outcome\":\"the ball is in the air\"},{\"first_grid\":2,\"first_cell\":7,\"last_grid\":2,\"last_cell\":9,\"actor\":\"person in grey shirt\",\"action\":\"regains the ball and dribbles/holds it\",\"outcome\":\"the person in grey shirt has the ball\"}],\"sure\":6}",
+  "data": {
+    "events": [
+      {
+        "first_grid": 1,
+        "first_cell": 1,
+        "last_grid": 1,
+        "last_cell": 4,
+        "actor": "person in grey shirt",
+        "action": "dribbles and shoots the basketball toward the hoop",
+        "outcome": "the ball reaches the hoop area"
+      },
+      {
+        "first_grid": 1,
+        "first_cell": 5,
+        "last_grid": 1,
+        "last_cell": 5,
+        "actor": "person in black shirt",
+        "action": "catches/rebounds the basketball",
+        "outcome": "the person in black shirt has the ball"
+      },
+      {
+        "first_grid": 1,
+        "first_cell": 6,
+        "last_grid": 2,
+        "last_cell": 4,
+        "actor": "person in grey shirt",
+        "action": "handles the ball and shoots again",
+        "outcome": "the ball is in the air near the hoop"
+      },
+      {
+        "first_grid": 2,
+        "first_cell": 5,
+        "last_grid": 2,
+        "last_cell": 6,
+        "actor": "person in black shirt",
+        "action": "catches/rebounds the ball and shoots",
+        "outcome": "the ball is in the air"
+      },
+      {
+        "first_grid": 2,
+        "first_cell": 7,
+        "last_grid": 2,
+        "last_cell": 9,
+        "actor": "person in grey shirt",
+        "action": "regains the ball and dribbles/holds it",
+        "outcome": "the person in grey shirt has the ball"
+      }
+    ],
+    "sure": 6
+  },
+  "usage": {
+    "prompt_tokens": 1638,
+    "completion_tokens": 5688,
+    "total_tokens": 7326,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 5413
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 1638
+  },
+  "usage_usd": 0.007317
+}

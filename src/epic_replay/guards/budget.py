@@ -6,8 +6,10 @@ cap is not made: it is logged under `blocked` and CapExceeded is raised.
 
 Calls may run in parallel (S2 sends its sheets at once). The check and a reservation of the
 call's estimate happen together under one lock, so calls in flight count against the caps;
-the reservation is replaced by the actual cost when the call returns. Ledger writes to
-cost.json and the day file take the same lock.
+the reservation is replaced by the actual cost when the call returns. A call that fails is
+released, except one that fails in a way the provider may still bill (a timeout: the caller
+names these in `billed_on`), which is recorded at its estimate. Ledger writes to cost.json and
+the day file take the same lock.
 """
 
 from __future__ import annotations
@@ -161,6 +163,7 @@ def paid_call(
     estimate_usd: float,
     fn: Callable[[], PaidResult[T]],
     pre_checkpoint: bool = False,
+    billed_on: tuple[type[BaseException], ...] = (),
 ) -> T:
     """Check the caps and reserve the estimate, make the call, then replace the reservation
     with the actual cost in the log. Replay hits cost nothing."""
@@ -181,21 +184,29 @@ def paid_call(
             )
             ledger._write()
             raise
+
+    def settle(actual_usd: float, cache_hit: bool, **extra: Any) -> None:
+        with _LOCK:  # no other check sees the call neither reserved nor recorded
+            ledger.release(estimate_usd, pre_checkpoint=pre_checkpoint)
+            ledger.record(
+                stage=stage,
+                provider=provider,
+                model=model,
+                estimate_usd=estimate_usd,
+                actual_usd=actual_usd,
+                cache_hit=cache_hit,
+                pre_checkpoint=pre_checkpoint,
+                at=_now(),
+                **extra,
+            )
+
     try:
         res = fn()
+    except billed_on as e:  # may be billed: counted as spent at the estimate
+        settle(estimate_usd, False, failed=type(e).__name__)
+        raise
     except BaseException:
         ledger.release(estimate_usd, pre_checkpoint=pre_checkpoint)
         raise
-    with _LOCK:  # no other check sees the call neither reserved nor recorded
-        ledger.release(estimate_usd, pre_checkpoint=pre_checkpoint)
-        ledger.record(
-            stage=stage,
-            provider=provider,
-            model=model,
-            estimate_usd=estimate_usd,
-            actual_usd=res.actual_usd,
-            cache_hit=res.cache_hit,
-            pre_checkpoint=pre_checkpoint,
-            at=_now(),
-        )
+    settle(res.actual_usd, res.cache_hit)
     return res.value

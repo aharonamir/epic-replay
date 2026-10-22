@@ -1,0 +1,76 @@
+{
+  "text": "{\"events\":[{\"first_grid\":1,\"first_cell\":1,\"last_grid\":1,\"last_cell\":3,\"actor\":\"player in black\",\"action\":\"takes a free kick toward goal\",\"outcome\":\"ball is airborne near the goal\"},{\"first_grid\":1,\"first_cell\":4,\"last_grid\":1,\"last_cell\":5,\"actor\":\"players in white and dark blue\",\"action\":\"contest a high ball in the penalty area while a goalkeeper in green waits\",\"outcome\":\"\"},{\"first_grid\":1,\"first_cell\":6,\"last_grid\":1,\"last_cell\":7,\"actor\":\"player in pink and white\",\"action\":\"takes a free kick\",\"outcome\":\"ball moves toward the goal area\"},{\"first_grid\":1,\"first_cell\":8,\"last_grid\":1,\"last_cell\":9,\"actor\":\"player in black\",\"action\":\"takes a free kick\",\"outcome\":\"ball flies toward the crowded penalty area\"},{\"first_grid\":2,\"first_cell\":1,\"last_grid\":2,\"last_cell\":1,\"actor\":\"player in black\",\"action\":\"prepares to take a free kick\",\"outcome\":\"\"},{\"first_grid\":2,\"first_cell\":2,\"last_grid\":2,\"last_cell\":9,\"actor\":\"player in pink\",\"action\":\"takes a free kick over a yellow wall\",\"outcome\":\"ball reaches the goal area and the goalkeeper dives\"}],\"sure\":5}",
+  "data": {
+    "events": [
+      {
+        "first_grid": 1,
+        "first_cell": 1,
+        "last_grid": 1,
+        "last_cell": 3,
+        "actor": "player in black",
+        "action": "takes a free kick toward goal",
+        "outcome": "ball is airborne near the goal"
+      },
+      {
+        "first_grid": 1,
+        "first_cell": 4,
+        "last_grid": 1,
+        "last_cell": 5,
+        "actor": "players in white and dark blue",
+        "action": "contest a high ball in the penalty area while a goalkeeper in green waits",
+        "outcome": ""
+      },
+      {
+        "first_grid": 1,
+        "first_cell": 6,
+        "last_grid": 1,
+        "last_cell": 7,
+        "actor": "player in pink and white",
+        "action": "takes a free kick",
+        "outcome": "ball moves toward the goal area"
+      },
+      {
+        "first_grid": 1,
+        "first_cell": 8,
+        "last_grid": 1,
+        "last_cell": 9,
+        "actor": "player in black",
+        "action": "takes a free kick",
+        "outcome": "ball flies toward the crowded penalty area"
+      },
+      {
+        "first_grid": 2,
+        "first_cell": 1,
+        "last_grid": 2,
+        "last_cell": 1,
+        "actor": "player in black",
+        "action": "prepares to take a free kick",
+        "outcome": ""
+      },
+      {
+        "first_grid": 2,
+        "first_cell": 2,
+        "last_grid": 2,
+        "last_cell": 9,
+        "actor": "player in pink",
+        "action": "takes a free kick over a yellow wall",
+        "outcome": "ball reaches the goal area and the goalkeeper dives"
+      }
+    ],
+    "sure": 5
+  },
+  "usage": {
+    "prompt_tokens": 2370,
+    "completion_tokens": 5908,
+    "total_tokens": 8278,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 5600
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 2370
+  },
+  "usage_usd": 0.007801
+}

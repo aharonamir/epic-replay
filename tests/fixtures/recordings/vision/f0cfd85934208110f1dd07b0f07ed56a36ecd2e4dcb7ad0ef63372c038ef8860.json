@@ -1,0 +1,58 @@
+{
+  "text": "{\"events\":[{\"first_grid\":1,\"first_cell\":1,\"last_grid\":1,\"last_cell\":3,\"actor\":\"player in yellow and blue\",\"action\":\"bends down and sets the ball on the grass for a free kick\",\"outcome\":\"ball is left stationary\"},{\"first_grid\":1,\"first_cell\":4,\"last_grid\":2,\"last_cell\":2,\"actor\":\"players in blue and players in yellow and blue\",\"action\":\"move into position and form a defensive wall near the goal\",\"outcome\":\"free-kick setup is ready\"},{\"first_grid\":2,\"first_cell\":3,\"last_grid\":2,\"last_cell\":4,\"actor\":\"player in yellow and blue\",\"action\":\"runs up and kicks the ball over the wall\",\"outcome\":\"players in blue jump and the goalkeeper in black moves\"},{\"first_grid\":2,\"first_cell\":5,\"last_grid\":2,\"last_cell\":9,\"actor\":\"ball\",\"action\":\"flies and curves toward the goal while players react\",\"outcome\":\"goalkeeper in black dives toward it\"}],\"sure\":6}",
+  "data": {
+    "events": [
+      {
+        "first_grid": 1,
+        "first_cell": 1,
+        "last_grid": 1,
+        "last_cell": 3,
+        "actor": "player in yellow and blue",
+        "action": "bends down and sets the ball on the grass for a free kick",
+        "outcome": "ball is left stationary"
+      },
+      {
+        "first_grid": 1,
+        "first_cell": 4,
+        "last_grid": 2,
+        "last_cell": 2,
+        "actor": "players in blue and players in yellow and blue",
+        "action": "move into position and form a defensive wall near the goal",
+        "outcome": "free-kick setup is ready"
+      },
+      {
+        "first_grid": 2,
+        "first_cell": 3,
+        "last_grid": 2,
+        "last_cell": 4,
+        "actor": "player in yellow and blue",
+        "action": "runs up and kicks the ball over the wall",
+        "outcome": "players in blue jump and the goalkeeper in black moves"
+      },
+      {
+        "first_grid": 2,
+        "first_cell": 5,
+        "last_grid": 2,
+        "last_cell": 9,
+        "actor": "ball",
+        "action": "flies and curves toward the goal while players react",
+        "outcome": "goalkeeper in black dives toward it"
+      }
+    ],
+    "sure": 6
+  },
+  "usage": {
+    "prompt_tokens": 1638,
+    "completion_tokens": 4365,
+    "total_tokens": 6003,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 4130
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 1638
+  },
+  "usage_usd": 0.005729
+}
