@@ -364,6 +364,8 @@ epic-replay/
 
 Re-plan (owner, 2026-10-20): the presentation moves to Tuesday 27 October. The working days left are Tue 20, Wed 21, Thu 22, Sat 24, Sun 25 and Mon 26; Friday 23 is off. Tue 20 to Thu 22 build the shortest path from upload to video; from Sat 24 the cut items are added back in the owner's order; at least 2 h of margin stay on Mon 26. Gates 1 to 4 are re-set below.
 
+Re-plan (owner, Thu 22 October evening): T038, T015, T018, T019 and the Wed 21 and Thu 22 tasks were not done. "If a day is lost" is applied: add-backs 5, 10 and 12 and then 2, 3 and 8 are dropped; 13, 11 and the rehearsals stay. Gate 1 moves to Sat 24 midday. The day table that holds now is in tasks.md ("Re-plan, Thu 22 October evening"); it replaces rows 7 to 12 below, which are kept as the record. By the task hours Gate 1 lands on Sun 25 late morning and the kept add-backs do not all fit; that is open with the owner.
+
 Revision 8 (2026-10-20): Gate 0's key-moment line is no; the fallback below is applied. T012 drops refinement and the second look (3 h to 2 h), and the play card's nudge and other moments are no longer in the cut list. The freed hour is margin.
 
 Revision 7 (2026-10-15): nine working days, not ten. Friday 23 October is not a working day and the presentation is on Saturday 24 October. Days 1 and 2 built the foundations and measured the voices and the agent framework; days 3 and 4 went to the key-moment problem (docs/provider-notes.md). From the afternoon of day 4, 43 hours remain, and 43 are planned.
@@ -394,14 +396,14 @@ If the key moment misses the bar: the play card opens with the nudge active on e
 
 Result (2026-10-20, docs/provider-notes.md): Spotter yes, 13 of 16 repeats right; key moment no, 3 of 16 within tolerance; voice, agents, privacy and guards yes; SC-1, SC-2 and SC-5 re-set in spec.md section 5. The fallback above is applied (revision 8).
 
-**Gate 1, end of Thu 22: a real clip to video from the command line.**
+**Gate 1, Sat 24 midday (owner, 2026-10-22; was end of Thu 22): a real clip to video from the command line.**
 - One command runs a real starter clip from S0 to S10 with live providers: the play-card pick typed at the prompt, a script by the Commentator agent in the Football commentator style that passes the three code checks, voice, mix, blended slow motion and the FFmpeg text overlays with the AI label. The fixture renders with both key lines within 150 ms of target.
 
-**Gate 2, end of Sat 24: the page and a second narrator.**
+**Gate 2 (was end of Sat 24; after the re-plan of 2026-10-22, only if add-backs 9 and 1 fit): the page and a second narrator.**
 - A real clip goes from upload to video on the page with live progress, without touching code; a reload mid-run restores the state; one run is done from a phone. A clip renders in the News reporter style from the command line.
 
 **Gate 3, end of Sun 25: ready to show.**
-- The HTML graphics are in. A cached run in both styles and a backup video exist. The deck exists.
+- A cached run and a backup video exist, in both styles if the News reporter (item 1) fits. The deck exists by Mon 26 (re-plan, 2026-10-22). (The HTML graphics, item 2, were dropped on 2026-10-22.)
 
 **Gate 4, end of Mon 26: rehearsed.**
 - Three rehearsal runs in a row across the two styles. SC-1, SC-2, SC-4 and SC-5 are written into `docs/eval-notes.md`. The presentation has been run through once.

@@ -44,7 +44,20 @@ Result (2026-10-20): Spotter yes (13 of 16 repeats), key moment no (3 of 16 with
 
 Both went to T003 and spec revision 8 (the results, Gate 0, the play card as the place the key moment is picked).
 
-## Day 7 - Tue 20 October - from clip to slow-motion segments - 8 h
+## Re-plan, Thu 22 October evening (owner, 2026-10-22)
+
+Tue 20 to Thu 22 built T010 to T013, the review fixes and the T012 changes; T038, T015, T018, T019 and the Wed 21 and Thu 22 tasks are not done and carry over in the order below. "If a day is lost" is applied: add-backs 5, 10 and 12 (Mon 26, if time allows) and 2, 3 and 8 (Sun 25) are dropped and listed with the deferred items. The safety items 13 and 11 and the rehearsals stay. Gate 1 (a real clip to video from the command line) moves to Sat 24 midday.
+
+| When | Hours | Tasks, in order | Hours of tasks | End of day |
+|------|-------|-----------------|----------------|------------|
+| Thu 22 evening | about 3 | T038, T015 | 3 | Slots and the Classic storyboard from the fixture |
+| Sat 24 | 8 | T018, T019, T016, T017, T020, T021, T022, T024 (first 0.5 h) | 8 | Script by the Commentator agent, voice, mix; compose started. Gate 1 target: midday |
+| Sun 25 | 8 | T024 (rest), T027, T031 command line (Gate 1), T014, T029, T031 page, T034 first part | 8.5 | Gate 1; the play card and the page, core; cached run and backup video in one style |
+| Mon 26 | 6 + 2 margin | T037 deck, T034 rehearsals, T037 run-through; then add-backs 13 + 11 (T013 sensitivity stop, T033), 4, 9, 1, 6 + 7 as hours allow | 4 + 6 of add-backs | Gate 4: rehearsed |
+
+Open (for the owner, 2026-10-22): by the task hours, Gate 1 needs 14 h of work from Thu evening and about 7 h fall before Sat midday, so the hours put Gate 1 on Sun 25 late morning. The days hold 29.5 h of tasks against about 25 h: after the deck and the rehearsals, about 1.5 h is left on Mon 26 for the 6 h of kept add-backs, so 13 + 11 fit and 9, 1 and 6 + 7 do not. Next cuts in the owner's order: 6 + 7, then 1 (one style only: the cached run, the deck and Gate 4 then show the Football commentator alone), then 4, then 9.
+
+## Day 7 - Tue 20 October - from clip to slow-motion segments - 8 h (carried over: see the re-plan above)
 
 Until T014, a yes-or-no prompt on the command line stands in for the play card, and the pick is typed as a frame.
 
@@ -75,7 +88,7 @@ Until T014, a yes-or-no prompt on the command line stands in for the play card, 
   Done when: a 30 fps clip produces a blended replay of the right length.
   Now (re-plan): as written.
 
-## Day 8 - Wed 21 October - from play sheet to sound and picture - 7.5 h, 0.5 h buffer
+## Day 8 - Wed 21 October - from play sheet to sound and picture - 7.5 h, 0.5 h buffer (carried over)
 
 - [ ] T016 S5 Commentator agent: an agent-core `ReActAgent` whose prompt takes persona, rules, role notes and sample lines from the style pack and the slots from T038; tools `check_lines`, which runs the checks of T017 on a draft and returns each failure with its rule, and `submit_script`; the `hit_word` of each key line (the word that lands on the moment), which `submit_script` checks is in the line; headline and lower third; six iterations at most, then one structured draft with failing lines replaced by generic ones. `deepseek-flash` writes (2h; full design 4h) - US1, FR-016, FR-017, FR-018, FR-024
   Done when: scripts for the fixture and three starter clips validate against the schema, pass S6, and carry a `hit_word` on both key lines.
@@ -96,14 +109,14 @@ Until T014, a yes-or-no prompt on the command line stands in for the play card, 
   Done when: the fixture renders to 28.9 s within one frame and both key-line onsets are within 150 ms of target.
   Now (re-plan): the overlays are FFmpeg text: title, REPLAY bug and the AI label. The HTML graphics of T023 are added back on Sun 25 (cut item 2).
 
-## Day 9 - Thu 22 October - the flow, the play card, the page - 6.5 h, 1.5 h buffer
+## Day 9 - Thu 22 October - the flow, the play card, the page - 6.5 h, 1.5 h buffer (carried over)
 
 - [ ] T027 Flow: the plain Python runner; stage events, including each sheet call and the Commentator's tool calls; skip-if-present; S9 in parallel with S5 to S7; re-run from a stage; express mode on by default; seeding a new run from an existing one for another style, from the command line (1h; full design 4h) - US3, FR-021, FR-033, FR-042
   Done when: the fixture runs from S0 to S10 in replay mode with one command, US3 scenario 3 passes, and a seeded run starts work at S5.
   Now (re-plan): a plain sequential runner from S0 to S10 with stage events written to the run folder and the command-line play-card prompt. Skip-if-present, re-run from a stage and re-telling are added back if time allows (cut item 10). Done when: the fixture runs from S0 to S10 in replay mode with one command.
 - [ ] T031, first part (1h): a real clip to video from the command line with live providers (expected cost stated first, the owner's yes before the run).
 
-**Gate 1, end of Thu 22** (plan.md section 6): a real clip to video from the command line.
+**Gate 1, Sat 24 midday (owner, 2026-10-22; was end of Thu 22)** (plan.md section 6): a real clip to video from the command line.
 
 - [ ] T014 Checkpoint A: play-card endpoints and the card itself; highlighted items with keep and remove; the outcome sentence editable; the key moment highlighted on every card, with the frame nudge (one frame and ten frames each way, buttons and arrow keys, Shift for ten) and S1's other candidates offered as other moments, all core (revision 8); the user's pick written as the climax with `climax.method` `user`; cost estimate; confirm, reject, generic with a picked moment (1.5h; full design 5h) - US2, FR-007, FR-010, FR-011, FR-012
   Done when: US2 acceptance scenarios 2 to 4 pass as API tests (scenario 1 needs the second look, deferred in revision 8); confirm is refused until the key moment is answered; picking another moment and nudging it sets the climax to that frame; the card works by hand.
@@ -113,7 +126,7 @@ Until T014, a yes-or-no prompt on the command line stands in for the play card, 
   Now (re-plan): upload with the consent wording, progress by polling, the play card, the result with player and download. Server-sent events, style cards, the phone layout and reload restoring the state are added back on Sat 24 (cut item 9).
 - [ ] T031, second part (1h): the same clip through the page with live providers; fix what blocks.
 
-## Day 10 - Sat 24 October - add back, part 1 - 6 h, 2 h buffer
+## Day 10 - Sat 24 October - add back, part 1 - 6 h, 2 h buffer (moved to Mon 26 by the re-plan, as hours allow)
 
 - [ ] T029, added back (2h): server-sent events with the polling fallback, style cards from `GET /styles` with the page colours from T038, the phone layout, reload restores the state (cut item 9). Done when: the original "Done when" line of T029 is true.
 - [ ] T020, added back (0.5h): the key line placed by its `hit_word` from ElevenLabs character timings (cut item 4). Done when: the original "Done when" line of T020 is true.
@@ -126,34 +139,23 @@ Until T014, a yes-or-no prompt on the command line stands in for the play card, 
   Done when: the consent text on the page matches the configured provider, and deleting a run leaves no sheets or frames on disk.
   Now (re-plan): as written (cut item 11).
 
-**Gate 2, end of Sat 24**: the page with live progress, and a clip rendered in the News reporter style from the command line.
+**Gate 2** (was end of Sat 24; by the re-plan of 2026-10-22 only if items 9 and 1 fit on Mon 26): the page with live progress, and a clip rendered in the News reporter style from the command line.
 
-## Day 11 - Sun 25 October - add back, part 2; demo and presentation - 5.25 h, 2.75 h buffer
+## Day 11 - Sun 25 October - add back, part 2; demo and presentation - 5.25 h, 2.75 h buffer (items 2, 3 and 8 dropped 2026-10-22; the deck moves to Mon 26)
 
-- [ ] T023 S9 Graphics: brand tokens and font; HTML templates for title, REPLAY bug, end card and AI label, styled by a skin file and labelled from the style pack; the `stadium` skin; render to transparent PNG at output size; horizontal layout. The lower third and the vertical layout are deferred (1.5h; full design 6h) - US1, FR-029, FR-030
-  Done when: the four overlays render for 1920x1080 and the AI label is legible on a phone screen.
-  Now (re-plan): as written (cut item 2).
-- [ ] T021, added back (0.5h): the sting and the rest of the football sound set (cut item 3).
-- [ ] T014, added back (0.25h): the cost of the rest of the run on the card (cut item 8).
 - [ ] T034, first part (1h): a cached run in both styles, labelled, and a backup video.
 - [ ] T037 Presentation: architecture diagram, the page walk-through, one clip in two styles, measured accuracy and cost, limits, what is deferred (2h; full design 3h)
   Done when: the deck follows plan.md section 10.
   Now (re-plan): the deck on Sun 25; a run-through on Mon 26 (1 h, below).
 
-**Gate 3, end of Sun 25**: the cached run, the backup video and the deck exist.
+**Gate 3, end of Sun 25**: the cached run and the backup video exist; the deck follows on Mon 26 (re-plan, 2026-10-22). The HTML graphics are no longer part of it (item 2 dropped).
 
-## Day 12 - Mon 26 October - rehearsed - 2 h, then 2 h if time allows, at least 2 h margin
+## Day 12 - Mon 26 October - rehearsed - 2 h, at least 2 h margin (the "if time allows" items 5, 10 and 12 dropped 2026-10-22)
 
 The presentation is on Tuesday 27 October.
 
 - [ ] T034, second part (1h): three rehearsal runs in a row without touching code (cut item 14); the SC-1, SC-2, SC-4 and SC-5 values written into `docs/eval-notes.md`, with what was not measured stated plainly.
 - [ ] T037, run-through (1h): the presentation once, timed, with the cached run as the fallback.
-
-If time allows, in this order:
-
-- [ ] T017, added back (0.5h): the missing-reference and over-budget checks (cut item 5).
-- [ ] T027, added back (1h): skip-if-present, re-run from a stage, re-telling from the command line (cut item 10).
-- [ ] T010, added back (0.5h): rotation, vertical clips and capture-rate detection (cut item 12).
 
 **Gate 4, end of Mon 26**: rehearsed.
 
@@ -170,6 +172,17 @@ Listed in the order to add them back when there is time (plan.md section 6). Hou
 - [ ] T036 Measurement of SC-1 to SC-9 written up in `docs/eval-notes.md`; T034 records the four that can be measured (deferred; full design 2h)
 - [ ] T025 Full evaluation set of 30 labelled clips (deferred; full design 3h) - SC-2
 - [ ] T035 Viewer test with five people and five results each (deferred; full design 3h) - SC-6, SC-9
+
+Add-backs dropped by the re-plan of 2026-10-22 ("If a day is lost"):
+
+- [ ] T023 S9 Graphics: brand tokens and font; HTML templates for title, REPLAY bug, end card and AI label, styled by a skin file and labelled from the style pack; the `stadium` skin; render to transparent PNG at output size; horizontal layout. The lower third and the vertical layout are deferred (1.5h; full design 6h) - US1, FR-029, FR-030
+  Done when: the four overlays render for 1920x1080 and the AI label is legible on a phone screen.
+  Now (re-plan): as written (cut item 2).
+- [ ] T021, added back (0.5h): the sting and the rest of the football sound set (cut item 3).
+- [ ] T014, added back (0.25h): the cost of the rest of the run on the card (cut item 8).
+- [ ] T017, added back (0.5h): the missing-reference and over-budget checks (cut item 5).
+- [ ] T027, added back (1h): skip-if-present, re-run from a stage, re-telling from the command line (cut item 10).
+- [ ] T010, added back (0.5h): rotation, vertical clips and capture-rate detection (cut item 12).
 
 The rest of partly built tasks, also deferred:
 
@@ -207,7 +220,7 @@ The rest of partly built tasks, also deferred:
 
 ## If a day is lost
 
-Remove add-backs from the end of the owner's order (re-plan, 2026-10-20): first the Mon 26 "if time allows" items (12, 10, 5), then 14 down to one rehearsal run, then 2, 3 and 8, then 13 and 11, then 6 and 7, then the News reporter (1), then 4, then 9. Each is a clean removal back to the Tue 20 to Thu 22 version of its task.
+Remove add-backs from the end of the owner's order (re-plan, 2026-10-20; applied 2026-10-22 up to 2, 3 and 8, with 13, 11 and the rehearsals kept): first the Mon 26 "if time allows" items (12, 10, 5), then 14 down to one rehearsal run, then 2, 3 and 8, then 13 and 11, then 6 and 7, then the News reporter (1), then 4, then 9. Each is a clean removal back to the Tue 20 to Thu 22 version of its task.
 
 Do not cut: the shortest path built Tue 20 to Thu 22, Checkpoint A with its frame nudge and other moments (revision 8: the user's pick is the climax), the Commentator as a ReAct agent, the three code checks, the cost guard, the AI label, the consent wording, the cached demo run and the backup video.
 
