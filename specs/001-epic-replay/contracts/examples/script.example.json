@@ -6,8 +6,8 @@
   "words_per_second": 2.6,
   "reaction_delay_s": 0.15,
   "voice": {
-    "provider": "to-be-chosen-in-T004",
-    "voice_id": "football-commentator-1"
+    "provider": "elevenlabs",
+    "voice_id": "fGIZlgPQ75MMlvQ6WxgY"
   },
   "headline": "TOP-CORNER FREE KICK",
   "lower_third": "NOA · FREE KICK",

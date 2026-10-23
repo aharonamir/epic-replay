@@ -23,6 +23,7 @@ from pathlib import Path
 
 from epic_replay.guards.budget import CapExceeded, Ledger
 from epic_replay.media import audio
+from epic_replay.providers.replay import ReplayMiss
 from epic_replay.providers.speech import SpeechAdapter
 from epic_replay.stages.base import RunContext, StageResult
 
@@ -47,7 +48,7 @@ def take(speech, line: dict, voice_id: str):
     for attempt in (1, 2):
         try:
             return speech.synthesise(line["text"], voice_id=voice_id, delivery=line["delivery"])
-        except CapExceeded:
+        except (CapExceeded, ReplayMiss):
             raise
         except Exception:  # noqa: BLE001 - one retry, then the stage stops
             if attempt == 2:
@@ -89,6 +90,8 @@ def run(ctx: RunContext) -> StageResult:
             takes = list(pool.map(lambda ln: take(speech, ln, voice_id), lines))
     except CapExceeded as e:
         return StageResult("stopped", str(e))
+    except ReplayMiss as e:
+        return StageResult("failed", str(e))
     except Exception as e:  # noqa: BLE001
         return StageResult("failed", f"{TRY_AGAIN} ({type(e).__name__}: {str(e)[:200]})")
 
