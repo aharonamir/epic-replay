@@ -1,0 +1,56 @@
+{
+  "draft": {
+    "lines": [
+      {
+        "delivery": "low, setting the scene",
+        "event_refs": [],
+        "id": "l1",
+        "text": "Bottle in the air."
+      },
+      {
+        "delivery": "full shout, peaking on the first word",
+        "event_refs": [],
+        "hit_word": "STANDS",
+        "id": "l2",
+        "text": "STANDS! IT STANDS!"
+      },
+      {
+        "delivery": "conspiratorial, pointing",
+        "event_refs": [],
+        "id": "l3",
+        "text": "Watch the toss again. Look at the spin."
+      },
+      {
+        "delivery": "warm, quiet",
+        "event_refs": [],
+        "hit_word": "Upright",
+        "id": "l4",
+        "text": "Upright it lands, and it stays."
+      },
+      {
+        "delivery": "warm tribute",
+        "event_refs": [],
+        "id": "l5",
+        "text": "Take a bow."
+      }
+    ],
+    "headline": "Bottle Flip: It Stands Upright",
+    "lower_third": "One toss, one landing"
+  },
+  "calls": [
+    {
+      "tool": "check_lines",
+      "lines": 5,
+      "failures": 0
+    },
+    {
+      "tool": "submit_script",
+      "lines": 5,
+      "failures": 0
+    }
+  ],
+  "usage": {
+    "input_tokens": 4075,
+    "output_tokens": 1094
+  }
+}

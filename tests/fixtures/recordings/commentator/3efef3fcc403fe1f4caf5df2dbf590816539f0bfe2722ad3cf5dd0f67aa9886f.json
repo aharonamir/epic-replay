@@ -1,0 +1,87 @@
+{
+  "draft": {
+    "lines": [
+      {
+        "delivery": "settled, scanning the scene",
+        "event_refs": [
+          "e1",
+          "e2"
+        ],
+        "id": "l1",
+        "text": "Noa sets it down. Four in blue make the wall."
+      },
+      {
+        "delivery": "quickening, left hanging",
+        "event_refs": [
+          "e3",
+          "e4"
+        ],
+        "id": "l2",
+        "text": "Noa strikes it..."
+      },
+      {
+        "delivery": "full shout, peaking on the first word",
+        "event_refs": [
+          "e6"
+        ],
+        "hit_word": "TOP",
+        "id": "l3",
+        "text": "TOP CORNER! What a strike!"
+      },
+      {
+        "delivery": "quiet, disbelieving",
+        "event_refs": [
+          "e7"
+        ],
+        "id": "l4",
+        "text": "The goalkeeper never moved."
+      },
+      {
+        "delivery": "inviting, measured",
+        "event_refs": [
+          "e4"
+        ],
+        "id": "l5",
+        "text": "Watch the strike again. Look at that contact."
+      },
+      {
+        "delivery": "warm, unhurried",
+        "event_refs": [
+          "e6"
+        ],
+        "hit_word": "Top-left",
+        "id": "l6",
+        "text": "Top-left corner, under the crossbar."
+      },
+      {
+        "delivery": "fond tribute",
+        "event_refs": [],
+        "id": "l7",
+        "text": "Take a bow, Noa."
+      }
+    ],
+    "headline": "Noa: Free Kick Goal",
+    "lower_third": "Free kick, top-left corner"
+  },
+  "calls": [
+    {
+      "tool": "check_lines",
+      "lines": 7,
+      "failures": 2
+    },
+    {
+      "tool": "check_lines",
+      "lines": 7,
+      "failures": 0
+    },
+    {
+      "tool": "submit_script",
+      "lines": 7,
+      "failures": 0
+    }
+  ],
+  "usage": {
+    "input_tokens": 9657,
+    "output_tokens": 2134
+  }
+}

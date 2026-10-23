@@ -1,0 +1,79 @@
+{
+  "draft": {
+    "lines": [
+      {
+        "delivery": "settling in, watching the run build",
+        "event_refs": [
+          "e1"
+        ],
+        "id": "l1",
+        "text": "He steps on and rides the sidewalk."
+      },
+      {
+        "delivery": "quiet, leaving it hanging",
+        "event_refs": [
+          "e1"
+        ],
+        "id": "l2",
+        "text": "Here comes the kick..."
+      },
+      {
+        "delivery": "full shout on the kick",
+        "event_refs": [
+          "e2"
+        ],
+        "hit_word": "FLIPS",
+        "id": "l3",
+        "text": "THE BOARD FLIPS! Unreal!"
+      },
+      {
+        "delivery": "slower, pointing at the detail",
+        "event_refs": [
+          "e2"
+        ],
+        "id": "l4",
+        "text": "Watch this again. Look at the kick."
+      },
+      {
+        "delivery": "warm, no shouting",
+        "event_refs": [
+          "e2"
+        ],
+        "hit_word": "lands",
+        "id": "l5",
+        "text": "And it lands back under him."
+      },
+      {
+        "delivery": "a short nod of respect",
+        "event_refs": [
+          "e3"
+        ],
+        "id": "l6",
+        "text": "Take a bow."
+      }
+    ],
+    "headline": "Flip Trick, Rides Away",
+    "lower_third": "Rides the sidewalk on the skateboard"
+  },
+  "calls": [
+    {
+      "tool": "check_lines",
+      "lines": 6,
+      "failures": 2
+    },
+    {
+      "tool": "check_lines",
+      "lines": 6,
+      "failures": 0
+    },
+    {
+      "tool": "submit_script",
+      "lines": 6,
+      "failures": 0
+    }
+  ],
+  "usage": {
+    "input_tokens": 9521,
+    "output_tokens": 2690
+  }
+}

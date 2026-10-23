@@ -1,0 +1,67 @@
+{
+  "draft": {
+    "lines": [
+      {
+        "delivery": "brisk, setting the scene",
+        "event_refs": [],
+        "id": "l1",
+        "text": "Metal spatula. Hot griddle."
+      },
+      {
+        "delivery": "rising to a shout",
+        "event_refs": [],
+        "hit_word": "FLIPPED",
+        "id": "l2",
+        "text": "FLIPPED! Onto its browned side!"
+      },
+      {
+        "delivery": "quiet admiration",
+        "event_refs": [],
+        "id": "l3",
+        "text": "It landed flat."
+      },
+      {
+        "delivery": "inviting, pointing",
+        "event_refs": [],
+        "id": "l4",
+        "text": "Watch the spatula slide under. That first lift."
+      },
+      {
+        "delivery": "warm, unhurried",
+        "event_refs": [],
+        "hit_word": "Over",
+        "id": "l5",
+        "text": "Over it goes, onto its browned side."
+      },
+      {
+        "delivery": "a short tribute",
+        "event_refs": [],
+        "id": "l6",
+        "text": "Textbook spatula work."
+      }
+    ],
+    "headline": "Browned Side on the Griddle",
+    "lower_third": "Flipped to its browned side"
+  },
+  "calls": [
+    {
+      "tool": "check_lines",
+      "lines": 6,
+      "failures": 4
+    },
+    {
+      "tool": "check_lines",
+      "lines": 6,
+      "failures": 0
+    },
+    {
+      "tool": "submit_script",
+      "lines": 6,
+      "failures": 0
+    }
+  ],
+  "usage": {
+    "input_tokens": 8888,
+    "output_tokens": 2820
+  }
+}
