@@ -10,7 +10,8 @@ Layers, all 48 kHz stereo, placed on the output timeline:
 - the clip's own sound under the live segment at `original_audio_gain_db` (it keeps the real
   sound of the hit), muted when the user asked or the clip has none, never in the replay.
 The sum is normalised to -14 LUFS integrated with a -1 dBTP ceiling, in two passes (measure,
-then a linear gain), and cut to the storyboard's length. `mix.json` records the layers and the
+then a linear gain), then measured once more and corrected by gain under a peak limiter, since
+loudnorm can miss when it falls back to dynamic mode; and cut to the storyboard's length. `mix.json` records the layers and the
 loudness measured on the result.
 """
 
@@ -116,7 +117,16 @@ def normalise(raw: Path, out: Path) -> None:
         f"measured_LRA={m['input_lra']}:measured_thresh={m['input_thresh']}:"
         f"offset={m['target_offset']}:linear=true"
     )
-    ffmpeg(["-i", str(raw), "-af", f"{second},aresample=48000", "-c:a", "pcm_s16le", str(out)])
+    first = out.with_suffix(".pass2.wav")
+    ffmpeg(["-i", str(raw), "-af", f"{second},aresample=48000", "-c:a", "pcm_s16le", str(first)])
+    # loudnorm falls back to dynamic mode when the linear gain would break the ceiling, and can
+    # then miss the target by more than 1 LU: correct the gain once, under a peak limiter set
+    # 0.5 dB below the ceiling (alimiter limits sample peaks, not true peaks)
+    lufs, _ = audio.loudness(first)
+    limit = 10 ** ((CEILING_DBTP - 0.5) / 20)
+    fix = f"volume={TARGET_LUFS - lufs:.2f}dB,alimiter=limit={limit:.4f}:level=disabled"
+    ffmpeg(["-i", str(first), "-af", f"{fix},aresample=48000", "-c:a", "pcm_s16le", str(out)])
+    first.unlink(missing_ok=True)
 
 
 def run(ctx: RunContext) -> StageResult:
