@@ -174,7 +174,7 @@ Per line: file, `raw_duration_s`, `speed_factor` applied (1.0 to 1.12), `duratio
 
 ### Mix - `mix.json`
 
-The layers used with their asset file, start, gain and fades; the measured integrated loudness and true peak.
+The layers used with their asset file, start, gain and fades; the measured integrated loudness and true peak. As built (T022): `layers[]` (kind, file name, start, gain, and for the clip's own sound its source range), `loudness_lufs`, `true_peak_dbtp`, `duration_s`, and the targets.
 
 ### Visuals - `visuals.json`
 
