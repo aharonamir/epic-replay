@@ -196,3 +196,22 @@ Strict: `climax_t` only. Any: the nearest valid moment (`climax_t` or `other_cli
 
 The key-moment line is no, so plan.md section 6 applies: the play card opens with the nudge active on every clip, the S1 candidates are offered as the choices, and the user's pick is the climax. The model describes what happened; the user says when. Revision 8 writes this into the spec.
 - Events call, recorded 2026-10-22 on the nine starter clips (two grids a call, T012 owner change 1): 10 paid attempts (one misfit on Skateboard_trick, fixed by the retry), 0.0623 USD in all, 0.0069 USD per events call on average, dearest 0.0098, so the 0.016 ceiling (two sheet ceilings) holds. 3 to 6 events on every clip. A timed-out call is now counted as spent at its estimate (it may be billed).
+
+
+### T020: ElevenLabs takes for the fixture script, 2026-10-23 (record mode, 0.035 USD by estimate)
+
+`eleven_v3`, Gerald (`fGIZlgPQ75MMlvQ6WxgY`), delivery as audio tags ("[measured] [expectant] Free kick, ..."). Words per second after the silence trim:
+
+| line | role | words | trimmed take (s) | words/s | speed-up | result |
+|---|---|---|---|---|---|---|
+| l1 | opening | 10 | 3.68 | 2.72 | 1.0 | fits |
+| l2 | build_up | 3 | 1.06 | 2.83 | 1.0 | fits |
+| l3 | climax | 5 | 2.46 | 2.03 | 1.12 | over 0.203 s |
+| l4 | reaction | 4 | 2.08 | 1.92 | 1.12 | dropped |
+| l5 | replay_watch | 7 | 2.78 | 2.52 | 1.0 | fits |
+| l6 | replay_climax | 9 | 3.71 | 2.43 | 1.063 | fits |
+| l7 | sign_off | 4 | 2.7 | 1.48 | 1.12 | dropped |
+
+- The Starter plan allows three concurrent requests; a fourth gets `429 concurrent_limit_exceeded`. S7 now sends three at a time and pauses 1 s before its one retry. The first attempt sent seven at once; the takes that came back were recorded, so the second attempt paid only for the rest (0.0194 + 0.0156 USD).
+- Short lines run well under the pack's 2.6 words a second (1.5 to 1.9 for four or five words, 2.5 to 2.7 for the longer lines), so two of seven did not fit even at 12 percent faster, and the climax line runs 0.2 s over. The pack's rate is tuned on one shouted line (T004). Not changed: the owner decides (Gate 1 report).
+- Key lines: the first strong onset sits 0.07 s into each trimmed take; both land 0 ms from target in the encoded video (cross-correlation, `render.json`).

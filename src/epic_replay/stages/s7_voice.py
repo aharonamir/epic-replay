@@ -1,6 +1,6 @@
 """S7 Voice (plan.md 4.8, FR-022 to FR-025): one take per line, fitted and placed by code.
 
-For each line, in parallel: synthesise with the script's voice and the line's delivery (cached
+For each line, three at a time (the provider's limit): synthesise with the script's voice and the line's delivery (cached
 by text, voice and delivery); on an error, one retry, then the stage stops with "try again".
 Then, in code:
 - trim leading and trailing silence and measure;
@@ -18,6 +18,7 @@ Writes `voice/<line_id>.wav` and `voice.json` (data-model.md).
 from __future__ import annotations
 
 import json
+import time
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
@@ -32,6 +33,8 @@ MAX_SPEEDUP = 1.12
 GAP_S = 0.1
 KEY_ROLES = ("climax", "replay_climax")
 TRY_AGAIN = "The voice could not be made; try again."
+CONCURRENT = 3  # ElevenLabs Starter allows three requests at a time (429 above that)
+RETRY_AFTER_S = 1.0
 
 
 def speech_for(ctx: RunContext):
@@ -53,6 +56,7 @@ def take(speech, line: dict, voice_id: str):
         except Exception:  # noqa: BLE001 - one retry, then the stage stops
             if attempt == 2:
                 raise
+            time.sleep(RETRY_AFTER_S)
     raise AssertionError("unreachable")
 
 
@@ -86,7 +90,7 @@ def run(ctx: RunContext) -> StageResult:
     delay = script["reaction_delay_s"]
     lines = script["lines"]
     try:
-        with ThreadPoolExecutor(max_workers=max(1, len(lines))) as pool:
+        with ThreadPoolExecutor(max_workers=CONCURRENT) as pool:
             takes = list(pool.map(lambda ln: take(speech, ln, voice_id), lines))
     except CapExceeded as e:
         return StageResult("stopped", str(e))
