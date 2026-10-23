@@ -11,7 +11,7 @@ def run(ctx: RunContext) -> StageResult: ...
 - `RunContext` gives the run folder, the config, the provider adapters, the cost ledger and an `emit(event)` function for progress.
 - A stage reads only the files listed as its input and writes only the files listed as its output, all under `runs/<run_id>/`.
 - A stage that finds its output already present and its inputs unchanged returns at once. This is what makes "re-run from stage", re-telling in another style, and demo replay work.
-- Stages S5, S7, S8 and the graphics part of S9 also read the style pack named in `user_context.json`. No other stage may read it.
+- Stages S5, S7, S8 and the graphics part of S9 also read the style pack named in `user_context.json`; S6 reads only its `banned_terms` (rule 8, T017). No other stage may read it.
 - `StageResult.status` is `ok`, `degraded` (a fallback was used; `note` says which), `waiting` (a checkpoint), `stopped` (sensitivity or cap) or `failed`.
 
 | Stage | Reads | Writes | Fails or degrades how | Time budget |

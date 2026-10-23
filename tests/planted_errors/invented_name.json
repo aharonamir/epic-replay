@@ -1,0 +1,146 @@
+{
+  "schema_version": "1.0",
+  "run_id": "fixture-freekick",
+  "language": "en",
+  "style": "football_commentator",
+  "words_per_second": 2.6,
+  "reaction_delay_s": 0.15,
+  "voice": {
+    "provider": "to-be-chosen-in-T004",
+    "voice_id": "football-commentator-1"
+  },
+  "headline": "TOP-CORNER FREE KICK",
+  "lower_third": "NOA \u00b7 FREE KICK",
+  "lines": [
+    {
+      "id": "l1",
+      "segment_id": "s2",
+      "role": "opening",
+      "anchor": {
+        "type": "start_at",
+        "timeline_t": 1.3,
+        "event_id": null
+      },
+      "max_duration_s": 4.0,
+      "max_words": 10,
+      "text": "Free kick, just outside the box. The wall is set.",
+      "delivery": "measured, expectant",
+      "event_refs": [
+        "e1",
+        "e2"
+      ],
+      "generic": false
+    },
+    {
+      "id": "l2",
+      "segment_id": "s2",
+      "role": "build_up",
+      "anchor": {
+        "type": "start_at",
+        "timeline_t": 9.433,
+        "event_id": null
+      },
+      "max_duration_s": 1.6,
+      "max_words": 4,
+      "text": "Noa steps up...",
+      "delivery": "rising, quick",
+      "event_refs": [
+        "e3"
+      ],
+      "generic": false
+    },
+    {
+      "id": "l3",
+      "segment_id": "s2",
+      "role": "climax",
+      "anchor": {
+        "type": "hit_at",
+        "timeline_t": 11.433,
+        "event_id": "e6"
+      },
+      "max_duration_s": 2.0,
+      "max_words": 5,
+      "text": "TOP CORNER! What a strike!",
+      "hit_word": "TOP",
+      "delivery": "shouting, full voice",
+      "event_refs": [
+        "e6",
+        "e4"
+      ],
+      "generic": false
+    },
+    {
+      "id": "l4",
+      "segment_id": "s2",
+      "role": "reaction",
+      "anchor": {
+        "type": "start_at",
+        "timeline_t": 13.683,
+        "event_id": null
+      },
+      "max_duration_s": 1.6,
+      "max_words": 4,
+      "text": "The keeper, Rossi, never moved.",
+      "delivery": "amazed, coming down",
+      "event_refs": [
+        "e7"
+      ],
+      "generic": false
+    },
+    {
+      "id": "l5",
+      "segment_id": "s4",
+      "role": "replay_watch",
+      "anchor": {
+        "type": "start_at",
+        "timeline_t": 16.9,
+        "event_id": null
+      },
+      "max_duration_s": 3.5,
+      "max_words": 9,
+      "text": "Watch it again. Short run-up, clean strike.",
+      "delivery": "calm, analytical",
+      "event_refs": [
+        "e3",
+        "e4"
+      ],
+      "generic": false
+    },
+    {
+      "id": "l6",
+      "segment_id": "s4",
+      "role": "replay_climax",
+      "anchor": {
+        "type": "hit_at",
+        "timeline_t": 22.4,
+        "event_id": "e6"
+      },
+      "max_duration_s": 3.5,
+      "max_words": 9,
+      "text": "There it is. Top left, right under the bar.",
+      "hit_word": "There",
+      "delivery": "warm, admiring",
+      "event_refs": [
+        "e6"
+      ],
+      "generic": false
+    },
+    {
+      "id": "l7",
+      "segment_id": "s5",
+      "role": "sign_off",
+      "anchor": {
+        "type": "start_at",
+        "timeline_t": 26.7,
+        "event_id": null
+      },
+      "max_duration_s": 1.6,
+      "max_words": 4,
+      "text": "Noa, take a bow.",
+      "delivery": "smiling",
+      "event_refs": [],
+      "generic": true
+    }
+  ],
+  "approved": "user"
+}

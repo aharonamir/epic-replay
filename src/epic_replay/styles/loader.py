@@ -81,3 +81,14 @@ def load(styles: Path = STYLES, assets: Path = ASSETS) -> dict[str, dict]:
 
 def default(packs: dict[str, dict]) -> dict:
     return next(p for p in packs.values() if p["default"])
+
+
+def for_run(user_context: dict) -> dict:
+    """The pack the run's user context names, or the default when it names none."""
+    packs = load()
+    style = user_context.get("style")
+    if style is None:
+        return default(packs)
+    if style not in packs:
+        raise NoStyles(f"style {style} is not a usable pack")
+    return packs[style]
