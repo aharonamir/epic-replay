@@ -87,12 +87,15 @@ Until T014, a yes-or-no prompt on the command line stands in for the play card, 
   Done when: the fixture play sheet produces exactly the fixture storyboard, and for 100 random valid play sheets segments are contiguous, the duration is within `EPIC_MIN_OUTPUT_S` to 60 s and the markers lie inside their segments.
   Now (re-plan): the Classic template only. Done when: the fixture play sheet produces exactly the fixture storyboard.
   As built (2026-10-22): `stages/s4_storyboard.py`; the fixture is matched exactly, and 100 random play sheets give storyboards that pass the schema and the cross-file rules, last 20 to 60 s, and keep the markers inside their segments.
-- [ ] T018 FFmpeg toolkit: cut, speed change, freeze, crop and zoom, concatenate, all frame-exact; duration unit tests. Zoom easing is deferred (1h; full design 5h) - S9, S10
+- [x] T018 FFmpeg toolkit: cut, speed change, freeze, crop and zoom, concatenate, all frame-exact; duration unit tests. Zoom easing is deferred (1h; full design 5h) - S9, S10
   Done when: each operation's output duration is within one frame of the expected value.
   Now (re-plan): cut, speed change and concatenate; freeze, crop and zoom when the storyboard needs them.
-- [ ] T019 S9 Slow motion by FFmpeg frame blending, the method recorded in `visuals.json`; the real-frame path for clips filmed at 100 fps or more is deferred (none of the starter clips is). No call to any hosted service (0.5h; full design 4h) - US1, FR-028
+  Added by the owner (2026-10-23), for T018 and T019: the replay segment's `hold_s` is rendered as a held last frame, tested with the climax on the clip's last frame, and the output length matches the storyboard within one frame.
+  As built (2026-10-23): `media/ffmpeg.py`, one filter chain per segment that ends by fitting it to an exact frame count (the last frame cloned, the rest cut); segments are video only, encoded alike, and concatenated without re-encoding. The zoom is a fixed 1.25x crop toward the focus box, so S9 reads the play sheet's `focus_box` (stage-contracts.md). Tests in `tests/unit/test_visuals.py` read the frame number back from a moving bar in the test clip.
+- [x] T019 S9 Slow motion by FFmpeg frame blending, the method recorded in `visuals.json`; the real-frame path for clips filmed at 100 fps or more is deferred (none of the starter clips is). No call to any hosted service (0.5h; full design 4h) - US1, FR-028
   Done when: a 30 fps clip produces a blended replay of the right length.
-  Now (re-plan): as written.
+  Now (re-plan): as written, with the owner's addition under T018.
+  As built (2026-10-23): `stages/s9_visuals.py` writes `segments/<id>.mp4` and `visuals.json` (`method` `blend` for the replay). With the climax on the clip's last frame the replay ends on that frame and holds it for `hold_s`; blending stops on the window's last frame up to three output frames before the window's nominal end, and those frames hold it too (0.1 s at 0.25x). For a climax at the end, in the middle and near the start, each segment and the concatenated whole are within one frame of the storyboard.
 
 ## Day 8 - Wed 21 October - from play sheet to sound and picture - 7.5 h, 0.5 h buffer (carried over)
 

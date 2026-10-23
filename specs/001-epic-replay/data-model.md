@@ -178,7 +178,7 @@ The layers used with their asset file, start, gain and fades; the measured integ
 
 ### Visuals - `visuals.json`
 
-Per segment: file, the slow-motion `method` (`native`, `rife`, `topaz`, `blend`), duration, cost. Per overlay: file and the text it was rendered with.
+Per segment: id, file, the slow-motion `method` (`native`, `rife`, `topaz`, `blend`; null for a still segment), `frames` and `duration_s` as measured, the `hold_s` it was rendered with, cost. Per overlay: file and the text it was rendered with. As built in T018 and T019: each segment has `frames(timeline_end) - frames(timeline_start)` frames, so the segments add up to the storyboard's length to the frame; the replay's `hold_s` holds its last frame; `overlays` stays empty until T024's FFmpeg text overlays.
 
 ### Render - `render.json`
 
