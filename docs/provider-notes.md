@@ -213,5 +213,5 @@ The key-moment line is no, so plan.md section 6 applies: the play card opens wit
 | l7 | sign_off | 4 | 2.7 | 1.48 | 1.12 | dropped |
 
 - The Starter plan allows three concurrent requests; a fourth gets `429 concurrent_limit_exceeded`. S7 now sends three at a time and pauses 1 s before its one retry. The first attempt sent seven at once; the takes that came back were recorded, so the second attempt paid only for the rest (0.0194 + 0.0156 USD).
-- Short lines run well under the pack's 2.6 words a second (1.5 to 1.9 for four or five words, 2.5 to 2.7 for the longer lines), so two of seven did not fit even at 12 percent faster, and the climax line runs 0.2 s over. The pack's rate is tuned on one shouted line (T004). Not changed: the owner decides (Gate 1 report).
+- Short lines run well under the pack's 2.6 words a second (1.5 to 2.0 for four or five words, 2.4 to 2.8 for the others), so two of seven did not fit even at 12 percent faster, and the climax line runs 0.2 s over. The pack's rate is tuned on one shouted line (T004). Not changed: the owner decides (Gate 1 report).
 - Key lines: the first strong onset sits 0.07 s into each trimmed take; both land 0 ms from target in the encoded video (cross-correlation, `render.json`).
