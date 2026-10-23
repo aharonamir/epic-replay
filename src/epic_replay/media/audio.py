@@ -7,6 +7,7 @@ block's RMS (about -10 dB): for a shouted line, its first syllable (plan.md 4.8)
 
 from __future__ import annotations
 
+import re
 import subprocess
 import wave
 from pathlib import Path
@@ -81,3 +82,20 @@ def atempo(src: Path, out: Path, factor: float) -> None:
     )  # fmt: skip
     if r.returncode != 0:
         raise RuntimeError(f"atempo failed: {r.stderr[-300:]}")
+
+
+def loudness(path: Path) -> tuple[float, float]:
+    """(integrated loudness in LUFS, true peak in dBTP), measured by FFmpeg's EBU R128 meter."""
+    r = subprocess.run(
+        ["ffmpeg", "-nostats", "-hide_banner", "-i", str(path), "-af", "ebur128=peak=true",
+         "-f", "null", "-"],
+        capture_output=True, text=True,
+    )  # fmt: skip
+    if r.returncode != 0:
+        raise RuntimeError(f"loudness measure failed: {r.stderr[-300:]}")
+    summary = r.stderr[r.stderr.rfind("Summary:") :]
+    i = re.search(r"I:\s+(-?[\d.]+|-inf) LUFS", summary)
+    tp = re.search(r"Peak:\s+(-?[\d.]+|-inf) dBFS", summary)
+    if not i or not tp:
+        raise RuntimeError("loudness measure gave no summary")
+    return float(i.group(1)), float(tp.group(1))
