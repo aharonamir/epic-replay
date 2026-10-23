@@ -48,6 +48,7 @@ class Settings:
     gemini_api_key: str
     openai_api_key: str
     elevenlabs_api_key: str
+    elevenlabs_model: str
 
 
 def load() -> Settings:
@@ -80,4 +81,5 @@ def load() -> Settings:
         gemini_api_key=_s("GEMINI_API_KEY"),
         openai_api_key=_s("OPENAI_API_KEY"),
         elevenlabs_api_key=_s("ELEVENLABS_API_KEY"),
+        elevenlabs_model=_s("EPIC_ELEVENLABS_MODEL", "eleven_v3"),
     )
