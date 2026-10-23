@@ -117,9 +117,10 @@ Until T014, a yes-or-no prompt on the command line stands in for the play card, 
   Done when: the fixture mix measures -14 LUFS within 1 LU and peaks no higher than -1 dBTP.
   Now (re-plan): as written, with the layers T021 has.
   As built (2026-10-23): `stages/s8_mix.py`, one filter graph: voice lines at their placed starts, the bed looped and ducked under the voice by a sidechain compressor, the pack's one-shots at the markers, the clip's own sound under the live segment only (muted on request or when there is none); two-pass `loudnorm` with a linear gain, cut to the storyboard's length. The fixture with test takes measures -13.9 LUFS and -5.5 dBTP at 28.9 s (`tests/unit/test_mix.py`); measured again with real takes at Gate 1.
-- [ ] T024 S10 Compose: assemble segments, overlays and mix from the storyboard; fades; export; `render.json` with the measured onset of each key line; golden test from the fixture (1.5h; full design 6h) - US1, FR-031, SC-4
+- [x] T024 S10 Compose: assemble segments, overlays and mix from the storyboard; fades; export; `render.json` with the measured onset of each key line; golden test from the fixture (1.5h; full design 6h) - US1, FR-031, SC-4
   Done when: the fixture renders to 28.9 s within one frame and both key-line onsets are within 150 ms of target.
   Now (re-plan): the overlays are FFmpeg text: title, REPLAY bug and the AI label. The HTML graphics of T023 are added back on Sun 25 (cut item 2).
+  As built (2026-10-23): `stages/s10_compose.py`. The segments are joined without re-encoding and encoded once with FFmpeg text: the headline on the title card, the pack's replay bug, the pack's kicker over the headline on the end card, "AI COMMENTARY" in a corner throughout, and a matching metadata tag (FR-030); the lower third stays deferred. Each key line's onset is measured on the encoded audio by cross-correlating its placed take near its planned start. Golden test `tests/unit/test_compose.py` (fixture timeline at 320 x 180, test takes): 28.9 s, both onsets 0 ms off, -13.9 LUFS. No fades yet beyond the bed's.
 
 ## Day 9 - Thu 22 October - the flow, the play card, the page - 6.5 h, 1.5 h buffer (carried over)
 

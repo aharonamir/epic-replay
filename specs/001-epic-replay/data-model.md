@@ -182,7 +182,7 @@ Per segment: id, file, the slow-motion `method` (`native`, `rife`, `topaz`, `ble
 
 ### Render - `render.json`
 
-`duration_s`, `width`, `height`, `video_codec`, `audio_codec`, `loudness_lufs`, `true_peak_dbtp`, and `climax_onsets[]`: for each `hit_at` line, the target start time and the onset measured in the output audio. SC-4 is computed from this.
+`duration_s`, `width`, `height`, `video_codec`, `audio_codec`, `loudness_lufs`, `true_peak_dbtp`, and `climax_onsets[]`: for each `hit_at` line, the target start time and the onset measured in the output audio. SC-4 is computed from this. As built (T024): `duration_s` counts the encoded frames; `container_duration_s` is ffprobe's; each onset is `{line_id, role, target_s, measured_s, error_ms}`; `ai_label` is the label burned in. The FFmpeg text overlays write their text to `overlays/<name>.txt`, not PNGs.
 
 ### Cost ledger - `cost.json`
 
