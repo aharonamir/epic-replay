@@ -1,0 +1,67 @@
+{
+  "draft": {
+    "lines": [
+      {
+        "delivery": "Low and level, setting the scene",
+        "event_refs": [],
+        "id": "l1",
+        "text": "Griddle's hot."
+      },
+      {
+        "delivery": "Rising into a shout on the first word",
+        "event_refs": [],
+        "hit_word": "FLIPPED",
+        "id": "l2",
+        "text": "FLIPPED! Browned!"
+      },
+      {
+        "delivery": "Quiet, half a laugh of admiration",
+        "event_refs": [],
+        "id": "l3",
+        "text": "Clean."
+      },
+      {
+        "delivery": "Slower, pointing the viewer at the detail",
+        "event_refs": [],
+        "id": "l4",
+        "text": "Watch the spatula slide under it."
+      },
+      {
+        "delivery": "Warm, unhurried, savoring it",
+        "event_refs": [],
+        "hit_word": "Over",
+        "id": "l5",
+        "text": "Over it goes. Browned side up."
+      },
+      {
+        "delivery": "Plain tribute, full stop",
+        "event_refs": [],
+        "id": "l6",
+        "text": "Textbook."
+      }
+    ],
+    "headline": "Browned and Flipped",
+    "lower_third": "Spatula flip on the hot griddle"
+  },
+  "calls": [
+    {
+      "tool": "check_lines",
+      "lines": 6,
+      "failures": 2
+    },
+    {
+      "tool": "check_lines",
+      "lines": 6,
+      "failures": 0
+    },
+    {
+      "tool": "submit_script",
+      "lines": 6,
+      "failures": 0
+    }
+  ],
+  "usage": {
+    "input_tokens": 8244,
+    "output_tokens": 2368
+  }
+}

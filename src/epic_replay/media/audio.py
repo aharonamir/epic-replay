@@ -1,7 +1,8 @@
 """Audio helpers for S7, S8 and S10: WAV in and out, silence trim, first strong onset, tempo.
 
-Levels are measured on 10 ms RMS blocks. Silence is anything more than 40 dB under the take's
-loudest block. The first strong onset is the first block at least 30 percent of the loudest
+Levels are measured on 10 ms RMS blocks. Leading silence is anything more than 40 dB under the
+take's loudest block; at the end, 30 dB, so a take's trailing breath or room tail (measured at
+0.5 to 0.8 s on short ElevenLabs takes, T020) is not counted as speech. The first strong onset is the first block at least 30 percent of the loudest
 block's RMS (about -10 dB): for a shouted line, its first syllable (plan.md 4.8).
 """
 
@@ -16,6 +17,7 @@ import numpy as np
 
 BLOCK_S = 0.01
 SILENCE_DB = -40.0
+TAIL_DB = -30.0
 ONSET_SHARE = 0.3
 PAD_S = 0.02
 
@@ -60,8 +62,9 @@ def trim_silence(y: np.ndarray, sr: int) -> np.ndarray:
     if rms.max() <= 0:
         return y[:0]
     loud = np.flatnonzero(rms >= rms.max() * 10 ** (SILENCE_DB / 20))
+    tail = np.flatnonzero(rms >= rms.max() * 10 ** (TAIL_DB / 20))
     n, pad = int(sr * BLOCK_S), int(sr * PAD_S)
-    a, b = max(0, loud[0] * n - pad), min(len(y), (loud[-1] + 1) * n + pad)
+    a, b = max(0, loud[0] * n - pad), min(len(y), (tail[-1] + 1) * n + pad)
     return y[a:b]
 
 

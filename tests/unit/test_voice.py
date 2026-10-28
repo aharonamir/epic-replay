@@ -126,3 +126,18 @@ def test_trim_and_onset_helpers():
     t = audio.trim_silence(y, SR)
     assert len(t) / SR == pytest.approx(0.25 + 2 * audio.PAD_S, abs=0.011)
     assert audio.first_onset(t, SR) == pytest.approx(audio.PAD_S, abs=0.011)
+
+
+def test_a_quiet_tail_is_trimmed_but_a_quiet_start_is_kept():
+    def at(db, s):
+        return 0.4 * 10 ** (db / 20) * np.ones(int(SR * s))
+
+    # a breath 35 dB down after the word goes; one 35 dB down before it stays
+    y = np.concatenate(
+        [np.zeros(SR // 4), at(-35, 0.2), at(0, 0.3), at(-35, 0.6), np.zeros(SR // 4)]
+    )
+    t = audio.trim_silence(y, SR)
+    assert len(t) / SR == pytest.approx(0.5 + 2 * audio.PAD_S, abs=0.011)
+    # a tail only 25 dB down is speech and stays
+    y = np.concatenate([at(0, 0.3), at(-25, 0.4)])
+    assert len(audio.trim_silence(y, SR)) / SR == pytest.approx(0.7, abs=0.011)

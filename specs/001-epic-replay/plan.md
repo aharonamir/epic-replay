@@ -212,7 +212,7 @@ Code selects a template and computes the timeline (FR-013 to FR-015).
 ### 4.8 S7 Voice
 
 - One request per line, in parallel, with the style pack's voice and the delivery direction for the line. The pack gives a default direction per line role; the Commentator may refine it. Results are cached by a hash of text, voice and delivery.
-- Each take is trimmed of leading and trailing silence and measured. If it exceeds its slot by up to 12 percent it is sped up with FFmpeg `atempo`; beyond that the Commentator is asked for a shorter line, twice at most (FR-023).
+- Each take is trimmed of leading and trailing silence and measured (leading silence is 40 dB under the take's loudest 10 ms block, trailing 30 dB, so a breath or room tail after the last word is not counted; T020, 2026-10-28). If it exceeds its slot by up to 12 percent it is sped up with FFmpeg `atempo`; beyond that the Commentator is asked for a shorter line, twice at most (FR-023).
 - Placement: `start_at` lines start at their anchor. A `hit_at` line is placed so that its key word, not the start of the take, lands at the event's timeline time plus the style's reaction delay: 150 ms for the football commentator, who reacts at once; longer for the reporter and the narrator, who do not (revision 7).
   - The Commentator names the key word of each key line in `hit_word`; `submit_script` checks that it is in the line.
   - The key word's offset inside the trimmed take comes from the speech provider's character timings when the model returns them (ElevenLabs `/v1/text-to-speech/{voice_id}/with-timestamps`; whether `eleven_v3` returns them is checked in T020), and otherwise from the take's first strong sound onset, which for a shouted line is its first syllable.
