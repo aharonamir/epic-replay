@@ -1,0 +1,67 @@
+{
+  "draft": {
+    "lines": [
+      {
+        "delivery": "low, setting the scene",
+        "event_refs": [],
+        "id": "l1",
+        "text": "Griddle's hot."
+      },
+      {
+        "delivery": "rising to a shout",
+        "event_refs": [],
+        "hit_word": "FLIPPED",
+        "id": "l2",
+        "text": "FLIPPED! Perfectly browned!"
+      },
+      {
+        "delivery": "settling, admiring",
+        "event_refs": [],
+        "id": "l3",
+        "text": "Clean, flat landing."
+      },
+      {
+        "delivery": "conspiratorial, pointing",
+        "event_refs": [],
+        "id": "l4",
+        "text": "Watch the spatula slide under."
+      },
+      {
+        "delivery": "warm, unhurried",
+        "event_refs": [],
+        "hit_word": "Over",
+        "id": "l5",
+        "text": "Over it goes, browned side down."
+      },
+      {
+        "delivery": "a short tribute",
+        "event_refs": [],
+        "id": "l6",
+        "text": "The griddle master."
+      }
+    ],
+    "headline": "Flipping tortillas on a hot griddle",
+    "lower_third": "Hot griddle, metal spatula"
+  },
+  "calls": [
+    {
+      "tool": "check_lines",
+      "lines": 6,
+      "failures": 3
+    },
+    {
+      "tool": "check_lines",
+      "lines": 6,
+      "failures": 0
+    },
+    {
+      "tool": "submit_script",
+      "lines": 6,
+      "failures": 0
+    }
+  ],
+  "usage": {
+    "input_tokens": 7786,
+    "output_tokens": 1909
+  }
+}
