@@ -4,6 +4,7 @@ written as the climax, and US2 scenario 3: moving the key moment by three frames
 replay window and the climax calls of the storyboard with it."""
 
 import dataclasses
+import html
 import json
 import shutil
 import subprocess
@@ -125,7 +126,9 @@ def test_a_frame_is_served_and_the_page_renders(waiting):
     assert client.get("/runs/r1/frames/450.jpg").status_code == 404
     page = client.get("/r/r1")
     assert (
-        page.status_code == 200 and "Yes, that's it" in page.text and "Pick the moment" in page.text
+        page.status_code == 200
+        and "Yes, that's it" in html.unescape(page.text)
+        and "Pick the moment" in page.text
     )
 
 

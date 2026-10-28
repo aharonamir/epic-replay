@@ -1,0 +1,84 @@
+{# The play card (T014), opened inside step 4 of the progress list. #}
+<section class="play-card" aria-label="{{ copy.STEPS[3][0] }}">
+  <div class="moment">
+    <div id="key" class="to-check">
+      <div class="label">{{ copy.CARD.check }} · {{ copy.CARD.pick }}</div>
+      <img id="frame" class="frame" alt="The key moment" src="{{ card.climax.url }}">
+      <div class="data" id="where" aria-live="polite"></div>
+      <div class="row" id="nudge" tabindex="0" aria-label="Move the key moment: arrow keys one frame, Shift and arrow keys ten frames">
+        <button type="button" data-step="-10">&laquo; {{ copy.CARD.back10 }}</button>
+        <button type="button" data-step="-1">&lsaquo; {{ copy.CARD.earlier }}</button>
+        <button type="button" data-step="1">{{ copy.CARD.later }} &rsaquo;</button>
+        <button type="button" data-step="10">{{ copy.CARD.on10 }} &raquo;</button>
+      </div>
+      <div class="row"><button type="button" id="this-one">{{ copy.CARD.this_one }}</button></div>
+    </div>
+    {% if card.other_moments %}
+    <p class="muted">{{ copy.CARD.others }}</p>
+    <div class="row others">
+      {% for m in card.other_moments %}
+      <button type="button" data-frame="{{ m.frame }}" title="{{ m.reason }}">
+        <img alt="" src="{{ m.url }}" loading="lazy"><span>{{ "%.1f"|format(m.t) }} s</span>
+      </button>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+  <div class="facts">
+    <div class="activity">{{ card.play_sheet.activity.value if card.play_sheet.activity else "" }}</div>
+    <ol>
+      {% for e in card.play_sheet.events %}<li><span>{{ e.action }}{% if e.outcome %} · {{ e.outcome }}{% endif %}</span></li>{% endfor %}
+    </ol>
+    {% if card.play_sheet.outcome_summary %}<p class="muted">{{ card.play_sheet.outcome_summary.value }}</p>{% endif %}
+  </div>
+  <div class="card-actions">
+    <div class="row"><button type="button" class="primary" id="confirm" disabled>{{ copy.CARD.yes }}</button></div>
+    <p class="muted" id="why">{{ copy.CARD.why }}</p>
+    <p role="status" id="card-status"></p>
+  </div>
+</section>
+<script>
+(() => {
+  const card = {{ card_json | safe }};
+  const fps = card.fps, last = card.last_frame;
+  let frame = card.climax.frame, answered = false, timer = null;
+  const $ = (id) => document.getElementById(id);
+  function show() {
+    $("frame").src = card.frame_url.replace("{frame}", frame);
+    $("where").textContent = {{ copy.CARD.frame | tojson }}.replace("{frame}", frame).replace("{t}", (frame / fps).toFixed(2));
+    $("key").classList.toggle("answered", answered);
+    $("confirm").disabled = !answered;
+    $("why").hidden = answered;
+    document.querySelectorAll(".others button").forEach((b) =>
+      b.classList.toggle("chosen", Number(b.dataset.frame) === frame));
+  }
+  function move(step) { frame = Math.max(0, Math.min(last, frame + step)); answered = true; show(); }
+  document.querySelectorAll("#nudge button").forEach((b) => {
+    const step = Number(b.dataset.step);
+    b.addEventListener("click", () => move(step));
+    // holding a button moves five steps a second (contracts/ui.md)
+    b.addEventListener("pointerdown", () => { timer = setInterval(() => move(step), 200); });
+    ["pointerup", "pointerleave", "pointercancel"].forEach((ev) => b.addEventListener(ev, () => clearInterval(timer)));
+  });
+  $("nudge").addEventListener("keydown", (e) => {
+    if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+    e.preventDefault();
+    move((e.key === "ArrowLeft" ? -1 : 1) * (e.shiftKey ? 10 : 1));
+  });
+  $("this-one").addEventListener("click", () => { answered = true; show(); });
+  document.querySelectorAll(".others button").forEach((b) =>
+    b.addEventListener("click", () => { frame = Number(b.dataset.frame); answered = true; show(); }));
+  $("confirm").addEventListener("click", async () => {
+    $("confirm").disabled = true;
+    const r = await fetch(`/runs/${card.run_id}/play-card`, {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "confirm", edits: { climax_frame: frame } }),
+    });
+    if (r.ok) { location.reload(); return; }
+    const body = await r.json();
+    $("card-status").textContent = body.error.message;
+    show();
+  });
+  show();
+})();
+</script>
