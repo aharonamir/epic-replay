@@ -9,7 +9,9 @@ budget. The rules:
   `hit_at` slot starts, its segment's end where the table says so, and the end of the video;
 - a slot left shorter than 1.2 s is dropped, except the two climax slots, which are kept; a
   climax slot shorter than 0.8 s is a storyboard bug (S4 leaves room for it) and raises;
-- the word budget is floor(max_duration_s x words_per_second).
+- the word budget is floor((max_duration_s - startup_s) x words_per_second): a take spends about
+  `startup_s` on getting going whatever its length (T020), then speaks at the pack's rate; a
+  slot left with no word is dropped, except a key slot, which keeps one.
 """
 
 from __future__ import annotations
@@ -54,7 +56,7 @@ KEY_ROLES = ("climax", "replay_climax")
 
 def build(storyboard: dict, pack: dict, *, climax_event_id: str | None = None) -> list[dict]:
     """The slots, as script lines without text, delivery, references or hit word."""
-    wps = pack["voice"]["words_per_second"]
+    wps, startup = pack["voice"]["words_per_second"], pack["voice"]["startup_s"]
     delay = pack["voice"]["reaction_delay_s"]
     segs = {}
     for s in storyboard["segments"]:
@@ -89,7 +91,8 @@ def build(storyboard: dict, pack: dict, *, climax_event_id: str | None = None) -
         dur = math.floor((limit - start) * 1000 + EPS) / 1000  # never rounded up past a limit
         if sp.role in KEY_ROLES and dur < MIN_KEY_SLOT_S - EPS:
             raise NoRoom(f"the {sp.role} slot would last {dur:.3f} s, under {MIN_KEY_SLOT_S} s")
-        if sp.role not in KEY_ROLES and dur < MIN_SLOT_S - EPS:
+        words = math.floor((dur - startup) * wps + EPS)
+        if sp.role not in KEY_ROLES and (dur < MIN_SLOT_S - EPS or words < 1):
             continue
         prev_end = round(start + dur, 3)
         hit = sp.kind == "hit_at"
@@ -103,7 +106,7 @@ def build(storyboard: dict, pack: dict, *, climax_event_id: str | None = None) -
                     "event_id": climax_event_id if hit else None,
                 },
                 "max_duration_s": dur,
-                "max_words": max(1, math.floor(dur * wps + EPS)),
+                "max_words": max(1, words),
             }
         )
     return [{"id": f"l{k}", **s} for k, s in enumerate(slots, 1)]

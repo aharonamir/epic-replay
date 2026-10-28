@@ -30,8 +30,8 @@ def test_the_fixture_script_passes():
 
 @pytest.mark.parametrize(
     "name, line, kind",
-    [("invented_name", "l4", "invented_name"), ("invented_number", "l5", "invented_number"),
-     ("banned_term", "l7", "banned_term")],
+    [("invented_name", "l5", "invented_name"), ("invented_number", "l5", "invented_number"),
+     ("banned_term", "l6", "banned_term")],
 )  # fmt: skip
 def test_each_planted_error_is_caught_on_its_line(name, line, kind):
     script = read(f"tests/planted_errors/{name}.json")

@@ -57,7 +57,9 @@ def test_slots_never_overlap_and_keep_both_key_lines(pack_path):
         assert all(s >= 0 and e <= sb["duration_s"] + 1e-6 for s, e in spans)
         for s in built:
             wps = pack["voice"]["words_per_second"]
-            assert s["max_words"] == max(1, int(s["max_duration_s"] * wps + 1e-6))
+            assert s["max_words"] == max(
+                1, int((s["max_duration_s"] - pack["voice"]["startup_s"]) * wps + 1e-6)
+            )
             if s["role"] not in slots.KEY_ROLES:
                 assert s["max_duration_s"] >= slots.MIN_SLOT_S - 1e-6
 

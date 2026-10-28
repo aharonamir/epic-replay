@@ -262,7 +262,7 @@ Targets marked (provisional) are re-set at Gate 0 from the spike measurements, a
 - Three styles in the MVP. All three use voices from the provider chosen in the bake-off, so one provider must be able to shout, read evenly and speak softly.
 - The confirmation step (Checkpoint A) is shown inside the progress list. Script approval is automatic by default.
 - Keys are available for DeepSeek (both agents and the vision calls) and for a voice provider. DeepSeek has no speech model, so the voices come from Gemini 3.8 Flash TTS on a paid key, or from ElevenLabs if the day-2 test prefers it.
-- The presentation is two weeks from 2026-10-11. The schedule is expressed as ten working days. The owner moved the presentation to 2026-10-27 on 2026-10-20 (plan.md section 6).
+- The presentation is two weeks from 2026-10-11. The schedule is expressed as ten working days. The owner moved the presentation to 2026-10-27 on 2026-10-20, then to 2026-11-04 on 2026-10-28 (plan.md section 6).
 
 ## 7. Dependencies and constraints
 

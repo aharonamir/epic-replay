@@ -116,6 +116,7 @@
         "fallback",
         "delivery",
         "words_per_second",
+        "startup_s",
         "reaction_delay_s"
       ],
       "properties": {
@@ -133,6 +134,12 @@
           "type": "number",
           "exclusiveMinimum": 0,
           "description": "Measured for the primary voice in this style. Sets word budgets."
+        },
+        "startup_s": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 2,
+          "description": "Time a take takes whatever its word count (measured, T020). A slot's word budget is floor((max_duration_s - startup_s) x words_per_second)."
         },
         "reaction_delay_s": {
           "type": "number",

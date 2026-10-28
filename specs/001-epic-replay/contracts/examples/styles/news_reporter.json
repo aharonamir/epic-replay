@@ -49,6 +49,7 @@
       "sign_off": "newsreader, brisk"
     },
     "words_per_second": 2.4,
+    "startup_s": 0.9,
     "reaction_delay_s": 0.4
   },
   "sound": {

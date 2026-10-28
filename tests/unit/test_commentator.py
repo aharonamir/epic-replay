@@ -50,8 +50,8 @@ def test_the_fixture_draft_passes_both_tools_and_s6():
     "change, where, says",
     [(lambda d: d["lines"][2].update(hit_word="goal"), "l3", "hit_word"),
      (lambda d: d["lines"][2].pop("hit_word"), "l3", "hit_word"),
-     (lambda d: d["lines"][3].update(text="The keeper, Rossi, never moved."), "l4", "Rossi"),
-     (lambda d: d["lines"][1].update(text="Noa steps up, takes aim, and"), "l2", "more than 3 words"),
+     (lambda d: d["lines"][4].update(text="Again. The keeper, Rossi, froze."), "l5", "Rossi"),
+     (lambda d: d["lines"][1].update(text="Noa steps up, takes aim, and"), "l2", "more than 1 word"),
      (lambda d: d["lines"].pop(6), "l7", "no line"),
      (lambda d: d["lines"][0].update(event_refs=["e99"]), "script", "unknown event"),
      (lambda d: d.update(headline="X" * 41), "script", "headline")],
@@ -170,7 +170,7 @@ def test_s5_falls_back_to_the_structured_draft_then_generic_lines(tmp_path):
     res, _ = run_s5(run_dir, rec)
     assert res.status == "degraded" and "l4" in res.note
     script = json.loads((run_dir / "script.json").read_text())
-    assert script["lines"][3]["text"] == "What a moment." and script["lines"][3]["generic"]
+    assert script["lines"][3]["text"] == "Wow." and script["lines"][3]["generic"]
     assert s6_checks.check(script, PS, UC, PACK) == []
 
 

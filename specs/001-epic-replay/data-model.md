@@ -85,7 +85,7 @@ Schema: [contracts/script.schema.json](contracts/script.schema.json). Example: [
 | Field | Meaning |
 |-------|---------|
 | `style` | Id of the style pack |
-| `words_per_second`, `reaction_delay_s` | Copied from the pack when the slots were built: the two numbers that turn slots into word budgets and anchors into start times |
+| `words_per_second`, `startup_s`, `reaction_delay_s` | Copied from the pack when the slots were built: the numbers that turn slots into word budgets and anchors into start times |
 | `lines[]` | One take each: the segment, the role, the anchor, the longest it may run, the words, a delivery direction, and the events it relies on. Slot fields are written by code; text and delivery by the Commentator |
 | `anchor.type` | `start_at`: start at `timeline_t`. `hit_at`: the line's `hit_word` lands at `timeline_t` plus the reaction delay |
 | `hit_word` | Key lines only: the word that lands on the moment; it must occur in the text (revision 7) |

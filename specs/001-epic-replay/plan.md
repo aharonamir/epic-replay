@@ -201,7 +201,7 @@ Code selects a template and computes the timeline (FR-013 to FR-015).
   | Replay climax | `hit_at` | the replay climax marker | 3.5 s, ending before the replay does |
   | Sign-off | `start_at` | 0.3 s into the end card | 1.6 s |
 
-- Slot rules: a `hit_at` slot starts at its marker plus the pack's reaction delay. Every other slot starts at the latest of its nominal time, its segment's start (T038: a build-up line never starts in the title) and the previous slot's worst-case end plus 0.1 s. Times are kept to the millisecond and durations rounded down, so no rounding pushes a slot past its limit; a key slot keeps a budget of at least one word. A slot that would run past its limit (0.1 s before the next `hit_at` slot starts, the limit in the table, or the end of the video) is shortened; a slot left shorter than 1.2 s is dropped. The two climax slots are never dropped. Word budget is `floor(max_duration_s x words_per_second)` with the pack's speaking rate, so a slower narrator gets fewer words in the same picture.
+- Slot rules: a `hit_at` slot starts at its marker plus the pack's reaction delay. Every other slot starts at the latest of its nominal time, its segment's start (T038: a build-up line never starts in the title) and the previous slot's worst-case end plus 0.1 s. Times are kept to the millisecond and durations rounded down, so no rounding pushes a slot past its limit; a key slot keeps a budget of at least one word. A slot that would run past its limit (0.1 s before the next `hit_at` slot starts, the limit in the table, or the end of the video) is shortened; a slot left shorter than 1.2 s is dropped. The two climax slots are never dropped. Word budget is `floor((max_duration_s - startup_s) x words_per_second)` with the pack's start-up time and speaking rate (owner, 2026-10-28: a take spends about `startup_s` getting going whatever its length, T020), so a slower narrator gets fewer words in the same picture; a slot left with no word is dropped, except a key slot, which keeps one.
 - The Commentator receives the confirmed play sheet, the slots with their budgets, the user context, and from the style pack the persona, the rules, a note on what each line role is for, and invented sample lines that show the register. It returns text and a delivery direction for each slot, plus a headline for the end card and a caption for the lower third.
 - **The Commentator is a ReAct agent** on `deepseek-flash` with two tools. `check_lines` runs the code checks (five of the ten in the MVP, revision 7) on a draft and returns each failure with the rule it broke. `submit_script` accepts a draft that passes. The agent drafts, checks, fixes and submits within six iterations; the write-check-rewrite loop is the agent's own loop. S6 then runs the same checks again on what was submitted: the agent saying a draft passed is never taken as proof. If the agent does not submit in time, code asks for one structured draft and replaces any failing line with a generic one.
 - The climax call is its own line. Each line is voiced separately; a key line also names its key word (`hit_word`), and S7 places the take so that word lands on the moment (section 4.8, FR-016, FR-024).
@@ -260,7 +260,7 @@ A style is one JSON file (contracts/style_pack.schema.json; three examples in co
 | `script.banned_terms` | S6 code checks | Extra terms on top of the global list |
 | `voice.primary`, `voice.fallback` | S7 | Which voice speaks |
 | `voice.delivery` | S5, S7 | Default direction for each line role |
-| `voice.words_per_second` | S5 slot builder | Word budgets |
+| `voice.words_per_second`, `voice.startup_s` | S5 slot builder | Word budgets |
 | `voice.reaction_delay_s` | S5 slot builder, S7, SC-4 | When the key line starts |
 | `sound.*` | S8 | Bed, climax sounds, transition, stings, level of the clip's own sound |
 | `graphics.*` | S9 graphics, the page | Skin, accent colour, lower-third layout; on the page, the accent colours the controls and the layout shapes the card's sample caption |
@@ -271,11 +271,11 @@ The three MVP styles differ on every row:
 |---|---|---|---|
 | Attitude | Excited, present tense, peaks on the moment | Calm, formal, states the moment as fact | Hushed, patient, fond |
 | Key line | Shouted, 0.15 s after the moment | Spoken evenly, 0.4 s after | Almost whispered, 0.6 s after |
-| Speaking rate (starting value) | 2.0 words per second (2.6 until 2026-10-28) | 2.4 | 2.0 |
+| Speaking rate (starting value) | 0.9 s start-up, then 2.6 words per second (2026-10-28) | 2.4 | 2.0 |
 | Sound | Crowd bed, roar, sport stings | No bed, news stings, more of the clip's own sound | Outdoor ambience, string swell |
 | Graphics | Strap lower third, "REPLAY" | Ticker lower third, "SLOW MOTION" | Caption lower third, "ONCE MORE, SLOWLY" |
 
-Speaking rates and delays are starting values; T038 and T039 replace them with rates measured for the chosen voices.
+The News and Nature start-up times (0.9 s) are copied from the football measurements. Speaking rates and delays are starting values; T038 and T039 replace them with rates measured for the chosen voices.
 
 Rules that keep styles safe to add:
 - Packs are validated at start-up against the schema, and every voice id and asset path is checked to exist. A pack that fails is left out of the picker and logged.
@@ -367,6 +367,8 @@ epic-replay/
 Re-plan (owner, 2026-10-20): the presentation moves to Tuesday 27 October. The working days left are Tue 20, Wed 21, Thu 22, Sat 24, Sun 25 and Mon 26; Friday 23 is off. Tue 20 to Thu 22 build the shortest path from upload to video; from Sat 24 the cut items are added back in the owner's order; at least 2 h of margin stay on Mon 26. Gates 1 to 4 are re-set below.
 
 Re-plan (owner, Thu 22 October evening): T038, T015, T018, T019 and the Wed 21 and Thu 22 tasks were not done. "If a day is lost" is applied: add-backs 5, 10 and 12 and then 2, 3 and 8 are dropped; 13, 11 and the rehearsals stay. Then add-backs 6 + 7, 4 and 9 are dropped as well, and Gate 1 moves to Sun 25 morning. On Mon 26 the add-backs are 13 and 11, then the News reporter (1), which is dropped only if Monday overruns. The demo, the cached run and the rehearsals use single-shot clips only (FlippingPancakes, Skateboard_trick, bottle flip, basket_ball_shot), not the compilations. The day table that holds now is in tasks.md ("Re-plan, Thu 22 October evening"); it replaces rows 7 to 12 below, which are kept as the record.
+
+Re-plan (owner, 2026-10-28): the presentation moves to Wednesday 4 November. Gate 1 was met on Fri 23 October. The days and gates after it are to be re-planned in tasks.md.
 
 Revision 8 (2026-10-20): Gate 0's key-moment line is no; the fallback below is applied. T012 drops refinement and the second look (3 h to 2 h), and the play card's nudge and other moments are no longer in the cut list. The freed hour is margin.
 

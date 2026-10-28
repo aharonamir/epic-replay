@@ -48,7 +48,8 @@
       "replay_climax": "warm, admiring",
       "sign_off": "smiling"
     },
-    "words_per_second": 2.0,
+    "words_per_second": 2.6,
+    "startup_s": 0.9,
     "reaction_delay_s": 0.15
   },
   "sound": {

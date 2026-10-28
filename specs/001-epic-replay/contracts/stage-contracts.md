@@ -38,7 +38,7 @@ Time budgets are targets for a 20 second clip and are replaced by measured value
 2. A referenced event has `confidence` of at least 0.7 or `source: user`.
 3. Lines with role `build_up`, `climax`, `replay_watch` or `replay_climax` have at least one reference unless `generic` is true.
 4. Every capitalised word that is not sentence-initial, and every number, appears in the play sheet or the user context. Comparison is case-insensitive and runs on a sentence-cased copy of the line, so a shouted line in capitals is not read as all names; the voice gets the original text. Sentence-initial words are checked against a list of names and places.
-5. Word count is at most `max_words`, and `max_words` equals `floor(max_duration_s x words_per_second)`, with the script's `words_per_second` equal to the style pack's.
+5. Word count is at most `max_words`, and `max_words` equals `floor((max_duration_s - startup_s) x words_per_second)`, at least 1 for a key line, with the script's `words_per_second` and `startup_s` equal to the style pack's.
 6. Using worst-case durations, no line ends after the next line starts, and the last line ends before the video does.
 7. A `hit_at` line's `timeline_t` equals one of the storyboard markers, and the script's `reaction_delay_s` equals the style pack's.
 8. No term from the global banned lexicon (which includes female terms and age words, FR-008) or from the style pack's `banned_terms`. The headline and lower third pass rules 4 and 8 as well.

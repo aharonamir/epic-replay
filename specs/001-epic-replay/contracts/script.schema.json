@@ -11,6 +11,7 @@
     "language",
     "style",
     "words_per_second",
+    "startup_s",
     "reaction_delay_s",
     "voice",
     "headline",
@@ -38,6 +39,11 @@
     "words_per_second": {
       "type": "number",
       "exclusiveMinimum": 0,
+      "description": "Copied from the style pack when the slots were built."
+    },
+    "startup_s": {
+      "type": "number",
+      "minimum": 0,
       "description": "Copied from the style pack when the slots were built."
     },
     "reaction_delay_s": {

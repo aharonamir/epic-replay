@@ -3,7 +3,8 @@
   "run_id": "fixture-freekick",
   "language": "en",
   "style": "football_commentator",
-  "words_per_second": 2.0,
+  "words_per_second": 2.6,
+  "startup_s": 0.9,
   "reaction_delay_s": 0.15,
   "voice": {
     "provider": "elevenlabs",
@@ -41,8 +42,8 @@
         "event_id": null
       },
       "max_duration_s": 1.6,
-      "max_words": 3,
-      "text": "Noa steps up...",
+      "max_words": 1,
+      "text": "Noa...",
       "delivery": "rising, quick",
       "event_refs": [
         "e3"
@@ -59,8 +60,8 @@
         "event_id": "e6"
       },
       "max_duration_s": 2.0,
-      "max_words": 4,
-      "text": "TOP CORNER! Unbelievable!",
+      "max_words": 2,
+      "text": "TOP CORNER!",
       "hit_word": "TOP",
       "delivery": "shouting, full voice",
       "event_refs": [
@@ -79,8 +80,8 @@
         "event_id": null
       },
       "max_duration_s": 1.6,
-      "max_words": 3,
-      "text": "Keeper never moved.",
+      "max_words": 1,
+      "text": "Unstoppable.",
       "delivery": "amazed, coming down",
       "event_refs": [
         "e7"
@@ -97,8 +98,8 @@
         "event_id": null
       },
       "max_duration_s": 3.5,
-      "max_words": 7,
-      "text": "Watch it again. Three steps, clean strike.",
+      "max_words": 6,
+      "text": "Again. Three steps, clean strike.",
       "delivery": "calm, analytical",
       "event_refs": [
         "e3",
@@ -116,8 +117,8 @@
         "event_id": "e6"
       },
       "max_duration_s": 3.5,
-      "max_words": 7,
-      "text": "There it is. Right under the bar.",
+      "max_words": 6,
+      "text": "There it is. Top corner.",
       "hit_word": "There",
       "delivery": "warm, admiring",
       "event_refs": [
@@ -135,8 +136,8 @@
         "event_id": null
       },
       "max_duration_s": 1.6,
-      "max_words": 3,
-      "text": "Brilliant from Noa.",
+      "max_words": 1,
+      "text": "Magnificent.",
       "delivery": "smiling",
       "event_refs": [],
       "generic": true

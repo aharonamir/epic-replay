@@ -49,6 +49,7 @@
       "sign_off": "warm, barely above a whisper"
     },
     "words_per_second": 2.0,
+    "startup_s": 0.9,
     "reaction_delay_s": 0.6
   },
   "sound": {
