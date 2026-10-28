@@ -61,6 +61,30 @@ Owner decisions of 2026-10-22 that the tasks below follow:
 - The Commentator (T016) does not treat on-screen captions or text as events: dog_catch_ball's play sheet lists two such events, and no line may be written about them.
 - The demo and the cached run use single-shot clips only: FlippingPancakes, Skateboard_trick, bottle flip and basket_ball_shot. Not the compilations fk_miss and fk_save.
 
+## Re-plan, Wed 28 October (owner, 2026-10-28)
+
+The presentation moves to Wednesday 4 November. Gate 1 was met on Fri 23 October and T020 was ticked on Wed 28 October; T020 ran well over its 2 h. The days left are Wed 28 (the rest of it), Thu 29, Sat 31 October, Sun 1, Mon 2 and Tue 3 November, 8 h a day, Friday off. Every add-back dropped on 2026-10-22 comes back. The table was reviewed adversarially (Codex, three rounds) before the owner approved it. It replaces the Thu 22 table above for these days.
+
+| Day | Hours | Tasks, in order | Task hours | Paid calls (estimate stated, owner's yes first) | End of day |
+|---|---|---|---|---|---|
+| Wed 28 (rest) | ~2 | T014 play card, core. Nothing else today | 1.5 | none | Key moment picked on the card |
+| Thu 29 | 8 | T029 page core (2); add-back 13 sensitivity stop (0.5); add-back 11, T033 privacy wording and delete (0.5); T031 second part, the clip through the page live (1); add-back 9, live progress, style cards, phone layout, reload (2); safe-point: a cached run and backup video in the Football style (0.5, from T034 first part) | 6.5 | T031 second part: one clip live, about 0.07 USD | Whole flow on the page; a cached demo run and backup exist |
+| Sat 31 | 8 | Add-backs 6 + 7, keep or remove, editable outcome, reject to generic (1.5); add-back 8, cost on the card (0.25); add-back 4, key word from ElevenLabs character timings (0.5); T039 News reporter (1); add-back 2, T023 HTML graphics (1.5); add-back 3, sting and rest of sound set (0.5); add-back 5, two more script checks (0.5) | 5.75 | Add-back 4 and T039: new takes, about 0.08 USD | Gate 2: a second narrator |
+| Sun 1 Nov | 8 | Add-back 10, re-run from a stage and re-telling (1); add-back 12, rotation and vertical clips (0.5); T034 first part, rest: cached runs in both styles, made only if the replay suite and a fixture replay pass, and a backup video (0.5); T037 deck (2). Code freeze at the end of the day | 4 | Cached runs: about 0.15 USD | Gate 3: ready to show |
+| Mon 2 | 8 | T034 second part, three rehearsal runs in a row with no code changes, SC values into docs/eval-notes.md (2); T037 run-through, timed (1) | 3 | Rehearsals live about 0.20 USD, or replayed at no cost | Gate 4: rehearsed |
+| Tue 3 | 8 | Margin: no new work; one last rehearsal | – | as Mon | Frozen |
+
+Buffer: about 1.5 h Thu, 2.25 h Sat, 4 h Sun, 5 h Mon, all of Tue 3: about 21 h. Optional uses offered to the owner: T026 Verifier (3 h), T030 fallback paths (3 h). Recommendation: keep Tue 3 free regardless.
+
+Overrun rule (CLAUDE.md rule 11): when a task runs over its hours by half again, stop and tell the owner, and decide together. An agreed overrun is absorbed by the buffer of that day and the next first; beyond that, cuts come from the end of the owner's order in tasks.md: 12, 10, 5; then rehearsals down to one; then 2, 3, 8; then 13 and 11; then 6 and 7; then 1; then 4; then 9. Items 13 and 11 are scheduled first on Thu so they are in place before the live page run; if they were ever cut, T031 second part would not be run live.
+
+Rules for these days:
+- Scheduling groups tasks by safety and by the code they touch; the owner's order in "If a day is lost" still governs cuts. Add-backs 13 and 11 come before the live run through the page; if they were ever cut, T031 second part would not be run live.
+- A safe-point cached run and backup video exist from the end of Thu 29. Sun 1 replaces them only if the replay suite and a fixture replay pass; otherwise the Thu ones are shown.
+- Code freeze at the end of Sun 1. Gate 2 is Sat 31, Gate 3 Sun 1, Gate 4 Mon 2.
+- Each paid call has its estimate stated and the owner's yes first.
+- If the HTML graphics (add-back 2) are late, Gate 2's News reporter renders with the FFmpeg text overlays.
+
 ## Day 7 - Tue 20 October - from clip to slow-motion segments - 8 h (carried over: see the re-plan above)
 
 Until T014, a yes-or-no prompt on the command line stands in for the play card, and the pick is typed as a frame.
@@ -167,7 +191,7 @@ Result (2026-10-23, reached before Sun 25 morning): met, with the speaking-rate 
 
 ## Day 12 - Mon 26 October - rehearsed - 2 h, at least 2 h margin (the "if time allows" items 5, 10 and 12 dropped 2026-10-22)
 
-The presentation was on Tuesday 27 October; on 2026-10-28 the owner moved it to Wednesday 4 November. The day table for Wed 28 October to Tue 3 November is not re-planned yet.
+The presentation was on Tuesday 27 October; on 2026-10-28 the owner moved it to Wednesday 4 November. The day table for Wed 28 October to Tue 3 November is in "Re-plan, Wed 28 October" above.
 
 - [ ] T034, second part (1h): three rehearsal runs in a row without touching code (cut item 14), on the single-shot clips; the SC-1, SC-2, SC-4 and SC-5 values written into `docs/eval-notes.md`, with what was not measured stated plainly.
 - [ ] T037, run-through (1h): the presentation once, timed, with the cached run as the fallback.
