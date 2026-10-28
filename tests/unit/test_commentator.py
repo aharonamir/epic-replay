@@ -51,7 +51,7 @@ def test_the_fixture_draft_passes_both_tools_and_s6():
     [(lambda d: d["lines"][2].update(hit_word="goal"), "l3", "hit_word"),
      (lambda d: d["lines"][2].pop("hit_word"), "l3", "hit_word"),
      (lambda d: d["lines"][3].update(text="The keeper, Rossi, never moved."), "l4", "Rossi"),
-     (lambda d: d["lines"][1].update(text="Noa steps up, takes aim, and"), "l2", "more than 4 words"),
+     (lambda d: d["lines"][1].update(text="Noa steps up, takes aim, and"), "l2", "more than 3 words"),
      (lambda d: d["lines"].pop(6), "l7", "no line"),
      (lambda d: d["lines"][0].update(event_refs=["e99"]), "script", "unknown event"),
      (lambda d: d.update(headline="X" * 41), "script", "headline")],

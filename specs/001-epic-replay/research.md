@@ -267,7 +267,7 @@ None of the pages I read claims to describe the user's actual play. That is the 
 | Whether Gemini TTS keeps one voice stable across separate short requests, and how much take length varies | T004 |
 | ElevenLabs v3 Hebrew quality; Gemini TTS Hebrew quality | X3 |
 | Whether one provider can carry all three narrators, and which voices | T004 for the provider, T039 for the news and nature voices |
-| Speaking rate of each chosen voice (the packs hold starting values of 2.6, 2.4 and 2.0 words per second) | T004, T039 |
+| Speaking rate of each chosen voice (the packs hold starting values of 2.0, 2.4 and 2.0; football lowered from 2.6 on 2026-10-28 words per second) | T004, T039 |
 | Lyria prices (taken from a third-party listing) | T021 |
 | Latency of every paid stage | T003, T004, T005 |
 | Whether DeepSeek has any speech model (none is listed on its pricing page) | Not needed; voices come from Gemini |

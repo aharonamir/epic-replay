@@ -271,7 +271,7 @@ The three MVP styles differ on every row:
 |---|---|---|---|
 | Attitude | Excited, present tense, peaks on the moment | Calm, formal, states the moment as fact | Hushed, patient, fond |
 | Key line | Shouted, 0.15 s after the moment | Spoken evenly, 0.4 s after | Almost whispered, 0.6 s after |
-| Speaking rate (starting value) | 2.6 words per second | 2.4 | 2.0 |
+| Speaking rate (starting value) | 2.0 words per second (2.6 until 2026-10-28) | 2.4 | 2.0 |
 | Sound | Crowd bed, roar, sport stings | No bed, news stings, more of the clip's own sound | Outdoor ambience, string swell |
 | Graphics | Strap lower third, "REPLAY" | Ticker lower third, "SLOW MOTION" | Caption lower third, "ONCE MORE, SLOWLY" |
 
