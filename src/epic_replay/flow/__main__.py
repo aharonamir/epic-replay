@@ -7,7 +7,9 @@
 `run CLIP` makes a new run folder under EPIC_RUNS_DIR and runs S0 to S10 (T027); the key
 moment is picked at the prompt. `--consent` records the consent wording, which is printed
 first. `--pick` answers the play card without asking (`proposed`, `c1`.., or a frame).
-`--mode` sets EPIC_PROVIDER_MODE for this run (live, record or replay).
+`--mode` sets EPIC_PROVIDER_MODE for this run (live, record or replay). `--card page` stops at
+the play card instead, for the page to answer (T014): open the address printed and confirm
+there, with the app running (`uvicorn epic_replay.web.app:app --port 8000`).
 """
 
 from __future__ import annotations
@@ -36,7 +38,7 @@ def run(args: argparse.Namespace) -> int:
     from epic_replay.styles import loader
 
     s = config.load()
-    ask = input
+    ask = None if args.card == "page" else input
     if args.pick is not None:
         answer = "" if args.pick == "proposed" else args.pick
         ask = lambda prompt: print(prompt + answer) or answer  # noqa: E731
@@ -71,7 +73,9 @@ def run(args: argparse.Namespace) -> int:
     print(f"status: {status}")
     if status == "done":
         print(f"video: {d / 'final.mp4'}")
-    return 0 if status == "done" else 1
+    if status == "waiting_play_card":
+        print(f"play card: http://localhost:8000/r/{d.name}")
+    return 0 if status in ("done", "waiting_play_card") else 1
 
 
 def main() -> None:
@@ -89,6 +93,12 @@ def main() -> None:
     r.add_argument("--mute", action="store_true", help="mute the clip's own sound")
     r.add_argument("--pick", help="answer the play card: proposed, c1.., or a frame number")
     r.add_argument("--run-id")
+    r.add_argument(
+        "--card",
+        choices=("prompt", "page"),
+        default="prompt",
+        help="answer the play card at the prompt, or on the page",
+    )
     args = ap.parse_args()
     if args.command == "styles":
         styles()

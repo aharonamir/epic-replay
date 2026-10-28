@@ -39,7 +39,7 @@ pytest                       # replay mode, no network needed, live tests skippe
 pytest -m live               # agent and provider runs; costs money, ask first
 ruff check . && ruff format --check .
 python -m epic_replay.flow run --fixture tests/fixtures/sample_run --mode replay   # T027
-uvicorn epic_replay.web.app:app --port 8000                                        # T029
+uvicorn epic_replay.web.app:app --port 8000                                        # T014 card; T029 page
 ```
 
 Provider mode: `EPIC_PROVIDER_MODE=live|record|replay`. Further targets are listed in `specs/001-epic-replay/quickstart.md`; none exists until its task is done.

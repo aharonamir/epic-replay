@@ -11,7 +11,8 @@ Served by FastAPI. The page (contracts/ui.md) uses only these endpoints. No auth
 | `POST /runs/{id}/restyle` | Tell the same play in another style | `{"style": "news_reporter"}` | `201 {"run_id": "..."}` for the new run, seeded from the first run of this play; `409` if that run has not passed Checkpoint A; `200` with the existing run id if that style was already made |
 | `GET /runs/{id}/events` | Live progress | none | server-sent events, one stage event per message (contracts/stage-contracts.md) |
 | `GET /runs/{id}/play-card` | Data for Checkpoint A | none | play sheet, URLs of the climax frame and its neighbours, the frame of each other moment in `climax.candidates` (revision 8), highlighted fields (always including the key moment), cost estimate for the rest of the run |
-| `POST /runs/{id}/play-card` | Answer Checkpoint A | `{"action": "confirm" or "reject" or "generic", "edits": {...}, "context": {...}}` | `200`; the flow resumes |
+| `POST /runs/{id}/play-card` | Answer Checkpoint A | `{"action": "confirm" or "reject" or "generic", "edits": {...}, "context": {...}}` | `200`; the flow resumes, in the provider mode the run was started in. `409 key_moment_required` when a confirm has no `edits.climax_frame` (revision 8: the key moment must be answered); `409 not_waiting` when the run is not waiting at the card |
+| `GET /runs/{id}/frames/{n}.jpg` | One frame of the working copy, for the card and its nudge (T014) | none | JPEG, 360 px high, made on first request and kept in the run folder; `404` outside the clip |
 | `GET /runs/{id}/script` | Data for Checkpoint B | none | script and check report |
 | `POST /runs/{id}/script` | Answer Checkpoint B, or ask for a new script after the result | `{"action": "approve" or "regenerate"}` | `200`; the flow resumes, or re-runs from S5 |
 | `POST /runs/{id}/rerun` | Re-run from a stage | `{"from_stage": "S5"}` | `202`; later outputs are discarded and the flow restarts there |
@@ -40,4 +41,4 @@ Every edited field is written back with `source: user`. `climax_frame` sets `cli
 
 ## Errors
 
-Errors are `{"error": {"code": "...", "message": "..."}}` with codes `invalid_upload`, `consent_required`, `unknown_style`, `cap_exceeded`, `sensitive_content`, `not_waiting` (a checkpoint answer arrived when the run was not waiting), `not_ready` (a re-telling was asked for before the play was confirmed) and `stage_failed`.
+Errors are `{"error": {"code": "...", "message": "..."}}` with codes `invalid_upload`, `consent_required`, `unknown_style`, `cap_exceeded`, `sensitive_content`, `not_waiting` (a checkpoint answer arrived when the run was not waiting), `not_ready` (a re-telling was asked for before the play was confirmed), `stage_failed`, `key_moment_required` (a play-card confirm without the key moment), `invalid_request` (a malformed body or a frame outside the clip), `not_found`, and `not_built` (an answer this build does not handle yet: reject, generic and field edits until add-backs 6 and 7).

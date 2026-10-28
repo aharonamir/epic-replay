@@ -8,10 +8,11 @@ Every stage event goes to `events.jsonl` in the run folder, with the run id and 
 `manifest.json` keeps each stage's status, duration, cost and note. Consent is checked before
 S2, the first stage that sends anything (FR-003).
 
-Checkpoint A, until the play card of T014: a prompt on the command line. It shows what the
-Spotter saw and the proposed key moment with S1's other candidates; the answer is the
-proposed frame, a candidate, or a frame typed in. The pick becomes the climax with method
-`user`, and the play sheet is marked confirmed.
+Checkpoint A is answered on the play card of the page (T014) or at a prompt on the command
+line. Without a prompt (`ask=None`) the run stops `waiting_play_card` at A; the page writes
+the user's pick with `pick` and calls `run` again, which goes on from the first stage not yet
+done. At the prompt the answer is the proposed frame, a candidate, or a frame typed in. Either
+way the pick becomes the climax with method `user`, and the play sheet is marked confirmed.
 
 A run seeded from a fixture (`seed`) has the outputs of the stages it holds; those stages are
 recorded as `seeded` and not run.
@@ -61,6 +62,25 @@ ORDER = [
     ("S10", s10_compose.run, ["render.json", "final.mp4"]),
 ]
 GO_ON = ("ok", "degraded")
+DONE = ("ok", "degraded", "seeded")
+
+
+def last_frame(meta: dict) -> int:
+    return int(round(meta["duration_s"] * meta["fps"])) - 1
+
+
+def pick(run_dir: Path, frame: int) -> dict:
+    """Write the user's key moment into the play sheet: the climax with method `user`, and the
+    sheet confirmed. Returns the play sheet."""
+    path = Path(run_dir) / "play_sheet.json"
+    ps = json.loads(path.read_text())
+    meta = json.loads((Path(run_dir) / "clip_meta.json").read_text())
+    if not 0 <= frame <= last_frame(meta):
+        raise ValueError(f"the clip has frames 0 to {last_frame(meta)}")
+    ps["climax"].update(frame=frame, t=round(frame / meta["fps"], 3), method="user", confidence=1.0)
+    ps["confirmed_by_user"] = True
+    path.write_text(json.dumps(ps, indent=2) + "\n")
+    return ps
 
 
 def now() -> str:
@@ -69,7 +89,7 @@ def now() -> str:
 
 class Run:
     def __init__(self, run_dir: Path, settings: config.Settings | None = None, *,
-                 adapters: dict | None = None, ask: Callable[[str], str] = input,
+                 adapters: dict | None = None, ask: Callable[[str], str] | None = input,
                  say: Callable[[str], None] = print):  # fmt: skip
         self.dir = Path(run_dir)
         self.s = settings or config.load()
@@ -103,8 +123,12 @@ class Run:
         uc_path = self.dir / "user_context.json"
         uc = json.loads(uc_path.read_text())
         self.manifest["style"] = uc.get("style")
+        self.manifest["status"] = "running"
+        done = {s["stage"] for s in self.manifest["stages"] if s["status"] in DONE}
         for stage, fn, _ in ORDER:
             t0 = time.monotonic()
+            if stage in done:
+                continue
             if stage in seeded:
                 self.record(stage, "seeded", t0)
                 continue
@@ -139,11 +163,14 @@ class Run:
     # -- Checkpoint A on the command line
 
     def play_card(self) -> StageResult:
-        path = self.dir / "play_sheet.json"
-        ps = json.loads(path.read_text())
-        meta = json.loads((self.dir / "clip_meta.json").read_text())
-        fps, last = meta["fps"], int(round(meta["duration_s"] * meta["fps"])) - 1
+        ps = json.loads((self.dir / "play_sheet.json").read_text())
         c = ps["climax"]
+        if ps.get("confirmed_by_user"):
+            return StageResult("ok", f"key moment frame {c['frame']}")
+        if self.ask is None:
+            return StageResult("waiting", "waiting for the play card")
+        meta = json.loads((self.dir / "clip_meta.json").read_text())
+        last = last_frame(meta)
         self.say(f"\nPlay card. What happened: {(ps.get('outcome_summary') or {}).get('value')}")
         self.say(f"Activity: {(ps.get('activity') or {}).get('value')}")
         cands = [x for x in c.get("candidates", []) if x["frame"] != c["frame"]]
@@ -166,9 +193,7 @@ class Run:
             if 0 <= frame <= last:
                 break
             self.say(f"The clip has frames 0 to {last}.")
-        c.update(frame=frame, t=round(frame / fps, 3), method="user", confidence=1.0)
-        ps["confirmed_by_user"] = True
-        path.write_text(json.dumps(ps, indent=2) + "\n")
+        pick(self.dir, frame)
         self.emit({"stage": CHECKPOINT_A, "status": "ok", "frame": frame})
         return StageResult("ok", f"key moment frame {frame}")
 

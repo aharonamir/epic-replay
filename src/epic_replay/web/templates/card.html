@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Epic Replay · play card</title>
+<style>
+  /* T014: the card only; the page's stylesheet and fonts are T029 (contracts/design.md) */
+  :root { --ground:#0D1012; --surface:#161A1D; --raised:#1E2327; --line:#2C3338;
+          --control-line:#5A646B; --text:#F2F4F3; --muted:#AAB3B9; --ink:#121416;
+          --accent:#F2F4F3; --on-accent:#121416; }
+  body { margin:0; background:var(--ground); color:var(--text);
+         font:16px/1.45 system-ui, sans-serif; }
+  main { max-width:1040px; margin:0 auto; padding:24px 16px; }
+  h1 { font-size:14px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); margin:0 0 16px; }
+  .card { background:var(--surface); border:1px solid var(--line); border-radius:6px; padding:20px;
+          display:flex; flex-wrap:wrap; gap:24px; }
+  .moment { flex:1 1 360px; min-width:0; }
+  .story { flex:1 1 320px; min-width:0; }
+  .check { outline:2px dashed var(--control-line); outline-offset:6px; border-radius:4px; }
+  .check-label { font-size:12px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); }
+  .answered .check-label { visibility:hidden; }
+  .answered { outline-color:transparent; }
+  img.frame { width:100%; aspect-ratio:16/9; object-fit:contain; background:var(--raised); display:block; }
+  .where { font-family:ui-monospace, monospace; margin:8px 0; }
+  .row { display:flex; flex-wrap:wrap; gap:8px; margin:8px 0; }
+  button { font:inherit; color:var(--text); background:transparent; border:1px solid var(--control-line);
+           border-radius:4px; padding:8px 12px; cursor:pointer; min-height:44px; }
+  button:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+  button.primary { background:var(--accent); color:var(--on-accent); border-color:var(--accent); font-weight:700; }
+  button:disabled { background:var(--raised); color:var(--muted); border-color:var(--line); cursor:not-allowed; }
+  .others button { padding:4px; display:flex; flex-direction:column; align-items:center; gap:4px;
+                   font-family:ui-monospace, monospace; font-size:13px; }
+  .others img { width:120px; aspect-ratio:16/9; object-fit:contain; background:var(--raised); }
+  ol { padding-left:22px; margin:8px 0; }
+  li { margin:6px 0; }
+  .activity { font-weight:800; text-transform:uppercase; letter-spacing:.04em; }
+  .outcome { color:var(--muted); }
+  footer { flex-basis:100%; border-top:1px solid var(--line); padding-top:16px; }
+  .note { color:var(--muted); font-size:14px; }
+  [role=status] { min-height:1.4em; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Epic Replay · run {{ card.run_id }}</h1>
+  {% if card.status != "waiting_play_card" %}
+    <p>This run is not waiting at the play card (status: {{ card.status }}).</p>
+  {% endif %}
+  <section class="card" aria-label="Play card">
+    <div class="moment">
+      <div id="key" class="check">
+        <div class="check-label">Check this · Pick the moment</div>
+        <img id="frame" class="frame" alt="The key moment" src="{{ card.climax.url }}">
+        <div class="where" id="where" aria-live="polite"></div>
+        <div class="row" id="nudge" tabindex="0" aria-label="Move the key moment: arrow keys one frame, Shift and arrow keys ten frames">
+          <button type="button" data-step="-10" aria-label="10 frames back">&laquo; 10 back</button>
+          <button type="button" data-step="-1">&lsaquo; Earlier</button>
+          <button type="button" data-step="1">Later &rsaquo;</button>
+          <button type="button" data-step="10" aria-label="10 frames on">10 on &raquo;</button>
+        </div>
+        <div class="row"><button type="button" id="this-one">This one</button></div>
+      </div>
+      {% if card.other_moments %}
+      <p class="note">Other moments:</p>
+      <div class="row others">
+        {% for m in card.other_moments %}
+        <button type="button" data-frame="{{ m.frame }}" title="{{ m.reason }}">
+          <img alt="" src="{{ m.url }}" loading="lazy"><span>{{ "%.1f"|format(m.t) }} s</span>
+        </button>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+    <div class="story">
+      <div class="activity">{{ card.play_sheet.activity.value if card.play_sheet.activity else "" }}</div>
+      <ol>
+        {% for e in card.play_sheet.events %}
+        <li>{{ e.action }}{% if e.outcome %} · {{ e.outcome }}{% endif %}</li>
+        {% endfor %}
+      </ol>
+      {% if card.play_sheet.outcome_summary %}
+      <p class="outcome">{{ card.play_sheet.outcome_summary.value }}</p>
+      {% endif %}
+    </div>
+    <footer>
+      <div class="row">
+        <button type="button" class="primary" id="confirm" disabled>Yes, that's it</button>
+      </div>
+      <p class="note" id="why">Pick the moment first: nudge it, choose another moment, or press "This one".</p>
+      <p role="status" id="status"></p>
+    </footer>
+  </section>
+</main>
+<script>
+  const card = {{ card_json | safe }};
+  const fps = card.fps, last = card.last_frame;
+  let frame = card.climax.frame, answered = false, timer = null;
+  const $ = (id) => document.getElementById(id);
+
+  function show() {
+    $("frame").src = card.frame_url.replace("{frame}", frame);
+    $("where").textContent = `Frame ${frame} · ${(frame / fps).toFixed(2)} s`;
+    $("key").classList.toggle("answered", answered);
+    $("confirm").disabled = !answered || card.status !== "waiting_play_card";
+    $("why").hidden = answered;
+  }
+  function move(step) {
+    frame = Math.max(0, Math.min(last, frame + step));
+    answered = true;
+    show();
+  }
+  document.querySelectorAll("#nudge button").forEach((b) => {
+    const step = Number(b.dataset.step);
+    b.addEventListener("click", () => move(step));
+    // holding a button moves five steps a second (contracts/ui.md)
+    b.addEventListener("pointerdown", () => { timer = setInterval(() => move(step), 200); });
+    ["pointerup", "pointerleave", "pointercancel"].forEach((ev) =>
+      b.addEventListener(ev, () => clearInterval(timer)));
+  });
+  $("nudge").addEventListener("keydown", (e) => {
+    if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+    e.preventDefault();
+    move((e.key === "ArrowLeft" ? -1 : 1) * (e.shiftKey ? 10 : 1));
+  });
+  $("this-one").addEventListener("click", () => { answered = true; show(); });
+  document.querySelectorAll(".others button").forEach((b) =>
+    b.addEventListener("click", () => { frame = Number(b.dataset.frame); answered = true; show(); }));
+  $("confirm").addEventListener("click", async () => {
+    $("confirm").disabled = true;
+    const r = await fetch(`/runs/${card.run_id}/play-card`, {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "confirm", edits: { climax_frame: frame } }),
+    });
+    const body = await r.json();
+    if (r.ok) {
+      card.status = "running";
+      $("status").textContent = `Confirmed: frame ${frame}. The commentary is being made.`;
+    } else {
+      $("status").textContent = body.error.message;
+      show();
+    }
+  });
+  show();
+</script>
+</body>
+</html>
