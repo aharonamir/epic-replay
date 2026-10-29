@@ -82,3 +82,29 @@ def test_no_consent_stops_the_run_before_s2(tmp_path):
     assert status == "stopped"
     assert [s["stage"] for s in manifest["stages"]] == ["S0", "S1", "S2"]
     assert not (d / "sheets").exists()
+
+
+def test_the_manifest_is_never_seen_half_written(tmp_path):
+    """The page polls the manifest while the runner rewrites it (2026-10-29)."""
+    import threading
+
+    from epic_replay.flow import runner
+
+    p = tmp_path / "manifest.json"
+    runner.write_json(p, {"stages": []})
+    stop, bad = threading.Event(), []
+
+    def reader():
+        while not stop.is_set():
+            try:
+                json.loads(p.read_text())
+            except ValueError:
+                bad.append(1)
+
+    t = threading.Thread(target=reader)
+    t.start()
+    for i in range(300):
+        runner.write_json(p, {"stages": [{"n": k} for k in range(i)]})
+    stop.set()
+    t.join()
+    assert not bad and not list(tmp_path.glob(".*.tmp"))

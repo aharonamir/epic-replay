@@ -1,0 +1,73 @@
+{
+  "draft": {
+    "lines": [
+      {
+        "delivery": "low, setting the scene",
+        "event_refs": [],
+        "id": "l1",
+        "text": "Hot griddle."
+      },
+      {
+        "delivery": "full shout on the hit word",
+        "event_refs": [
+          "e1"
+        ],
+        "hit_word": "FLIPPED",
+        "id": "l2",
+        "text": "FLIPPED! Yes!"
+      },
+      {
+        "delivery": "quiet, admiring",
+        "event_refs": [
+          "e1"
+        ],
+        "id": "l3",
+        "text": "Browned."
+      },
+      {
+        "delivery": "conspiratorial, slow",
+        "event_refs": [],
+        "id": "l4",
+        "text": "Look again. Watch the spatula's angle."
+      },
+      {
+        "delivery": "warm, unhurried",
+        "event_refs": [
+          "e1"
+        ],
+        "hit_word": "Over",
+        "id": "l5",
+        "text": "Over it goes, browned side down."
+      },
+      {
+        "delivery": "a nod of tribute",
+        "event_refs": [],
+        "id": "l6",
+        "text": "Respect."
+      }
+    ],
+    "headline": "Tortilla Flipped to Browned Side",
+    "lower_third": "Flipping on a hot griddle"
+  },
+  "calls": [
+    {
+      "tool": "check_lines",
+      "lines": 6,
+      "failures": 2
+    },
+    {
+      "tool": "check_lines",
+      "lines": 6,
+      "failures": 0
+    },
+    {
+      "tool": "submit_script",
+      "lines": 6,
+      "failures": 0
+    }
+  ],
+  "usage": {
+    "input_tokens": 7728,
+    "output_tokens": 1795
+  }
+}

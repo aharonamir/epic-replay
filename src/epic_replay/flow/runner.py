@@ -21,7 +21,9 @@ recorded as `seeded` and not run.
 from __future__ import annotations
 
 import json
+import os
 import shutil
+import threading
 import time
 from collections.abc import Callable
 from datetime import UTC, datetime
@@ -65,6 +67,15 @@ GO_ON = ("ok", "degraded")
 DONE = ("ok", "degraded", "seeded")
 
 
+def write_json(path: Path, data: dict) -> None:
+    """Write a JSON file whole: to a temporary file, then renamed into place, so the page,
+    which reads the manifest every two seconds, never sees it half written (an empty manifest
+    gave "Internal Server Error" during the first live run, 2026-10-29)."""
+    tmp = path.with_name(f".{path.name}.{threading.get_ident()}.tmp")
+    tmp.write_text(json.dumps(data, indent=2) + "\n")
+    os.replace(tmp, path)
+
+
 def last_frame(meta: dict) -> int:
     return int(round(meta["duration_s"] * meta["fps"])) - 1
 
@@ -79,7 +90,7 @@ def pick(run_dir: Path, frame: int) -> dict:
         raise ValueError(f"the clip has frames 0 to {last_frame(meta)}")
     ps["climax"].update(frame=frame, t=round(frame / meta["fps"], 3), method="user", confidence=1.0)
     ps["confirmed_by_user"] = True
-    path.write_text(json.dumps(ps, indent=2) + "\n")
+    write_json(path, ps)
     return ps
 
 
@@ -111,7 +122,7 @@ class Run:
             f.write(json.dumps(line, default=str) + "\n")
 
     def save(self) -> None:
-        (self.dir / MANIFEST).write_text(json.dumps(self.manifest, indent=2) + "\n")
+        write_json(self.dir / MANIFEST, self.manifest)
 
     def record(self, stage: str, status: str, t0: float, note: str = "", cost: float = 0.0) -> None:  # fmt: skip
         self.manifest["stages"].append({"stage": stage, "status": status, "started_at": now(),

@@ -162,7 +162,7 @@ async def post_play_card(run_id: str, request: Request):
         except ValueError as e:
             return error(400, "invalid_request", str(e))
         manifest["status"] = "running"
-        (d / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
+        runner.write_json(d / "manifest.json", manifest)
     go = app.state.resume or resume
     threading.Thread(target=go, args=(d,), daemon=True).start()
     return {"run_id": run_id, "climax_frame": frame}
