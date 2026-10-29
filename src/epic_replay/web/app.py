@@ -157,6 +157,19 @@ def frame_url(run_id: str, frame: int) -> str:
     return f"/runs/{run_id}/frames/{frame}.jpg"
 
 
+def rest_cost(d: Path, meta: dict) -> float:
+    """The card's cost line (add-back 8): nothing for a run started in replay mode, where no call
+    is paid (the mode the run resumes in); else the estimate for the run's pack, or the default
+    pack when the run's own cannot be read."""
+    if read(d, "manifest.json")["stack"]["mode"] == "replay":
+        return 0.0
+    try:
+        pack = loader.for_run(read(d, "user_context.json"))
+    except (OSError, ValueError, loader.NoStyles):
+        pack = loader.default(loader.load())
+    return runner.rest_cost_usd(meta, pack)
+
+
 def card_data(run_id: str, d: Path) -> dict:
     ps, meta = read(d, "play_sheet.json"), read(d, "clip_meta.json")
     c, fps = ps["climax"], meta["fps"]
@@ -184,9 +197,7 @@ def card_data(run_id: str, d: Path) -> dict:
         "other_moments": others,
         # the key moment is always answered (revision 8), and each event marked "Check this"
         "highlighted": ["climax", *runner.to_check(ps)],
-        "cost_estimate_usd": runner.rest_cost_usd(
-            meta, loader.for_run(read(d, "user_context.json"))
-        ),
+        "cost_estimate_usd": rest_cost(d, meta),
     }
 
 

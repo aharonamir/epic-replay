@@ -240,11 +240,24 @@ def test_the_card_has_fix_something_and_not_at_all(tmp_path, monkeypatch):
 
 
 def test_the_card_says_what_the_rest_of_the_run_will_cost(tmp_path, monkeypatch):
-    d, _, client, _ = at_card(tmp_path, monkeypatch)
+    d, s, client, _ = at_card(tmp_path, monkeypatch)
+    # replay mode pays for nothing
+    assert client.get("/runs/r1/play-card").json()["cost_estimate_usd"] == 0.0
+    # the run's own mode counts, not the server's now
+    monkeypatch.setattr(web.app.state, "settings", dataclasses.replace(s, provider_mode="live"))
+    assert client.get("/runs/r1/play-card").json()["cost_estimate_usd"] == 0.0
+    m = read(d, "manifest.json")
+    m["stack"]["mode"] = "live"
+    (d / "manifest.json").write_text(json.dumps(m))
     meta = read(d, "clip_meta.json")
-    pack = loader.for_run(read(d, "user_context.json"))
-    want = runner.rest_cost_usd(meta, pack)
+    want = runner.rest_cost_usd(meta, loader.default(loader.load()))
     # the Commentator's ceiling plus the voice for the words the clip holds: a few cents
     assert commentator.ESTIMATE_USD < want < 0.10
     assert client.get("/runs/r1/play-card").json()["cost_estimate_usd"] == want
     assert f"The rest will cost about ${want:.2f}." in client.get("/r/r1").text
+    # a run whose context is missing or names an unknown style still gets the default pack's figure
+    uc = d / "user_context.json"
+    uc.write_text(json.dumps({"style": "no_such_style"}))
+    assert client.get("/runs/r1/play-card").json()["cost_estimate_usd"] == want
+    uc.unlink()
+    assert client.get("/runs/r1/play-card").json()["cost_estimate_usd"] == want
