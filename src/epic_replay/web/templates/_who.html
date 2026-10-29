@@ -1,0 +1,4 @@
+{# The header's right side: the narrator and the time since the run started. #}
+{% if run and run.status in ("running", "waiting_play_card") %}
+<div class="who"><span class="dot"></span>{{ pack.name }} <span class="data" id="elapsed">0:00</span></div>
+{% endif %}

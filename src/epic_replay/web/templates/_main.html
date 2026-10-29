@@ -1,0 +1,170 @@
+{# The inside of <main>, in the run's state. The page swaps it in place as the run goes on;
+   every value reaches it through autoescape, or through tojson in a JSON script block. #}
+{% if not run %}
+{# ---------------------------------------------------------------- 1. Start #}
+<form id="start" class="cols" novalidate>
+  <div class="left">
+    <h1 class="start">{{ copy.HEADLINE[0] }}<span>{{ copy.HEADLINE[1] }}</span></h1>
+    <div class="drop vf" id="drop"><span class="vf2"></span>
+      <div id="drop-empty">
+        <p class="lead">{{ copy.DROP.lead }}</p>
+        <p class="muted">{{ copy.DROP.sub }}</p>
+        <label class="button strong">{{ copy.DROP.choose }}
+          <input type="file" id="file" name="file" accept="video/mp4,video/quicktime,video/webm,.mp4,.mov,.webm" hidden>
+        </label>
+        <p class="data muted">{{ copy.DROP.limits }}</p>
+      </div>
+      <div id="drop-file" hidden>
+        <video id="preview" muted playsinline preload="metadata"></video>
+        <p class="data" id="file-info"></p>
+        <button type="button" id="change">{{ copy.DROP.change }}</button>
+      </div>
+      <p class="error" id="file-error" role="alert"></p>
+    </div>
+    <p class="muted">{{ copy.TIP }}</p>
+  </div>
+  <div class="right">
+    <fieldset class="narrators">
+      <legend>{{ copy.NARRATORS }}</legend>
+      {% for st in styles %}
+      <label class="narrator" data-accent="{{ st.accent }}" data-on-accent="{{ st.on_accent }}" data-accent-text="{{ st.accent_text }}"
+             style="--card-accent:{{ st.accent }};--card-on-accent:{{ st.on_accent }}">
+        <input type="radio" name="style" value="{{ st.id }}"{% if st.id == pack.id %} checked{% endif %}>
+        <span class="text">
+          <span class="name">{{ st.name }}</span>
+          <span class="muted desc">{{ st.description }}</span>
+          {% if st.sample_line %}
+          <span class="sample {{ st.lower_third_layout }}">{% if st.lower_third_layout == "ticker" %}<span class="kicker">{{ st.kicker }}</span>{% endif %}<span class="line">{{ st.sample_line }}</span></span>
+          {% endif %}
+        </span>
+      </label>
+      {% endfor %}
+    </fieldset>
+    <div class="label muted">{{ copy.OPTIONAL.label }}</div>
+    <label class="field">{{ copy.OPTIONAL.star }}<input type="text" name="player_name" maxlength="40" autocomplete="off"></label>
+    <label class="check-row"><input type="checkbox" id="mute">{{ copy.OPTIONAL.mute }}</label>
+  </div>
+  <div class="go-row" style="flex-basis:100%">
+    <div class="consent">
+      <label class="check-row"><input type="checkbox" id="consent">{{ copy.CONSENT }}</label>
+      <p class="provider">{{ provider_line }}</p>
+    </div>
+    <div class="go">
+      <button type="submit" class="primary" id="go" disabled>{{ copy.GO }}</button>
+      <p class="error" id="go-error" role="alert"></p>
+    </div>
+  </div>
+</form>
+
+{% elif run.status == "done" %}
+{# ---------------------------------------------------------------- 4. Result #}
+<div class="cols">
+  <div class="result-main">
+    <h1 class="result" id="state-heading" tabindex="-1" data-heading>{{ copy.RESULT.headline }}</h1>
+    {% if run.has_video %}
+    <video class="player" controls preload="metadata" playsinline src="{{ video_url }}#t=0.1"
+           aria-label="{{ headline }}"></video>
+    {% endif %}
+    <div class="download-row">
+      <a class="button primary" href="{{ video_url }}" download>{{ copy.RESULT.download }}</a>
+      <span class="label tag">{{ copy.RESULT.ai }}</span>
+    </div>
+    <div class="panels">
+      {% if play_sheet %}
+      <details>
+        <summary>{{ copy.PANELS.saw }}</summary>
+        {% if play_sheet.activity %}<p class="saw-activity">{{ play_sheet.activity.value }}</p>{% endif %}
+        <ol class="saw">
+          {% for e in play_sheet.events %}<li>{{ e.action }}{% if e.outcome %} · {{ e.outcome }}{% endif %}</li>{% endfor %}
+        </ol>
+        {% if play_sheet.outcome_summary %}<p class="muted">{{ play_sheet.outcome_summary.value }}</p>{% endif %}
+      </details>
+      {% endif %}
+      {% if script %}
+      <details open>
+        <summary>{{ copy.PANELS.script }}</summary>
+        <ol class="script">
+          {% for ln in script.lines %}
+          <li class="{{ 'key' if ln.key else '' }}{{ ' climax' if ln.climax else '' }}">
+            <span class="when data">{{ ln.time }}{{ ln.role }}</span>
+            <span class="words">{{ ln.text }}{% if ln.dropped %} <span class="data muted">({{ copy.PANELS.dropped }})</span>{% endif %}</span>
+          </li>
+          {% endfor %}
+        </ol>
+        {% if script.passed %}
+        <p class="checked">{{ copy.PANELS.passed }}</p>
+        {% else %}
+        <p class="muted">{{ copy.PANELS.failed }}</p>
+        <ul class="data muted">{% for f in script.failures %}<li>{{ f }}</li>{% endfor %}</ul>
+        {% endif %}
+      </details>
+      {% endif %}
+      <details>
+        <summary>{{ copy.PANELS.time }}</summary>
+        <table class="costs data">
+          {% for r in costs.rows %}<tr><td>{{ r.name }}</td><td>{{ r.duration }}</td><td>{{ r.cost }} USD</td></tr>{% endfor %}
+          <tr class="total"><td>{{ copy.PANELS.total }}</td><td>{{ costs.duration }}</td><td>{{ costs.cost }} USD</td></tr>
+        </table>
+      </details>
+    </div>
+  </div>
+  <div class="result-side">
+    <a class="button strong" href="/">{{ copy.RESULT.start_over }}</a>
+    {% if not demo %}<button type="button" class="delete" data-delete="{{ run.run_id }}">{{ copy.RESULT.delete }}</button>
+    <p class="error" id="delete-error" role="alert"></p>{% endif %}
+  </div>
+</div>
+
+{% else %}
+{# ------------------------------------------- 2. Progress, 3. Confirm, Stopped #}
+{% set waiting = run.status == "waiting_play_card" %}
+{% set stopped = run.status in ("stopped", "failed") %}
+<div class="{{ 'confirm' if waiting else '' }}">
+  <div class="bar-head">
+    <span class="label muted"{% if not waiting and not stopped %} id="state-heading" tabindex="-1" data-heading{% endif %}>{{ copy.PROGRESS.label if not stopped else copy.STOPPED.headline }}</span>
+    <span class="data muted">{{ copy.PROGRESS.step.format(n=run.step_n) }}</span>
+  </div>
+  <div class="bar" aria-hidden="true">
+    {% for s in run.steps %}<i class="{{ 'done' if s.status == 'done' else 'now' if s.status in ('running', 'waiting_user') else '' }}"></i>{% endfor %}
+  </div>
+  <div class="cols">
+    <div class="clip-col">
+      {% if run.has_clip %}<img class="thumb" alt="Your clip" src="/runs/{{ run.run_id }}/frames/0.jpg">
+      {% else %}<div class="thumb" role="img" aria-label="Your clip"></div>{% endif %}
+      <p class="status-line" role="status"{% if stopped %} id="state-heading" tabindex="-1" data-heading{% endif %}>
+        {% if stopped %}{{ run.message or "" }}{% elif waiting %}{{ copy.YOUR_TURN }}{% else %}{{ run.time_left }}{% endif %}
+      </p>
+      {% if stopped %}<p><a class="button primary" href="/">{{ copy.STOPPED.again }}</a></p>{% endif %}
+      {% if stopped or waiting %}<p><button type="button" class="delete" data-delete="{{ run.run_id }}">{{ copy.RESULT.delete }}</button></p>
+      <p class="error" id="delete-error" role="alert"></p>{% endif %}
+    </div>
+    <div class="steps-col" id="steps-col">
+      <ol class="steps">
+        {% for s in run.steps %}
+        <li class="{{ s.status }}">
+          <div class="step-row">
+            <span class="mark" aria-hidden="true"></span>
+            <span class="name"{% if s.n == 4 and waiting %} id="state-heading" tabindex="-1" data-heading{% endif %}>{{ s.name }}</span>
+            {% if s.status == "running" %}<span class="label working">{{ copy.PROGRESS.working }}</span>
+            {% elif s.duration_s is not none %}<span class="data muted">{{ s.duration_s }} s</span>{% endif %}
+          </div>
+          {% for ln in details.get(s.n, []) %}
+          <div class="detail data">
+            <div>{{ ln.head }}{% if ln.summary %} · {{ ln.summary }}{% endif %}</div>
+            {% for c in ln.calls %}<div class="call">{{ c }}</div>{% endfor %}
+            {% if ln.sheets %}<div class="sheets">{% for sh in ln.sheets %}<a href="{{ sh.url }}" target="_blank" rel="noopener"><img src="{{ sh.url }}" alt="{{ sh.name }}" loading="lazy"></a>{% endfor %}</div>{% endif %}
+          </div>
+          {% endfor %}
+          {% if s.n == 4 and waiting %}{% include "_card.html" %}{% endif %}
+        </li>
+        {% endfor %}
+      </ol>
+      <div class="details-row">
+        <button type="button" id="details-toggle" aria-expanded="false" aria-controls="steps-col"
+                data-show="{{ copy.PROGRESS.show }}" data-hide="{{ copy.PROGRESS.hide }}">{{ copy.PROGRESS.show }}</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+<script type="application/json" id="run-data">{{ run | tojson }}</script>

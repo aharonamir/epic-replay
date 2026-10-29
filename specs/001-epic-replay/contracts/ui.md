@@ -226,6 +226,7 @@ Accounts, a gallery of past runs, share links, editing single script lines, vert
 ## Build notes
 
 - Server-rendered template with HTMX for the partial updates and plain JavaScript for the file preview, the sample player, the narrator colour, the frame nudge and the event stream. No build step.
+  As built (add-back 9): no HTMX. On each stage event the page fetches `GET /r/{id}?part=main` and swaps the server-rendered part in place with `fetch`; the script never builds HTML from data. One connection at a time: the event stream, or, after it drops, polling every two seconds with a new stream tried every 30 s. Focus after a swap: the same state returns focus to the element with the same id; a new state moves it to that state's heading, announced by a polite live region; with nothing focused in the page's live part it is left alone. "Show details" is kept per tab (session storage) across swaps and reloads.
 - One stylesheet with the tokens of design.md as custom properties; the layout uses wrapping rows and no media queries.
 - Keyboard: every control reachable by Tab; the style cards are a radio group with arrow-key movement; the frame nudge responds to left and right arrows when focused, and to Shift with left and right for ten frames.
 - Colour is never the only signal: step states differ in mark and wording, and highlighted play-card items carry the words "Check this".

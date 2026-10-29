@@ -1,8 +1,10 @@
 """The web app (contracts/http-api.md, contracts/ui.md). One page, `/` for a new run and
 `/r/{id}` for an existing one, in the state the run is in: start, progress, confirm (the play
-card, T014), result, or stopped (T029). The page follows progress by polling `GET /runs/{id}`
-every two seconds and reloads itself when the run changes state; server-sent events, style
-cards from `GET /styles`, the phone layout checks and the details view are add-back 9.
+card, T014), result, or stopped (T029). Add-back 9: the page follows progress by server-sent
+events (`GET /runs/{id}/events`, the lines of the run's `events.jsonl`), polling `GET
+/runs/{id}` every two seconds while the stream is down, and on each change swaps in the part
+of the page the server renders for the run's state (`GET /r/{id}?part=main`), so the server
+renders every state and a reload restores it. The narrator cards come from `GET /styles`.
 
 `POST /runs` stores the upload with the user's context and consent, and starts the flow in a
 background thread; it stops at the play card (`waiting_play_card`).
@@ -17,11 +19,12 @@ In this build the card answers the key moment only. Keep or remove, editing the 
 sentence, reject and generic mode (add-backs 6 and 7) and the cost line (add-back 8) come
 later; their requests are refused with `not_built` rather than silently ignored.
 
-    uvicorn epic_replay.web.app:app --port 8000
+    uvicorn epic_replay.web.app:app --port 8010
 """
 
 from __future__ import annotations
 
+import asyncio
 import contextlib
 import dataclasses
 import json
@@ -37,7 +40,13 @@ from pathlib import Path
 
 from fastapi import FastAPI, Request
 from fastapi.concurrency import run_in_threadpool
-from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, Response
+from fastapi.responses import (
+    FileResponse,
+    HTMLResponse,
+    JSONResponse,
+    Response,
+    StreamingResponse,
+)
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
@@ -46,7 +55,7 @@ from epic_replay.flow import runner
 from epic_replay.guards import consent
 from epic_replay.stages import s0_intake
 from epic_replay.styles import loader
-from epic_replay.web import copy
+from epic_replay.web import copy, views
 
 HERE = Path(__file__).parent
 
@@ -435,7 +444,9 @@ def state(run_id: str, d: Path) -> dict:
         if name == copy.STEPS[3][0] and status == "done":
             name = copy.CONFIRMED
         secs = sum(x["duration_s"] for x in mine if x["status"] in runner.DONE and x["stage"] != runner.CHECKPOINT_A)  # fmt: skip
-        steps.append({"n": i, "name": name, "status": status, "duration_s": round(secs) if status == "done" and i != 4 else None})  # fmt: skip
+        cost = sum(x.get("cost_usd") or 0.0 for x in mine)
+        steps.append({"n": i, "name": name, "status": status, "duration_s": round(secs) if status == "done" and i != 4 else None,
+                      "cost_usd": round(cost, 4)})  # fmt: skip
     step_n = next((x["n"] for x in steps if x["status"] != "done"), 8)
     left = sum(typical_s().get(st, 3.0) for st in order[order.index(current):] if st != runner.CHECKPOINT_A) if current else 0.0  # fmt: skip
     message = stopped_message(m, current) if m["status"] in ("stopped", "failed") else None
@@ -491,6 +502,107 @@ def get_final(run_id: str):
     )
 
 
+def styles(packs: dict) -> list[dict]:
+    """The packs that load, in picker order, with what the narrator card draws and the three
+    page colours (contracts/http-api.md, design.md sections 2 and 5). The samples are T040."""
+    return [
+        {"id": p["id"], "name": p["name"], "description": p["description"], "sample_url": None,
+         "default": p["default"], "sample_line": p["script"]["example_lines"].get("climax", ""),
+         "kicker": p["script"]["labels"]["end_card_kicker"],
+         "lower_third_layout": p["graphics"]["lower_third_layout"], **accents(p)}
+        for p in packs.values()
+    ]  # fmt: skip
+
+
+@app.get("/styles")
+def get_styles():
+    return styles(loader.load())
+
+
+INLINE = {".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".png": "image/png"}
+
+
+@app.get("/runs/{run_id}/artifacts/{name:path}")
+def get_artifact(run_id: str, name: str):
+    """Any stage output of the run, by its path in the run folder. Only a regular file inside
+    the folder (no `..`, no hidden file, no symlink out); JPEG and PNG are shown inline, any
+    other file is a download, so no output is ever rendered on the app's origin."""
+    d = run_dir(run_id)
+    parts = name.split("/")
+    if d is None or not name or any(not x or x == ".." or x.startswith(".") for x in parts):
+        return error(404, "not_found", "no such output")
+    try:
+        p = (d / name).resolve()
+    except (OSError, ValueError):
+        return error(404, "not_found", "no such output")
+    if not p.is_relative_to(d) or not p.is_file():
+        return error(404, "not_found", "no such output")
+    headers = {"X-Content-Type-Options": "nosniff"}
+    if p.suffix.lower() in INLINE:
+        try:
+            data = p.read_bytes()
+        except OSError:  # deleted meanwhile
+            return error(404, "not_found", "no such output")
+        return Response(data, media_type=INLINE[p.suffix.lower()], headers=headers)
+    return FileResponse(p, media_type="application/octet-stream", filename=p.name, headers=headers)
+
+
+END = ("done", "stopped", "failed")
+KEEP_ALIVE_S, EVENTS_POLL_S = 15.0, 0.5
+
+
+def new_events(d: Path, offset: int) -> tuple[list[str], int, bool]:
+    """The complete lines of the run's events.jsonl from byte `offset`, the offset after them,
+    and whether the run is over (ended, lost, or deleted). The manifest is read first: every
+    event is written before the manifest says the run ended, so none is missed."""
+    try:
+        m = read(d, "manifest.json")
+        over = m["status"] in END or stale(d, m)
+    except (OSError, ValueError, KeyError):
+        over = True
+    try:
+        with open(d / runner.EVENTS, "rb") as f:
+            f.seek(offset)
+            chunk = f.read()
+    except OSError:
+        chunk = b""
+    end = chunk.rfind(b"\n") + 1  # a line without its newline yet waits for the next read
+    lines = [x.decode("utf-8", "replace") for x in chunk[:end].splitlines() if x.strip()]
+    return lines, offset + end, over
+
+
+@app.get("/runs/{run_id}/events")
+async def get_events(run_id: str, request: Request, after: int = 0):
+    """Live progress (contracts/stage-contracts.md "Stage events"): each line of the run's
+    events.jsonl as one message, its line number as the event id, from the line after
+    `Last-Event-ID` (the browser's own reconnect) or `?after=` (a new connection). Ends when
+    the run is over."""
+    d = run_dir(run_id)
+    if d is None:
+        return error(404, "not_found", "no such run")
+    last = request.headers.get("last-event-id", "")
+    cursor = int(last) if last.isdigit() else max(after, 0)
+
+    async def stream():
+        offset, n, quiet = 0, 0, time.monotonic()
+        while True:
+            lines, offset, over = await run_in_threadpool(new_events, d, offset)
+            for line in lines:
+                n += 1
+                if n > cursor:
+                    yield f"id: {n}\ndata: {line}\n\n"
+                    quiet = time.monotonic()
+            if over or await request.is_disconnected():
+                return
+            if time.monotonic() - quiet >= KEEP_ALIVE_S:
+                yield ": keep-alive\n\n"
+                quiet = time.monotonic()
+            await asyncio.sleep(EVENTS_POLL_S)
+
+    return StreamingResponse(stream(), media_type="text/event-stream",
+                             headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})  # fmt: skip
+
+
 @app.delete("/runs/{run_id}", status_code=204)
 def delete_run(run_id: str):
     """Remove the run now (FR-037, T033): its folder, with the upload, the working copy, the
@@ -524,21 +636,34 @@ def sweep() -> None:
 # -- the page
 
 
-def render(request: Request, run_id: str | None, d: Path | None, demo: str | None = None):
+def render(
+    request: Request,
+    run_id: str | None,
+    d: Path | None,
+    demo: str | None = None,
+    part: bool = False,
+):
+    """The whole page, or with `part` only what changes as the run goes on (the inside of
+    `<main>` and the header's right side), which the page swaps in place."""
     s = settings()
     packs = loader.load()
     st = state(run_id, d) if d else None
     pack = packs.get(st["style"]) if st and st["style"] in packs else loader.default(packs)
     ctx = {"copy": copy, "pack": pack, "accents": accents(pack), "run": st,
-           "provider_line": copy.provider_line(s),
+           "provider_line": copy.provider_line(s), "styles": styles(packs),
            "demo": demo, "video_url": f"/demo/{run_id}/final.mp4" if demo else f"/runs/{run_id}/final.mp4"}  # fmt: skip
     if st and st["status"] == "waiting_play_card":
         card = card_data(run_id, d)
         ctx["card"] = card
+    if st and st["status"] != "done":
+        ctx["details"] = views.details(run_id, d, read(d, "manifest.json"))
     if st and st["status"] == "done":
         script = read(d, "script.json") if (d / "script.json").exists() else {}
         ctx["headline"] = script.get("headline", "")
-    return templates.TemplateResponse(request, "page.html", ctx)
+        ctx["script"] = views.script_panel(d)
+        ctx["play_sheet"] = read(d, "play_sheet.json") if (d / "play_sheet.json").exists() else None
+        ctx["costs"] = views.time_and_cost(st)
+    return templates.TemplateResponse(request, "_part.html" if part else "page.html", ctx)
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -547,11 +672,11 @@ def home(request: Request):
 
 
 @app.get("/r/{run_id}", response_class=HTMLResponse)
-def page(run_id: str, request: Request):
+def page(run_id: str, request: Request, part: str | None = None):
     d = run_dir(run_id)
     if d is None:
         return HTMLResponse("No such run.", status_code=404)
-    return render(request, run_id, d)
+    return render(request, run_id, d, part=part == "main")
 
 
 # -- demo mode (FR-038): a stored run, shown as its result with the date it was made

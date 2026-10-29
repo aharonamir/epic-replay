@@ -133,7 +133,9 @@ def test_each_state_renders(app):
     )
     page = html.unescape(client.get("/r/x").text)
     assert "Something broke while building the slow-motion replay" in page
-    assert "ffmpeg" not in page.split("<script>window.RUN")[0]  # the visible text is plain
+    assert (
+        "ffmpeg" not in page.split('<script type="application/json" id="run-data">')[0]
+    )  # the visible text is plain
     page = html.unescape(client.get("/r/d").text)
     assert copy.RESULT["download"] in page and "/runs/d/final.mp4" in page
     v = client.get("/runs/d/final.mp4")

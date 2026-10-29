@@ -136,7 +136,10 @@ def test_the_stopped_message_is_plain(app, stage, status, note, expected):
     st = client.get("/runs/x").json()
     assert st["message"] == expected
     assert (
-        "deepseek.com" not in html.unescape(client.get("/r/x").text).split("<script>window.RUN")[0]
+        "deepseek.com"
+        not in html.unescape(client.get("/r/x").text).split(
+            '<script type="application/json" id="run-data">'
+        )[0]
     )
 
 

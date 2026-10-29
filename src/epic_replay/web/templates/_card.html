@@ -1,4 +1,5 @@
-{# The play card (T014), opened inside step 4 of the progress list. #}
+{# The play card (T014), opened inside step 4 of the progress list. Its script is initCard in
+   page.js, which reads the two JSON blocks at the end. #}
 <section class="play-card" aria-label="{{ copy.STEPS[3][0] }}">
   <div class="moment">
     <div id="key" class="to-check">
@@ -47,73 +48,5 @@
     <p role="status" id="card-status"></p>
   </div>
 </section>
-<script>
-(() => {
-  const card = {{ card | tojson }};
-  const copy = {{ copy.CARD | tojson }};
-  const fps = card.fps, last = card.last_frame;
-  const mustCheck = card.play_sheet.sensitive.checked === false;
-  let frame = card.climax.frame, answered = false, clipOk = null, busy = false;
-  const $ = (id) => document.getElementById(id);
-  function show() {
-    $("frame").src = card.frame_url.replace("{frame}", frame);
-    $("where").textContent = copy.frame.replace("{frame}", frame).replace("{t}", (frame / fps).toFixed(2));
-    $("key").classList.toggle("answered", answered);
-    const ready = answered && (!mustCheck || clipOk === true);
-    $("confirm").disabled = busy || !ready;
-    $("why").textContent = !answered ? copy.why : mustCheck && clipOk !== true ? copy.why_check : "";
-    document.querySelectorAll(".others button").forEach((b) =>
-      b.classList.toggle("chosen", Number(b.dataset.frame) === frame));
-    document.querySelectorAll("#clip-check .choice").forEach((b) =>
-      b.classList.toggle("chosen", String(clipOk) === b.dataset.ok));
-    if ($("clip-check")) $("clip-check").classList.toggle("answered", clipOk === true);
-  }
-  function move(step) { frame = Math.max(0, Math.min(last, frame + step)); answered = true; show(); }
-  document.querySelectorAll("#nudge button").forEach((b) => {
-    // a click moves one step; holding moves five steps a second after a short pause (ui.md)
-    const step = Number(b.dataset.step);
-    let wait = null, repeat = null, held = false;
-    const stop = () => { clearTimeout(wait); clearInterval(repeat); };
-    b.addEventListener("pointerdown", () => {
-      held = false; stop();
-      wait = setTimeout(() => { held = true; move(step); repeat = setInterval(() => move(step), 200); }, 400);
-    });
-    ["pointerup", "pointerleave", "pointercancel"].forEach((ev) => b.addEventListener(ev, stop));
-    b.addEventListener("click", () => { if (!held) move(step); held = false; });
-  });
-  $("nudge").addEventListener("keydown", (e) => {
-    if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
-    e.preventDefault();
-    move((e.key === "ArrowLeft" ? -1 : 1) * (e.shiftKey ? 10 : 1));
-  });
-  $("this-one").addEventListener("click", () => { answered = true; show(); });
-  document.querySelectorAll(".others button").forEach((b) =>
-    b.addEventListener("click", () => { frame = Number(b.dataset.frame); answered = true; show(); }));
-  async function send(edits) {
-    busy = true; show();
-    try {
-      const r = await fetch(`/runs/${card.run_id}/play-card`, {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "confirm", edits }),
-      });
-      if (r.ok) { location.reload(); return; }
-      let msg = copy.failed;
-      try { msg = (await r.json()).error.message; } catch (err) { /* not JSON */ }
-      $("card-status").textContent = msg;
-    } catch (err) {
-      $("card-status").textContent = copy.failed;
-    }
-    busy = false; show();
-  }
-  document.querySelectorAll("#clip-check .choice").forEach((b) => b.addEventListener("click", () => {
-    clipOk = b.dataset.ok === "true";
-    if (clipOk) show(); else send({ clip_ok: false });
-  }));
-  $("confirm").addEventListener("click", () => {
-    const edits = { climax_frame: frame };
-    if (mustCheck) edits.clip_ok = true;
-    send(edits);
-  });
-  show();
-})();
-</script>
+<script type="application/json" id="card-data">{{ card | tojson }}</script>
+<script type="application/json" id="card-copy">{{ copy.CARD | tojson }}</script>

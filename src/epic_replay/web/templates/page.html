@@ -13,125 +13,13 @@
     <svg viewBox="0 0 30 20" aria-hidden="true"><path d="M15 0v20L0 10zM30 0v20L15 10z"/></svg>
     {{ copy.WORDMARK }}
   </a>
-  {% if run and run.status in ("running", "waiting_play_card") %}
-  <div class="who"><span class="dot"></span>{{ pack.name }} <span class="data" id="elapsed">0:00</span></div>
-  {% endif %}
+  <div id="who">{% include "_who.html" %}</div>
 </header>
 <div class="ruler" aria-hidden="true"></div>
-<main>
-
-{% if not run %}
-{# ---------------------------------------------------------------- 1. Start #}
-<form id="start" class="cols" novalidate>
-  <div class="left">
-    <h1 class="start">{{ copy.HEADLINE[0] }}<span>{{ copy.HEADLINE[1] }}</span></h1>
-    <div class="drop vf" id="drop"><span class="vf2"></span>
-      <div id="drop-empty">
-        <p class="lead">{{ copy.DROP.lead }}</p>
-        <p class="muted">{{ copy.DROP.sub }}</p>
-        <label class="button strong">{{ copy.DROP.choose }}
-          <input type="file" id="file" name="file" accept="video/mp4,video/quicktime,video/webm,.mp4,.mov,.webm" hidden>
-        </label>
-        <p class="data muted">{{ copy.DROP.limits }}</p>
-      </div>
-      <div id="drop-file" hidden>
-        <video id="preview" muted playsinline preload="metadata"></video>
-        <p class="data" id="file-info"></p>
-        <button type="button" id="change">{{ copy.DROP.change }}</button>
-      </div>
-      <p class="error" id="file-error" role="alert"></p>
-    </div>
-    <p class="muted">{{ copy.TIP }}</p>
-  </div>
-  <div class="right">
-    <h2>{{ copy.NARRATORS }}</h2>
-    {# style cards from GET /styles come with add-back 9; until then the default narrator #}
-    <div class="card-style">
-      <div class="name">{{ pack.name }}</div>
-      <div class="muted">{{ pack.description }}</div>
-    </div>
-    <input type="hidden" name="style" value="{{ pack.id }}">
-    <div class="label muted">{{ copy.OPTIONAL.label }}</div>
-    <label class="field">{{ copy.OPTIONAL.star }}<input type="text" name="player_name" maxlength="40" autocomplete="off"></label>
-    <label class="check-row"><input type="checkbox" id="mute">{{ copy.OPTIONAL.mute }}</label>
-  </div>
-  <div class="go-row" style="flex-basis:100%">
-    <div class="consent">
-      <label class="check-row"><input type="checkbox" id="consent">{{ copy.CONSENT }}</label>
-      <p class="provider">{{ provider_line }}</p>
-    </div>
-    <div class="go">
-      <button type="submit" class="primary" id="go" disabled>{{ copy.GO }}</button>
-      <p class="error" id="go-error" role="alert"></p>
-    </div>
-  </div>
-</form>
-
-{% elif run.status == "done" %}
-{# ---------------------------------------------------------------- 4. Result #}
-<div class="cols">
-  <div class="result-main">
-    <h1 class="result">{{ copy.RESULT.headline }}</h1>
-    {% if run.has_video %}
-    <video class="player" controls preload="metadata" playsinline src="{{ video_url }}#t=0.1"
-           aria-label="{{ headline }}"></video>
-    {% endif %}
-    <div class="download-row">
-      <a class="button primary" href="{{ video_url }}" download>{{ copy.RESULT.download }}</a>
-      <span class="label tag">{{ copy.RESULT.ai }}</span>
-    </div>
-  </div>
-  <div class="result-side">
-    <a class="button strong" href="/">{{ copy.RESULT.start_over }}</a>
-    {% if not demo %}<button type="button" class="delete" data-delete="{{ run.run_id }}">{{ copy.RESULT.delete }}</button>
-    <p class="error" id="delete-error" role="alert"></p>{% endif %}
-  </div>
-</div>
-
-{% else %}
-{# ------------------------------------------- 2. Progress, 3. Confirm, Stopped #}
-{% set waiting = run.status == "waiting_play_card" %}
-{% set stopped = run.status in ("stopped", "failed") %}
-<div class="{{ 'confirm' if waiting else '' }}">
-  <div class="bar-head">
-    <span class="label muted">{{ copy.PROGRESS.label if not stopped else copy.STOPPED.headline }}</span>
-    <span class="data muted">{{ copy.PROGRESS.step.format(n=run.step_n) }}</span>
-  </div>
-  <div class="bar" aria-hidden="true">
-    {% for s in run.steps %}<i class="{{ 'done' if s.status == 'done' else 'now' if s.status in ('running', 'waiting_user') else '' }}"></i>{% endfor %}
-  </div>
-  <div class="cols">
-    <div class="clip-col">
-      {% if run.has_clip %}<img class="thumb" alt="Your clip" src="/runs/{{ run.run_id }}/frames/0.jpg">
-      {% else %}<div class="thumb" role="img" aria-label="Your clip"></div>{% endif %}
-      <p class="status-line" role="status">
-        {% if stopped %}{{ run.message or "" }}{% elif waiting %}{{ copy.YOUR_TURN }}{% else %}{{ run.time_left }}{% endif %}
-      </p>
-      {% if stopped %}<p><a class="button primary" href="/">{{ copy.STOPPED.again }}</a></p>{% endif %}
-      {% if stopped or waiting %}<p><button type="button" class="delete" data-delete="{{ run.run_id }}">{{ copy.RESULT.delete }}</button></p>
-      <p class="error" id="delete-error" role="alert"></p>{% endif %}
-    </div>
-    <div class="steps-col">
-      <ol class="steps">
-        {% for s in run.steps %}
-        <li class="{{ s.status }}">
-          <div class="step-row">
-            <span class="mark" aria-hidden="true"></span>
-            <span class="name">{{ s.name }}</span>
-            {% if s.status == "running" %}<span class="label working">{{ copy.PROGRESS.working }}</span>
-            {% elif s.duration_s is not none %}<span class="data muted">{{ s.duration_s }} s</span>{% endif %}
-          </div>
-          {% if s.n == 4 and waiting %}{% include "_card.html" %}{% endif %}
-        </li>
-        {% endfor %}
-      </ol>
-    </div>
-  </div>
-</div>
-{% endif %}
-
+<p class="sr-only" id="announce" aria-live="polite"></p>
+<main id="main">
+{% include "_main.html" %}
 </main>
-<script>window.RUN = {{ run | tojson }};</script>
 <script src="/static/page.js"></script>
 </body>
 </html>

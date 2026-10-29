@@ -117,7 +117,7 @@ The sample caption shows the pack's `example_lines.climax` in the pack's own low
 | `lower_third_layout` | Sample caption |
 |----------------------|----------------|
 | `strap` | The line in display 900 italic capitals, 20 px, `--ink` on the pack accent |
-| `ticker` | The pack's `end_card_kicker` in 12 px capitals, white on the pack accent, joined to the line in 14 px weight 600, `--ink` on `--text` |
+| `ticker` | The pack's `end_card_kicker` in 12 px capitals, white on the pack accent (as built: the pack's `--on-accent`, which is white for the News reporter), joined to the line in 14 px weight 600, `--ink` on `--text` |
 | `caption` | The line in 16 px italic, `#D9E5D2`, under a 1 px rule in the pack accent |
 
 **Segmented bar.** Eight segments, 12 px high, 4 px apart. Finished: `--accent` fill. Running or waiting for the user: a 2 px `--accent` outline. Not started: `--line` fill. "Step N of 8" in the data face sits above it at the right. The bar changes only when a step finishes.
