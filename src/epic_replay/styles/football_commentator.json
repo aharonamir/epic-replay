@@ -65,10 +65,10 @@
     "bed": "sfx/crowd_bed_01.wav",
     "bed_gain_db": -18,
     "climax": "sfx/crowd_roar_01.wav",
-    "replay_climax": null,
-    "transition": null,
-    "sting_in": null,
-    "sting_out": null,
+    "replay_climax": "sfx/crowd_swell_01.wav",
+    "transition": "sfx/whoosh_01.wav",
+    "sting_in": "music/sting_sport_in.wav",
+    "sting_out": "music/sting_sport_out.wav",
     "original_audio_gain_db": -12
   },
   "graphics": {

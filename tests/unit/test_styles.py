@@ -159,6 +159,8 @@ def test_an_asset_that_links_out_of_assets_is_refused(tmp_path):
     pack = read(loader.STYLES / "football_commentator.json")
     pack["sample_audio"], pack["sound"]["bed"], pack["sound"]["climax"] = (
         "sfx/roar.wav", None, "sfx/roar.wav")  # fmt: skip
+    for kind in ("replay_climax", "transition", "sting_in", "sting_out"):
+        pack["sound"][kind] = None  # only the linked file is under test
     errs = loader.problems(pack, read(loader.STYLES / "voices.json"), assets)
     assert errs and all("outside assets/" in e for e in errs)
 

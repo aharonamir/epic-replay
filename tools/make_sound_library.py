@@ -1,6 +1,7 @@
 """The sound library under assets/ (T021): generated here, so every sound is our own work (CC0).
 
     python tools/make_sound_library.py            # the football crowd bed and roar
+    python tools/make_sound_library.py --sport    # the football swell, whoosh and two stings
     python tools/make_sound_library.py --news     # the news bulletin swish and two stings (T039)
     python tools/make_sound_library.py --placeholders   # silent stand-ins for the rest
 
@@ -10,6 +11,11 @@
 - `sfx/crowd_roar_01.wav`, 4.5 s: the same crowd erupting. A 0.15 s rise to full, brighter and
   louder, then a decay over about four seconds (plan.md 4.9).
 - `sfx/news_swish_01.wav`, 0.6 s: noise swept from low to high and faded, the transition.
+- `sfx/crowd_swell_01.wav`, 3 s: the crowd rising over a second and falling away, the softer
+  sound at the replay's climax. `sfx/whoosh_01.wav`, 0.5 s: noise swept low to high, the
+  transition into the replay. `music/sting_sport_in.wav` (1.6 s) and `music/sting_sport_out.wav`
+  (1.8 s): two chord stabs of stacked harmonics, bright and rising for the opening, one falling
+  stab with a short ring for the close.
 - `music/sting_news_in.wav` (1.8 s) and `music/sting_news_out.wav` (2.2 s): three bell-like notes
   (a sine and two partials, each with its own decay), rising for the opening and falling for the
   close, over a soft low fifth. No melody from any real programme.
@@ -96,6 +102,29 @@ def sting(freqs: list[float], total_s: float) -> np.ndarray:
     return np.stack([x, x], axis=1) / np.abs(x).max()
 
 
+def stab(freqs: list[float], start_s: float, seconds: float, total_s: float) -> np.ndarray:
+    """A chord stab: each note is a stack of 8 harmonics (a bright, brass-like tone) with a
+    quick attack and an exponential fall."""
+    t = np.arange(int(total_s * SR)) / SR
+    dt = np.clip(t - start_s, 0, None)
+    gate = (t >= start_s).astype(float) * np.clip(dt / 0.015, 0, 1)
+    x = sum(np.sin(2 * np.pi * f * k * t) / k for f in freqs for k in range(1, 9))
+    return x * gate * np.exp(-dt / seconds)
+
+
+def stab_sting(stabs: list[tuple[list[float], float, float]], total_s: float) -> np.ndarray:
+    x = sum(stab(f, s, d, total_s) for f, s, d in stabs)
+    t = np.arange(int(total_s * SR)) / SR
+    x = x * np.clip((total_s - t) / 0.2, 0, 1)
+    return np.stack([x, x], axis=1) / np.abs(x).max()
+
+
+def swell(seconds: float, rng: np.random.Generator) -> np.ndarray:
+    t = np.arange(int(seconds * SR)) / SR
+    env = np.clip(t / 1.0, 0, 1) ** 2 * np.exp(-np.clip(t - 1.0, 0, None) / 0.9)
+    return crowd(seconds, rng, voices=48) * env[:, None]
+
+
 def swish(seconds: float, rng: np.random.Generator) -> np.ndarray:
     n = int(seconds * SR)
     t = np.arange(n) / SR
@@ -137,6 +166,7 @@ def silent(path: Path, seconds: float) -> None:
 
 def main() -> None:
     ap = argparse.ArgumentParser()
+    ap.add_argument("--sport", action="store_true", help="write the football swell, whoosh, stings")
     ap.add_argument("--news", action="store_true", help="write the news swish and stings")
     ap.add_argument("--placeholders", action="store_true", help="write the silent stand-ins")
     args = ap.parse_args()
@@ -145,6 +175,16 @@ def main() -> None:
             if not (ASSETS / rel).exists():
                 silent(ASSETS / rel, seconds)
                 print("wrote", rel)
+        return
+    if args.sport:
+        rng = np.random.default_rng(55)
+        write("sfx/crowd_swell_01.wav", swell(3.0, rng))
+        write("sfx/whoosh_01.wav", swish(0.5, np.random.default_rng(56)))
+        c4, e4, g4, c5, e5, g5 = 261.63, 329.63, 392.0, 523.25, 659.25, 783.99
+        write("music/sting_sport_in.wav", stab_sting(
+            [([c4, g4, c5], 0.0, 0.25), ([e4, g4, e5], 0.3, 0.3), ([c4, g4, c5, g5], 0.6, 0.9)], 1.6))  # fmt: skip
+        write("music/sting_sport_out.wav", stab_sting(
+            [([e5, g5], 0.0, 0.2), ([c4, g4, c5], 0.25, 0.7)], 1.8))  # fmt: skip
         return
     if args.news:
         write("sfx/news_swish_01.wav", swish(0.6, np.random.default_rng(34)))
