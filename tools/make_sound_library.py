@@ -3,6 +3,7 @@
     python tools/make_sound_library.py            # the football crowd bed and roar
     python tools/make_sound_library.py --sport    # the football swell, whoosh and two stings
     python tools/make_sound_library.py --news     # the news bulletin swish and two stings (T039)
+    python tools/make_sound_library.py --nature   # the nature meadow bed, two swells, swish, stings (T039)
     python tools/make_sound_library.py --placeholders   # silent stand-ins for the rest
 
 - `sfx/crowd_bed_01.wav`, 12 s, loops: a murmuring crowd. Many voice-band noise sources,
@@ -19,6 +20,12 @@
 - `music/sting_news_in.wav` (1.8 s) and `music/sting_news_out.wav` (2.2 s): three bell-like notes
   (a sine and two partials, each with its own decay), rising for the opening and falling for the
   close, over a soft low fifth. No melody from any real programme.
+- `sfx/meadow_ambience_01.wav`, 12 s, loops: a soft wind (low-passed noise on a slow swell) with a
+  few high, short, chirp-like sine calls. `music/strings_swell_01.wav` (3.5 s) and
+  `strings_swell_02.wav` (3 s): stacked slightly detuned saw-like voices on a fifth, rising slowly
+  and falling away. `sfx/soft_swish_01.wav`, 0.7 s: a gentle, low swept noise.
+  `music/sting_nature_in.wav` (2.2 s) and `sting_nature_out.wav` (2.6 s): the bell notes, slower
+  and lower, rising and falling.
 All are 48 kHz stereo and normalised to LEVEL_LUFS integrated, so a pack's gains are relative
 to one level; the mix sets the rest (S8).
 """
@@ -41,7 +48,11 @@ from epic_replay.media import audio  # noqa: E402
 
 SR = 48000
 LEVEL_LUFS = -20.0
-PLACEHOLDERS = {"samples/football_commentator.mp3": 5.0, "samples/news_reporter.mp3": 5.0}
+PLACEHOLDERS = {
+    "samples/football_commentator.mp3": 5.0,
+    "samples/news_reporter.mp3": 5.0,
+    "samples/nature_documentary.mp3": 5.0,
+}
 
 
 def band(x: np.ndarray, lo: float, hi: float) -> np.ndarray:
@@ -137,6 +148,33 @@ def swish(seconds: float, rng: np.random.Generator) -> np.ndarray:
     return np.stack([x, np.roll(x, 40)], axis=1) / np.abs(x).max()
 
 
+def meadow(seconds: float, rng: np.random.Generator) -> np.ndarray:
+    """Soft wind, with a few short high calls."""
+    n = int(seconds * SR)
+    t = np.arange(n) / SR
+    out = np.zeros((n, 2))
+    for ch in range(2):
+        wind = band(rng.standard_normal(n), 80, 900)
+        out[:, ch] = wind * (0.6 + 0.4 * np.sin(2 * np.pi * 0.11 * t + ch))
+    out /= np.abs(out).max()
+    for at in rng.uniform(0.5, seconds - 1.5, 6):
+        d = np.clip(t - at, 0, None)
+        f = rng.uniform(2800, 4200)
+        call = np.sin(2 * np.pi * (f + 600 * d) * t) * np.exp(-d / 0.05) * (t >= at)
+        out += 0.05 * np.stack([call, call], axis=1)
+    return out / np.abs(out).max()
+
+
+def strings(seconds: float, root: float) -> np.ndarray:
+    """A slow swell of detuned voices on a root and a fifth."""
+    t = np.arange(int(seconds * SR)) / SR
+    x = sum(np.sin(2 * np.pi * f * (1 + d) * t) / k
+            for f in (root, root * 1.5) for d in (-0.003, 0.0, 0.003) for k in (1, 2, 3))  # fmt: skip
+    env = np.clip(t / (seconds * 0.45), 0, 1) ** 2 * np.clip((seconds - t) / (seconds * 0.4), 0, 1)
+    x = x * env
+    return np.stack([x, np.roll(x, 60)], axis=1) / np.abs(x).max()
+
+
 def write(rel: str, x: np.ndarray) -> None:
     path = ASSETS / rel
     tmp = path.with_suffix(".tmp.wav")
@@ -168,6 +206,7 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--sport", action="store_true", help="write the football swell, whoosh, stings")
     ap.add_argument("--news", action="store_true", help="write the news swish and stings")
+    ap.add_argument("--nature", action="store_true", help="write the nature bed, swells, stings")
     ap.add_argument("--placeholders", action="store_true", help="write the silent stand-ins")
     args = ap.parse_args()
     if args.placeholders:
@@ -190,6 +229,14 @@ def main() -> None:
         write("sfx/news_swish_01.wav", swish(0.6, np.random.default_rng(34)))
         write("music/sting_news_in.wav", sting([440.0, 659.25, 880.0], 1.8))
         write("music/sting_news_out.wav", sting([880.0, 659.25, 440.0], 2.2))
+        return
+    if args.nature:
+        write("sfx/meadow_ambience_01.wav", loop(meadow(13.0, np.random.default_rng(77))))
+        write("music/strings_swell_01.wav", strings(3.5, 220.0))
+        write("music/strings_swell_02.wav", strings(3.0, 196.0))
+        write("sfx/soft_swish_01.wav", swish(0.7, np.random.default_rng(78)) * 0.7)
+        write("music/sting_nature_in.wav", sting([293.66, 392.0, 440.0], 2.2))
+        write("music/sting_nature_out.wav", sting([440.0, 392.0, 293.66], 2.6))
         return
     rng = np.random.default_rng(21)
     write("sfx/crowd_bed_01.wav", loop(crowd(13.0, rng)))

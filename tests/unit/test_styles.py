@@ -21,7 +21,11 @@ def read(path):
 
 def test_the_repo_packs_load_and_football_is_the_default():
     packs = loader.load()
-    assert list(packs) == ["football_commentator", "news_reporter"]  # in display order
+    assert list(packs) == [
+        "football_commentator",
+        "news_reporter",
+        "nature_documentary",
+    ]  # in display order
     assert loader.default(packs)["id"] == "football_commentator"
     assert loader.default(packs)["voice"]["primary"]["provider"] == "elevenlabs"
     news = packs["news_reporter"]  # a second narrator is data only (FR-040)
@@ -71,7 +75,7 @@ def test_slots_never_overlap_and_keep_both_key_lines(pack_path):
                 assert s["max_duration_s"] >= slots.MIN_SLOT_S - 1e-6
 
 
-@pytest.mark.parametrize("pack_id", ["football_commentator", "news_reporter"])
+@pytest.mark.parametrize("pack_id", ["football_commentator", "news_reporter", "nature_documentary"])
 def test_the_shipped_packs_make_valid_slots_for_the_fixture(pack_id):
     pack = loader.load()[pack_id]
     built = slots.build(read(f"{FIXTURE}/storyboard.json"), pack, climax_event_id="e6")
