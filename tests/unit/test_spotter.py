@@ -161,6 +161,7 @@ def test_a_failed_events_call_falls_back_to_two_events(tmp_path, prepared, monke
     jsonschema.validate(sheet, SCHEMA)
     assert [e["id"] for e in sheet["events"]] == ["e1", "e2"]
     assert sheet["climax"]["event_id"] == "e2"
+    assert sheet["sensitive"] == {"flag": False, "reason": None, "checked": False}  # the card asks
 
 
 def test_the_overview_replays_with_no_network(tmp_path, prepared, monkeypatch, no_network):
@@ -315,16 +316,16 @@ def test_a_sensitive_answer_stops_the_run_at_s3(tmp_path, prepared, monkeypatch)
     assert res.status == "stopped" and res.note == "sensitive: someone is hurt"
     sheet = json.loads(ctx.path("play_sheet.json").read_text())
     jsonschema.validate(sheet, SCHEMA)
-    assert sheet["sensitive"] == {"flag": True, "reason": "someone is hurt"}
+    assert sheet["sensitive"] == {"flag": True, "reason": "someone is hurt", "checked": True}
 
 
 @pytest.mark.parametrize(
     "answer, expected",
-    [(None, {"flag": False, "reason": None}),
-     ({"sensitive": False, "sensitive_reason": "a fight"}, {"flag": False, "reason": None}),
-     ({"sensitive": True, "sensitive_reason": "a fight breaks out"}, {"flag": True, "reason": "a fight breaks out"}),
-     ({"sensitive": True, "sensitive_reason": ""}, {"flag": True, "reason": spotter.SENSITIVE_DEFAULT}),
-     ({"sensitive": True, "sensitive_reason": "a young boy falls"}, {"flag": True, "reason": spotter.SENSITIVE_DEFAULT})],
+    [(None, {"flag": False, "reason": None, "checked": False}),
+     ({"sensitive": False, "sensitive_reason": "a fight"}, {"flag": False, "reason": None, "checked": True}),
+     ({"sensitive": True, "sensitive_reason": "a fight breaks out"}, {"flag": True, "reason": "a fight breaks out", "checked": True}),
+     ({"sensitive": True, "sensitive_reason": ""}, {"flag": True, "reason": spotter.SENSITIVE_DEFAULT, "checked": True}),
+     ({"sensitive": True, "sensitive_reason": "a young boy falls"}, {"flag": True, "reason": spotter.SENSITIVE_DEFAULT, "checked": True})],
 )  # fmt: skip
 def test_the_flag_and_a_reason_safe_to_show(answer, expected):
     assert spotter.sensitivity({"answer": answer}) == expected

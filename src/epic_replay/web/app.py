@@ -22,8 +22,8 @@ later; their requests are refused with `not_built` rather than silently ignored.
 
 from __future__ import annotations
 
+import contextlib
 import dataclasses
-import functools
 import json
 import os
 import shutil
@@ -31,10 +31,12 @@ import statistics
 import subprocess
 import tempfile
 import threading
+import time
 from datetime import UTC, datetime
 from pathlib import Path
 
-from fastapi import FastAPI, Request, UploadFile
+from fastapi import FastAPI, Request
+from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -56,12 +58,28 @@ _null = os.open(os.devnull, os.O_RDONLY)
 os.dup2(_null, 0)
 os.close(_null)
 templates = Jinja2Templates(directory=str(HERE / "templates"))
-app = FastAPI(title="Epic Replay")
+
+
+@contextlib.asynccontextmanager
+async def lifespan(_app):
+    sweep()
+    yield
+
+
+app = FastAPI(title="Epic Replay", lifespan=lifespan)
 app.mount("/static", StaticFiles(directory=str(HERE / "static")), name="static")
 app.mount("/fonts", StaticFiles(directory=str(loader.ASSETS / "fonts")), name="fonts")
 app.state.settings = None  # tests set their own
 app.state.resume = None  # tests replace the background resume
-ANSWER = threading.Lock()  # one answer per card: check, pick and mark running together
+# One lock for every change to a run folder made by the app: a card answer (check, pick and
+# mark running together), a delete, and a frame picture being made, so a delete never races
+# a frame into a folder being removed (review, 2026-10-29).
+ANSWER = threading.Lock()
+# A run still "running" whose manifest has not changed for this long has lost its thread (the
+# server was restarted, or a stage hung): no stage takes this long. It is shown as stopped
+# and can be deleted (review, 2026-10-29).
+STALE_S = 300
+MAX_NAME = 40
 
 
 def settings() -> config.Settings:
@@ -70,6 +88,33 @@ def settings() -> config.Settings:
 
 def error(status: int, code: str, message: str) -> JSONResponse:
     return JSONResponse({"error": {"code": code, "message": message}}, status_code=status)
+
+
+def background(go, d: Path) -> None:
+    """Run `go(d)` in a thread. An error outside a stage (the stages catch their own) marks
+    the run failed instead of leaving it running."""
+
+    def body():
+        try:
+            go(d)
+        except Exception as e:  # noqa: BLE001 - recorded in the manifest, the run ends
+            try:
+                m = read(d, "manifest.json")
+                if m["status"] == "running":
+                    m["status"] = "failed"
+                    m["stages"].append({"stage": "flow", "status": "failed", "duration_s": 0.0,
+                                        "cost_usd": 0.0, "note": f"{type(e).__name__}: {e}"[:300]})  # fmt: skip
+                    runner.write_json(d / "manifest.json", m)
+            except (OSError, ValueError, KeyError):
+                pass
+
+    threading.Thread(target=body, daemon=True).start()
+
+
+def stale(d: Path, m: dict) -> bool:
+    return (
+        m["status"] == "running" and time.time() - (d / "manifest.json").stat().st_mtime > STALE_S
+    )
 
 
 def run_dir(run_id: str) -> Path | None:
@@ -142,30 +187,65 @@ async def post_play_card(run_id: str, request: Request):
         body = await request.json()
     except ValueError:
         return error(400, "invalid_request", "the body is not JSON")
+    if not isinstance(body, dict) or not isinstance(body.get("edits") or {}, dict):
+        return error(400, "invalid_request", "the body must be an object with an edits object")
     action, edits = body.get("action"), body.get("edits") or {}
     if action != "confirm":
         return error(400, "not_built", f"'{action}' is not in this build (add-back 7)")
-    extra = sorted(set(edits) - {"climax_frame"})
+    extra = sorted(set(edits) - {"climax_frame", "clip_ok"})
     if extra or body.get("context"):
         return error(400, "not_built", f"editing {', '.join(extra) or 'context'} is not in this build (add-back 6)")  # fmt: skip
+    clip_ok = edits.get("clip_ok")
+    if clip_ok is not None and not isinstance(clip_ok, bool):
+        return error(400, "invalid_request", "clip_ok must be true or false")
     frame = edits.get("climax_frame")
-    if frame is None:
+    if frame is None and clip_ok is not False:
         return error(409, "key_moment_required", "pick the moment before confirming")
-    if not isinstance(frame, int) or isinstance(frame, bool):
+    if frame is not None and (not isinstance(frame, int) or isinstance(frame, bool)):
         return error(400, "invalid_request", "climax_frame must be a frame number")
+    answer = await run_in_threadpool(answer_card, d, frame, clip_ok)
+    if isinstance(answer, JSONResponse):
+        return answer
+    if answer == "stopped":
+        return {"run_id": run_id, "stopped": True}
+    background(app.state.resume or resume, d)
+    return {"run_id": run_id, "climax_frame": frame}
+
+
+USER_STOP = "you said someone in it may not be fine"
+
+
+def answer_card(d: Path, frame: int | None, clip_ok: bool | None):
+    """The card's answer, under the lock: "running" (picked, go on), "stopped" (the user said
+    the clip is not fine to narrate), or an error response. When the events call could not
+    check the clip, the user must answer that before the run goes on (FR-009, review #4)."""
     with ANSWER:
         manifest = read(d, "manifest.json")
         if manifest["status"] != "waiting_play_card":
             return error(409, "not_waiting", "the run is not waiting at the play card")
+        ps = read(d, "play_sheet.json")
+        unchecked = ps["sensitive"].get("checked", True) is False
+        if clip_ok is False:
+            ps["sensitive"] = {"flag": True, "reason": USER_STOP, "checked": True}
+            runner.write_json(d / "play_sheet.json", ps)
+            manifest["status"] = "stopped"
+            manifest["stages"].append({"stage": runner.CHECKPOINT_A, "status": "stopped", "duration_s": 0.0,
+                                       "cost_usd": 0.0, "note": f"sensitive: {USER_STOP}"})  # fmt: skip
+            runner.write_json(d / "manifest.json", manifest)
+            return "stopped"
+        if unchecked and clip_ok is not True:
+            return error(409, "check_required", "Say whether everyone in the clip is fine first.")
         try:
             runner.pick(d, frame)
         except ValueError as e:
             return error(400, "invalid_request", str(e))
+        if unchecked:
+            ps = read(d, "play_sheet.json")
+            ps["sensitive"] = {"flag": False, "reason": None, "checked": True}
+            runner.write_json(d / "play_sheet.json", ps)
         manifest["status"] = "running"
         runner.write_json(d / "manifest.json", manifest)
-    go = app.state.resume or resume
-    threading.Thread(target=go, args=(d,), daemon=True).start()
-    return {"run_id": run_id, "climax_frame": frame}
+        return "running"
 
 
 @app.get("/runs/{run_id}/frames/{frame}.jpg")
@@ -178,18 +258,22 @@ def get_frame(run_id: str, frame: int):
     if not (d / "clip_meta.json").exists() or not 0 <= frame <= runner.last_frame(read(d, "clip_meta.json")):  # fmt: skip
         return error(404, "not_found", "no such frame")
     out = d / "card" / f"frame_{frame}.jpg"
-    if not out.exists():
-        out.parent.mkdir(exist_ok=True)
-        tmp = out.with_suffix(".tmp.jpg")
-        r = subprocess.run(
-            ["ffmpeg", "-v", "error", "-y", "-i", str(d / "work.mp4"),
-             "-vf", f"select=eq(n\\,{frame}),scale=-2:360", "-frames:v", "1", "-q:v", "4", str(tmp)],
-            capture_output=True, text=True,
-        )  # fmt: skip
-        if r.returncode != 0 or not tmp.exists():
-            return error(500, "stage_failed", f"frame {frame} could not be read")
-        tmp.replace(out)
-    return FileResponse(out, media_type="image/jpeg")
+    with ANSWER:  # one frame at a time, never into a folder being deleted
+        if not (d / "manifest.json").exists():
+            return error(404, "not_found", "no such run")
+        if not out.exists():
+            out.parent.mkdir(exist_ok=True)
+            tmp = out.with_suffix(".tmp.jpg")
+            r = subprocess.run(
+                ["ffmpeg", "-v", "error", "-y", "-i", str(d / "work.mp4"),
+                 "-vf", f"select=eq(n\\,{frame}),scale=-2:360", "-frames:v", "1", "-q:v", "4", str(tmp)],
+                capture_output=True, text=True,
+            )  # fmt: skip
+            if r.returncode != 0 or not tmp.exists():
+                return error(500, "stage_failed", f"frame {frame} could not be read")
+            tmp.replace(out)
+        data = out.read_bytes()
+    return Response(data, media_type="image/jpeg")
 
 
 # -- the run: start, state, result
@@ -220,19 +304,29 @@ def start(d: Path) -> None:
 
 
 @app.post("/runs", status_code=201)
-async def post_runs(file: UploadFile, request: Request):
-    form = await request.form()
-    s = settings()
+async def post_runs(request: Request):
+    # refuse an upload declared too large before reading it: the form parser would otherwise
+    # take the whole body to disk first (review, 2026-10-29)
+    try:
+        declared = int(request.headers.get("content-length") or 0)
+    except ValueError:
+        declared = 0
+    if declared > s0_intake.MAX_BYTES + (1 << 20):
+        return error(400, "invalid_upload", "The clip is larger than 200 MB.")
+    try:
+        form = await request.form()
+    except Exception:  # noqa: BLE001 - a malformed body
+        return error(400, "invalid_request", "The upload could not be read.")
     if str(form.get("consent", "")).lower() != "true":
         return error(400, "consent_required", "Tick the consent box first.")
-    packs = loader.load()
-    style = str(form.get("style") or "") or loader.default(packs)["id"]
-    if style not in packs:
-        return error(400, "unknown_style", f"No narrator called {style}.")
+    file = form.get("file")
+    if file is None or isinstance(file, str):
+        return error(400, "invalid_upload", "Choose a clip first.")
+    s = settings()
     s.runs_dir.mkdir(parents=True, exist_ok=True)
-    suffix = Path(file.filename or "").suffix.lower()
-    with tempfile.TemporaryDirectory(dir=s.runs_dir) as tmp:
-        upload = Path(tmp) / f"upload{suffix}"
+    tmp = Path(tempfile.mkdtemp(dir=s.runs_dir, prefix=".upload-"))
+    try:
+        upload = tmp / f"upload{Path(file.filename or '').suffix.lower()}"
         size = 0
         with open(upload, "wb") as out:
             while chunk := await file.read(1 << 20):
@@ -240,31 +334,52 @@ async def post_runs(file: UploadFile, request: Request):
                 if size > s0_intake.MAX_BYTES:
                     return error(400, "invalid_upload", "The clip is larger than 200 MB.")
                 out.write(chunk)
-        why, _ = s0_intake.inspect(upload)
-        if why:
-            return error(400, "invalid_upload", why)
-        name = str(form.get("player_name") or "").strip() or None
-        uc = {
-            "consent": consent.record(True),
-            "keep_for_demo": False,
-            "style": style,
-            "activity": None,
-            "player_name": name,
-            "team_home": None, "team_away": None, "score": None,
-            "keep_original_audio": str(form.get("keep_original_audio", "true")).lower() != "false",
-            "express": True,
-            "description": None,
-        }  # fmt: skip
-        d = runner.new_run(upload, s.runs_dir, uc)
+        # the checks and the copy block, so they run off the event loop
+        made = await run_in_threadpool(make_run, s, upload, dict(form))
+    finally:
+        await run_in_threadpool(shutil.rmtree, tmp, True)
+    if isinstance(made, JSONResponse):
+        return made
+    background(app.state.resume or start, made)
+    return {"run_id": made.name}
+
+
+def make_run(s: config.Settings, upload: Path, form: dict):
+    """Check the upload and the form, then make the run folder with the user's context."""
+    packs = loader.load()
+    style = str(form.get("style") or "") or loader.default(packs)["id"]
+    if style not in packs:
+        return error(400, "unknown_style", f"No narrator called {style}.")
+    why, _ = s0_intake.inspect(upload)
+    if why:
+        return error(400, "invalid_upload", why)
+    name = " ".join(str(form.get("player_name") or "").split())[:MAX_NAME] or None
+    uc = {
+        "consent": consent.record(True),
+        "keep_for_demo": False,
+        "style": style,
+        "activity": None,
+        "player_name": name,
+        "team_home": None, "team_away": None, "score": None,
+        "keep_original_audio": str(form.get("keep_original_audio", "true")).lower() != "false",
+        "express": True,
+        "description": None,
+    }  # fmt: skip
+    d = runner.new_run(upload, s.runs_dir, uc)
     runner.Run(d, s, ask=None).save()
-    go = app.state.resume or start
-    threading.Thread(target=go, args=(d,), daemon=True).start()
-    return {"run_id": d.name}
+    return d
 
 
-@functools.cache
+_TYPICAL: dict = {}
+
+
 def typical_s() -> dict[str, float]:
-    """The median duration of each stage over the runs on this machine, for the time left."""
+    """The median duration of each stage over the runs on this machine, for the time left;
+    measured again at most once a minute."""
+    key = str(settings().runs_dir)
+    hit = _TYPICAL.get(key)
+    if hit and time.time() - hit[0] < 60:
+        return hit[1]
     seen: dict[str, list[float]] = {}
     for m in settings().runs_dir.glob("*/manifest.json"):
         try:
@@ -273,12 +388,16 @@ def typical_s() -> dict[str, float]:
                     seen.setdefault(st["stage"], []).append(st["duration_s"])
         except (ValueError, KeyError):
             continue
-    return {k: statistics.median(v) for k, v in seen.items()}
+    out = {k: statistics.median(v) for k, v in seen.items()}
+    _TYPICAL[key] = (time.time(), out)
+    return out
 
 
 def state(run_id: str, d: Path) -> dict:
     """The run as the page shows it: the manifest's status and cost, and the eight steps."""
     m = read(d, "manifest.json")
+    if stale(d, m):  # its thread is gone: show it stopped where it was
+        m["status"] = "failed"
     last = {}
     for st in m["stages"]:
         last[st["stage"]] = st
@@ -304,18 +423,7 @@ def state(run_id: str, d: Path) -> dict:
         steps.append({"n": i, "name": name, "status": status, "duration_s": round(secs) if status == "done" and i != 4 else None})  # fmt: skip
     step_n = next((x["n"] for x in steps if x["status"] != "done"), 8)
     left = sum(typical_s().get(st, 3.0) for st in order[order.index(current):] if st != runner.CHECKPOINT_A) if current else 0.0  # fmt: skip
-    failed = next((x for x in m["stages"] if x["status"] in ("failed", "stopped")), None)
-    message = None
-    if m["status"] in ("stopped", "failed") and failed:
-        step = next((n for n, sts in copy.STEPS if failed["stage"] in sts), "making your replay")
-        plain = failed["stage"] in ("S0", "S2", runner.CHECKPOINT_A) or m["status"] == "stopped"
-        note = failed["note"] or ""
-        if note.startswith("sensitive: "):
-            message = copy.STOPPED["sensitive"].format(reason=note.removeprefix("sensitive: ").rstrip("."))  # fmt: skip
-        elif plain and note:
-            message = note
-        else:
-            message = copy.STOPPED["failed"].format(step=step.lower())
+    message = stopped_message(m, current) if m["status"] in ("stopped", "failed") else None
     return {
         "run_id": run_id,
         "status": m["status"],
@@ -331,6 +439,23 @@ def state(run_id: str, d: Path) -> dict:
         "has_clip": (d / "clip_meta.json").exists(),
         "has_video": (d / "final.mp4").exists(),
     }
+
+
+def stopped_message(m: dict, current: str | None) -> str:
+    """What the page says when a run stopped, in ui.md's words: never the stage's own note,
+    which can hold provider errors or cost figures, except S0's, which is written for the
+    user (why the upload was refused)."""
+    failed = next((x for x in m["stages"] if x["status"] in ("failed", "stopped")), None)
+    note = (failed or {}).get("note") or ""
+    if note.startswith("sensitive: "):
+        return copy.STOPPED["sensitive"].format(reason=note.removeprefix("sensitive: ").rstrip("."))  # fmt: skip
+    if "would be exceeded" in note:
+        return copy.STOPPED["cap"]
+    if failed and failed["stage"] == "S0" and note:
+        return note
+    where = failed["stage"] if failed else current
+    step = next((n for n, sts in copy.STEPS if where in sts), "making your replay")
+    return copy.STOPPED["failed"].format(step=step.lower())
 
 
 @app.get("/runs/{run_id}")
@@ -362,10 +487,21 @@ def delete_run(run_id: str):
     if d is None:
         return error(404, "not_found", "no such run")
     with ANSWER:
-        if read(d, "manifest.json")["status"] == "running":
+        m = read(d, "manifest.json")
+        if m["status"] == "running" and not stale(d, m):
             return error(409, "running", "Wait for this step to finish, then delete.")
-        shutil.rmtree(d)
+        # out of sight in one step, then removed; anything left is removed at the next start
+        gone = d.with_name(f".deleting-{d.name}")
+        d.rename(gone)
+    shutil.rmtree(gone, ignore_errors=True)
     return Response(status_code=204)
+
+
+def sweep() -> None:
+    """Remove what a delete or an upload left behind when the server stopped."""
+    root = settings().runs_dir
+    for p in [*root.glob(".deleting-*"), *root.glob(".upload-*")] if root.exists() else []:
+        shutil.rmtree(p, ignore_errors=True)
 
 
 # -- the page
@@ -377,11 +513,11 @@ def render(request: Request, run_id: str | None, d: Path | None, demo: str | Non
     st = state(run_id, d) if d else None
     pack = packs.get(st["style"]) if st and st["style"] in packs else loader.default(packs)
     ctx = {"copy": copy, "pack": pack, "accents": accents(pack), "run": st,
-           "provider_line": copy.provider_line(s), "run_json": json.dumps(st),
+           "provider_line": copy.provider_line(s),
            "demo": demo, "video_url": f"/demo/{run_id}/final.mp4" if demo else f"/runs/{run_id}/final.mp4"}  # fmt: skip
     if st and st["status"] == "waiting_play_card":
         card = card_data(run_id, d)
-        ctx |= {"card": card, "card_json": json.dumps(card)}
+        ctx["card"] = card
     if st and st["status"] == "done":
         script = read(d, "script.json") if (d / "script.json").exists() else {}
         ctx["headline"] = script.get("headline", "")

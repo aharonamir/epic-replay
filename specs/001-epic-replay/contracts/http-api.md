@@ -37,8 +37,10 @@ Served by FastAPI. The page (contracts/ui.md) uses only these endpoints. No auth
 }
 ```
 
+`clip_ok` (as built, 2026-10-29): when the play sheet's `sensitive.checked` is false (the vision model could not be asked), a confirm needs `"clip_ok": true` (else `409 check_required`); `"clip_ok": false` alone stops the run as sensitive (FR-009).
+
 Every edited field is written back with `source: user`. `climax_frame` sets `climax.method` to `user`. An event with `keep: false` is removed; with `keep: true` its `source` becomes `user`.
 
 ## Errors
 
-Errors are `{"error": {"code": "...", "message": "..."}}` with codes `invalid_upload`, `consent_required`, `unknown_style`, `cap_exceeded`, `sensitive_content`, `not_waiting` (a checkpoint answer arrived when the run was not waiting), `not_ready` (a re-telling was asked for before the play was confirmed), `stage_failed`, `key_moment_required` (a play-card confirm without the key moment), `invalid_request` (a malformed body or a frame outside the clip), `not_found`, `running` (a delete while a stage runs), and `not_built` (an answer this build does not handle yet: reject, generic and field edits until add-backs 6 and 7).
+Errors are `{"error": {"code": "...", "message": "..."}}` with codes `invalid_upload`, `consent_required`, `unknown_style`, `cap_exceeded`, `sensitive_content`, `not_waiting` (a checkpoint answer arrived when the run was not waiting), `not_ready` (a re-telling was asked for before the play was confirmed), `stage_failed`, `key_moment_required` (a play-card confirm without the key moment), `invalid_request` (a malformed body or a frame outside the clip), `not_found`, `running` (a delete while a stage runs; a run whose manifest has not changed for 5 minutes has lost its thread and can be deleted), `check_required` (a confirm on an unchecked clip without `clip_ok`), and `not_built` (an answer this build does not handle yet: reject, generic and field edits until add-backs 6 and 7).

@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import json
 import os
+import secrets
 import shutil
 import threading
 import time
@@ -180,6 +181,14 @@ class Run:
             return StageResult("ok", f"key moment frame {c['frame']}")
         if self.ask is None:
             return StageResult("waiting", "waiting for the play card")
+        if ps["sensitive"].get("checked", True) is False:
+            # the events call could not ask (FR-009): the user answers instead, or the run stops
+            ans = self.ask("We couldn't check that this clip is fine to narrate. Is everyone in it "
+                           "fine, and dressed? (y to go on): ").strip().lower()  # fmt: skip
+            if ans != "y":
+                return StageResult("stopped", "sensitive: you said someone in it may not be fine")
+            ps["sensitive"] = {"flag": False, "reason": None, "checked": True}
+            write_json(self.dir / "play_sheet.json", ps)
         meta = json.loads((self.dir / "clip_meta.json").read_text())
         last = last_frame(meta)
         self.say(f"\nPlay card. What happened: {(ps.get('outcome_summary') or {}).get('value')}")
@@ -210,7 +219,9 @@ class Run:
 
 
 def new_run(clip: Path, runs_dir: Path, user_context: dict, run_id: str | None = None) -> Path:
-    run_id = run_id or datetime.now(UTC).strftime("r_%Y%m%d_%H%M%S")
+    # the second alone let two uploads in one second collide (review, 2026-10-29); the random
+    # part also keeps run ids from being guessed
+    run_id = run_id or datetime.now(UTC).strftime("r_%Y%m%d_%H%M%S_") + secrets.token_hex(3)
     d = runs_dir / run_id
     d.mkdir(parents=True, exist_ok=False)
     shutil.copyfile(clip, d / f"upload{clip.suffix.lower()}")

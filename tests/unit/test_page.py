@@ -37,7 +37,7 @@ def app(tmp_path, monkeypatch):
 
     monkeypatch.setattr(web.app.state, "settings", s)
     monkeypatch.setattr(web.app.state, "resume", go)
-    web.typical_s.cache_clear()
+    web._TYPICAL.clear()
     return TestClient(web.app), s, started, done
 
 

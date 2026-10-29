@@ -41,6 +41,10 @@ CARD = {
     "frame": "Frame {frame} · {t} s", "pick": "Pick the moment", "this_one": "This one",
     "others": "Other moments", "check": "Check this", "yes": "Yes, that's it",
     "why": "Pick the moment first: nudge it, choose another moment, or press \"This one\".",
+    "why_check": "Answer the question about the clip first.",
+    "unchecked": "We couldn't check that this clip is fine to narrate. Is everyone in it fine, and dressed?",
+    "fine": "Yes, everyone's fine", "not_fine": "No, stop here",
+    "failed": "That didn't go through. Try again.",
 }  # fmt: skip
 
 RESULT = {"headline": "Your replay", "download": "Download", "ai": "AI commentary",
@@ -51,6 +55,7 @@ DEMO = "Cached run from {date}"
 STOPPED = {
     "headline": "Stopped",
     "sensitive": "This clip isn't one we can narrate: {reason}.",
+    "cap": "We've reached today's limit for this demo.",
     "failed": "Something broke while {step}. Your clip is safe.",
     "again": "Choose another clip",
 }

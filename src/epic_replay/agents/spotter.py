@@ -233,15 +233,18 @@ class SpotterTools:
 def sensitivity(events_look: dict | None) -> dict:
     """The play sheet's sensitivity flag from the events call (FR-009). The model's reason is
     shown to the user, so one that breaks the descriptor rules is replaced by a plain one.
-    When the events call was left out there is no answer, and the flag stays down: the user
-    has declared the clip at consent, and the play card still shows what was seen."""
-    a = (events_look or {}).get("answer") or {}
+    When the events call was left out there is no answer: the flag stays down but `checked`
+    is false, and the play card asks the user whether everyone in the clip is fine before
+    the run goes on (owner's decision, 2026-10-29, review #4)."""
+    if not (events_look or {}).get("answer"):
+        return {"flag": False, "reason": None, "checked": False}
+    a = events_look["answer"]
     if a.get("sensitive") is not True:
-        return {"flag": False, "reason": None}
+        return {"flag": False, "reason": None, "checked": True}
     reason = str(a.get("sensitive_reason") or "").strip().rstrip(".")
     if not reason or lexicon.find_descriptor_banned(reason) or len(reason) > 120:
         reason = SENSITIVE_DEFAULT
-    return {"flag": True, "reason": reason}
+    return {"flag": True, "reason": reason, "checked": True}
 
 
 def map_events(data: dict, grids: list[list[dict]]) -> list[dict]:

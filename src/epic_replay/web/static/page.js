@@ -5,6 +5,10 @@
 (() => {
   const $ = (id) => document.getElementById(id);
   const run = window.RUN;
+  // the message of an error answer, or `fallback` when the answer is not the API's JSON
+  async function why(r, fallback) {
+    try { return (await r.json()).error.message || fallback; } catch (err) { return fallback; }
+  }
 
   // ---- 1. Start
   const form = $("start");
@@ -20,6 +24,7 @@
       if (!TYPES.includes(ext)) return fail("The clip must be an MP4, MOV or WebM file.");
       if (f.size > MAX_BYTES) return fail("The clip is larger than 200 MB.");
       const v = $("preview");
+      if (v.src) URL.revokeObjectURL(v.src);
       v.src = URL.createObjectURL(f);
       v.onloadedmetadata = () => {
         const d = v.duration;
@@ -57,9 +62,8 @@
       data.set("keep_original_audio", $("mute").checked ? "false" : "true");
       try {
         const r = await fetch("/runs", { method: "POST", body: data });
-        const body = await r.json();
-        if (r.ok) { location.href = `/r/${body.run_id}`; return; }
-        $("go-error").textContent = body.error.message;
+        if (r.ok) { location.href = `/r/${(await r.json()).run_id}`; return; }
+        $("go-error").textContent = await why(r, "Something went wrong on the server. Try again.");
       } catch (err) {
         $("go-error").textContent = "The upload did not reach the server. Try again.";
       }
@@ -70,9 +74,13 @@
   // ---- Delete this clip now (FR-037): at once, then back to the start
   document.querySelectorAll("[data-delete]").forEach((b) => b.addEventListener("click", async () => {
     b.disabled = true;
-    const r = await fetch(`/runs/${b.dataset.delete}`, { method: "DELETE" });
-    if (r.ok || r.status === 404) { location.href = "/"; return; }
-    $("delete-error").textContent = (await r.json()).error.message;
+    try {
+      const r = await fetch(`/runs/${b.dataset.delete}`, { method: "DELETE" });
+      if (r.ok || r.status === 404) { location.href = "/"; return; }
+      $("delete-error").textContent = await why(r, "The clip was not deleted. Try again.");
+    } catch (err) {
+      $("delete-error").textContent = "The clip was not deleted. Try again.";
+    }
     b.disabled = false;
   }));
 
@@ -90,6 +98,7 @@
     setInterval(async () => {
       try {
         const r = await fetch(`/runs/${run.run_id}`);
+        if (r.status === 404) { location.href = "/"; return; }  // deleted elsewhere
         if (r.ok && sig(await r.json()) !== seen) location.reload();
       } catch (err) { /* keep polling */ }
     }, 2000);

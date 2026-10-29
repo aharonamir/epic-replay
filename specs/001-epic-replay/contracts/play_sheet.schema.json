@@ -100,7 +100,8 @@
       "required": ["flag", "reason"],
       "properties": {
         "flag": { "type": "boolean" },
-        "reason": { "type": ["string", "null"] }
+        "reason": { "type": ["string", "null"] },
+        "checked": { "type": "boolean", "description": "False when the model could not be asked (the events call was left out): the play card then asks the user before the run goes on. Absent means checked." }
       }
     },
     "agreement": {

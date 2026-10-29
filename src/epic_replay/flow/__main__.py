@@ -38,6 +38,9 @@ def run(args: argparse.Namespace) -> int:
     from epic_replay.styles import loader
 
     s = config.load()
+    if args.card == "page" and args.pick is not None:
+        print("--pick answers at the prompt; with --card page the page answers", file=sys.stderr)
+        return 2
     ask = None if args.card == "page" else input
     if args.pick is not None:
         answer = "" if args.pick == "proposed" else args.pick

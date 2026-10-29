@@ -146,6 +146,7 @@ li.failed .mark::after { content: "!"; font-weight: 700; }
 .others button { padding: 4px; flex-direction: column; gap: 4px; font: 400 13px var(--data); }
 .others img { width: 72px; aspect-ratio: 16/9; object-fit: cover; }
 .others button.chosen { border: 2px solid var(--accent-text); }
+.choice.chosen { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
 .card-actions { flex-basis: 100%; border-top: 1px solid var(--line); padding-top: 16px; }
 .card-actions .primary { flex: 2 1 200px; height: 56px; }
 

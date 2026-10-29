@@ -30,6 +30,16 @@
       {% for e in card.play_sheet.events %}<li><span>{{ e.action }}{% if e.outcome %} · {{ e.outcome }}{% endif %}</span></li>{% endfor %}
     </ol>
     {% if card.play_sheet.outcome_summary %}<p class="muted">{{ card.play_sheet.outcome_summary.value }}</p>{% endif %}
+    {% if card.play_sheet.sensitive.checked == false %}
+    <div id="clip-check" class="to-check">
+      <div class="label">{{ copy.CARD.check }}</div>
+      <p>{{ copy.CARD.unchecked }}</p>
+      <div class="row">
+        <button type="button" class="choice" data-ok="true">{{ copy.CARD.fine }}</button>
+        <button type="button" class="choice" data-ok="false">{{ copy.CARD.not_fine }}</button>
+      </div>
+    </div>
+    {% endif %}
   </div>
   <div class="card-actions">
     <div class="row"><button type="button" class="primary" id="confirm" disabled>{{ copy.CARD.yes }}</button></div>
@@ -39,26 +49,37 @@
 </section>
 <script>
 (() => {
-  const card = {{ card_json | safe }};
+  const card = {{ card | tojson }};
+  const copy = {{ copy.CARD | tojson }};
   const fps = card.fps, last = card.last_frame;
-  let frame = card.climax.frame, answered = false, timer = null;
+  const mustCheck = card.play_sheet.sensitive.checked === false;
+  let frame = card.climax.frame, answered = false, clipOk = null, busy = false;
   const $ = (id) => document.getElementById(id);
   function show() {
     $("frame").src = card.frame_url.replace("{frame}", frame);
-    $("where").textContent = {{ copy.CARD.frame | tojson }}.replace("{frame}", frame).replace("{t}", (frame / fps).toFixed(2));
+    $("where").textContent = copy.frame.replace("{frame}", frame).replace("{t}", (frame / fps).toFixed(2));
     $("key").classList.toggle("answered", answered);
-    $("confirm").disabled = !answered;
-    $("why").hidden = answered;
+    const ready = answered && (!mustCheck || clipOk === true);
+    $("confirm").disabled = busy || !ready;
+    $("why").textContent = !answered ? copy.why : mustCheck && clipOk !== true ? copy.why_check : "";
     document.querySelectorAll(".others button").forEach((b) =>
       b.classList.toggle("chosen", Number(b.dataset.frame) === frame));
+    document.querySelectorAll("#clip-check .choice").forEach((b) =>
+      b.classList.toggle("chosen", String(clipOk) === b.dataset.ok));
+    if ($("clip-check")) $("clip-check").classList.toggle("answered", clipOk === true);
   }
   function move(step) { frame = Math.max(0, Math.min(last, frame + step)); answered = true; show(); }
   document.querySelectorAll("#nudge button").forEach((b) => {
+    // a click moves one step; holding moves five steps a second after a short pause (ui.md)
     const step = Number(b.dataset.step);
-    b.addEventListener("click", () => move(step));
-    // holding a button moves five steps a second (contracts/ui.md)
-    b.addEventListener("pointerdown", () => { timer = setInterval(() => move(step), 200); });
-    ["pointerup", "pointerleave", "pointercancel"].forEach((ev) => b.addEventListener(ev, () => clearInterval(timer)));
+    let wait = null, repeat = null, held = false;
+    const stop = () => { clearTimeout(wait); clearInterval(repeat); };
+    b.addEventListener("pointerdown", () => {
+      held = false; stop();
+      wait = setTimeout(() => { held = true; move(step); repeat = setInterval(() => move(step), 200); }, 400);
+    });
+    ["pointerup", "pointerleave", "pointercancel"].forEach((ev) => b.addEventListener(ev, stop));
+    b.addEventListener("click", () => { if (!held) move(step); held = false; });
   });
   $("nudge").addEventListener("keydown", (e) => {
     if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
@@ -68,16 +89,30 @@
   $("this-one").addEventListener("click", () => { answered = true; show(); });
   document.querySelectorAll(".others button").forEach((b) =>
     b.addEventListener("click", () => { frame = Number(b.dataset.frame); answered = true; show(); }));
-  $("confirm").addEventListener("click", async () => {
-    $("confirm").disabled = true;
-    const r = await fetch(`/runs/${card.run_id}/play-card`, {
-      method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "confirm", edits: { climax_frame: frame } }),
-    });
-    if (r.ok) { location.reload(); return; }
-    const body = await r.json();
-    $("card-status").textContent = body.error.message;
-    show();
+  async function send(edits) {
+    busy = true; show();
+    try {
+      const r = await fetch(`/runs/${card.run_id}/play-card`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "confirm", edits }),
+      });
+      if (r.ok) { location.reload(); return; }
+      let msg = copy.failed;
+      try { msg = (await r.json()).error.message; } catch (err) { /* not JSON */ }
+      $("card-status").textContent = msg;
+    } catch (err) {
+      $("card-status").textContent = copy.failed;
+    }
+    busy = false; show();
+  }
+  document.querySelectorAll("#clip-check .choice").forEach((b) => b.addEventListener("click", () => {
+    clipOk = b.dataset.ok === "true";
+    if (clipOk) show(); else send({ clip_ok: false });
+  }));
+  $("confirm").addEventListener("click", () => {
+    const edits = { climax_frame: frame };
+    if (mustCheck) edits.clip_ok = true;
+    send(edits);
   });
   show();
 })();

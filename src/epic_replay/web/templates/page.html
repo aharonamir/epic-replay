@@ -131,7 +131,7 @@
 {% endif %}
 
 </main>
-<script>window.RUN = {{ run_json | safe }};</script>
+<script>window.RUN = {{ run | tojson }};</script>
 <script src="/static/page.js"></script>
 </body>
 </html>
