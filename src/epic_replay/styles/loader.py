@@ -7,8 +7,8 @@ an asset that is missing or that resolves outside `assets/`. The schema already 
 leading "/" and ".." parts; the resolved-path check also catches links that lead out.
 Exactly one loaded pack is the default. Code never branches on a pack's id (working rule 9).
 
-The skin is not checked until the HTML graphics exist (T023, dropped 2026-10-22), and page
-colours by the contrast rule come with the style cards (cut item 9).
+The skin must be a CSS file in `graphics/skins/` (T023). Page colours by the contrast rule come
+with the style cards (cut item 9).
 """
 
 from __future__ import annotations
@@ -18,6 +18,7 @@ import logging
 from pathlib import Path
 
 from epic_replay import contracts
+from epic_replay.graphics import render
 
 log = logging.getLogger(__name__)
 
@@ -41,6 +42,8 @@ def problems(pack: dict, voices: dict, assets: Path) -> list[str]:
         known = {} if ref["provider"].startswith("_") else voices.get(ref["provider"], {})
         if not isinstance(known, dict) or ref["voice_id"] not in known:
             errs.append(f"voice/{which}: {ref['provider']} voice {ref['voice_id']} is not known")
+    if not render.skin_file(pack["graphics"]["skin"]).is_file():
+        errs.append(f"graphics/skin: no skin named {pack['graphics']['skin']}")
     named = [pack["sample_audio"]] + [pack["sound"][k] for k in SOUNDS if pack["sound"][k]]
     root = assets.resolve()
     for rel in named:

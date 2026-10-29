@@ -58,6 +58,21 @@ def test_the_file_carries_the_ai_label(rendered):
     tags = subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format_tags", "-of", "json",
                            str(d / "final.mp4")], capture_output=True, text=True, check=True).stdout  # fmt: skip
     assert "AI COMMENTARY" in tags and r["ai_label"] == "AI COMMENTARY"
+    assert r["graphics"] == "html" and (d / "overlays" / "ai_label.png").exists()
+    assert "AI COMMENTARY" in (d / "overlays" / "ai_label.html").read_text()
+
+
+def test_the_video_is_still_made_with_text_overlays_when_the_graphics_fail(rendered, monkeypatch):
+    d, _ = rendered
+    from epic_replay.stages import s10_compose as s10
+
+    def boom(*a, **k):
+        raise RuntimeError("no chromium")
+
+    monkeypatch.setattr(s10.html, "render", boom)
+    ctx = RunContext(run_dir=d, settings=config.load())
+    assert s10.run(ctx).status == "ok"
+    assert json.loads((d / "render.json").read_text())["graphics"] == "text"
     assert (d / "overlays" / "ai_label.txt").read_text() == "AI COMMENTARY"
 
 

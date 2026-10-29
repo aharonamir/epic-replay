@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<style>
+@font-face { font-family: "Display"; font-weight: 900; font-style: italic;
+  src: url("{{ fonts }}/sofia-sans-extra-condensed-latin-900-italic.woff2") format("woff2"); }
+@font-face { font-family: "Display"; font-weight: 900; font-style: normal;
+  src: url("{{ fonts }}/sofia-sans-extra-condensed-latin-900-normal.woff2") format("woff2"); }
+@font-face { font-family: "Display"; font-weight: 700; font-style: normal;
+  src: url("{{ fonts }}/sofia-sans-extra-condensed-latin-700-normal.woff2") format("woff2"); }
+@font-face { font-family: "Body"; font-weight: 700; font-style: normal;
+  src: url("{{ fonts }}/sofia-sans-latin-700-normal.woff2") format("woff2"); }
+@font-face { font-family: "Data"; font-weight: 400; font-style: normal;
+  src: url("{{ fonts }}/jetbrains-mono-latin-400-normal.woff2") format("woff2"); }
+:root { --u: {{ u }}px; --accent: {{ accent }}; --accent-text: {{ accent_text }}; --on-accent: {{ on_accent }}; --ink: #F2F4F5; }
+* { box-sizing: border-box; }
+html, body { margin: 0; width: {{ w }}px; height: {{ h }}px; background: transparent; overflow: hidden; }
+body { position: relative; font-family: "Body", sans-serif; color: var(--ink); }
+.display { font-family: "Display", sans-serif; line-height: 1.02; overflow-wrap: anywhere; }
+.box { background: rgba(10, 12, 14, 0.62); }
+
+/* positions: the same in every skin */
+.title { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
+.title .display { max-width: 92%; text-align: center; font-size: calc(var(--u) * 0.1); padding: calc(var(--u) * 0.02) calc(var(--u) * 0.035); border-bottom: calc(var(--u) * 0.01) solid var(--accent); }
+.bug { position: absolute; left: 4%; top: 5%; max-width: 70%; background: var(--accent); color: var(--on-accent); font-size: calc(var(--u) * 0.045); padding: calc(var(--u) * 0.008) calc(var(--u) * 0.022); }
+.endcard { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: calc(var(--u) * 0.02); background: rgba(8, 10, 12, 0.55); }
+.endcard .kicker { font-family: "Data", monospace; color: var(--accent-text); font-size: calc(var(--u) * 0.035); letter-spacing: 0.18em; text-align: center; max-width: 92%; }
+.endcard .display { max-width: 92%; text-align: center; font-size: calc(var(--u) * 0.1); }
+.endcard .rule { width: 22%; height: calc(var(--u) * 0.008); background: var(--accent); }
+.ai { position: absolute; right: 3%; bottom: 4%; font-family: "Data", monospace; font-size: calc(var(--u) * 0.026); letter-spacing: 0.12em; padding: calc(var(--u) * 0.007) calc(var(--u) * 0.016); border-left: calc(var(--u) * 0.006) solid var(--accent); }
+
+/* skin: type and case only */
+{{ skin_css }}
+</style>
+</head>
+<body>
+{% if kind == "title" %}
+  <div class="title"><div class="display box skin-head">{{ text.headline }}</div></div>
+{% elif kind == "replay_bug" %}
+  <div class="bug display skin-bug">{{ text.label }}</div>
+{% elif kind == "end_card" %}
+  <div class="endcard">
+    {% if text.kicker %}<div class="kicker">{{ text.kicker }}</div>{% endif %}
+    {% if text.headline %}<div class="display skin-head">{{ text.headline }}</div>{% endif %}
+    <div class="rule"></div>
+  </div>
+{% elif kind == "ai_label" %}
+  <div class="ai box">{{ text.label }}</div>
+{% endif %}
+</body>
+</html>

@@ -2,7 +2,8 @@
 `final.mp4`, and `render.json` with what was measured on the result.
 
 - The S9 segments are joined in storyboard order without re-encoding, then encoded once with
-  the overlays: FFmpeg text (re-plan; the HTML graphics of T023 were dropped). The title card
+  the overlays: HTML graphics rendered to transparent PNGs (T023, `graphics/`), faded in and out
+  over the video; if Chromium cannot render them, FFmpeg text as before. The title card
   shows the headline; the replay carries the pack's replay bug; the end card shows the pack's
   kicker over the headline; a small "AI COMMENTARY" label sits in a corner throughout, and
   the file carries a matching metadata tag (FR-030). The lower third is deferred.
@@ -16,6 +17,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import subprocess
 import tempfile
 from pathlib import Path
@@ -24,10 +26,12 @@ import numpy as np
 from PIL import ImageFont
 from scipy.signal import correlate
 
+from epic_replay.graphics import render as html
 from epic_replay.media import audio, ffmpeg
 from epic_replay.stages.base import RunContext, StageResult
 from epic_replay.styles import loader
 
+log = logging.getLogger(__name__)
 FINAL, RENDER = "final.mp4", "render.json"
 FONT = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
 AI_LABEL = "AI COMMENTARY"
@@ -111,6 +115,42 @@ def overlays(sb: dict, script: dict, pack: dict, text_dir: Path, frame: tuple[in
     return ",".join(steps)
 
 
+FADE_S = 0.2
+PNG_ORDER = ("title", "replay_bug", "end_card", "ai_label")
+
+
+def png_graph(sb: dict, pngs: dict[str, Path], first_input: int) -> tuple[list[str], str]:
+    """Input arguments and a filter graph that lays the overlay PNGs over `[0:v]`, each faded in
+    and out at the ends of its window (the storyboard's overlay times). The output is `[v]`."""
+    spans = {o["type"]: o for o in sb["overlays"]}
+    args, chains, last = [], [], "0:v"
+    for i, kind in enumerate((k for k in PNG_ORDER if k in pngs and k in spans), first_input):
+        s, e = spans[kind]["start"], spans[kind]["end"]
+        f = min(FADE_S, (e - s) / 3)
+        args += ["-loop", "1", "-framerate", str(sb["fps"]), "-t", str(sb["duration_s"]),
+                 "-i", str(pngs[kind])]  # fmt: skip
+        chains.append(
+            f"[{i}:v]format=rgba,fade=t=in:st={s}:d={f}:alpha=1,"
+            f"fade=t=out:st={e - f}:d={f}:alpha=1[o{i}]"
+        )
+        chains.append(f"[{last}][o{i}]overlay=0:0:eof_action=pass[v{i}]")
+        last = f"v{i}"
+    return args, ";".join([*chains, f"[{last}]null[v]"])
+
+
+def html_overlays(script: dict, pack: dict, frame: tuple[int, int], out_dir: Path) -> dict:
+    """The overlay PNGs from the HTML templates, or {} when they cannot be rendered (no
+    Chromium, a skin missing): the caller then draws FFmpeg text."""
+    labels = pack["script"]["labels"]
+    texts = {"headline": script["headline"], "replay_bug": labels.get("replay_bug", "REPLAY"),
+             "kicker": labels.get("end_card_kicker", "")}  # fmt: skip
+    try:
+        return html.render(texts, pack["graphics"], frame, out_dir)
+    except Exception:  # noqa: BLE001 - the video is still made, with text overlays
+        log.warning("HTML graphics failed; using FFmpeg text", exc_info=True)
+        return {}
+
+
 def probe(path: Path) -> dict:
     r = subprocess.run(
         ["ffprobe", "-v", "error", "-show_entries",
@@ -168,10 +208,17 @@ def run(ctx: RunContext) -> StageResult:
     try:
         ffmpeg.concat(parts, joined)
         size = next(x for x in probe(joined)["streams"] if "width" in x)
-        vf = overlays(sb, script, pack, ctx.path("overlays"), (size["width"], size["height"]))
+        frame = (size["width"], size["height"])
+        pngs = html_overlays(script, pack, frame, ctx.path("overlays"))
+        if pngs:
+            extra, graph = png_graph(sb, pngs, first_input=2)
+            video = [*extra, "-filter_complex", graph, "-map", "[v]"]
+        else:
+            vf = overlays(sb, script, pack, ctx.path("overlays"), frame)
+            video = ["-filter:v", vf, "-map", "0:v"]
         ffmpeg.run([
-            "-i", str(joined), "-i", str(ctx.path("mix.wav")), "-filter:v", vf,
-            "-map", "0:v", "-map", "1:a", "-c:v", "libx264", "-preset", "medium", "-crf", "18",
+            "-i", str(joined), "-i", str(ctx.path("mix.wav")), *video,
+            "-map", "1:a", "-c:v", "libx264", "-preset", "medium", "-crf", "18",
             "-pix_fmt", "yuv420p", "-r", str(sb["fps"]), "-c:a", "aac", "-b:a", "192k",
             "-t", str(sb["duration_s"]), "-movflags", "+faststart",
             "-metadata", f"comment={AI_LABEL}: narration written and voiced by AI",
@@ -195,6 +242,7 @@ def run(ctx: RunContext) -> StageResult:
         "loudness_lufs": lufs, "true_peak_dbtp": peak,
         "climax_onsets": hits,
         "ai_label": AI_LABEL,
+        "graphics": "html" if pngs else "text",
     }  # fmt: skip
     ctx.path(RENDER).write_text(json.dumps(render, indent=2) + "\n")
     worst = max((abs(h["error_ms"]) for h in hits), default=0)
