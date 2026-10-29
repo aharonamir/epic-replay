@@ -37,6 +37,7 @@ import threading
 import time
 from datetime import UTC, datetime
 from pathlib import Path
+from urllib.parse import quote
 
 from fastapi import FastAPI, Request
 from fastapi.concurrency import run_in_threadpool
@@ -537,14 +538,29 @@ def get_artifact(run_id: str, name: str):
         return error(404, "not_found", "no such output")
     if not p.is_relative_to(d) or not p.is_file():
         return error(404, "not_found", "no such output")
+    # opened before answering: a delete before this is a 404, and one after it does not stop
+    # the answer, because an open file stays readable after it is removed
+    try:
+        f = open_output(p)
+    except OSError:
+        return error(404, "not_found", "no such output")
     headers = {"X-Content-Type-Options": "nosniff"}
     if p.suffix.lower() in INLINE:
-        try:
-            data = p.read_bytes()
-        except OSError:  # deleted meanwhile
-            return error(404, "not_found", "no such output")
-        return Response(data, media_type=INLINE[p.suffix.lower()], headers=headers)
-    return FileResponse(p, media_type="application/octet-stream", filename=p.name, headers=headers)
+        with f:
+            return Response(f.read(), media_type=INLINE[p.suffix.lower()], headers=headers)
+    headers["Content-Length"] = str(os.fstat(f.fileno()).st_size)
+    headers["Content-Disposition"] = f'attachment; filename="{quote(p.name)}"'
+
+    def chunks():
+        with f:
+            while chunk := f.read(1 << 20):
+                yield chunk
+
+    return StreamingResponse(chunks(), media_type="application/octet-stream", headers=headers)
+
+
+def open_output(p: Path):
+    return open(p, "rb")
 
 
 END = ("done", "stopped", "failed")

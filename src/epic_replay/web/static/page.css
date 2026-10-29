@@ -146,6 +146,8 @@ li.failed .mark::after { content: "!"; font-weight: 700; }
 .detail .sheets img { width: 96px; aspect-ratio: 4/3; object-fit: cover; display: block; background: var(--surface); }
 .detail .sheets a { display: block; min-height: 44px; }
 .details-row { display: flex; justify-content: flex-end; margin-top: 16px; }
+.notice { max-width: 1280px; width: 100%; margin: 0 auto; padding: 0 clamp(16px, 4vw, 48px); }
+.notice:empty { display: none; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 @media (prefers-reduced-motion: no-preference) {
   li.running .mark::after { animation: pulse 1.2s ease-in-out infinite alternate; }

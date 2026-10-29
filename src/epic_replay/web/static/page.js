@@ -142,8 +142,18 @@
         // the confirm button was disabled while sending, which took the focus away; the
         // answer was given here, so the next state's heading takes it
         if (r.ok) { live.refresh(true); live.start(); return; }
-        $("card-status").textContent = await why(r, copy.failed);
-        if (r.status === 409) live.refresh();  // answered or deleted in another tab
+        const msg = await why(r, copy.failed);
+        if (r.status === 409) {
+          // answered or deleted in another tab: show the current state first, then say why,
+          // in the card if it is still there, else in the notice the swaps leave alone
+          const mine = $("card-status");
+          await live.refresh();
+          const where = $("card-status") || $("notice");
+          if (where) where.textContent = msg;
+          if ($("card-status") !== mine) return;  // swapped: the new card has its own state
+        } else {
+          $("card-status").textContent = msg;
+        }
       } catch (err) {
         $("card-status").textContent = copy.failed;
       }
@@ -208,6 +218,7 @@
     run = json(main, "run-data");
     initMain(main);
     if (run && run.status !== was) {
+      $("notice").textContent = "";
       const h = main.querySelector("[data-heading]");
       if (h) {
         $("announce").textContent = h.textContent.trim();
@@ -221,20 +232,28 @@
 
   // ---- 2 and 3. Progress and confirm: one connection, by events or by polling, never both
   const live = (() => {
-    let source = null, poller = null, retry = null, busy = false, again = false, acted = false, lastId = 0, over = false;
-    const sig = (r) => r.status + "|" + r.steps.map((s) => s.status + ":" + s.duration_s).join(",");
-    async function refresh(byUser = false) {
-      if (!run) return;
-      acted = acted || byUser;
-      if (busy) { again = true; return; }
-      busy = true;
+    let source = null, poller = null, retry = null, inflight = null, again = false, acted = false, lastId = 0, over = false;
+    // what polling compares: a stage that finishes inside a step still running changes the
+    // number of stage records and the cost, not the step's status
+    const sig = (r) => [r.status, r.stages.length, r.cost_usd, ...r.steps.map((s) => s.status + ":" + s.duration_s)].join("|");
+    async function once() {
       try {
         const r = await fetch(`/r/${run.run_id}?part=main`);
         if (r.status === 404) { stop(); location.href = "/"; return; }  // deleted elsewhere
         if (r.ok) { swap(await r.text(), acted); acted = false; }
       } catch (err) { /* the next event or poll tries again */ }
-      busy = false;
-      if (again) { again = false; refresh(); }
+    }
+    // One fetch and swap at a time; a call meanwhile queues one more and gets the same
+    // promise, which settles only when nothing is running or queued.
+    function refresh(byUser = false) {
+      if (!run) return Promise.resolve();
+      acted = acted || byUser;
+      if (inflight) { again = true; return inflight; }
+      inflight = (async () => {
+        do { again = false; await once(); } while (again && run);
+        inflight = null;
+      })();
+      return inflight;
     }
     function open() {
       if (over || source) return;

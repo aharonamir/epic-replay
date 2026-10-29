@@ -6,6 +6,7 @@ import dataclasses
 import html
 import json
 import os
+import shutil
 import threading
 import time
 
@@ -214,3 +215,34 @@ def test_the_result_has_the_script_what_we_saw_and_time_and_cost(app):
     assert "l2: &#39;&lt;b&gt;Noa&lt;/b&gt;&#39;" in raw and copy.PANELS["failed"] in html.unescape(
         raw
     )
+
+
+def test_an_output_deleted_before_it_is_opened_is_a_404(app, monkeypatch):
+    client, s, _ = app
+    d = seeded(s, "d", "done", ALL)
+    real = web.open_output
+
+    def deleted_first(p):
+        shutil.rmtree(d)  # the run is deleted after the checks passed
+        return real(p)
+
+    monkeypatch.setattr(web, "open_output", deleted_first)
+    r = client.get("/runs/d/artifacts/play_sheet.json")
+    assert r.status_code == 404 and r.json()["error"]["code"] == "not_found"
+
+
+def test_an_output_deleted_after_it_is_opened_is_still_sent_whole(app, monkeypatch):
+    client, s, _ = app
+    d = seeded(s, "d", "done", ALL)
+    whole = (d / "play_sheet.json").read_bytes()
+    real = web.open_output
+
+    def deleted_after(p):
+        f = real(p)
+        shutil.rmtree(d)
+        return f
+
+    monkeypatch.setattr(web, "open_output", deleted_after)
+    r = client.get("/runs/d/artifacts/play_sheet.json")
+    assert r.status_code == 200 and r.content == whole
+    assert r.headers["content-length"] == str(len(whole)) and r.headers["content-disposition"].startswith("attachment")  # fmt: skip

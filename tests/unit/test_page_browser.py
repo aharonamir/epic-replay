@@ -27,6 +27,8 @@ from .test_page import ALL, FIXTURE, UP_TO_CARD, clip
 sync_api = pytest.importorskip("playwright.sync_api")
 uvicorn = pytest.importorskip("uvicorn")
 
+# the stub's wait before it goes on after the card, and the runs folder, for tests to change
+PAUSE, RUNS = {"s": 0.5}, {}
 PHONE, LAPTOP = {"width": 390, "height": 844}, {"width": 1280, "height": 900}
 
 
@@ -89,10 +91,11 @@ def server(tmp_path_factory):
                     "-frames:v", "1", str(assets / "sheet.jpg")], check=True)  # fmt: skip
     s = dataclasses.replace(config.load(), runs_dir=root / "runs", provider_mode="replay")
     s.runs_dir.mkdir()
+    RUNS["dir"] = s.runs_dir
 
     def work(d):
         """Stands in for the flow: to the card after an upload, to the result after it."""
-        time.sleep(0.5)
+        time.sleep(PAUSE["s"] if (d / "play_sheet.json").exists() else 0.5)
         if not (d / "play_sheet.json").exists():
             outputs(d, assets)
             manifest(d, "waiting_play_card", UP_TO_CARD)
@@ -230,3 +233,58 @@ def test_a_run_goes_from_start_to_the_result_by_mouse_alone(server, browser, siz
     assert page.locator("h1.result").is_visible()  # a reload restores the state
     shoot(page, f"flow_result_{size['width']}")
     page.close()
+
+
+def test_a_stale_card_answer_says_why_and_shows_the_current_state(server, browser, monkeypatch):
+    url, assets = server
+    d = RUNS["dir"] / "t"
+    d.mkdir()
+    outputs(d, assets)
+    manifest(d, "waiting_play_card", UP_TO_CARD)
+    monkeypatch.setitem(PAUSE, "s", 6.0)  # tab A's answer sends no stage event for 6 s
+    a, b = browser.new_page(viewport=LAPTOP), browser.new_page(viewport=LAPTOP)
+    # tab B's part-of-page fetches take 2 s, so its 409 lands while a refresh is running
+    b.add_init_script("""(() => { const f = window.fetch;
+      window.fetch = (u, o) => String(u).includes("?part=main")
+        ? new Promise((ok) => setTimeout(ok, 2000)).then(() => f(u, o)) : f(u, o); })()""")
+    for p in (a, b):
+        p.goto(url + "/r/t")
+        p.locator("#this-one").wait_for()
+    a.locator("#this-one").click()
+    with a.expect_response("**/play-card"):
+        a.locator("#confirm").click()
+    with open(d / "events.jsonl", "a") as f:  # an event reaches tab B: a refresh starts
+        f.write(json.dumps({"stage": "A", "status": "finished"}) + "\n")
+    b.locator("#this-one").click()
+    with b.expect_response("**/play-card") as r:
+        b.locator("#confirm").click()
+    assert r.value.status == 409
+    b.locator("#state-heading", has_text="Making your replay").wait_for(timeout=5000)
+    b.wait_for_timeout(2500)  # every queued swap has settled
+    notice = b.locator("#notice").text_content()
+    a.close()
+    b.close()
+    assert notice == "the run is not waiting at the play card"
+
+
+def test_polling_takes_over_when_the_stream_fails(server, browser):
+    url, assets = server
+    d = RUNS["dir"] / "p"
+    d.mkdir()
+    outputs(d, assets)
+    stages = [*UP_TO_CARD[:4], ("A", "ok", ""), ("S4", "ok", ""), ("S9", "ok", "")]
+    manifest(d, "running", stages)
+    web.LIVE.add("p")
+    page = browser.new_page(viewport=LAPTOP)
+    page.add_init_script("""window.EventSource = class {
+      constructor() { setTimeout(() => this.onerror && this.onerror(), 0); } close() {} };""")
+    try:
+        page.goto(url + "/r/p")
+        page.click("#details-toggle")
+        assert page.locator("text=S5 · Commentator").count() == 0
+        manifest(d, "running", [*stages, ("S5", "ok", "")])  # step 5 is still running
+        page.locator("text=S5 · Commentator").wait_for(timeout=4000)
+        assert page.url.endswith("/r/p")  # no reload
+    finally:
+        page.close()
+        web.LIVE.discard("p")
