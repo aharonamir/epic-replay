@@ -154,3 +154,9 @@ def test_the_run_resumes_in_its_own_provider_mode(waiting, monkeypatch):
     monkeypatch.setattr(web.runner, "Run", Fake)
     web.resume(d)
     assert seen["mode"] == "replay"
+
+
+def test_the_app_does_not_hand_its_terminal_to_ffmpeg():
+    import os
+
+    assert os.path.realpath("/proc/self/fd/0") == os.devnull

@@ -100,7 +100,10 @@ def landed(take: np.ndarray, out: np.ndarray, planned_start: float) -> float:
     if len(seg) < len(take):
         return planned_start
     c = correlate(seg, take, mode="valid", method="fft")
-    norm = np.sqrt(np.convolve(seg**2, np.ones(len(take)), mode="valid")) + 1e-9
+    # the energy of each window of the output, by a running sum: a direct convolution here
+    # took minutes for a 3 s take on a busy machine (2026-10-29)
+    run = np.concatenate([[0.0], np.cumsum(seg.astype(np.float64) ** 2)])
+    norm = np.sqrt(np.maximum(run[len(take) :] - run[: -len(take)], 0.0)) + 1e-9
     return (a + int(np.argmax(c / norm))) / SR
 
 

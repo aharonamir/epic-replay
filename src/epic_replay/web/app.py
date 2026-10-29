@@ -25,6 +25,7 @@ from __future__ import annotations
 import dataclasses
 import functools
 import json
+import os
 import statistics
 import subprocess
 import tempfile
@@ -45,6 +46,14 @@ from epic_replay.styles import loader
 from epic_replay.web import copy
 
 HERE = Path(__file__).parent
+
+# The app never reads its standard input, but every FFmpeg it starts inherits it, and FFmpeg
+# reads keys from a terminal: started from a worker thread of a server run in a terminal, it
+# hung at the end of an encode at full CPU (S10, 2026-10-29). Give the app, and so its
+# children, an empty input instead.
+_null = os.open(os.devnull, os.O_RDONLY)
+os.dup2(_null, 0)
+os.close(_null)
 templates = Jinja2Templates(directory=str(HERE / "templates"))
 app = FastAPI(title="Epic Replay")
 app.mount("/static", StaticFiles(directory=str(HERE / "static")), name="static")
