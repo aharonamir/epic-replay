@@ -21,8 +21,15 @@ def read(path):
 
 def test_the_repo_packs_load_and_football_is_the_default():
     packs = loader.load()
-    assert list(packs) == ["football_commentator"]
+    assert list(packs) == ["football_commentator", "news_reporter"]  # in display order
+    assert loader.default(packs)["id"] == "football_commentator"
     assert loader.default(packs)["voice"]["primary"]["provider"] == "elevenlabs"
+    news = packs["news_reporter"]  # a second narrator is data only (FR-040)
+    assert news["default"] is False and news["sound"]["bed"] is None
+    assert (
+        news["voice"]["reaction_delay_s"]
+        > packs["football_commentator"]["voice"]["reaction_delay_s"]
+    )
 
 
 def test_slots_from_the_fixture_storyboard_equal_the_fixture_script():
@@ -62,6 +69,21 @@ def test_slots_never_overlap_and_keep_both_key_lines(pack_path):
             )
             if s["role"] not in slots.KEY_ROLES:
                 assert s["max_duration_s"] >= slots.MIN_SLOT_S - 1e-6
+
+
+@pytest.mark.parametrize("pack_id", ["football_commentator", "news_reporter"])
+def test_the_shipped_packs_make_valid_slots_for_the_fixture(pack_id):
+    pack = loader.load()[pack_id]
+    built = slots.build(read(f"{FIXTURE}/storyboard.json"), pack, climax_event_id="e6")
+    assert {"climax", "replay_climax"} <= {s["role"] for s in built}
+    spans = slots.worst_case_spans(built, pack)
+    assert all(
+        e + slots.GAP_S <= s2 + 1e-6 for (_, e), (s2, _) in zip(spans, spans[1:], strict=False)
+    )
+    # the pack's own reaction delay places the key slots (a reporter reacts later than a booth)
+    i = next(i for i, s in enumerate(built) if s["role"] == "climax")
+    marker = read(f"{FIXTURE}/storyboard.json")["markers"]["climax_live_t"]
+    assert spans[i][0] == pytest.approx(marker + pack["voice"]["reaction_delay_s"], abs=1e-3)
 
 
 def test_a_slower_narrator_gets_fewer_words():
