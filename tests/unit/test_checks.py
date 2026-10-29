@@ -152,3 +152,19 @@ def test_max_words_must_be_what_the_duration_allows():
 def test_the_script_rate_and_start_up_are_the_packs():
     got = budget_fails(lambda s: s.update(words_per_second=3.5, startup_s=0.2))
     assert [w for w, _ in got] == ["script", "script"]
+
+
+def test_numbers_count_as_spoken_words_in_the_budget():
+    got = budget_fails(lambda s: s["lines"][3].update(text="10 20 30"))
+    assert got == [("l4", "more than 1 word (3)")]
+
+
+def test_a_script_that_does_not_fit_the_schema_fails_s6_instead_of_crashing(tmp_path):
+    script = read(f"{FIXTURE}/script.json")
+    del script["lines"][0]["max_duration_s"]
+    for n in ("play_sheet", "user_context"):
+        (tmp_path / f"{n}.json").write_text(open(f"{FIXTURE}/{n}.json").read())
+    (tmp_path / "script.json").write_text(json.dumps(script))
+    ctx = RunContext(run_dir=tmp_path, settings=config.load(), emit=lambda e: None)
+    res = s6.run(ctx)
+    assert res.status == "failed" and "max_duration_s" in res.note

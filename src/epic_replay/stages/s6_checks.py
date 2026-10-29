@@ -24,6 +24,7 @@ import json
 import math
 import re
 
+from epic_replay import contracts
 from epic_replay.guards import lexicon
 from epic_replay.stages.base import RunContext, StageResult
 from epic_replay.styles import loader
@@ -56,6 +57,7 @@ NAMES = set(
 )
 
 WORD = re.compile(r"[A-Za-z][A-Za-z'\-]*")
+SPOKEN = re.compile(r"[A-Za-z0-9][A-Za-z0-9'\-]*")  # a word or a number, as the voice speaks it
 DIGITS = re.compile(r"\d+(?:[.,:]\d+)*")
 
 
@@ -146,7 +148,7 @@ def check_budget(script: dict, pack: dict) -> list[dict]:
         budget = math.floor((ln["max_duration_s"] - startup) * wps + EPS)
         if ln["role"] in KEY_ROLES:
             budget = max(1, budget)
-        n = len(WORD.findall(ln["text"]))
+        n = len(SPOKEN.findall(ln["text"]))
         if ln["max_words"] != budget:
             fails.append({"where": ln["id"], "rule": 5, "kind": "over_budget",
                           "detail": f"max_words is {ln['max_words']}, the duration allows {budget}"})  # fmt: skip
@@ -171,6 +173,9 @@ def check(script: dict, ps: dict, uc: dict, pack: dict) -> list[dict]:
 
 def run(ctx: RunContext) -> StageResult:
     script = json.loads(ctx.path("script.json").read_text())
+    errs = contracts.validate("script", script)  # the checks index the lines' fields
+    if errs:
+        return StageResult("failed", "; ".join(errs)[:500])
     ps = json.loads(ctx.path("play_sheet.json").read_text())
     uc = json.loads(ctx.path("user_context.json").read_text())
     pack = loader.for_run(uc)  # for its banned terms (rule 8)
