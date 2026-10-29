@@ -26,6 +26,7 @@ import dataclasses
 import functools
 import json
 import os
+import shutil
 import statistics
 import subprocess
 import tempfile
@@ -34,7 +35,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 from fastapi import FastAPI, Request, UploadFile
-from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
@@ -348,6 +349,23 @@ def get_final(run_id: str):
     return FileResponse(
         d / "final.mp4", media_type="video/mp4", filename=f"epic-replay-{run_id}.mp4"
     )
+
+
+@app.delete("/runs/{run_id}", status_code=204)
+def delete_run(run_id: str):
+    """Remove the run now (FR-037, T033): its folder, with the upload, the working copy, the
+    contact sheets, the card's frames and the outputs. Refused while a stage is running, so no
+    stage writes into a folder being removed. Restyled versions come with T040 (deferred), so
+    a run has one version. DeepSeek offers no deletion of what it received; the consent line
+    says so plainly."""
+    d = run_dir(run_id)
+    if d is None:
+        return error(404, "not_found", "no such run")
+    with ANSWER:
+        if read(d, "manifest.json")["status"] == "running":
+            return error(409, "running", "Wait for this step to finish, then delete.")
+        shutil.rmtree(d)
+    return Response(status_code=204)
 
 
 # -- the page

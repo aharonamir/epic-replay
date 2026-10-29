@@ -82,6 +82,8 @@
   </div>
   <div class="result-side">
     <a class="button strong" href="/">{{ copy.RESULT.start_over }}</a>
+    <button type="button" class="delete" data-delete="{{ run.run_id }}">{{ copy.RESULT.delete }}</button>
+    <p class="error" id="delete-error" role="alert"></p>
   </div>
 </div>
 
@@ -105,6 +107,8 @@
         {% if stopped %}{{ run.message or "" }}{% elif waiting %}{{ copy.YOUR_TURN }}{% else %}{{ run.time_left }}{% endif %}
       </p>
       {% if stopped %}<p><a class="button primary" href="/">{{ copy.STOPPED.again }}</a></p>{% endif %}
+      {% if stopped or waiting %}<p><button type="button" class="delete" data-delete="{{ run.run_id }}">{{ copy.RESULT.delete }}</button></p>
+      <p class="error" id="delete-error" role="alert"></p>{% endif %}
     </div>
     <div class="steps-col">
       <ol class="steps">

@@ -155,4 +155,5 @@ li.failed .mark::after { content: "!"; font-weight: 700; }
 .player { width: 100%; aspect-ratio: 16/9; background: #000; display: block; border-radius: 2px; }
 .download-row { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; }
 .download-row .primary { min-width: 220px; }
+button.delete { border: 0; padding: 10px 0; color: var(--danger-text); text-decoration: underline; justify-content: flex-start; }
 .tag { background: var(--text); color: var(--ink); padding: 4px 8px; border-radius: 2px; }

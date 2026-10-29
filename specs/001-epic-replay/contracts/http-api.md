@@ -18,7 +18,7 @@ Served by FastAPI. The page (contracts/ui.md) uses only these endpoints. No auth
 | `POST /runs/{id}/rerun` | Re-run from a stage | `{"from_stage": "S5"}` | `202`; later outputs are discarded and the flow restarts there |
 | `GET /runs/{id}/final.mp4` | The result | none | video file |
 | `GET /runs/{id}/artifacts/{name}` | Any stage output | none | the file |
-| `DELETE /runs/{id}` | Remove a run now, with every version of the same clip | none | `204`; local files and provider-side copies deleted |
+| `DELETE /runs/{id}` | Remove a run now, with every version of the same clip | none | `204`; local files and provider-side copies deleted. As built (T033): the run folder is removed (one version until T040); `409 running` while a stage runs; DeepSeek has no deletion to call |
 | `GET /demo/{name}` | Cached run in demo mode | none | the same page, labelled "cached run" with the run date |
 
 ## Edits accepted at Checkpoint A
@@ -41,4 +41,4 @@ Every edited field is written back with `source: user`. `climax_frame` sets `cli
 
 ## Errors
 
-Errors are `{"error": {"code": "...", "message": "..."}}` with codes `invalid_upload`, `consent_required`, `unknown_style`, `cap_exceeded`, `sensitive_content`, `not_waiting` (a checkpoint answer arrived when the run was not waiting), `not_ready` (a re-telling was asked for before the play was confirmed), `stage_failed`, `key_moment_required` (a play-card confirm without the key moment), `invalid_request` (a malformed body or a frame outside the clip), `not_found`, and `not_built` (an answer this build does not handle yet: reject, generic and field edits until add-backs 6 and 7).
+Errors are `{"error": {"code": "...", "message": "..."}}` with codes `invalid_upload`, `consent_required`, `unknown_style`, `cap_exceeded`, `sensitive_content`, `not_waiting` (a checkpoint answer arrived when the run was not waiting), `not_ready` (a re-telling was asked for before the play was confirmed), `stage_failed`, `key_moment_required` (a play-card confirm without the key moment), `invalid_request` (a malformed body or a frame outside the clip), `not_found`, `running` (a delete while a stage runs), and `not_built` (an answer this build does not handle yet: reject, generic and field edits until add-backs 6 and 7).

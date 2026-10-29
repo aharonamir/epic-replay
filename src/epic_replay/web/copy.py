@@ -44,7 +44,7 @@ CARD = {
 }  # fmt: skip
 
 RESULT = {"headline": "Your replay", "download": "Download", "ai": "AI commentary",
-          "start_over": "Start over with a new clip"}  # fmt: skip
+          "start_over": "Start over with a new clip", "delete": "Delete this clip now"}  # fmt: skip
 
 STOPPED = {
     "headline": "Stopped",

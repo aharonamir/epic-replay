@@ -139,3 +139,34 @@ def test_each_state_renders(app):
     v = client.get("/runs/d/final.mp4")
     assert v.status_code == 200 and v.headers["content-type"] == "video/mp4"
     assert client.get("/runs/w/final.mp4").status_code == 404
+
+
+# add-back 11 (T033): the provider line follows configuration; delete-now leaves nothing
+def test_the_consent_line_names_the_configured_provider(app, monkeypatch):
+    client, s, _, _ = app
+    other = dataclasses.replace(s, vision_service_name="Acme Vision", vision_country="Iceland")
+    monkeypatch.setattr(web.app.state, "settings", other)
+    page = html.unescape(client.get("/").text)
+    assert "Still frames from the clip are sent to Acme Vision (Iceland)" in page
+    assert "DeepSeek" not in page
+
+
+def test_delete_now_removes_the_run_with_its_sheets_and_frames(app):
+    client, s, _, _ = app
+    d = seeded(s, "d", "done", ALL, video=True)
+    for sub in ("sheets", "card"):
+        (d / sub).mkdir(exist_ok=True)
+        (d / sub / "x.jpg").write_bytes(b"\xff\xd8")
+    assert copy.RESULT["delete"] in html.unescape(client.get("/r/d").text)
+    r = client.delete("/runs/d")
+    assert r.status_code == 204 and not d.exists()
+    assert not list(s.runs_dir.rglob("*.jpg")) and not list(s.runs_dir.rglob("*.mp4"))
+    assert client.delete("/runs/d").status_code == 404
+
+
+def test_a_running_run_is_not_deleted_under_its_stages(app):
+    client, s, _, _ = app
+    d = seeded(s, "r", "running", [*UP_TO_CARD[:4], ("A", "ok", "")])
+    r = client.delete("/runs/r")
+    assert r.status_code == 409 and r.json()["error"]["code"] == "running" and d.exists()
+    assert client.delete("/runs/..%2F..%2Fetc").status_code == 404

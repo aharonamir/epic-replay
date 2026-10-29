@@ -67,6 +67,15 @@
     });
   }
 
+  // ---- Delete this clip now (FR-037): at once, then back to the start
+  document.querySelectorAll("[data-delete]").forEach((b) => b.addEventListener("click", async () => {
+    b.disabled = true;
+    const r = await fetch(`/runs/${b.dataset.delete}`, { method: "DELETE" });
+    if (r.ok || r.status === 404) { location.href = "/"; return; }
+    $("delete-error").textContent = (await r.json()).error.message;
+    b.disabled = false;
+  }));
+
   // ---- 2 and 3. Progress and confirm: elapsed time, and polling
   if (run && (run.status === "running" || run.status === "waiting_play_card")) {
     const started = Date.parse(run.created_at), skew = Date.now() - Date.parse(run.now);
