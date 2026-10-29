@@ -227,7 +227,8 @@ Add-backs dropped by the re-plan of 2026-10-22 ("If a day is lost"):
 - [ ] T021, added back (0.5h): the sting and the rest of the football sound set (cut item 3).
 - [x] T014, added back (0.25h): the cost of the rest of the run on the card (cut item 8).
   As built (2026-10-29): `runner.rest_cost_usd(meta, pack)`, shown as "The rest will cost about $X." under the card's buttons and returned as `cost_estimate_usd` by `GET /runs/{id}/play-card`: the Commentator's ceiling (`commentator.ESTIMATE_USD`, 0.0198) plus the voice at 0.10 USD per 1,000 characters for the words the clip's length holds at the pack's rate (6.5 characters a word), rounded to the cent. 0.05 for a 15 s clip, 0.07 for 30 s; the measured run was 0.024, so the line is a rough estimate above it (it leaves out the delivery tags the voice also bills and the draft fallback). For a run started in replay mode the line says $0.00; a run whose context file is missing or names an unknown style gets the default pack's figure. Test: `tests/unit/test_card_edits.py`. No paid call.
-- [ ] T017, added back (0.5h): the missing-reference and over-budget checks (cut item 5).
+- [x] T017, added back (0.5h): the missing-reference and over-budget checks (cut item 5).
+  As built (2026-10-29): rule 1 (`check_refs`) and rule 5 (`check_budget`) in `stages/s6_checks.py`, run by S6 and by the Commentator's `check_lines` and `submit_script` (`checks.json` lists `rules_run` 1, 4, 5, 8). Rule 5 fails a line over its `max_words`, a `max_words` that is not floor((max_duration_s - startup_s) x words_per_second) (at least 1 for a key line) and a script rate or start-up that differs from the pack's; it replaces the Commentator's own word count, so a line fails once. Planted-error scripts `missing_reference.json` and `over_budget.json` (each caught on its one line), and unit tests in `tests/unit/test_checks.py`. Rule 6 (timing), still not built, is the rest of the original T017 line; it is listed with the deferred rules.
 - [ ] T027, added back (1h): skip-if-present, re-run from a stage, re-telling from the command line (cut item 10).
 - [ ] T010, added back (0.5h): rotation, vertical clips and capture-rate detection (cut item 12).
 - [x] T029, added back (2h): server-sent events with the polling fallback, style cards from `GET /styles` with the page colours from T038, the phone layout, reload restores the state (cut item 9). Done when: the original "Done when" line of T029 is true.
@@ -240,7 +241,7 @@ The rest of partly built tasks, also deferred:
 
 - The Nature documentary pack (the rest of T039).
 - The Spotter's ReAct loop over the sheet tools (the rest of T013).
-- Code-check rules 2, 3, 7, 9 and 10 (the rest of T017).
+- Code-check rules 2, 3, 6, 7, 9 and 10 (the rest of T017).
 - Real-frame slow motion for clips filmed at 100 fps or more (the rest of T019).
 - The lower third, the vertical layout and zoom easing (the rest of T023 and T018).
 - The automated single-endpoint privacy test and the seven-day purge (the rest of T033).

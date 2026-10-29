@@ -1,10 +1,13 @@
 """S6 Code checks (T017, contracts/stage-contracts.md "Rules S6 enforces in code").
 
-The re-plan builds three kinds of check, which catch three of the five kinds of planted error:
+Five kinds of check, one for each kind of planted error:
 - an invented name and an invented number (rule 4);
-- a banned term (rule 8), from the global lexicon plus the style pack's `banned_terms`.
-The headline and the lower third pass both. Missing reference and over budget (rules 1 and 5)
-were dropped with cut item 5. The Commentator's `check_lines` runs the same function on a draft;
+- a banned term (rule 8), from the global lexicon plus the style pack's `banned_terms`;
+- a missing reference (rule 1): an `event_refs` id that is not in the play sheet;
+- an over-budget line (rule 5): more words than `max_words`, a `max_words` that is not the
+  budget the slot's duration allows, or a script rate or start-up that is not the pack's
+  (add-back 5).
+The headline and the lower third pass rules 4 and 8. The Commentator's `check_lines` runs the same function on a draft;
 S6 runs it again on what was submitted.
 
 Rule 4 in detail (working rule 12): the line is read with its shouted words (all capitals, two
@@ -18,6 +21,7 @@ sheet or the user context in either form.
 from __future__ import annotations
 
 import json
+import math
 import re
 
 from epic_replay.guards import lexicon
@@ -114,6 +118,44 @@ def check_text(text: str, known: str, banned_extra: list[str]) -> list[dict]:
     return fails
 
 
+KEY_ROLES = ("climax", "replay_climax")
+EPS = 1e-6  # as styles/slots.py
+
+
+def check_refs(script: dict, ps: dict) -> list[dict]:
+    """Rule 1: every id in a line's `event_refs` is an event of the play sheet."""
+    ids = {e["id"] for e in ps.get("events", [])}
+    return [
+        {"where": ln["id"], "rule": 1, "kind": "missing_reference",
+         "detail": f"event {ref} is not in the play sheet"}
+        for ln in script.get("lines", []) for ref in ln.get("event_refs", []) if ref not in ids
+    ]  # fmt: skip
+
+
+def check_budget(script: dict, pack: dict) -> list[dict]:
+    """Rule 5: a line has at most `max_words` words; `max_words` is floor((max_duration_s -
+    startup_s) x words_per_second), at least 1 for a key line; and the script's rate and
+    start-up are the pack's."""
+    wps, startup = pack["voice"]["words_per_second"], pack["voice"]["startup_s"]
+    fails = []
+    for key, want in (("words_per_second", wps), ("startup_s", startup)):
+        if script.get(key) != want:
+            fails.append({"where": "script", "rule": 5, "kind": "over_budget",
+                          "detail": f"{key} is {script.get(key)}, the style pack's is {want}"})  # fmt: skip
+    for ln in script.get("lines", []):
+        budget = math.floor((ln["max_duration_s"] - startup) * wps + EPS)
+        if ln["role"] in KEY_ROLES:
+            budget = max(1, budget)
+        n = len(WORD.findall(ln["text"]))
+        if ln["max_words"] != budget:
+            fails.append({"where": ln["id"], "rule": 5, "kind": "over_budget",
+                          "detail": f"max_words is {ln['max_words']}, the duration allows {budget}"})  # fmt: skip
+        if n > min(ln["max_words"], budget):
+            fails.append({"where": ln["id"], "rule": 5, "kind": "over_budget",
+                          "detail": f"more than {min(ln['max_words'], budget)} word{'s' * (min(ln['max_words'], budget) != 1)} ({n})"})  # fmt: skip
+    return fails
+
+
 def check(script: dict, ps: dict, uc: dict, pack: dict) -> list[dict]:
     """Every failure as {where, rule, kind, detail}; empty when the script passes."""
     known = corpus(ps, uc)
@@ -124,7 +166,7 @@ def check(script: dict, ps: dict, uc: dict, pack: dict) -> list[dict]:
     for field in ("headline", "lower_third"):
         if script.get(field):
             fails += [{"where": field, **f} for f in check_text(script[field], known, extra)]
-    return fails
+    return fails + check_refs(script, ps) + check_budget(script, pack)
 
 
 def run(ctx: RunContext) -> StageResult:
@@ -133,7 +175,7 @@ def run(ctx: RunContext) -> StageResult:
     uc = json.loads(ctx.path("user_context.json").read_text())
     pack = loader.for_run(uc)  # for its banned terms (rule 8)
     fails = check(script, ps, uc, pack)
-    report = {"rules_run": [4, 8], "passed": not fails, "failures": fails}
+    report = {"rules_run": [1, 4, 5, 8], "passed": not fails, "failures": fails}
     ctx.path(CHECKS).write_text(json.dumps(report, indent=2) + "\n")
     ctx.emit({"stage": "S6", "status": "ok" if not fails else "failed", "failures": len(fails)})
     if fails:

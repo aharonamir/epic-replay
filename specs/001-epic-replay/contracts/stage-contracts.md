@@ -45,7 +45,7 @@ Time budgets are targets for a 20 second clip and are replaced by measured value
 9. In generic mode every line has `generic: true` and no references.
 10. No line repeats a sample line from the style pack (compared without case or punctuation).
 
-The rules are the same for every narration style. The same ten rules are the test list for `tests/unit/test_checks.py`. The MVP builds rules 1, 4, 5, 6 and 8 (revision 7), which catch all five kinds of planted error code can see. `submit_script` also checks that each key line's `hit_word` occurs in its text.
+The rules are the same for every narration style. The same ten rules are the test list for `tests/unit/test_checks.py`. The MVP builds rules 1, 4, 5 and 8 (revision 7; as built, rule 6 is deferred with 2, 3, 7, 9 and 10), which catch all five kinds of planted error code can see. `submit_script` also checks that each key line's `hit_word` occurs in its text.
 
 ## Stage events
 

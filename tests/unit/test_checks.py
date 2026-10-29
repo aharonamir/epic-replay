@@ -1,4 +1,4 @@
-"""T017: the S6 code checks built in the MVP (rules 4 and 8), and the planted errors."""
+"""T017: the S6 code checks (rules 1, 4, 5 and 8), and the planted errors."""
 
 import json
 
@@ -31,7 +31,8 @@ def test_the_fixture_script_passes():
 @pytest.mark.parametrize(
     "name, line, kind",
     [("invented_name", "l5", "invented_name"), ("invented_number", "l5", "invented_number"),
-     ("banned_term", "l6", "banned_term")],
+     ("banned_term", "l6", "banned_term"), ("missing_reference", "l5", "missing_reference"),
+     ("over_budget", "l5", "over_budget")],
 )  # fmt: skip
 def test_each_planted_error_is_caught_on_its_line(name, line, kind):
     script = read(f"tests/planted_errors/{name}.json")
@@ -101,3 +102,53 @@ def test_the_stage_writes_checks_and_fails_on_a_planted_error(tmp_path):
     (tmp_path / "script.json").write_text(open("tests/planted_errors/invented_name.json").read())
     res = s6.run(ctx)
     assert res.status == "failed" and "Rossi" in res.note
+
+
+# rule 1: references
+def test_a_line_may_cite_only_events_of_the_sheet():
+    script = read(f"{FIXTURE}/script.json")
+    assert s6.check_refs(script, PS) == []
+    script["lines"][0]["event_refs"] = ["e1", "e0", "e44"]
+    assert [f["detail"] for f in s6.check_refs(script, PS)] == [
+        "event e0 is not in the play sheet",
+        "event e44 is not in the play sheet",
+    ]
+
+
+# rule 5: the word budget
+def budget_fails(change):
+    script = read(f"{FIXTURE}/script.json")
+    change(script)
+    return [(f["where"], f["detail"]) for f in s6.check_budget(script, PACK)]
+
+
+def test_the_fixture_is_within_budget():
+    assert budget_fails(lambda s: None) == []
+
+
+def test_a_line_over_its_words_fails_and_a_line_at_them_passes():
+    assert budget_fails(lambda s: s["lines"][3].update(text="Quite unstoppable.")) == [
+        ("l4", "more than 1 word (2)")
+    ]
+    assert (
+        budget_fails(
+            lambda s: s["lines"][0].update(text="One two three four five six seven eight.")
+        )
+        == []
+    )
+
+
+def test_max_words_must_be_what_the_duration_allows():
+    # 4.0 s: floor((4.0 - 0.9) x 2.6) = 8; a looser limit would let a long line through
+    got = budget_fails(lambda s: s["lines"][0].update(max_words=12))
+    assert got == [("l1", "max_words is 12, the duration allows 8")]
+    # a key line always has at least one word
+    assert (
+        budget_fails(lambda s: s["lines"][2].update(max_duration_s=0.5, max_words=1, text="Goal!"))
+        == []
+    )
+
+
+def test_the_script_rate_and_start_up_are_the_packs():
+    got = budget_fails(lambda s: s.update(words_per_second=3.5, startup_s=0.2))
+    assert [w for w, _ in got] == ["script", "script"]

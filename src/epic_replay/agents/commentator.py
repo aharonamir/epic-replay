@@ -259,8 +259,6 @@ class Tools:
                 continue
             if ln["role"] in KEY_ROLES and not word_in(ln.get("hit_word", ""), ln["text"]):
                 fails.append({"where": ln["id"], "detail": "hit_word must be one word of the line"})  # fmt: skip
-            if len(s6_checks.WORD.findall(ln["text"])) > (n := ln["max_words"]):
-                fails.append({"where": ln["id"], "detail": f"more than {n} word{'s' * (n != 1)}"})
         fails += [{"where": "script", "detail": e} for e in contracts.validate("script", script)]
         fails += [
             {"where": "script", "detail": e}

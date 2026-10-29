@@ -195,7 +195,7 @@ def test_the_result_has_the_script_what_we_saw_and_time_and_cost(app):
              {"id": "l4", "timeline_start": None, "dropped": "2.1 s does not fit 1.6 s"}]  # fmt: skip
     (d / "voice.json").write_text(json.dumps({"lines": voice}))
     (d / "checks.json").write_text(
-        json.dumps({"rules_run": [4, 8], "passed": True, "failures": []})
+        json.dumps({"rules_run": [1, 4, 5, 8], "passed": True, "failures": []})
     )
     page = html.unescape(client.get("/r/d").text)
     for x in (
