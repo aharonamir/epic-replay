@@ -308,7 +308,13 @@ def state(run_id: str, d: Path) -> dict:
     if m["status"] in ("stopped", "failed") and failed:
         step = next((n for n, sts in copy.STEPS if failed["stage"] in sts), "making your replay")
         plain = failed["stage"] in ("S0", "S2", runner.CHECKPOINT_A) or m["status"] == "stopped"
-        message = failed["note"] if plain and failed["note"] else copy.STOPPED["failed"].format(step=step.lower())  # fmt: skip
+        note = failed["note"] or ""
+        if note.startswith("sensitive: "):
+            message = copy.STOPPED["sensitive"].format(reason=note.removeprefix("sensitive: ").rstrip("."))  # fmt: skip
+        elif plain and note:
+            message = note
+        else:
+            message = copy.STOPPED["failed"].format(step=step.lower())
     return {
         "run_id": run_id,
         "status": m["status"],

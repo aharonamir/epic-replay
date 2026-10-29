@@ -48,6 +48,7 @@ RESULT = {"headline": "Your replay", "download": "Download", "ai": "AI commentar
 
 STOPPED = {
     "headline": "Stopped",
+    "sensitive": "This clip isn't one we can narrate: {reason}.",
     "failed": "Something broke while {step}. Your clip is safe.",
     "again": "Choose another clip",
 }

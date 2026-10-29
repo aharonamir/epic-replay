@@ -39,6 +39,12 @@ def run(ctx: RunContext) -> StageResult:
     if not verdict["accepted"]:
         return StageResult("failed", "; ".join(verdict["errors"])[:500])
     ctx.path(PLAY_SHEET).write_text(json.dumps(sheet, indent=2) + "\n")
+    flag = sheet["sensitive"]
+    if flag["flag"]:
+        # FR-009, US4 scenario 3: the run stops here with the reason; nothing is written
+        reason = (flag.get("reason") or "").strip() or "the clip may show someone hurt or upset"
+        ctx.emit({"stage": "S3", "status": "stopped", "sensitive": reason})
+        return StageResult("stopped", f"sensitive: {reason}", outputs=[PLAY_SHEET])
     c = sheet["climax"]
     note = f"emptied for the user: {', '.join(cleared)}" if cleared else ""
     ctx.emit({"stage": "S3", "status": "ok", "frame": c["frame"], "method": c["method"],
