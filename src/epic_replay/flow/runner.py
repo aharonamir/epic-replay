@@ -31,8 +31,10 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 from epic_replay import config
+from epic_replay.agents import commentator
 from epic_replay.guards import consent
 from epic_replay.guards.budget import Ledger
+from epic_replay.providers import speech
 from epic_replay.stages import (
     s0_intake,
     s1_signals,
@@ -118,6 +120,16 @@ def picked(ps: dict, run_dir: Path, frame: int) -> dict:
 LOW = 0.7  # below this an event is an item to check on the card (data-model.md section 2)
 CONTEXT = ("player_name", "team_home", "team_away", "score")
 TEXT_MAX = {"activity": 80, "outcome_summary": 160}
+
+
+CHARS_PER_WORD = 6.5  # a word and its space, for the voice's price by character
+
+
+def rest_cost_usd(meta: dict, pack: dict) -> float:
+    """What the run costs after the card (add-back 8): the Commentator's ceiling plus the voice
+    for as many words as the clip's length holds at the pack's rate. Later steps are free."""
+    words = meta["duration_s"] * pack["voice"]["words_per_second"]
+    return round(commentator.ESTIMATE_USD + words * CHARS_PER_WORD * speech.USD_PER_CHAR, 2)
 
 
 def to_check(ps: dict) -> list[str]:

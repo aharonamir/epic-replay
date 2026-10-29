@@ -225,7 +225,8 @@ Add-backs dropped by the re-plan of 2026-10-22 ("If a day is lost"):
   Done when: the four overlays render for 1920x1080 and the AI label is legible on a phone screen.
   Now (re-plan): as written (cut item 2).
 - [ ] T021, added back (0.5h): the sting and the rest of the football sound set (cut item 3).
-- [ ] T014, added back (0.25h): the cost of the rest of the run on the card (cut item 8).
+- [x] T014, added back (0.25h): the cost of the rest of the run on the card (cut item 8).
+  As built (2026-10-29): `runner.rest_cost_usd(meta, pack)`, shown as "The rest will cost about $X." under the card's buttons and returned as `cost_estimate_usd` by `GET /runs/{id}/play-card`: the Commentator's ceiling (`commentator.ESTIMATE_USD`, 0.0198) plus the voice at 0.10 USD per 1,000 characters for the words the clip's length holds at the pack's rate (6.5 characters a word), rounded to the cent. 0.05 for a 15 s clip, 0.07 for 30 s; the measured run was 0.024, so the line is an upper bound. Test: `tests/unit/test_card_edits.py`. No paid call.
 - [ ] T017, added back (0.5h): the missing-reference and over-budget checks (cut item 5).
 - [ ] T027, added back (1h): skip-if-present, re-run from a stage, re-telling from the command line (cut item 10).
 - [ ] T010, added back (0.5h): rotation, vertical clips and capture-rate detection (cut item 12).

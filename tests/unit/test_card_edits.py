@@ -237,3 +237,14 @@ def test_the_card_has_fix_something_and_not_at_all(tmp_path, monkeypatch):
               'id="activity-input"', 'id="outcome-input"'):  # fmt: skip
         assert x in page, x
     assert page.count('fix-field" hidden') == 2  # opened by "Fix something"
+
+
+def test_the_card_says_what_the_rest_of_the_run_will_cost(tmp_path, monkeypatch):
+    d, _, client, _ = at_card(tmp_path, monkeypatch)
+    meta = read(d, "clip_meta.json")
+    pack = loader.for_run(read(d, "user_context.json"))
+    want = runner.rest_cost_usd(meta, pack)
+    # the Commentator's ceiling plus the voice for the words the clip holds: a few cents
+    assert commentator.ESTIMATE_USD < want < 0.10
+    assert client.get("/runs/r1/play-card").json()["cost_estimate_usd"] == want
+    assert f"The rest will cost about ${want:.2f}." in client.get("/r/r1").text

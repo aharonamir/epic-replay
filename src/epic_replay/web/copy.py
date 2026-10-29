@@ -58,6 +58,7 @@ CARD = {
     "activity": "What's going on", "outcome": "How it ends",
     "generic_note": "We can still make your replay, with a narration that doesn't say what happened.",
     "generic": "Narrate without saying what happened", "stop": "Stop here",
+    "cost": "The rest will cost about ${cost}.",
     "why_generic": "Pick the moment first: the replay is built around it.",
 }  # fmt: skip
 

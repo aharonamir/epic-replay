@@ -74,6 +74,7 @@
       <button type="button" id="reject" aria-expanded="false" aria-controls="reject-view">{{ copy.CARD.reject }}</button>
     </div>
     <p class="muted" id="why">{{ copy.CARD.why }}</p>
+    <p class="muted" id="cost">{{ copy.CARD.cost.format(cost="%.2f" % card.cost_estimate_usd) }}</p>
     <p role="status" id="card-status"></p>
   </div>
 </section>

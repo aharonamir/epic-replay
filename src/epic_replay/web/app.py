@@ -18,7 +18,7 @@ nudging, by picking another moment, or by pressing "This one" (revision 8).
 Add-backs 6 and 7: a confirm may also keep or remove events (each event marked "Check this"
 must be answered), correct the activity and the outcome sentence, and name the player;
 `generic` goes on with the user's moment and a script that makes no claim (FR-012); `reject`
-stops the run. The cost line is add-back 8.
+stops the run. The card also says what the rest of the run will cost (add-back 8).
 
     uvicorn epic_replay.web.app:app --port 8010
 """
@@ -184,7 +184,9 @@ def card_data(run_id: str, d: Path) -> dict:
         "other_moments": others,
         # the key moment is always answered (revision 8), and each event marked "Check this"
         "highlighted": ["climax", *runner.to_check(ps)],
-        "cost_estimate_usd": None,  # add-back 8
+        "cost_estimate_usd": runner.rest_cost_usd(
+            meta, loader.for_run(read(d, "user_context.json"))
+        ),
     }
 
 
