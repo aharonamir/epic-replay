@@ -84,6 +84,7 @@ Rules for these days:
 - Code freeze at the end of Sun 1. Gate 2 is Sat 31, Gate 3 Sun 1, Gate 4 Mon 2.
 - Each paid call has its estimate stated and the owner's yes first.
 - If the HTML graphics (add-back 2) are late, Gate 2's News reporter renders with the FFmpeg text overlays.
+- Owner's decision (2026-10-29): add-back 9 gets about 3 h instead of 2, the extra hour from Sat 31's buffer. It was not started on Thu 29 (the review fixes took Thursday's buffer); it opens the next session. Its plan, reviewed by Codex in five rounds and approved, is in `PLAN.md` at the repository root (not committed), with the argument in `PLAN-REVIEW-LOG.md`.
 
 ## Day 7 - Tue 20 October - from clip to slow-motion segments - 8 h (carried over: see the re-plan above)
 
