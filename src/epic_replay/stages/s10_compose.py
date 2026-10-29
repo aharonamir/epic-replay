@@ -21,6 +21,7 @@ import tempfile
 from pathlib import Path
 
 import numpy as np
+from PIL import ImageFont
 from scipy.signal import correlate
 
 from epic_replay.media import audio, ffmpeg
@@ -34,17 +35,46 @@ SR = 48000
 SEARCH_S = 0.5
 
 
+BOX = 12  # the dark box's border, px
+SIDE = 0.04  # share of the width kept clear on each side
+MIN_SHARE = 0.6  # a text is shrunk to this share of its size before it is wrapped
+
+
+def fitted(text: str, size: float, width: int) -> tuple[str, float]:
+    """The text and font size that fit across `width` px: shrunk first, then wrapped at spaces
+    (a narrow, vertical frame cannot hold a headline at a landscape frame's size)."""
+    room = width * (1 - 2 * SIDE) - 2 * BOX
+    font = ImageFont.truetype(FONT, 100)
+    per_px = font.getlength(text) / 100  # the text's width at a size of 1 px
+    if per_px * size <= room:
+        return text, size
+    if room / per_px >= size * MIN_SHARE:
+        return text, room / per_px
+    px = size * MIN_SHARE
+    lines: list[str] = []
+    for word in text.split():
+        if lines and font.getlength(f"{lines[-1]} {word}") / 100 * px <= room:
+            lines[-1] += f" {word}"
+        else:
+            lines.append(word)
+    longest = max(font.getlength(ln) / 100 for ln in lines)
+    return "\n".join(lines), min(px, room / longest)
+
+
 def drawtext(textfile: Path, size: float, x: str, y: str, start: float, end: float, box: bool = True) -> str:  # fmt: skip
-    boxes = ":box=1:boxcolor=black@0.55:boxborderw=12" if box else ""
+    boxes = f":box=1:boxcolor=black@0.55:boxborderw={BOX}" if box else ""
     return (
         f"drawtext=fontfile={FONT}:textfile='{textfile}':fontsize={size:.0f}:fontcolor=white"
-        f"{boxes}:x={x}:y={y}:enable='between(t,{start},{end})'"
+        f"{boxes}:text_align=center:x={x}:y={y}:enable='between(t,{start},{end})'"
     )
 
 
-def overlays(sb: dict, script: dict, pack: dict, text_dir: Path) -> str:
-    """The FFmpeg text overlays as one filter chain."""
-    h = sb["height"]
+def overlays(sb: dict, script: dict, pack: dict, text_dir: Path, frame: tuple[int, int]) -> str:
+    """The FFmpeg text overlays as one filter chain. Sizes follow the shorter side of the
+    `frame` (width, height) and each text is fitted to its width, so a vertical video gets
+    the same look as a landscape one without a headline running off both sides."""
+    w, h = frame
+    u = min(w, h)
     labels = pack["script"]["labels"]
     texts = {
         "title": script["headline"],
@@ -53,27 +83,31 @@ def overlays(sb: dict, script: dict, pack: dict, text_dir: Path) -> str:
         "headline": script["headline"],
         "ai_label": AI_LABEL,
     }
-    files = {}
     text_dir.mkdir(parents=True, exist_ok=True)
-    for k, v in texts.items():
-        files[k] = text_dir / f"{k}.txt"
-        files[k].write_text(v)
+
+    def text(key: str, share: float, x: str, y: str, start: float, end: float, box: bool = True):
+        body, size = fitted(texts[key], u * share, w)
+        path = text_dir / f"{key}.txt"
+        path.write_text(body)
+        return drawtext(path, size, x, y, start, end, box)
+
     ov = {o["type"]: o for o in sb["overlays"]}
     steps = []
     if "title" in ov and texts["title"]:
         o = ov["title"]
-        steps.append(drawtext(files["title"], h * 0.08, "(w-text_w)/2", "(h-text_h)/2", o["start"], o["end"]))  # fmt: skip
+        steps.append(text("title", 0.08, "(w-text_w)/2", "(h-text_h)/2", o["start"], o["end"]))
     if "replay_bug" in ov:
         o = ov["replay_bug"]
-        steps.append(drawtext(files["replay_bug"], h * 0.05, "w*0.04", "h*0.05", o["start"], o["end"]))  # fmt: skip
+        steps.append(text("replay_bug", 0.05, "w*0.04", "h*0.05", o["start"], o["end"]))
     if "end_card" in ov:
         o = ov["end_card"]
         if texts["kicker"]:
-            steps.append(drawtext(files["kicker"], h * 0.045, "(w-text_w)/2", "h*0.36", o["start"], o["end"], box=False))  # fmt: skip
+            steps.append(
+                text("kicker", 0.045, "(w-text_w)/2", "h*0.36", o["start"], o["end"], False)
+            )
         if texts["headline"]:
-            steps.append(drawtext(files["headline"], h * 0.08, "(w-text_w)/2", "h*0.46", o["start"], o["end"]))  # fmt: skip
-    end = sb["duration_s"]
-    steps.append(drawtext(files["ai_label"], h * 0.03, "w-text_w-w*0.03", "h-text_h-h*0.04", 0, end))  # fmt: skip
+            steps.append(text("headline", 0.08, "(w-text_w)/2", "h*0.46", o["start"], o["end"]))
+    steps.append(text("ai_label", 0.03, "w-text_w-w*0.03", "h-text_h-h*0.04", 0, sb["duration_s"]))
     return ",".join(steps)
 
 
@@ -131,9 +165,10 @@ def run(ctx: RunContext) -> StageResult:
     pack = loader.for_run(uc)
     joined, final = ctx.path("segments/joined.mp4"), ctx.path(FINAL)
     parts = [ctx.path(f"segments/{s['id']}.mp4") for s in sb["segments"]]
-    vf = overlays(sb, script, pack, ctx.path("overlays"))
     try:
         ffmpeg.concat(parts, joined)
+        size = next(x for x in probe(joined)["streams"] if "width" in x)
+        vf = overlays(sb, script, pack, ctx.path("overlays"), (size["width"], size["height"]))
         ffmpeg.run([
             "-i", str(joined), "-i", str(ctx.path("mix.wav")), "-filter:v", vf,
             "-map", "0:v", "-map", "1:a", "-c:v", "libx264", "-preset", "medium", "-crf", "18",

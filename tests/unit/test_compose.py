@@ -69,3 +69,44 @@ def test_the_onset_search_finds_a_take_that_landed_late():
     at = int(2.2 * sr)  # planned for 2.0 s, landed at 2.2 s
     out[at : at + len(take)] += take
     assert s10_compose.landed(take, out, 2.0) == pytest.approx(2.2, abs=0.002)
+
+
+# a vertical video: the text is fitted to the width (synthetic frames, nothing from a real clip)
+LONG = "SLOW MOTION REPLAY OF THE TOP-CORNER FREE KICK"
+
+
+def test_a_headline_is_shrunk_then_wrapped_to_the_width():
+    from epic_replay.stages.s10_compose import fitted
+
+    assert fitted("GOAL", 100, 1920) == ("GOAL", 100)  # fits: unchanged
+    text, size = fitted("TOP-CORNER FREE KICK", 80, 1080)  # a little too wide: smaller, one line
+    assert "\n" not in text and 48 <= size < 80
+    text, size = fitted(LONG, 86, 1080)  # far too wide: wrapped
+    assert text.count("\n") >= 1 and size <= 86
+    assert fitted("Antidisestablishmentarianismisaverylongwordindeed", 86, 1080)[1] < 86 * 0.6
+
+
+@pytest.mark.parametrize("size", [(1080, 1920), (1920, 1080)])
+def test_the_overlays_stay_inside_the_frame_in_a_vertical_and_a_landscape_video(tmp_path, size):
+    import subprocess
+
+    import numpy as np
+
+    from epic_replay.stages import s10_compose as s10
+
+    w, h = size
+    sb = {"overlays": [{"type": "title", "start": 0, "end": 2},
+                       {"type": "end_card", "start": 0, "end": 2},
+                       {"type": "replay_bug", "start": 0, "end": 2}], "duration_s": 2.0}  # fmt: skip
+    script = {"headline": LONG}
+    pack = {"script": {"labels": {"replay_bug": "SLOW MOTION", "end_card_kicker": "TOP STORY"}}}
+    vf = s10.overlays(sb, script, pack, tmp_path / "t", (w, h))
+    raw = subprocess.run(
+        ["ffmpeg", "-v", "error", "-f", "lavfi", "-i", f"color=c=0x808080:s={w}x{h}:d=1",
+         "-vf", vf, "-frames:v", "1", "-f", "rawvideo", "-pix_fmt", "gray", "-"],
+        capture_output=True, check=True,
+    ).stdout  # fmt: skip
+    img = np.frombuffer(raw, np.uint8).reshape(h, w)
+    margin = int(w * 0.02)  # the text and its box keep 4 percent clear; allow for rounding
+    assert (img[:, :margin] == 128).all() and (img[:, -margin:] == 128).all()
+    assert (img != 128).any()  # and something was drawn
