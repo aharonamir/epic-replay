@@ -371,13 +371,14 @@ def delete_run(run_id: str):
 # -- the page
 
 
-def render(request: Request, run_id: str | None, d: Path | None):
+def render(request: Request, run_id: str | None, d: Path | None, demo: str | None = None):
     s = settings()
     packs = loader.load()
     st = state(run_id, d) if d else None
     pack = packs.get(st["style"]) if st and st["style"] in packs else loader.default(packs)
     ctx = {"copy": copy, "pack": pack, "accents": accents(pack), "run": st,
-           "provider_line": copy.provider_line(s), "run_json": json.dumps(st)}  # fmt: skip
+           "provider_line": copy.provider_line(s), "run_json": json.dumps(st),
+           "demo": demo, "video_url": f"/demo/{run_id}/final.mp4" if demo else f"/runs/{run_id}/final.mp4"}  # fmt: skip
     if st and st["status"] == "waiting_play_card":
         card = card_data(run_id, d)
         ctx |= {"card": card, "card_json": json.dumps(card)}
@@ -398,3 +399,33 @@ def page(run_id: str, request: Request):
     if d is None:
         return HTMLResponse("No such run.", status_code=404)
     return render(request, run_id, d)
+
+
+# -- demo mode (FR-038): a stored run, shown as its result with the date it was made
+
+DEMO_DIR = config.REPO / "demo"
+
+
+def demo_dir(name: str) -> Path | None:
+    root = DEMO_DIR.resolve()
+    d = (root / name).resolve()
+    if d.parent != root or not (d / "manifest.json").exists() or not (d / "final.mp4").exists():
+        return None
+    return d
+
+
+@app.get("/demo/{name}", response_class=HTMLResponse)
+def demo_page(name: str, request: Request):
+    d = demo_dir(name)
+    if d is None:
+        return HTMLResponse("No such cached run.", status_code=404)
+    made = read(d, "manifest.json")["created_at"][:10]
+    return render(request, name, d, demo=made)
+
+
+@app.get("/demo/{name}/final.mp4")
+def demo_video(name: str):
+    d = demo_dir(name)
+    if d is None:
+        return error(404, "not_found", "no such cached run")
+    return FileResponse(d / "final.mp4", media_type="video/mp4", filename=f"epic-replay-{name}.mp4")

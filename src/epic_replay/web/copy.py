@@ -46,6 +46,8 @@ CARD = {
 RESULT = {"headline": "Your replay", "download": "Download", "ai": "AI commentary",
           "start_over": "Start over with a new clip", "delete": "Delete this clip now"}  # fmt: skip
 
+DEMO = "Cached run from {date}"
+
 STOPPED = {
     "headline": "Stopped",
     "sensitive": "This clip isn't one we can narrate: {reason}.",

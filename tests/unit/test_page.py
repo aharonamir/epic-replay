@@ -170,3 +170,17 @@ def test_a_running_run_is_not_deleted_under_its_stages(app):
     r = client.delete("/runs/r")
     assert r.status_code == 409 and r.json()["error"]["code"] == "running" and d.exists()
     assert client.delete("/runs/..%2F..%2Fetc").status_code == 404
+
+
+# FR-038: demo mode shows a stored run as its result, labelled with the date it was made
+def test_a_cached_run_is_shown_with_its_date_and_no_delete(app, tmp_path, monkeypatch):
+    client, s, _, _ = app
+    demo = tmp_path / "demo"
+    shutil.copytree(seeded(s, "d", "done", ALL, video=True), demo / "pancakes")
+    monkeypatch.setattr(web, "DEMO_DIR", demo)
+    page = html.unescape(client.get("/demo/pancakes").text)
+    assert copy.DEMO.format(date="2026-10-29") in page and "/demo/pancakes/final.mp4" in page
+    assert copy.RESULT["delete"] not in page
+    assert client.get("/demo/pancakes/final.mp4").status_code == 200
+    assert client.get("/demo/nope").status_code == 404
+    assert client.get("/demo/..%2Fruns%2Fd").status_code == 404

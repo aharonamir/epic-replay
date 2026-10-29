@@ -19,7 +19,7 @@ Served by FastAPI. The page (contracts/ui.md) uses only these endpoints. No auth
 | `GET /runs/{id}/final.mp4` | The result | none | video file |
 | `GET /runs/{id}/artifacts/{name}` | Any stage output | none | the file |
 | `DELETE /runs/{id}` | Remove a run now, with every version of the same clip | none | `204`; local files and provider-side copies deleted. As built (T033): the run folder is removed (one version until T040); `409 running` while a stage runs; DeepSeek has no deletion to call |
-| `GET /demo/{name}` | Cached run in demo mode | none | the same page, labelled "cached run" with the run date |
+| `GET /demo/{name}` | Cached run in demo mode | none | the same page, labelled "cached run" with the run date; as built, from `demo/<name>/`, with the video at `GET /demo/{name}/final.mp4` and no delete |
 
 ## Edits accepted at Checkpoint A
 

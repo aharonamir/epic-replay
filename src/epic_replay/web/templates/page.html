@@ -7,6 +7,7 @@
 <link rel="stylesheet" href="/static/page.css">
 </head>
 <body>
+{% if demo %}<div class="demo-band label">{{ copy.DEMO.format(date=demo) }}</div>{% endif %}
 <header class="top">
   <a class="wordmark" href="/" aria-label="{{ copy.WORDMARK }}, start over">
     <svg viewBox="0 0 30 20" aria-hidden="true"><path d="M15 0v20L0 10zM30 0v20L15 10z"/></svg>
@@ -72,18 +73,18 @@
   <div class="result-main">
     <h1 class="result">{{ copy.RESULT.headline }}</h1>
     {% if run.has_video %}
-    <video class="player" controls preload="metadata" playsinline src="/runs/{{ run.run_id }}/final.mp4#t=0.1"
+    <video class="player" controls preload="metadata" playsinline src="{{ video_url }}#t=0.1"
            aria-label="{{ headline }}"></video>
     {% endif %}
     <div class="download-row">
-      <a class="button primary" href="/runs/{{ run.run_id }}/final.mp4" download>{{ copy.RESULT.download }}</a>
+      <a class="button primary" href="{{ video_url }}" download>{{ copy.RESULT.download }}</a>
       <span class="label tag">{{ copy.RESULT.ai }}</span>
     </div>
   </div>
   <div class="result-side">
     <a class="button strong" href="/">{{ copy.RESULT.start_over }}</a>
-    <button type="button" class="delete" data-delete="{{ run.run_id }}">{{ copy.RESULT.delete }}</button>
-    <p class="error" id="delete-error" role="alert"></p>
+    {% if not demo %}<button type="button" class="delete" data-delete="{{ run.run_id }}">{{ copy.RESULT.delete }}</button>
+    <p class="error" id="delete-error" role="alert"></p>{% endif %}
   </div>
 </div>
 

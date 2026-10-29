@@ -188,6 +188,7 @@ Result (2026-10-23, reached before Sun 25 morning): met, with the speaking-rate 
 ## Day 11 - Sun 25 October - add back, part 2; demo and presentation - 5.25 h, 2.75 h buffer (items 2, 3 and 8 dropped 2026-10-22; the deck moves to Mon 26)
 
 - [ ] T034, first part (1h): a cached run in both styles, labelled, and a backup video. Single-shot clips only (FlippingPancakes, Skateboard_trick, bottle flip, basket_ball_shot), not the compilations fk_miss and fk_save (owner, 2026-10-22). In the Football commentator style on Sun 25; in the News reporter style on Mon 26 if item 1 fits.
+  Safe point (2026-10-29, re-plan of Wed 28): the cached run `demo/flipping_pancakes_football/` (the live run of T031's second part: FlippingPancakes, frame 67, Football commentator) shown at `GET /demo/flipping_pancakes_football` with the band "Cached run from 2026-10-29" and no delete; the backup video `demo/backup/flipping_pancakes_football_commentator.mp4`. `demo/` stays on this machine (in `.gitignore`: its videos hold the clip's footage, as `eval/clips/` does). The cached run keeps the outputs the result page needs, not the upload, the working copy or the contact sheets. The News reporter cached run and the refresh on Sun 1 are still to do.
 - [ ] T037 Presentation: architecture diagram, the page walk-through, one clip in two styles, measured accuracy and cost, limits, what is deferred (2h; full design 3h)
   Done when: the deck follows plan.md section 10.
   Now (re-plan): the deck on Sun 25; a run-through on Mon 26 (1 h, below).
