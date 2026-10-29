@@ -25,13 +25,38 @@
     </div>
     {% endif %}
   </div>
+  {% set ps = card.play_sheet %}
   <div class="facts">
-    <div class="activity">{{ card.play_sheet.activity.value if card.play_sheet.activity else "" }}</div>
-    <ol>
-      {% for e in card.play_sheet.events %}<li><span>{{ e.action }}{% if e.outcome %} · {{ e.outcome }}{% endif %}</span></li>{% endfor %}
-    </ol>
-    {% if card.play_sheet.outcome_summary %}<p class="muted">{{ card.play_sheet.outcome_summary.value }}</p>{% endif %}
-    {% if card.play_sheet.sensitive.checked == false %}
+    <div id="facts-view">
+      <div class="activity" id="activity-text">{{ ps.activity.value if ps.activity else "" }}</div>
+      <label class="field fix-field" hidden>{{ copy.CARD.activity }}
+        <input type="text" id="activity-input" maxlength="80" value="{{ ps.activity.value if ps.activity else '' }}"></label>
+      <ol>
+        {% for e in ps.events %}
+        <li data-event="{{ e.id }}"{% if e.id in card.highlighted %} class="to-check"{% endif %}>
+          <div>
+            <span class="ev-text">{{ e.action }}{% if e.outcome %} · {{ e.outcome }}{% endif %}</span>
+            {% if e.id in card.highlighted %}<div class="label">{{ copy.CARD.check }}</div>{% endif %}
+            <div class="row keep-row"{% if e.id not in card.highlighted %} hidden{% endif %}>
+              <button type="button" class="choice" data-keep="true" aria-pressed="false">{{ copy.CARD.keep }}</button>
+              <button type="button" class="choice" data-keep="false" aria-pressed="false">{{ copy.CARD.remove }}</button>
+            </div>
+          </div>
+        </li>
+        {% endfor %}
+      </ol>
+      {% if ps.outcome_summary %}<p class="muted" id="outcome-text">{{ ps.outcome_summary.value }}</p>{% endif %}
+      <label class="field fix-field" hidden>{{ copy.CARD.outcome }}
+        <input type="text" id="outcome-input" maxlength="160" value="{{ ps.outcome_summary.value if ps.outcome_summary else '' }}"></label>
+    </div>
+    <div id="reject-view" hidden>
+      <p>{{ copy.CARD.generic_note }}</p>
+      <div class="row">
+        <button type="button" class="primary" id="generic" disabled>{{ copy.CARD.generic }}</button>
+        <button type="button" id="stop">{{ copy.CARD.stop }}</button>
+      </div>
+    </div>
+    {% if ps.sensitive.checked == false %}
     <div id="clip-check" class="to-check">
       <div class="label">{{ copy.CARD.check }}</div>
       <p>{{ copy.CARD.unchecked }}</p>
@@ -43,7 +68,11 @@
     {% endif %}
   </div>
   <div class="card-actions">
-    <div class="row"><button type="button" class="primary" id="confirm" disabled>{{ copy.CARD.yes }}</button></div>
+    <div class="row">
+      <button type="button" class="primary" id="confirm" disabled>{{ copy.CARD.yes }}</button>
+      <button type="button" id="fix" aria-expanded="false">{{ copy.CARD.fix }}</button>
+      <button type="button" id="reject" aria-expanded="false" aria-controls="reject-view">{{ copy.CARD.reject }}</button>
+    </div>
     <p class="muted" id="why">{{ copy.CARD.why }}</p>
     <p role="status" id="card-status"></p>
   </div>

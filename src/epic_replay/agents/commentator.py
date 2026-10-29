@@ -12,6 +12,9 @@ What the agent is shown: the events a script may use (confidence at least 0.7 or
 user, stage-contracts rule 2), without events that are on-screen captions or text (owner,
 2026-10-22): no line is written about them.
 
+In generic mode (the user rejected the play card) no model is called: every line is a
+generic line (`generic`).
+
 Fallback, when no draft is accepted within six iterations: one structured draft from the same
 model by a plain JSON call, and any line that still fails is replaced by a generic line, as is
 every line when that call fails too. The stage is then `degraded`.
@@ -396,6 +399,17 @@ def _structured_draft(system: str, query: str) -> dict:
     except ValueError:
         draft = {}
     return {"draft": draft, "usage": usage, "latency_s": round(time.monotonic() - t0, 2)}
+
+
+def generic(*, slots: list[dict], ps: dict, uc: dict, sb: dict, pack: dict) -> Outcome:
+    """Generic mode (FR-012, US2 scenario 4): the user rejected the card, so no model is asked
+    and every line is the style-free generic line of its slot, with no reference to an event;
+    the headline and lower third are the pack's labels. Nothing is paid."""
+    tools = Tools(slots, ps, uc, sb, pack)
+    draft, _ = tools.patched({})
+    script = tools.assemble(draft)
+    calls = [{"tool": "generic_lines", "lines": len(script["lines"])}]
+    return Outcome(script, draft, "ok", "generic mode: no claim about what happened", calls, 0.0)
 
 
 def write(

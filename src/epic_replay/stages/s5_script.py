@@ -2,7 +2,8 @@
 
 Reads the confirmed play sheet, the storyboard, the user context and the style pack it names;
 writes `script.json` and `commentator_trace.json` (each tool call, in order, with the cost).
-`degraded` when the fallback wrote any line (agents/commentator.py).
+`degraded` when the fallback wrote any line (agents/commentator.py). In generic mode the lines
+are written by code, with no model call (FR-012).
 """
 
 from __future__ import annotations
@@ -29,10 +30,13 @@ def run(ctx: RunContext) -> StageResult:
     if ctx.ledger is None:
         ctx.ledger = Ledger(ctx.run_dir, ctx.settings)
     try:
-        out = commentator.write(
-            slots=built, ps=ps, uc=uc, sb=sb, pack=pack, ledger=ctx.ledger,
-            recorder=ctx.adapters.get("recorder") or Recorder(ctx.settings.provider_mode),
-        )  # fmt: skip
+        if ps.get("mode") == "generic":
+            out = commentator.generic(slots=built, ps=ps, uc=uc, sb=sb, pack=pack)
+        else:
+            out = commentator.write(
+                slots=built, ps=ps, uc=uc, sb=sb, pack=pack, ledger=ctx.ledger,
+                recorder=ctx.adapters.get("recorder") or Recorder(ctx.settings.provider_mode),
+            )  # fmt: skip
     except (CapExceeded, ReplayMiss) as e:
         return StageResult("stopped" if isinstance(e, CapExceeded) else "failed", str(e))
     for call in out.calls:

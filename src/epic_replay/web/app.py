@@ -15,9 +15,10 @@ and resumes the flow in a background thread from the first stage not yet done. C
 refused until the key moment is answered: the card sends the frame the user settled on, by
 nudging, by picking another moment, or by pressing "This one" (revision 8).
 
-In this build the card answers the key moment only. Keep or remove, editing the outcome
-sentence, reject and generic mode (add-backs 6 and 7) and the cost line (add-back 8) come
-later; their requests are refused with `not_built` rather than silently ignored.
+Add-backs 6 and 7: a confirm may also keep or remove events (each event marked "Check this"
+must be answered), correct the activity and the outcome sentence, and name the player;
+`generic` goes on with the user's moment and a script that makes no claim (FR-012); `reject`
+stops the run. The cost line is add-back 8.
 
     uvicorn epic_replay.web.app:app --port 8010
 """
@@ -181,7 +182,8 @@ def card_data(run_id: str, d: Path) -> dict:
         },  # fmt: skip
         "frame_url": f"/runs/{run_id}/frames/{{frame}}.jpg",
         "other_moments": others,
-        "highlighted": ["climax"],  # the key moment is always answered (revision 8)
+        # the key moment is always answered (revision 8), and each event marked "Check this"
+        "highlighted": ["climax", *runner.to_check(ps)],
         "cost_estimate_usd": None,  # add-back 8
     }
 
@@ -212,56 +214,86 @@ async def post_play_card(run_id: str, request: Request):
         return error(400, "invalid_request", "the body is not JSON")
     if not isinstance(body, dict) or not isinstance(body.get("edits") or {}, dict):
         return error(400, "invalid_request", "the body must be an object with an edits object")
-    action, edits = body.get("action"), body.get("edits") or {}
-    if action != "confirm":
-        return error(400, "not_built", f"'{action}' is not in this build (add-back 7)")
-    extra = sorted(set(edits) - {"climax_frame", "clip_ok"})
-    if extra or body.get("context"):
-        return error(400, "not_built", f"editing {', '.join(extra) or 'context'} is not in this build (add-back 6)")  # fmt: skip
+    action, edits, context = body.get("action"), body.get("edits") or {}, body.get("context") or {}
+    if action not in ACTIONS:
+        return error(400, "invalid_request", "action must be confirm, generic or reject")
+    if not isinstance(context, dict):
+        return error(400, "invalid_request", "context must be an object")
+    allowed = ACTIONS[action]
+    extra = sorted(set(edits) - allowed) + (["context"] if context and action != "confirm" else [])
+    if extra:
+        return error(400, "invalid_request", f"'{action}' does not take {', '.join(extra)}")
     clip_ok = edits.get("clip_ok")
     if clip_ok is not None and not isinstance(clip_ok, bool):
         return error(400, "invalid_request", "clip_ok must be true or false")
     frame = edits.get("climax_frame")
-    if frame is None and clip_ok is not False:
+    if action != "reject" and frame is None and clip_ok is not False:
         return error(409, "key_moment_required", "pick the moment before confirming")
     if frame is not None and (not isinstance(frame, int) or isinstance(frame, bool)):
         return error(400, "invalid_request", "climax_frame must be a frame number")
-    answer = await run_in_threadpool(answer_card, d, frame, clip_ok)
+    answer = await run_in_threadpool(answer_card, d, action, edits, context)
     if isinstance(answer, JSONResponse):
         return answer
     if answer == "stopped":
         return {"run_id": run_id, "stopped": True}
     background(app.state.resume or resume, d)
-    return {"run_id": run_id, "climax_frame": frame}
+    return {"run_id": run_id, "climax_frame": frame, "mode": answer}
 
 
+# What each answer may carry (http-api.md). Generic mode takes the key moment only (FR-012);
+# reject stops the run (stage-contracts.md, Checkpoint A).
+ACTIONS = {
+    "confirm": {
+        "climax_frame",
+        "clip_ok",
+        "activity",
+        "outcome_summary",
+        "events",
+        "followed_actor",
+    },
+    "generic": {"climax_frame", "clip_ok"},
+    "reject": set(),
+}
 USER_STOP = "you said someone in it may not be fine"
+REJECTED = "stopped at the play card"
 
 
-def answer_card(d: Path, frame: int | None, clip_ok: bool | None):
-    """The card's answer, under the lock: "running" (picked, go on), "stopped" (the user said
-    the clip is not fine to narrate), or an error response. When the events call could not
-    check the clip, the user must answer that before the run goes on (FR-009, review #4)."""
+def stop_at_card(d: Path, manifest: dict, note: str) -> str:
+    manifest["status"] = "stopped"
+    manifest["stages"].append({"stage": runner.CHECKPOINT_A, "status": "stopped", "duration_s": 0.0,
+                               "cost_usd": 0.0, "note": note})  # fmt: skip
+    runner.write_json(d / "manifest.json", manifest)
+    return "stopped"
+
+
+def answer_card(d: Path, action: str, edits: dict, context: dict):
+    """The card's answer, under the lock: the play sheet's mode ("specific" or "generic", go
+    on), "stopped" (rejected, or the user said the clip is not fine to narrate), or an error
+    response. When the events call could not check the clip, the user must answer that before
+    the run goes on (FR-009, review #4). Every event marked "Check this" must be kept or
+    removed before a confirm (FR-010)."""
+    clip_ok = edits.get("clip_ok")
     with lock_for(d):
         if not (d / "manifest.json").exists():  # deleted while this answer waited
             return error(404, "not_found", "no such run")
         manifest = read(d, "manifest.json")
         if manifest["status"] != "waiting_play_card":
             return error(409, "not_waiting", "the run is not waiting at the play card")
+        if action == "reject":
+            return stop_at_card(d, manifest, REJECTED)
         ps = read(d, "play_sheet.json")
         unchecked = ps["sensitive"].get("checked", True) is False
         if clip_ok is False:
             ps["sensitive"] = {"flag": True, "reason": USER_STOP, "checked": True}
             runner.write_json(d / "play_sheet.json", ps)
-            manifest["status"] = "stopped"
-            manifest["stages"].append({"stage": runner.CHECKPOINT_A, "status": "stopped", "duration_s": 0.0,
-                                       "cost_usd": 0.0, "note": f"sensitive: {USER_STOP}"})  # fmt: skip
-            runner.write_json(d / "manifest.json", manifest)
-            return "stopped"
+            return stop_at_card(d, manifest, f"sensitive: {USER_STOP}")
         if unchecked and clip_ok is not True:
             return error(409, "check_required", "Say whether everyone in the clip is fine first.")
+        answered = {x.get("id") for x in edits.get("events") or [] if isinstance(x, dict)}
+        if action == "confirm" and set(runner.to_check(ps)) - answered:
+            return error(409, "check_required", copy.CARD["why_items"])
         try:
-            runner.pick(d, frame)
+            runner.answer(d, edits["climax_frame"], edits, context, generic=action == "generic")
         except ValueError as e:
             return error(400, "invalid_request", str(e))
         if unchecked:
@@ -270,7 +302,7 @@ def answer_card(d: Path, frame: int | None, clip_ok: bool | None):
             runner.write_json(d / "play_sheet.json", ps)
         manifest["status"] = "running"
         runner.write_json(d / "manifest.json", manifest)
-        return "running"
+        return read(d, "play_sheet.json")["mode"]
 
 
 @app.get("/runs/{run_id}/frames/{frame}.jpg")
@@ -478,6 +510,8 @@ def stopped_message(m: dict, current: str | None) -> str:
         return copy.STOPPED["sensitive"].format(reason=note.removeprefix("sensitive: ").rstrip("."))  # fmt: skip
     if "would be exceeded" in note:
         return copy.STOPPED["cap"]
+    if note == REJECTED:
+        return copy.STOPPED["rejected"]
     if failed and failed["stage"] == "S0" and note:
         return note
     where = failed["stage"] if failed else current

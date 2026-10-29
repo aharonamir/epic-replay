@@ -51,6 +51,14 @@ CARD = {
     "unchecked": "We couldn't check that this clip is fine to narrate. Is everyone in it fine, and dressed?",
     "fine": "Yes, everyone's fine", "not_fine": "No, stop here",
     "failed": "That didn't go through. Try again.",
+    # add-backs 6 and 7: keep or remove, "Fix something", "Not at all"
+    "keep": "Keep", "remove": "Remove", "removed": "removed",
+    "why_items": "Keep or remove each item marked \"Check this\" first.",
+    "fix": "Fix something", "fix_done": "Done fixing", "reject": "Not at all", "back": "Back to the card",
+    "activity": "What's going on", "outcome": "How it ends",
+    "generic_note": "We can still make your replay, with a narration that doesn't say what happened.",
+    "generic": "Narrate without saying what happened", "stop": "Stop here",
+    "why_generic": "Pick the moment first: the replay is built around it.",
 }  # fmt: skip
 
 RESULT = {"headline": "Your replay", "download": "Download", "ai": "AI commentary",
@@ -98,6 +106,7 @@ STOPPED = {
     "headline": "Stopped",
     "sensitive": "This clip isn't one we can narrate: {reason}.",
     "cap": "We've reached today's limit for this demo.",
+    "rejected": "You stopped it at the play card. Nothing was narrated.",
     "failed": "Something broke while {step}. Your clip is safe.",
     "again": "Choose another clip",
 }

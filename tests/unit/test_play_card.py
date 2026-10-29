@@ -106,12 +106,12 @@ def test_moving_the_key_moment_three_frames_moves_the_replay_and_the_calls(waiti
 
 @pytest.mark.parametrize(
     "body, code",
-    [({"action": "reject"}, "not_built"), ({"action": "generic"}, "not_built"),
-     ({"action": "confirm", "edits": {"climax_frame": 313, "outcome_summary": "x"}}, "not_built"),
+    [({"action": "generic"}, "key_moment_required"), ({"action": "maybe"}, "invalid_request"),
+     ({"action": "confirm", "edits": {"climax_frame": 313, "outcome_summary": ""}}, "invalid_request"),
      ({"action": "confirm", "edits": {"climax_frame": 10_000}}, "invalid_request"),
      ({"action": "confirm", "edits": {"climax_frame": "313"}}, "invalid_request")],
 )  # fmt: skip
-def test_what_this_build_does_not_answer_is_refused(waiting, body, code):
+def test_answers_that_do_not_fit_are_refused(waiting, body, code):
     _, client, resumed = waiting
     r = client.post("/runs/r1/play-card", json=body)
     assert r.status_code in (400, 409) and r.json()["error"]["code"] == code

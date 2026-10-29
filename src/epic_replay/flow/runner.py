@@ -101,14 +101,94 @@ def pick(run_dir: Path, frame: int) -> dict:
     """Write the user's key moment into the play sheet: the climax with method `user`, and the
     sheet confirmed. Returns the play sheet."""
     path = Path(run_dir) / "play_sheet.json"
-    ps = json.loads(path.read_text())
-    meta = json.loads((Path(run_dir) / "clip_meta.json").read_text())
+    ps = picked(json.loads(path.read_text()), Path(run_dir), frame)
+    write_json(path, ps)
+    return ps
+
+
+def picked(ps: dict, run_dir: Path, frame: int) -> dict:
+    meta = json.loads((run_dir / "clip_meta.json").read_text())
     if not 0 <= frame <= last_frame(meta):
         raise ValueError(f"the clip has frames 0 to {last_frame(meta)}")
     ps["climax"].update(frame=frame, t=round(frame / meta["fps"], 3), method="user", confidence=1.0)
     ps["confirmed_by_user"] = True
-    write_json(path, ps)
     return ps
+
+
+LOW = 0.7  # below this an event is an item to check on the card (data-model.md section 2)
+CONTEXT = ("player_name", "team_home", "team_away", "score")
+TEXT_MAX = {"activity": 80, "outcome_summary": 160}
+
+
+def to_check(ps: dict) -> list[str]:
+    """The events the card asks about: written by the model and below the highlight line.
+    Each must be kept or removed before the card is confirmed (FR-010)."""
+    return [e["id"] for e in ps["events"] if e.get("source") != "user" and e["confidence"] < LOW]
+
+
+def nearest_event(ps: dict) -> str:
+    """The event that holds the key moment, or the nearest one (plan.md 4.4)."""
+    t = ps["climax"]["t"]
+    return min(
+        ps["events"], key=lambda e: (max(e["t_start"] - t, t - e["t_end"], 0.0), -e["t_start"])
+    )["id"]
+
+
+def answer(run_dir: Path, frame: int, edits: dict, context: dict, *, generic: bool = False) -> None:
+    """Write the card's answer: the key moment as `pick` does, and the corrections
+    (http-api.md, "Edits accepted at Checkpoint A") into the play sheet and the user context,
+    each edited field with `source: user`. An event with
+    `keep: false` is removed, with `keep: true` it becomes the user's. If the key moment's own
+    event is removed, the kept event nearest to the moment takes its place. The outcome
+    sentence is also the outcome of the key moment's event, which the card tags with it.
+    In generic mode (FR-012) the play sheet keeps what the model saw, marked `mode: generic`,
+    and the script makes no claim from it. Raises ValueError, writing nothing, on an edit that
+    does not fit."""
+    d = Path(run_dir)
+    ps = picked(json.loads((d / "play_sheet.json").read_text()), d, frame)
+    if generic:
+        ps["mode"] = "generic"
+    uc = json.loads((d / "user_context.json").read_text())
+    known = {e["id"] for e in ps["events"]}
+    keep: dict[str, bool] = {}
+    for x in edits.get("events") or []:
+        if not (isinstance(x, dict) and x.get("id") in known and isinstance(x.get("keep"), bool)):
+            raise ValueError("each event edit is {id, keep} with an event of this play sheet")
+        keep[x["id"]] = x["keep"]
+    ps["events"] = [e for e in ps["events"] if keep.get(e["id"], True)]
+    if not ps["events"]:
+        raise ValueError("keep at least one event")
+    for e in ps["events"]:
+        if keep.get(e["id"]):
+            e["source"] = "user"
+    if ps["climax"]["event_id"] not in {e["id"] for e in ps["events"]}:
+        ps["climax"]["event_id"] = nearest_event(ps)
+    for k, most in TEXT_MAX.items():
+        if k not in edits:
+            continue
+        v = edits[k]
+        if not isinstance(v, str) or not v.strip() or len(v.strip()) > most:
+            raise ValueError(f"{k} is a sentence of 1 to {most} characters")
+        ps[k] = {"value": v.strip(), "confidence": 1.0, "source": "user"}
+        if k == "outcome_summary":
+            ev = next(e for e in ps["events"] if e["id"] == ps["climax"]["event_id"])
+            ev.update(outcome=v.strip(), source="user")
+    if "followed_actor" in edits:
+        a = edits["followed_actor"]
+        if a not in {x["id"] for x in ps["actors"]}:
+            raise ValueError("followed_actor is an actor of this play sheet")
+        for x in ps["actors"]:
+            x["followed"] = x["id"] == a
+    for k, v in context.items():
+        if k not in CONTEXT or not (v is None or (isinstance(v, str) and len(v) <= 40)):
+            raise ValueError(f"context takes {', '.join(CONTEXT)}, each at most 40 characters")
+        uc[k] = (v or "").strip() or None
+    if "player_name" in context:
+        for x in ps["actors"]:
+            if x["followed"]:
+                x["user_name"] = uc["player_name"]
+    write_json(d / "user_context.json", uc)
+    write_json(d / "play_sheet.json", ps)
 
 
 def now() -> str:

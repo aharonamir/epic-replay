@@ -288,3 +288,94 @@ def test_polling_takes_over_when_the_stream_fails(server, browser):
     finally:
         page.close()
         web.LIVE.discard("p")
+
+
+def card_with_an_unsure_event(server, run_id):
+    _, assets = server
+    d = RUNS["dir"] / run_id
+    d.mkdir()
+    outputs(d, assets)
+    ps = json.loads((d / "play_sheet.json").read_text())
+    next(e for e in ps["events"] if e["id"] == "e7")["source"] = "model"  # confidence 0.6
+    (d / "play_sheet.json").write_text(json.dumps(ps))
+    manifest(d, "waiting_play_card", UP_TO_CARD)
+    return d
+
+
+@pytest.mark.parametrize("size", [PHONE, LAPTOP], ids=["390", "1280"])
+def test_keep_or_remove_and_fix_something_reach_the_answer(server, browser, size):
+    """Add-backs 6 and 7: "Yes, that's it" waits for the unsure event; "Fix something" opens
+    the sentences and keep or remove on every event; the answer carries what was changed."""
+    url, _ = server
+    run_id = f"k{size['width']}"
+    card_with_an_unsure_event(server, run_id)
+    page = browser.new_page(viewport=size)
+    page.goto(f"{url}/r/{run_id}")
+    page.locator("#this-one").click()
+    assert page.locator("#confirm").is_disabled()
+    assert (
+        page.locator("#why").text_content() == 'Keep or remove each item marked "Check this" first.'
+    )
+    unsure = page.locator('[data-event="e7"]')
+    unsure.locator('[data-keep="false"]').click()
+    assert "removed" in unsure.get_attribute("class") and page.locator("#confirm").is_enabled()
+    assert page.locator('[data-event="e2"] .keep-row').is_hidden()
+    page.locator("#fix").click()
+    assert page.locator('[data-event="e2"] .keep-row').is_visible()
+    page.locator('[data-event="e2"] [data-keep="true"]').click()
+    page.locator("#outcome-input").fill("Goal, top corner.")
+    got = page.evaluate(FITS)
+    shoot(page, f"card_fix_{size['width']}")
+    page.locator("#fix").click()
+    assert page.locator("#outcome-text").text_content() == "Goal, top corner."
+    with page.expect_request("**/play-card") as req:
+        page.locator("#confirm").click()
+    body = json.loads(req.value.post_data)
+    page.locator("#state-heading", has_text="Your replay").wait_for(timeout=10000)
+    page.close()
+    assert body["action"] == "confirm" and body["edits"]["outcome_summary"] == "Goal, top corner."
+    assert sorted(map(tuple, (x.values() for x in body["edits"]["events"]))) == [
+        ("e2", True),
+        ("e7", False),
+    ]
+    assert "activity" not in body["edits"]  # not changed, not sent
+    assert got["over"] <= 0 and not got["small"], got
+
+
+@pytest.mark.parametrize("size", [PHONE, LAPTOP], ids=["390", "1280"])
+def test_not_at_all_offers_a_narration_without_claims_once_the_moment_is_picked(server, browser, size):  # fmt: skip
+    url, _ = server
+    run_id = f"g{size['width']}"
+    card_with_an_unsure_event(server, run_id)
+    page = browser.new_page(viewport=size)
+    page.goto(f"{url}/r/{run_id}")
+    page.locator("#reject").click()
+    assert page.locator("#reject-view").is_visible() and page.locator("#facts-view").is_hidden()
+    assert (
+        page.locator("#confirm").is_hidden()
+        and page.locator("#reject").text_content() == "Back to the card"
+    )
+    assert page.locator("#generic").is_disabled()  # the replay is built around the moment
+    got = page.evaluate(FITS)
+    shoot(page, f"card_reject_{size['width']}")
+    page.locator('[data-step="1"]').click()
+    with page.expect_request("**/play-card") as req:
+        page.locator("#generic").click()  # the unsure event need not be answered
+    body = json.loads(req.value.post_data)
+    page.locator("#state-heading", has_text="Your replay").wait_for(timeout=10000)
+    page.close()
+    assert body == {"action": "generic", "edits": {"climax_frame": 314}}
+    assert got["over"] <= 0 and not got["small"], got
+
+
+def test_stop_here_stops_the_run_and_the_page_says_so(server, browser):
+    url, _ = server
+    card_with_an_unsure_event(server, "s")
+    page = browser.new_page(viewport=PHONE)
+    page.goto(f"{url}/r/s")
+    page.locator("#reject").click()
+    page.locator("#stop").click()
+    page.locator("#state-heading", has_text="You stopped it at the play card").wait_for(
+        timeout=5000
+    )
+    page.close()

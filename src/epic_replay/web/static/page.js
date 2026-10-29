@@ -98,13 +98,45 @@
     const fps = card.fps, last = card.last_frame;
     const mustCheck = card.play_sheet.sensitive.checked === false;
     let frame = card.climax.frame, answered = false, clipOk = null, busy = false;
+    // add-backs 6 and 7: each event marked "Check this" is kept or removed before a confirm;
+    // "Fix something" opens the activity and the outcome sentence, and keep or remove on every
+    // event; "Not at all" offers a narration that says nothing of what happened, or a stop
+    let fixing = false, rejecting = false;
+    const keep = {};  // event id: true to keep, false to remove
+    const toCheck = card.highlighted.filter((h) => h !== "climax");
+    const ps = card.play_sheet, said = {
+      activity: ps.activity ? ps.activity.value : "", outcome: ps.outcome_summary ? ps.outcome_summary.value : "",
+    };
     function show() {
       $("frame").src = card.frame_url.replace("{frame}", frame);
       $("where").textContent = copy.frame.replace("{frame}", frame).replace("{t}", (frame / fps).toFixed(2));
       $("key").classList.toggle("answered", answered);
-      const ready = answered && (!mustCheck || clipOk === true);
-      $("confirm").disabled = busy || !ready;
-      $("why").textContent = !answered ? copy.why : mustCheck && clipOk !== true ? copy.why_check : "";
+      const clipDone = !mustCheck || clipOk === true, itemsDone = toCheck.every((id) => id in keep);
+      $("confirm").disabled = busy || !(answered && clipDone && itemsDone);
+      $("generic").disabled = busy || !(answered && clipDone);
+      $("stop").disabled = busy;
+      $("why").textContent = !answered ? (rejecting ? copy.why_generic : copy.why)
+        : !clipDone ? copy.why_check : !rejecting && !itemsDone ? copy.why_items : "";
+      root.querySelectorAll("[data-event]").forEach((li) => {
+        const k = keep[li.dataset.event];
+        li.classList.toggle("answered", k !== undefined);
+        li.classList.toggle("removed", k === false);
+        li.querySelector(".keep-row").hidden = !(fixing || toCheck.includes(li.dataset.event));
+        li.querySelectorAll(".choice").forEach((b) => {
+          b.classList.toggle("chosen", String(k) === b.dataset.keep);
+          b.setAttribute("aria-pressed", String(String(k) === b.dataset.keep));
+        });
+      });
+      root.querySelectorAll(".fix-field").forEach((f) => { f.hidden = !fixing; });
+      $("activity-text").hidden = fixing;
+      if ($("outcome-text")) $("outcome-text").hidden = fixing;
+      $("fix").setAttribute("aria-expanded", String(fixing));
+      $("fix").textContent = fixing ? copy.fix_done : copy.fix;
+      $("facts-view").hidden = rejecting;
+      $("reject-view").hidden = !rejecting;
+      $("confirm").hidden = $("fix").hidden = rejecting;
+      $("reject").setAttribute("aria-expanded", String(rejecting));
+      $("reject").textContent = rejecting ? copy.back : copy.reject;
       root.querySelectorAll(".others button").forEach((b) =>
         b.classList.toggle("chosen", Number(b.dataset.frame) === frame));
       root.querySelectorAll("#clip-check .choice").forEach((b) =>
@@ -132,12 +164,12 @@
     $("this-one").addEventListener("click", () => { answered = true; show(); });
     root.querySelectorAll(".others button").forEach((b) =>
       b.addEventListener("click", () => { frame = Number(b.dataset.frame); answered = true; show(); }));
-    async function send(edits) {
+    async function send(edits, action = "confirm") {
       busy = true; show();
       try {
         const r = await fetch(`/runs/${card.run_id}/play-card`, {
           method: "POST", headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ action: "confirm", edits }),
+          body: JSON.stringify({ action, edits }),
         });
         // the confirm button was disabled while sending, which took the focus away; the
         // answer was given here, so the next state's heading takes it
@@ -163,11 +195,31 @@
       clipOk = b.dataset.ok === "true";
       if (clipOk) show(); else send({ clip_ok: false });
     }));
+    root.querySelectorAll("[data-event] .choice").forEach((b) => b.addEventListener("click", () => {
+      keep[b.closest("[data-event]").dataset.event] = b.dataset.keep === "true";
+      show();
+    }));
+    $("fix").addEventListener("click", () => {
+      fixing = !fixing;
+      if (!fixing) {  // the sentences as typed, shown as text again
+        $("activity-text").textContent = $("activity-input").value.trim() || said.activity;
+        if ($("outcome-text")) $("outcome-text").textContent = $("outcome-input").value.trim() || said.outcome;
+      }
+      show();
+    });
+    $("reject").addEventListener("click", () => { rejecting = !rejecting; show(); });
+    const moment = () => (mustCheck ? { climax_frame: frame, clip_ok: true } : { climax_frame: frame });
     $("confirm").addEventListener("click", () => {
-      const edits = { climax_frame: frame };
-      if (mustCheck) edits.clip_ok = true;
+      const edits = moment();
+      const events = Object.entries(keep).map(([id, k]) => ({ id, keep: k }));
+      if (events.length) edits.events = events;
+      const activity = $("activity-input").value.trim(), outcome = $("outcome-input").value.trim();
+      if (activity && activity !== said.activity) edits.activity = activity;
+      if (outcome && outcome !== said.outcome) edits.outcome_summary = outcome;
       send(edits);
     });
+    $("generic").addEventListener("click", () => send(moment(), "generic"));
+    $("stop").addEventListener("click", () => send({}, "reject"));
     show();
   }
 
