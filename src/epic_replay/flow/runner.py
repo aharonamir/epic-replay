@@ -64,6 +64,8 @@ ORDER = [
     ("S8", s8_mix.run, ["mix.json", "mix.wav"]),
     ("S10", s10_compose.run, ["render.json", "final.mp4"]),
 ]
+AFTER_CARD = {st for st, _, _ in ORDER[[s for s, _, _ in ORDER].index(CHECKPOINT_A) + 1 :]}
+HEARTBEAT, HEARTBEAT_S = ".heartbeat", 30.0
 GO_ON = ("ok", "degraded")
 DONE = ("ok", "degraded", "seeded")
 
@@ -75,6 +77,20 @@ def write_json(path: Path, data: dict) -> None:
     tmp = path.with_name(f".{path.name}.{threading.get_ident()}.tmp")
     tmp.write_text(json.dumps(data, indent=2) + "\n")
     os.replace(tmp, path)
+
+
+def not_cleared(run_dir: Path) -> str | None:
+    """Why the clip may not be narrated, or None: the play sheet is flagged sensitive, or the
+    model could not check it and nobody answered for it (FR-009)."""
+    path = Path(run_dir) / "play_sheet.json"
+    if not path.exists():
+        return "sensitive: there is no play sheet to check"
+    sens = json.loads(path.read_text()).get("sensitive") or {}
+    if sens.get("flag"):
+        return f"sensitive: {sens.get('reason') or 'the clip may show someone hurt or upset'}"
+    if sens.get("checked", True) is False:
+        return "sensitive: nobody checked that everyone in the clip is fine"
+    return None
 
 
 def last_frame(meta: dict) -> int:
@@ -132,6 +148,26 @@ class Run:
         self.save()
 
     def run(self, seeded: set[str] = frozenset()) -> str:
+        """Run the flow, touching HEARTBEAT every HEARTBEAT_S while it runs, so the page can
+        tell a slow stage from a run whose process is gone, in this process or another."""
+        stop = threading.Event()
+
+        def beat():
+            while True:
+                try:
+                    (self.dir / HEARTBEAT).touch()
+                except OSError:
+                    return
+                if stop.wait(HEARTBEAT_S):
+                    return
+
+        threading.Thread(target=beat, daemon=True).start()
+        try:
+            return self._run(seeded)
+        finally:
+            stop.set()
+
+    def _run(self, seeded: set[str]) -> str:
         uc_path = self.dir / "user_context.json"
         uc = json.loads(uc_path.read_text())
         self.manifest["style"] = uc.get("style")
@@ -139,6 +175,11 @@ class Run:
         done = {s["stage"] for s in self.manifest["stages"] if s["status"] in DONE}
         for stage, fn, _ in ORDER:
             t0 = time.monotonic()
+            if stage in AFTER_CARD and (why := not_cleared(self.dir)):
+                # FR-009, checked before every stage after the card, done, seeded or not,
+                # whatever path led here (the card, the prompt, a seeded play sheet, a
+                # resume): nothing goes on for a clip that is flagged or was never checked
+                return self.finish("stopped", stage, t0, why)
             if stage in done:
                 continue
             if stage in seeded:

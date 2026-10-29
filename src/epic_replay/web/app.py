@@ -71,13 +71,17 @@ app.mount("/static", StaticFiles(directory=str(HERE / "static")), name="static")
 app.mount("/fonts", StaticFiles(directory=str(loader.ASSETS / "fonts")), name="fonts")
 app.state.settings = None  # tests set their own
 app.state.resume = None  # tests replace the background resume
-# One lock for every change to a run folder made by the app: a card answer (check, pick and
-# mark running together), a delete, and a frame picture being made, so a delete never races
-# a frame into a folder being removed (review, 2026-10-29).
-ANSWER = threading.Lock()
-# A run still "running" whose manifest has not changed for this long has lost its thread (the
-# server was restarted, or a stage hung): no stage takes this long. It is shown as stopped
-# and can be deleted (review, 2026-10-29).
+# One lock per run for every change the app makes to its folder: a card answer (check, pick
+# and mark running together), a delete, and a frame picture being made, so a delete never
+# races a frame into a folder being removed, and one run's frames never hold up another's
+# answers (reviews, 2026-10-29).
+_LOCKS: dict[str, threading.Lock] = {}
+_LOCKS_GUARD = threading.Lock()
+# The runs this app has a live thread for. A run "running" with no live thread here, and
+# neither its manifest nor the runner's heartbeat (touched every 30 s by whichever process
+# runs it) changed for STALE_S, has lost its process: it is shown as stopped and can be
+# deleted. A run with a live thread here is never treated as dead, however slow its stage.
+LIVE: set[str] = set()
 STALE_S = 300
 MAX_NAME = 40
 
@@ -88,6 +92,11 @@ def settings() -> config.Settings:
 
 def error(status: int, code: str, message: str) -> JSONResponse:
     return JSONResponse({"error": {"code": code, "message": message}}, status_code=status)
+
+
+def lock_for(d: Path) -> threading.Lock:
+    with _LOCKS_GUARD:
+        return _LOCKS.setdefault(d.name, threading.Lock())
 
 
 def background(go, d: Path) -> None:
@@ -107,14 +116,18 @@ def background(go, d: Path) -> None:
                     runner.write_json(d / "manifest.json", m)
             except (OSError, ValueError, KeyError):
                 pass
+        finally:
+            LIVE.discard(d.name)
 
+    LIVE.add(d.name)
     threading.Thread(target=body, daemon=True).start()
 
 
 def stale(d: Path, m: dict) -> bool:
-    return (
-        m["status"] == "running" and time.time() - (d / "manifest.json").stat().st_mtime > STALE_S
-    )
+    if m["status"] != "running" or d.name in LIVE:
+        return False
+    beats = [p.stat().st_mtime for p in (d / "manifest.json", d / runner.HEARTBEAT) if p.exists()]
+    return time.time() - max(beats, default=0.0) > STALE_S
 
 
 def run_dir(run_id: str) -> Path | None:
@@ -219,7 +232,9 @@ def answer_card(d: Path, frame: int | None, clip_ok: bool | None):
     """The card's answer, under the lock: "running" (picked, go on), "stopped" (the user said
     the clip is not fine to narrate), or an error response. When the events call could not
     check the clip, the user must answer that before the run goes on (FR-009, review #4)."""
-    with ANSWER:
+    with lock_for(d):
+        if not (d / "manifest.json").exists():  # deleted while this answer waited
+            return error(404, "not_found", "no such run")
         manifest = read(d, "manifest.json")
         if manifest["status"] != "waiting_play_card":
             return error(409, "not_waiting", "the run is not waiting at the play card")
@@ -258,7 +273,7 @@ def get_frame(run_id: str, frame: int):
     if not (d / "clip_meta.json").exists() or not 0 <= frame <= runner.last_frame(read(d, "clip_meta.json")):  # fmt: skip
         return error(404, "not_found", "no such frame")
     out = d / "card" / f"frame_{frame}.jpg"
-    with ANSWER:  # one frame at a time, never into a folder being deleted
+    with lock_for(d):  # one frame at a time per run, never into a folder being deleted
         if not (d / "manifest.json").exists():
             return error(404, "not_found", "no such run")
         if not out.exists():
@@ -333,7 +348,7 @@ async def post_runs(request: Request):
                 size += len(chunk)
                 if size > s0_intake.MAX_BYTES:
                     return error(400, "invalid_upload", "The clip is larger than 200 MB.")
-                out.write(chunk)
+                await run_in_threadpool(out.write, chunk)
         # the checks and the copy block, so they run off the event loop
         made = await run_in_threadpool(make_run, s, upload, dict(form))
     finally:
@@ -486,7 +501,9 @@ def delete_run(run_id: str):
     d = run_dir(run_id)
     if d is None:
         return error(404, "not_found", "no such run")
-    with ANSWER:
+    with lock_for(d):
+        if not (d / "manifest.json").exists():  # another delete got here first
+            return error(404, "not_found", "no such run")
         m = read(d, "manifest.json")
         if m["status"] == "running" and not stale(d, m):
             return error(409, "running", "Wait for this step to finish, then delete.")

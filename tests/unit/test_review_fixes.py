@@ -146,9 +146,16 @@ def test_an_oversized_upload_is_refused_from_its_declared_length(app, tmp_path, 
     monkeypatch.setattr(s0_intake, "MAX_BYTES", 1000)
     big = tmp_path / "big.mp4"
     big.write_bytes(b"\0" * (2 << 20))
+    parsed = []
+
+    async def form(self, *a, **k):
+        parsed.append(1)
+        raise AssertionError("the form was parsed")
+
+    monkeypatch.setattr(web.Request, "form", form)
     r = upload(client, big, consent="true")
     assert r.status_code == 400 and r.json()["error"]["code"] == "invalid_upload"
-    assert not started and not list(s.runs_dir.iterdir())
+    assert not parsed and not started and not list(s.runs_dir.iterdir())
 
 
 # 11: malformed requests are 400 with the API's error shape
@@ -206,3 +213,106 @@ def test_the_prompt_asks_too_and_stops_without_a_yes(tmp_path):
     asked = []
     run = runner.Run(d, s, ask=lambda q: asked.append(q) or "60", say=lambda _: None)
     assert run.play_card().status == "stopped" and "fine" in asked[0]
+
+
+# second review (Codex, 2026-10-29)
+def test_a_slow_run_with_a_live_thread_is_never_taken_for_dead(app):
+    client, s, _ = app
+    d = seeded(s, "r", "running", [*UP_TO_CARD[:4], ("A", "ok", "")])
+    old = time.time() - web.STALE_S - 10
+    os.utime(d / "manifest.json", (old, old))
+    web.LIVE.add("r")
+    try:
+        assert client.get("/runs/r").json()["status"] == "running"
+        assert client.delete("/runs/r").status_code == 409 and d.exists()
+    finally:
+        web.LIVE.discard("r")
+    assert client.delete("/runs/r").status_code == 204
+
+
+def test_a_delete_waits_for_a_frame_being_made_and_other_runs_do_not(app, monkeypatch):
+    import threading
+
+    client, s, _ = app
+    d = waiting_card(s, "w")
+    other = waiting_card(s, "o", video=False)
+    entered, release = threading.Event(), threading.Event()
+    real = subprocess.run
+
+    def slow(args, **kw):
+        if args[0] == "ffmpeg" and "select=eq(n\\,5)" in " ".join(args):
+            entered.set()
+            assert release.wait(10)
+        return real(args, **kw)
+
+    monkeypatch.setattr(web.subprocess, "run", slow)
+    with ThreadPoolExecutor(3) as pool:
+        frame = pool.submit(client.get, "/runs/w/frames/5.jpg")
+        assert entered.wait(10)
+        gone = pool.submit(client.delete, "/runs/w")
+        time.sleep(0.3)
+        assert not gone.done()  # held by the frame of the same run
+        assert client.delete("/runs/o").status_code == 204 and not other.exists()  # not held
+        release.set()
+        assert frame.result().status_code == 200 and gone.result().status_code == 204
+    assert not d.exists() and not list(s.runs_dir.iterdir())
+
+
+@pytest.mark.parametrize(
+    "sensitive, note",
+    [({"flag": False, "reason": None, "checked": False}, "nobody checked"),
+     ({"flag": True, "reason": "a fight", "checked": True}, "a fight")],
+)  # fmt: skip
+def test_nothing_is_written_for_a_flagged_or_unchecked_clip_whatever_the_path(
+    tmp_path, sensitive, note
+):
+    """A play sheet already confirmed (seeded, or resumed) still stops before S4."""
+    s = dataclasses.replace(config.load(), runs_dir=tmp_path, provider_mode="replay")
+    d = tmp_path / "c"
+    shutil.copytree("tests/fixtures/sample_run", d)
+    for n in ("storyboard.json", "script.json"):
+        (d / n).unlink()
+    ps = json.loads((d / "play_sheet.json").read_text())
+    ps["confirmed_by_user"] = True
+    ps["sensitive"] = sensitive
+    (d / "play_sheet.json").write_text(json.dumps(ps))
+    status = runner.Run(d, s, ask=None, say=lambda _: None).run(
+        {"S0", "S1", "S2", "S3", "A", "S4", "S9", "S5"}
+    )
+    m = json.loads((d / "manifest.json").read_text())
+    assert (
+        status == "stopped" and m["stages"][-1]["stage"] == "S4" and note in m["stages"][-1]["note"]
+    )
+    assert not (d / "storyboard.json").exists() and not (d / "script.json").exists()
+
+
+# third look (Codex, 2026-10-29)
+def test_a_heartbeat_from_another_process_keeps_a_run_alive(app):
+    client, s, _ = app
+    d = seeded(s, "r", "running", [*UP_TO_CARD[:4], ("A", "ok", "")])
+    old = time.time() - web.STALE_S - 10
+    os.utime(d / "manifest.json", (old, old))
+    (d / runner.HEARTBEAT).touch()  # the process running it is alive
+    assert client.get("/runs/r").json()["status"] == "running"
+    assert client.delete("/runs/r").status_code == 409
+    os.utime(d / runner.HEARTBEAT, (old, old))  # and now it is gone
+    assert client.delete("/runs/r").status_code == 204
+
+
+def test_the_runner_beats_while_it_runs(tmp_path, monkeypatch):
+    s = dataclasses.replace(config.load(), runs_dir=tmp_path, provider_mode="replay")
+    d = tmp_path / "c"
+    shutil.copytree("tests/fixtures/sample_run", d)
+    monkeypatch.setattr(runner, "HEARTBEAT_S", 0.05)
+    seen = []
+    monkeypatch.setattr(runner.Run, "_run", lambda self, seeded: (time.sleep(0.3), seen.append((d / runner.HEARTBEAT).exists()))[1] or "done")  # fmt: skip
+    runner.Run(d, s, ask=None, say=lambda _: None).run()
+    assert seen == [True]
+
+
+def test_two_deletes_at_once_give_204_and_404(app):
+    client, s, _ = app
+    seeded(s, "d", "done", [*UP_TO_CARD[:4], ("A", "ok", "")])
+    with ThreadPoolExecutor(2) as pool:
+        codes = sorted(pool.map(lambda _: client.delete("/runs/d").status_code, range(2)))
+    assert codes == [204, 404]
