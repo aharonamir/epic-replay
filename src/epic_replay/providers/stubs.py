@@ -42,7 +42,13 @@ class StubSpeech:
         return 0.0
 
     def synthesise(
-        self, text: str, *, voice_id: str, delivery: str, language: str = "en"
+        self,
+        text: str,
+        *,
+        voice_id: str,
+        delivery: str,
+        language: str = "en",
+        timings: bool = False,
     ) -> AudioResult:
         dur = max(0.3, len(text.split()) / self.wps)
         sr = 24000

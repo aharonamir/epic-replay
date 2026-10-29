@@ -9,6 +9,7 @@ import pytest
 from epic_replay import config
 from epic_replay.media import audio
 from epic_replay.providers.base import AudioResult, CallInfo
+from epic_replay.providers.speech import tagged
 from epic_replay.stages import s7_voice as s7
 from epic_replay.stages.base import RunContext
 
@@ -23,11 +24,13 @@ def read(name):
 class FakeSpeech:
     """Takes as long as `lengths[text]` (default: 90 percent of the slot), after `breath[text]`."""
 
-    def __init__(self, tmp, lengths=None, breath=None, fail=0):
+    def __init__(self, tmp, lengths=None, breath=None, fail=0, aligned=()):
         self.tmp, self.lengths, self.breath, self.fail = tmp, lengths or {}, breath or {}, fail
         self.calls = 0
+        self.aligned = set(aligned)  # texts whose take comes with character timings
+        self.asked = []
 
-    def synthesise(self, text, *, voice_id, delivery, language="en"):
+    def synthesise(self, text, *, voice_id, delivery, language="en", timings=False):
         self.calls += 1
         if self.calls <= self.fail:
             raise RuntimeError("provider error")
@@ -37,7 +40,12 @@ class FakeSpeech:
                  0.5 * np.sin(2 * np.pi * 200 * np.arange(int(words * SR)) / SR), np.zeros(int(0.2 * SR))]  # fmt: skip
         p = self.tmp / f"take_{abs(hash(text)) % 10**8}.wav"
         audio.write_wav(p, np.concatenate(parts), SR)
-        return AudioResult(p, audio.duration(p), CallInfo("fake", "fake", 0.001, 0.0, False))
+        self.asked.append((text, timings))
+        al = None
+        if text in self.aligned and timings:  # 10 ms a character from 0.3 s into the raw take
+            sent = tagged(text, delivery)
+            al = {"chars": sent, "starts": [round(0.3 + 0.01 * i, 3) for i in range(len(sent))]}
+        return AudioResult(p, audio.duration(p), CallInfo("fake", "fake", 0.001, 0.0, False), al)
 
 
 def setup(tmp_path, script=None, **fake):
@@ -141,3 +149,53 @@ def test_a_quiet_tail_is_trimmed_but_a_quiet_start_is_kept():
     # a tail only 25 dB down is speech and stays
     y = np.concatenate([at(0, 0.3), at(-25, 0.4)])
     assert len(audio.trim_silence(y, SR)) / SR == pytest.approx(0.7, abs=0.011)
+
+
+def test_a_key_word_is_placed_from_the_character_timings(tmp_path):
+    sc = read("script.json")
+    l6 = next(ln for ln in sc["lines"] if ln["id"] == "l6")
+    l6["text"], l6["hit_word"] = "And there it is. Top corner.", "Top"
+    lengths = {ln["text"]: 0.9 * ln["max_duration_s"] - 0.04 for ln in sc["lines"]}
+    ctx, sc, speech = setup(tmp_path, script=sc, lengths=lengths, aligned=[l6["text"]])
+    assert s7.run(ctx).status == "ok"
+    r = lines_of(tmp_path)["l6"]
+    # "Top" is the 18th character of the line, after the tags: 0.3 s + 10 ms each; the trim cut
+    # 0.28 s from the front (silence, less the 20 ms kept)
+    at = 0.3 + 0.01 * (len(tagged(l6["text"], l6["delivery"])) - len(l6["text"]) + 17)
+    assert r["hit_source"] == "timing"
+    assert r["hit_offset_s"] == pytest.approx((at - 0.28) / r["speed_factor"], abs=0.002)
+    assert r["timeline_start"] == pytest.approx(r["target_s"] - r["hit_offset_s"], abs=0.002)
+    assert dict(speech.asked)[l6["text"]] is True  # only key lines are asked for timings
+    assert dict(speech.asked)[text_of(sc, "l1")] is False
+    # a take without timings falls back to the first onset
+    assert lines_of(tmp_path)["l3"]["hit_source"] == "onset"
+
+
+@pytest.mark.parametrize("word, alignment", [
+    ("corner", None),                                   # none given
+    ("corner", {"chars": "other", "starts": [0.0] * 5}),  # not over the text as sent
+    ("goal", "ok"),                                     # the word is not in the line
+    ("corn", "ok"),                                     # a part of a word is not the word
+    ("top", "ok"),                                      # the first word: the onset is better
+])  # fmt: skip
+def test_the_word_start_is_found_only_when_the_timings_fit(word, alignment):
+    sent = tagged("Top corner!", "firm")
+    if alignment == "ok":
+        alignment = {"chars": sent, "starts": [0.1 * i for i in range(len(sent))]}
+    assert s7.word_start(alignment, "firm", "Top corner!", word) is None
+
+
+def test_the_word_start_skips_the_delivery_tags():
+    sent = tagged("Top corner!", "firm, loud")  # "[firm] [loud] Top corner!"
+    al = {"chars": sent, "starts": [round(0.1 * i, 1) for i in range(len(sent))]}
+    assert s7.word_start(al, "firm, loud", "Top corner!", "CORNER") == pytest.approx(0.1 * 18)
+
+
+def test_a_timing_is_moved_to_the_sound_it_belongs_to_when_one_is_near():
+    # a word, a gap, a word: the second starts at 1.0 s
+    y = np.zeros(2 * SR)
+    y[: int(0.4 * SR)] = 0.5 * np.sin(2 * np.pi * 200 * np.arange(int(0.4 * SR)) / SR)
+    y[SR : int(1.4 * SR)] = 0.5 * np.sin(2 * np.pi * 200 * np.arange(int(0.4 * SR)) / SR)
+    assert audio.snap_to_rise(y, SR, 0.92, 0.15) == pytest.approx(1.0, abs=0.011)
+    assert audio.snap_to_rise(y, SR, 0.6, 0.15) == 0.6  # no rise within the window: unchanged
+    assert audio.snap_to_rise(np.zeros(SR), SR, 0.5, 0.15) == 0.5

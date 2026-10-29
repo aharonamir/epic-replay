@@ -56,15 +56,20 @@ def block_rms(y: np.ndarray, sr: int) -> np.ndarray:
     return np.sqrt(np.mean(y[: k * n].reshape(k, n) ** 2, axis=1))
 
 
-def trim_silence(y: np.ndarray, sr: int) -> np.ndarray:
-    """The take without leading and trailing silence, keeping 20 ms either side."""
+def trim_bounds(y: np.ndarray, sr: int) -> tuple[int, int]:
+    """First and last sample kept by `trim_silence`; (0, 0) when the take is silent."""
     rms = block_rms(y, sr)
     if rms.max() <= 0:
-        return y[:0]
+        return 0, 0
     loud = np.flatnonzero(rms >= rms.max() * 10 ** (SILENCE_DB / 20))
     tail = np.flatnonzero(rms >= rms.max() * 10 ** (TAIL_DB / 20))
     n, pad = int(sr * BLOCK_S), int(sr * PAD_S)
-    a, b = max(0, loud[0] * n - pad), min(len(y), (tail[-1] + 1) * n + pad)
+    return max(0, loud[0] * n - pad), min(len(y), (tail[-1] + 1) * n + pad)
+
+
+def trim_silence(y: np.ndarray, sr: int) -> np.ndarray:
+    """The take without leading and trailing silence, keeping 20 ms either side."""
+    a, b = trim_bounds(y, sr)
     return y[a:b]
 
 
@@ -74,6 +79,19 @@ def first_onset(y: np.ndarray, sr: int) -> float:
     if rms.max() <= 0:
         return 0.0
     return float(np.flatnonzero(rms >= rms.max() * ONSET_SHARE)[0]) * BLOCK_S
+
+
+def snap_to_rise(y: np.ndarray, sr: int, t: float, window_s: float) -> float:
+    """The start of the sound nearest to `t`, within `window_s`: a block that reaches the onset
+    level after a quiet one. `t` itself when there is none."""
+    rms = block_rms(y, sr)
+    if rms.max() <= 0:
+        return t
+    level = rms.max() * ONSET_SHARE
+    rises = [i * BLOCK_S for i in range(2, len(rms)) if rms[i] >= level > rms[i - 1]
+             and rms[i - 2] < level]  # fmt: skip
+    near = [r for r in rises if abs(r - t) <= window_s]
+    return min(near, key=lambda r: abs(r - t)) if near else t
 
 
 def atempo(src: Path, out: Path, factor: float) -> None:

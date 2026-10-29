@@ -6,9 +6,14 @@ Then, in code:
 - trim leading and trailing silence and measure;
 - a take longer than its slot is sped up by at most 12 percent; one that still does not fit is
   dropped, unless it is a key line, which is kept at 12 percent and runs over;
-- placement: a `start_at` line starts at its anchor. A key line is placed so that its first
-  strong sound onset lands at the marker plus the reaction delay (re-plan: the onset, not the
-  `hit_word`'s character timing, cut item 4): `start = marker + delay - onset`;
+- placement: a `start_at` line starts at its anchor. A key line is placed so that its `hit_word`
+  lands at the marker plus the reaction delay: `start = marker + delay - offset`. For a
+  `hit_word` after the first word, the offset is the word's start from the provider's character
+  timings (add-back 4), moved to the nearest rise in the audio within 0.15 s (the timings of
+  `eleven_v3` are 0.1 s off, docs/provider-notes.md), less what the trim cut from the front and
+  divided by the take's speed factor. For the first word, and for a recording without timings,
+  a word not found in the aligned text or a timing outside the take, it is the take's first
+  strong sound onset (`hit_source` says which);
 - the key line never moves. A line before it must end 0.1 s before it starts: sped up within
   the 12 percent if that is enough, otherwise dropped. A line after it that would start less
   than 0.1 s after it ends is dropped.
@@ -18,6 +23,7 @@ Writes `voice/<line_id>.wav` and `voice.json` (data-model.md).
 from __future__ import annotations
 
 import json
+import re
 import time
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
@@ -25,7 +31,7 @@ from pathlib import Path
 from epic_replay.guards.budget import CapExceeded, Ledger
 from epic_replay.media import audio
 from epic_replay.providers.replay import ReplayMiss
-from epic_replay.providers.speech import SpeechAdapter
+from epic_replay.providers.speech import SpeechAdapter, tagged
 from epic_replay.stages.base import RunContext, StageResult
 
 VOICE = "voice.json"
@@ -35,6 +41,7 @@ KEY_ROLES = ("climax", "replay_climax")
 TRY_AGAIN = "The voice could not be made; try again."
 CONCURRENT = 3  # ElevenLabs Starter allows three requests at a time (429 above that)
 RETRY_AFTER_S = 1.0
+SNAP_S = 0.15  # how far a character timing may be moved to the sound it belongs to
 
 
 def speech_for(ctx: RunContext):
@@ -48,9 +55,12 @@ def speech_for(ctx: RunContext):
 
 
 def take(speech, line: dict, voice_id: str):
+    key = line["role"] in KEY_ROLES and bool(line.get("hit_word"))
     for attempt in (1, 2):
         try:
-            return speech.synthesise(line["text"], voice_id=voice_id, delivery=line["delivery"])
+            return speech.synthesise(
+                line["text"], voice_id=voice_id, delivery=line["delivery"], timings=key
+            )
         except (CapExceeded, ReplayMiss):
             raise
         except Exception:  # noqa: BLE001 - one retry, then the stage stops
@@ -60,12 +70,29 @@ def take(speech, line: dict, voice_id: str):
     raise AssertionError("unreachable")
 
 
-def trim(raw: Path, trimmed: Path) -> float:
-    """The take without its leading and trailing silence; returns its length."""
+def trim(raw: Path, trimmed: Path) -> tuple[float, float]:
+    """The take without its leading and trailing silence; returns (its length, the seconds
+    cut from the front)."""
     y, sr = audio.read_wav(raw)
-    y = audio.trim_silence(y, sr)
-    audio.write_wav(trimmed, y, sr)
-    return round(len(y) / sr, 3)
+    a, b = audio.trim_bounds(y, sr)
+    audio.write_wav(trimmed, y[a:b], sr)
+    return round((b - a) / sr, 3), a / sr
+
+
+def word_start(alignment: dict | None, delivery: str, text: str, word: str) -> float | None:
+    """Where `word` starts in the raw take, from the provider's character timings; None when
+    there are none, they are not over the text as sent, the word is not in the line, or it is the
+    line's first word (the take's first onset is better for that, and measured)."""
+    if not alignment:
+        return None
+    sent = tagged(text, delivery)
+    starts = alignment.get("starts") or []
+    if alignment.get("chars") != sent or len(starts) != len(sent):
+        return None
+    m = re.search(rf"(?<![\w']){re.escape(word)}(?![\w'])", text, re.IGNORECASE)
+    if not m or not re.search(r"\w", text[: m.start()]):
+        return None
+    return float(starts[len(sent) - len(text) + m.start()])
 
 
 def fit(trimmed: Path, out: Path, raw_s: float, limit_s: float) -> tuple[float, float]:
@@ -103,7 +130,7 @@ def run(ctx: RunContext) -> StageResult:
     for ln, tk in zip(lines, takes, strict=True):
         path = ctx.path(f"voice/{ln['id']}.wav")
         trimmed = ctx.path(f"voice/raw/{ln['id']}.trimmed.wav")
-        raw_s = trim(tk.wav_path, trimmed)
+        raw_s, lead_s = trim(tk.wav_path, trimmed)
         factor, dur = fit(trimmed, path, raw_s, ln["max_duration_s"])
         key = ln["role"] in KEY_ROLES
         rec = {
@@ -119,8 +146,14 @@ def run(ctx: RunContext) -> StageResult:
                 rec["dropped"] = f"{dur:.2f} s does not fit {ln['max_duration_s']:.2f} s at 12 percent faster"  # fmt: skip
         if key:
             y, sr = audio.read_wav(path)
-            rec["hit_offset_s"] = round(audio.first_onset(y, sr), 3)
-            rec["hit_source"] = "onset"
+            rec["hit_offset_s"], rec["hit_source"] = round(audio.first_onset(y, sr), 3), "onset"
+            at = word_start(tk.alignment, ln["delivery"], ln["text"], ln.get("hit_word", ""))
+            if at is not None:
+                raw, rsr = audio.read_wav(tk.wav_path)
+                at = audio.snap_to_rise(raw, rsr, at, SNAP_S)
+                if 0 <= at - lead_s < raw_s:
+                    rec["hit_offset_s"] = round((at - lead_s) / factor, 3)
+                    rec["hit_source"] = "timing"
             rec["target_s"] = round(ln["anchor"]["timeline_t"] + delay, 3)
             rec["timeline_start"] = round(rec["target_s"] - rec["hit_offset_s"], 3)
         else:

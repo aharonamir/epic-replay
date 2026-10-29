@@ -36,6 +36,9 @@ class AudioResult:
     wav_path: Path
     duration_s: float
     info: CallInfo
+    # the provider's character timings, when it gave them: {"chars": str, "starts": [s, ...]},
+    # over the text as sent (delivery tags included), in seconds from the start of the raw take
+    alignment: dict | None = None
 
 
 class VisionModel(Protocol):
@@ -60,5 +63,11 @@ class SpeechSynth(Protocol):
     def estimate(self, text: str) -> float: ...
 
     def synthesise(
-        self, text: str, *, voice_id: str, delivery: str, language: str = "en"
+        self,
+        text: str,
+        *,
+        voice_id: str,
+        delivery: str,
+        language: str = "en",
+        timings: bool = False,
     ) -> AudioResult: ...
