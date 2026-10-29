@@ -147,7 +147,7 @@ Before starting, the user picks a narration style from a small set of cards and 
 
 - **FR-001**: The system MUST accept MP4, MOV and WebM uploads of 3 to 30 seconds and at most 200 MB, and MUST reject anything else with a specific reason.
 - **FR-002**: The system MUST record duration, frame rate, resolution, rotation and audio presence, and MUST produce a constant-frame-rate working copy.
-- **FR-003**: The system MUST require the user to confirm, before the clip is sent to any provider, that they have the right to use the footage, that everyone in it is an adult man (the MVP scope) who agrees to being filmed, and that they have read the disclaimer. The page MUST say truthfully what leaves the machine (still frames from the clip), which service receives it and in which country, and what is known about how long it is kept; for DeepSeek the disclaimer says the service is in China and that its terms allow use of submitted data to train its models. The confirmation MUST be stored with the run.
+- **FR-003**: The system MUST require the user to confirm, before the clip is sent to any provider, that they have the right to use the footage, that everyone in it is an adult man (the MVP scope) who agrees to being filmed, and that they have read the disclaimer. The page MUST say truthfully what leaves the machine (still frames from the clip), that they go to the vision model provider, and that the provider may use what it receives to train its models. It names no service or country, because the vision endpoint is configuration and changes (owner, 2026-10-29). The confirmation MUST be stored with the run.
 - **FR-004**: The system MUST let the user choose a narration style (FR-039) and optionally give: the activity, a name for the person or animal the clip is about, team names, score, and whether to keep the original sound.
 
 **Understanding the play**
@@ -296,7 +296,6 @@ Targets marked (provisional) are re-set at Gate 0 from the spike measurements, a
 
 - Only footage of adults is processed, and in the MVP only of men. No clip with a child is sent anywhere.
 - DeepSeek sees the frames (option 2 of the earlier list, narrowed to adults). FR-037's no-training requirement is recorded as waived for the demo. The consent line carries a disclaimer: still frames go to DeepSeek, in China, under terms that allow training on submitted data. The vision endpoint stays one line of configuration, so a provider with a no-training commitment can replace it later without rework.
-- An opt-out request to DeepSeek (privacy@deepseek.com) is sent for the account; this is a task for the owner.
 - Frame sampling for analysis defaults to 4 frames per second and is configuration. Motion detection may thin frames where nothing moves (plan.md section 4.3).
 - The speech provider default is OpenAI (`gpt-4o-mini-tts`) until T004 compares it with Gemini TTS; `EPIC_SPEECH_PROVIDER` switches it.
 - The minimum output length is configuration, default 20 seconds. The key-frame agreement tolerance is configuration, default a quarter of a second.
@@ -323,6 +322,11 @@ Targets marked (provisional) are re-set at Gate 0 from the spike measurements, a
 - SC-1, SC-2 and SC-5 are re-set from the T003 measurements (section 5); the SC-2 outcome target is 75 percent.
 - Re-plan (2026-10-20): the presentation moves to Tuesday 27 October; the working days left are Tue 20, Wed 21, Thu 22, Sat 24, Sun 25 and Mon 26. The shortest path from upload to video is built first, then the cut items come back in the owner's order (tasks.md, plan.md section 6). The Commentator stays a ReAct agent.
 - The outcome was right on 13 of 16 repeats, above the Gate 0 bar of three in four; fk_save was not run (spend cap), and the labelling passes beyond the first were skipped.
+
+**Decided by the owner on 2026-10-29**
+
+- The vision model provider will not be DeepSeek every time. The consent note says that still frames go to "the vision model provider", that nothing else leaves the machine, and that the provider may use what it receives to train its models; it names no service or country. FR-003 reworded; `EPIC_VISION_SERVICE_NAME` and `EPIC_VISION_COUNTRY` removed; the consent record's `text_version` is 4.
+- The opt-out request to DeepSeek is no longer a requirement.
 
 **Still open**
 

@@ -77,13 +77,13 @@ def test_consent_required():
     with pytest.raises(consent.ConsentRequired):
         consent.require({"consent": {"confirmed": True, "text_version": "2"}})
     rec = consent.record(True, now=datetime(2026, 10, 12, 9, 0, tzinfo=UTC))
-    assert rec == {"confirmed": True, "at": "2026-10-12T09:00:00Z", "text_version": "3"}
+    assert rec == {"confirmed": True, "at": "2026-10-12T09:00:00Z", "text_version": "4"}
     consent.require({"consent": rec})
 
 
-def test_provider_line_comes_from_configuration():
-    line = consent.provider_line(settings(vision_service_name="Acme", vision_country="Utopia"))
-    assert "Acme (Utopia)" in line and "train" in line
+def test_provider_line_names_no_service():
+    line = consent.provider_line(settings())
+    assert "vision model provider" in line and "train" in line and "DeepSeek" not in line
 
 
 @pytest.mark.parametrize(

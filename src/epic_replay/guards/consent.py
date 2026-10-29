@@ -1,4 +1,5 @@
-"""Consent record (FR-003). Wording is revision 6; the page reads the text from here."""
+"""Consent record (FR-003). The page reads the wording from here. The provider line names no
+service: the vision endpoint is configuration and can change (owner, 2026-10-29)."""
 
 from __future__ import annotations
 
@@ -6,7 +7,7 @@ from datetime import UTC, datetime
 
 from epic_replay import config
 
-TEXT_VERSION = "3"
+TEXT_VERSION = "4"  # 4: the note names no service or country (2026-10-29)
 
 CONSENT_TEXT = (
     "I filmed this or have permission to use it. Everyone in it is an adult man who is "
@@ -14,13 +15,14 @@ CONSENT_TEXT = (
 )
 
 
+PROVIDER_LINE = (
+    "Still frames from the clip are sent to the vision model provider to be looked at. "
+    "Nothing else leaves this machine. The provider may use what it receives to train its models."
+)
+
+
 def provider_line(s: config.Settings | None = None) -> str:
-    s = s or config.load()
-    return (
-        f"Still frames from the clip are sent to {s.vision_service_name} ({s.vision_country}) "
-        f"to be looked at. Nothing else leaves this machine. {s.vision_service_name} may use "
-        f"what it receives to train its models."
-    )
+    return PROVIDER_LINE
 
 
 class ConsentRequired(Exception):

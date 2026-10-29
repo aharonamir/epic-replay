@@ -17,8 +17,6 @@ EPIC_AGENT_API_KEY=
 EPIC_VISION_API_BASE=https://api.deepseek.com
 EPIC_VISION_MODEL=deepseek-flash
 EPIC_VISION_API_KEY=
-EPIC_VISION_SERVICE_NAME=DeepSeek          # shown in the consent line on the page
-EPIC_VISION_COUNTRY=China                  # shown in the consent line on the page
 
 # voices
 EPIC_SPEECH_PROVIDER=openai       # openai | gemini; T004 chooses

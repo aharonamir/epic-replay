@@ -435,7 +435,7 @@ A second person joining part-way should take, in order: the Verifier, the two ex
 | The model name changes again: `deepseek-v4-flash-vision-exp` was retired on 2026-09-10 and only routed "temporarily" | Medium | Calls fail on the day | Use `deepseek-flash`; the name is configuration; cached demo run |
 | DeepSeek peak-hour prices are double, and peak covers late morning in Israel | Certain | Cost per run about doubles in those hours | Still about 0.10 USD a run; cap unchanged |
 | Provider outage or rate limit during the demo | Medium | Demo stalls | Fallback providers, recorded responses, cached run, backup video |
-| Frames sent to a cloud provider | Expected | Privacy concern | Adults only by declaration; frames only, to one provider; disclaimer in the consent; no age or body words; undress stops the run; delete-now link; the page names the provider and country |
+| Frames sent to a cloud provider | Expected | Privacy concern | Adults only by declaration; frames only, to one provider; disclaimer in the consent; no age or body words; undress stops the run; delete-now link; the page says frames go to the vision model provider and may be used for training |
 | Gemini TTS prices double on 2027-01-01 | Certain | Voice cost doubles | About a cent a run either way |
 | A user uploads broadcast footage | Low in a demo | Rights issue | Consent line at upload; out of scope in the spec |
 | One person, 78 of 80 hours planned | High | Something overruns and there is no slack | Working demo from day 8; styles two and three built last; cut list fixed in advance |

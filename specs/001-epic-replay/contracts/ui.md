@@ -48,8 +48,8 @@ Every state has the same header: the wordmark "Epic Replay" with a rewind mark, 
 |  [x] I filmed this or have permission to use it. Everyone                    |
 |      in it is an adult man who is happy to be filmed.           +---------+  |
 |      I have read the note below.                                | MAKE MY |  |
-|      Still frames from the clip are sent to <service>           | REPLAY  |  |
-|      (<country>) to be looked at. Nothing else leaves           +---------+  |
+|      Still frames from the clip are sent to the vision          | REPLAY  |  |
+|      model provider to be looked at. Nothing else leaves        +---------+  |
 |      this machine.                                                           |
 +------------------------------------------------------------------------------+
 ```
@@ -61,7 +61,7 @@ Order on a phone: headline, drop area, tip, narrators, optional fields, consent,
 - Style cards come from `GET /styles`, in the packs' `order`. The default pack is preselected. Each card shows the pack's name, its description and its sample line set as that narrator's own caption. "Listen" plays the pack's sample; only one sample plays at a time.
 - Choosing a narrator recolours the page in that pack's accent.
 - "Make my replay" is disabled until there is a valid file and the consent box is ticked.
-- The line under the consent box names the vision provider and its country from configuration, so it stays true if the provider changes. It makes no promise about deletion unless the configured provider's terms give one, and says plainly when those terms allow training on what is sent.
+- The line under the consent box says that still frames go to the vision model provider, without naming a service or country, so it stays true when the provider changes (owner, 2026-10-29). It makes no promise about deletion, and says plainly that the provider may use what it receives to train its models.
 - Score and team fields are in the API but not on the page in the one-person MVP, because the score bug is deferred.
 - On a phone the file control opens the camera roll, and "Listen" moves under the card's text.
 
@@ -210,7 +210,7 @@ All text on the page lives in one file, `web/copy.py`, so wording can be reviewe
 | Narrators | Who's narrating? / Listen |
 | Optional | Optional / Who's the star? / Remove the clip's own sound |
 | Consent | I filmed this or have permission to use it. Everyone in it is an adult man who is happy to be filmed. I have read the note below. |
-| Provider line | Still frames from the clip are sent to <service> (<country>) to be looked at. Nothing else leaves this machine. <service> may use what it receives to train its models. |
+| Provider line | Still frames from the clip are sent to the vision model provider to be looked at. Nothing else leaves this machine. The provider may use what it receives to train its models. |
 | Go | Make my replay |
 | Progress | Making your replay / Step N of 8 / Working / Show details / Hide details |
 | Time left | A few seconds to go. / About half a minute to go. / About a minute to go. |

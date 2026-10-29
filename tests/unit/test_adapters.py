@@ -83,14 +83,9 @@ def test_speech_replays_with_no_network(tmp_path, no_network):
 def test_vision_endpoint_is_configuration_only(monkeypatch):
     monkeypatch.setenv("EPIC_VISION_API_BASE", "https://vision.example.test/v1")
     monkeypatch.setenv("EPIC_VISION_MODEL", "other-model")
-    monkeypatch.setenv("EPIC_VISION_SERVICE_NAME", "Other")
     s = config.load()
     ep = llm.vision_endpoint(s)
-    assert (ep.api_base, ep.model, s.vision_service_name) == (
-        "https://vision.example.test/v1",
-        "other-model",
-        "Other",
-    )
+    assert (ep.api_base, ep.model) == ("https://vision.example.test/v1", "other-model")
     assert llm.agent_endpoint(s).api_base == "https://api.deepseek.com"  # agents unchanged
 
 
