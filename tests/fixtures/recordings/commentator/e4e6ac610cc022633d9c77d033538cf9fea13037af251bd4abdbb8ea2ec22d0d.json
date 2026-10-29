@@ -1,0 +1,72 @@
+{
+  "draft": {
+    "lines": [
+      {
+        "delivery": "low and quick, setting the scene",
+        "event_refs": [],
+        "id": "l1",
+        "text": "Griddle's hot."
+      },
+      {
+        "delivery": "full shout, rising hard",
+        "event_refs": [],
+        "hit_word": "FLIPPED",
+        "id": "l2",
+        "text": "FLIPPED! Yes!"
+      },
+      {
+        "delivery": "soft, almost to himself",
+        "event_refs": [],
+        "id": "l3",
+        "text": "Browned."
+      },
+      {
+        "delivery": "inviting, slower",
+        "event_refs": [],
+        "id": "l4",
+        "text": "Watch the spatula slide underneath."
+      },
+      {
+        "delivery": "warm, quiet satisfaction",
+        "event_refs": [],
+        "hit_word": "Browned",
+        "id": "l5",
+        "text": "Browned side up. Lovely."
+      },
+      {
+        "delivery": "a short tribute, warm",
+        "event_refs": [],
+        "id": "l6",
+        "text": "Perfection."
+      }
+    ],
+    "headline": "Flipped to the Browned Side",
+    "lower_third": "Spatula up, tortilla over"
+  },
+  "calls": [
+    {
+      "tool": "check_lines",
+      "lines": 6,
+      "failures": 1
+    },
+    {
+      "tool": "check_lines",
+      "lines": 6,
+      "failures": 1
+    },
+    {
+      "tool": "check_lines",
+      "lines": 6,
+      "failures": 0
+    },
+    {
+      "tool": "submit_script",
+      "lines": 6,
+      "failures": 0
+    }
+  ],
+  "usage": {
+    "input_tokens": 10398,
+    "output_tokens": 1972
+  }
+}

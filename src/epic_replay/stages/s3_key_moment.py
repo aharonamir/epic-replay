@@ -11,7 +11,12 @@ from __future__ import annotations
 
 import json
 
-from epic_replay.agents.spotter import build_play_sheet, clear_breaches, submit_play_sheet
+from epic_replay.agents.spotter import (
+    SENSITIVE_DEFAULT,
+    build_play_sheet,
+    clear_breaches,
+    submit_play_sheet,
+)
 from epic_replay.providers import llm
 from epic_replay.stages.base import RunContext, StageResult
 from epic_replay.stages.s2_analysis import TRACE
@@ -42,7 +47,7 @@ def run(ctx: RunContext) -> StageResult:
     flag = sheet["sensitive"]
     if flag["flag"]:
         # FR-009, US4 scenario 3: the run stops here with the reason; nothing is written
-        reason = (flag.get("reason") or "").strip() or "the clip may show someone hurt or upset"
+        reason = (flag.get("reason") or "").strip() or SENSITIVE_DEFAULT
         ctx.emit({"stage": "S3", "status": "stopped", "sensitive": reason})
         return StageResult("stopped", f"sensitive: {reason}", outputs=[PLAY_SHEET])
     c = sheet["climax"]

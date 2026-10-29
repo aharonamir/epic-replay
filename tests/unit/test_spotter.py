@@ -32,7 +32,7 @@ def prepared(tmp_path_factory):
     return d
 
 
-EVENTS = {"sure": 7, "events": [
+EVENTS = {"sure": 7, "sensitive": False, "sensitive_reason": "", "events": [
     {"first_grid": 1, "first_cell": 1, "last_grid": 1, "last_cell": 8, "actor":
      "player in a red shirt", "action": "waits by the ball", "outcome": ""},
     {"first_grid": 2, "first_cell": 1, "last_grid": 2, "last_cell": 2, "actor":
@@ -47,9 +47,9 @@ class FakeEndpoint:
     left out); the others an answer whose high point is cell 5, candidate sheets surer; the
     events call gets EVENTS. `slow` names question text that times out instead."""
 
-    def __init__(self, slow: str | None = None):
+    def __init__(self, slow: str | None = None, events: dict | None = None):
         self.questions, self.timeouts, self.lock = [], [], threading.Lock()
-        self.slow = slow
+        self.slow, self.events = slow, events or EVENTS
 
     def __call__(self, url, json, timeout, headers):
         q = json["messages"][0]["content"][-1]["text"]
@@ -59,7 +59,7 @@ class FakeEndpoint:
         if self.slow and self.slow in q:
             raise httpx.ReadTimeout("timed out")
         if q.startswith("The images are two grids"):
-            text = __import__("json").dumps(EVENTS)
+            text = __import__("json").dumps(self.events)
         elif "part 1 of 2" in q:
             text = __import__("json").dumps(spotter.OVERVIEW_SCHEMA)
         else:
@@ -80,7 +80,7 @@ class FakeEndpoint:
         return R()
 
 
-def run_ctx(tmp_path, prepared, mode, monkeypatch, rec_dir, slow=None):
+def run_ctx(tmp_path, prepared, mode, monkeypatch, rec_dir, slow=None, answer=None):
     d = tmp_path / "run"
     shutil.copytree(prepared, d)
     s = replace(config.load(), provider_mode=mode, vision_api_key="test-key")
@@ -89,7 +89,7 @@ def run_ctx(tmp_path, prepared, mode, monkeypatch, rec_dir, slow=None):
     events = []
     ctx = RunContext(run_dir=d, settings=s, adapters={"vision": vis}, ledger=led,
                      emit=events.append)  # fmt: skip
-    fake = FakeEndpoint(slow)
+    fake = FakeEndpoint(slow, answer)
     monkeypatch.setattr(vision_mod.httpx, "post", fake)
     return ctx, fake, events
 
@@ -304,3 +304,27 @@ def test_s3_empties_a_descriptor_with_an_age_word(tmp_path, prepared, monkeypatc
     sheet = json.loads(ctx.path("play_sheet.json").read_text())
     assert sheet["actors"][0]["descriptor"] == ""
     assert "young" not in json.dumps(sheet).lower()
+
+
+# FR-009: the events call says whether the clip is sensitive; S3 stops on it
+def test_a_sensitive_answer_stops_the_run_at_s3(tmp_path, prepared, monkeypatch):
+    answer = dict(EVENTS, sensitive=True, sensitive_reason="someone is hurt.")
+    ctx, _, _ = run_ctx(tmp_path, prepared, "record", monkeypatch, tmp_path / "rec", answer=answer)
+    assert s2_analysis.run(ctx).status == "ok"
+    res = s3_key_moment.run(ctx)
+    assert res.status == "stopped" and res.note == "sensitive: someone is hurt"
+    sheet = json.loads(ctx.path("play_sheet.json").read_text())
+    jsonschema.validate(sheet, SCHEMA)
+    assert sheet["sensitive"] == {"flag": True, "reason": "someone is hurt"}
+
+
+@pytest.mark.parametrize(
+    "answer, expected",
+    [(None, {"flag": False, "reason": None}),
+     ({"sensitive": False, "sensitive_reason": "a fight"}, {"flag": False, "reason": None}),
+     ({"sensitive": True, "sensitive_reason": "a fight breaks out"}, {"flag": True, "reason": "a fight breaks out"}),
+     ({"sensitive": True, "sensitive_reason": ""}, {"flag": True, "reason": spotter.SENSITIVE_DEFAULT}),
+     ({"sensitive": True, "sensitive_reason": "a young boy falls"}, {"flag": True, "reason": spotter.SENSITIVE_DEFAULT})],
+)  # fmt: skip
+def test_the_flag_and_a_reason_safe_to_show(answer, expected):
+    assert spotter.sensitivity({"answer": answer}) == expected

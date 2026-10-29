@@ -1,0 +1,69 @@
+{
+  "text": "{\"events\":[{\"first_grid\":1,\"first_cell\":2,\"last_grid\":1,\"last_cell\":4,\"actor\":\"a person in a light-coloured sleeve\",\"action\":\"uses a metal spatula to flip the lower pancake\",\"outcome\":\"the lower pancake is turned over and looks golden\"},{\"first_grid\":1,\"first_cell\":4,\"last_grid\":1,\"last_cell\":5,\"actor\":\"a person in a light-coloured sleeve\",\"action\":\"uses the metal spatula to flip the upper pancake\",\"outcome\":\"the upper pancake is turned over and looks golden\"},{\"first_grid\":1,\"first_cell\":5,\"last_grid\":2,\"last_cell\":4,\"actor\":\"the two pancakes\",\"action\":\"cook and brown on the hot griddle\",\"outcome\":\"both become more deeply browned\"},{\"first_grid\":2,\"first_cell\":4,\"last_grid\":2,\"last_cell\":6,\"actor\":\"the camera\",\"action\":\"moves in for a close-up of one pancake\",\"outcome\":\"one pancake fills the frame\"},{\"first_grid\":2,\"first_cell\":6,\"last_grid\":2,\"last_cell\":9,\"actor\":\"a person in a light-coloured sleeve\",\"action\":\"takes one pancake off the griddle\",\"outcome\":\"only one pancake remains on the griddle\"}],\"sure\":6,\"sensitive\":false,\"sensitive_reason\":\"\"}",
+  "data": {
+    "events": [
+      {
+        "first_grid": 1,
+        "first_cell": 2,
+        "last_grid": 1,
+        "last_cell": 4,
+        "actor": "a person in a light-coloured sleeve",
+        "action": "uses a metal spatula to flip the lower pancake",
+        "outcome": "the lower pancake is turned over and looks golden"
+      },
+      {
+        "first_grid": 1,
+        "first_cell": 4,
+        "last_grid": 1,
+        "last_cell": 5,
+        "actor": "a person in a light-coloured sleeve",
+        "action": "uses the metal spatula to flip the upper pancake",
+        "outcome": "the upper pancake is turned over and looks golden"
+      },
+      {
+        "first_grid": 1,
+        "first_cell": 5,
+        "last_grid": 2,
+        "last_cell": 4,
+        "actor": "the two pancakes",
+        "action": "cook and brown on the hot griddle",
+        "outcome": "both become more deeply browned"
+      },
+      {
+        "first_grid": 2,
+        "first_cell": 4,
+        "last_grid": 2,
+        "last_cell": 6,
+        "actor": "the camera",
+        "action": "moves in for a close-up of one pancake",
+        "outcome": "one pancake fills the frame"
+      },
+      {
+        "first_grid": 2,
+        "first_cell": 6,
+        "last_grid": 2,
+        "last_cell": 9,
+        "actor": "a person in a light-coloured sleeve",
+        "action": "takes one pancake off the griddle",
+        "outcome": "only one pancake remains on the griddle"
+      }
+    ],
+    "sure": 6,
+    "sensitive": false,
+    "sensitive_reason": ""
+  },
+  "usage": {
+    "prompt_tokens": 1723,
+    "completion_tokens": 5934,
+    "total_tokens": 7657,
+    "prompt_tokens_details": {
+      "cached_tokens": 1152
+    },
+    "completion_tokens_details": {
+      "reasoning_tokens": 5627
+    },
+    "prompt_cache_hit_tokens": 1152,
+    "prompt_cache_miss_tokens": 571
+  },
+  "usage_usd": 0.007638
+}

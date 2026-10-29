@@ -54,14 +54,20 @@ EVENTS_Q = (
     "order they happen (any kind of moment, not necessarily sport). For each, give the grid "
     "and cell where it starts and where it ends, who or what does it (clothing colour or kind "
     "of animal only, never age or looks), what they do, and how it ends if it ends there "
-    "(empty if not). Say how sure you are, 0 to 10."
+    "(empty if not). Say how sure you are, 0 to 10. Then say whether the video shows anyone "
+    "hurt, a fight, someone in distress or being humiliated, or anyone undressed: sensitive "
+    "true or false, and when true the reason in a few plain words, without describing anyone's "
+    "age or body (FR-009)."
 )
+SENSITIVE_DEFAULT = "the clip may show someone hurt or upset"
 _CELL = {"type": "integer", "minimum": 1, "maximum": 9}
 _GRID = {"type": "integer", "minimum": 1, "maximum": 2}
 EVENTS_SCHEMA = {
     "type": "object",
-    "required": ["events", "sure"],
+    "required": ["events", "sure", "sensitive", "sensitive_reason"],
     "properties": {
+        "sensitive": {"type": "boolean"},
+        "sensitive_reason": {"type": "string"},
         "events": {
             "type": "array",
             "minItems": 3,
@@ -224,6 +230,20 @@ class SpotterTools:
             return looks, events.result()
 
 
+def sensitivity(events_look: dict | None) -> dict:
+    """The play sheet's sensitivity flag from the events call (FR-009). The model's reason is
+    shown to the user, so one that breaks the descriptor rules is replaced by a plain one.
+    When the events call was left out there is no answer, and the flag stays down: the user
+    has declared the clip at consent, and the play card still shows what was seen."""
+    a = (events_look or {}).get("answer") or {}
+    if a.get("sensitive") is not True:
+        return {"flag": False, "reason": None}
+    reason = str(a.get("sensitive_reason") or "").strip().rstrip(".")
+    if not reason or lexicon.find_descriptor_banned(reason) or len(reason) > 120:
+        reason = SENSITIVE_DEFAULT
+    return {"flag": True, "reason": reason}
+
+
 def map_events(data: dict, grids: list[list[dict]]) -> list[dict]:
     """The model's events with each grid and cell replaced by its time, in time order."""
 
@@ -378,7 +398,7 @@ def build_play_sheet(run_id: str, info: dict, looks: list[dict], signals: dict, 
         },
         "outcome_summary": {"value": outcome, "confidence": desc_conf, "source": "model"},
         "focus_box": None,
-        "sensitive": {"flag": False, "reason": None},
+        "sensitive": sensitivity(events_look),
         "agreement": {"passes": 1, "disagreed_fields": [], "escalated": False},
         "overall_confidence": min(desc_conf, climax_conf),
         "confirmed_by_user": False,
