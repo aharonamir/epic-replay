@@ -2,6 +2,11 @@
 
 from __future__ import annotations
 
+import json
+import os
+import signal
+import subprocess
+import sys
 from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
@@ -13,6 +18,7 @@ SKINS = HERE / "skins"
 FONTS = contracts.REPO / "assets" / "fonts"
 AI_LABEL = "AI COMMENTARY"
 TYPES = ("title", "replay_bug", "end_card", "ai_label")
+TIMEOUT_S = 20.0  # four overlays take a few seconds; S10 has 30 s and must reach its fallback
 
 _env = Environment(loader=FileSystemLoader(HERE), autoescape=select_autoescape(["html"]))
 
@@ -37,34 +43,67 @@ def page(kind: str, text: dict, graphics: dict, size: tuple[int, int]) -> str:
     )  # fmt: skip
 
 
-def render(texts: dict, graphics: dict, size: tuple[int, int], out_dir: Path) -> dict[str, Path]:
-    """PNGs by overlay type for the `texts` given (`headline`, `replay_bug`, `kicker`)."""
-    from playwright.sync_api import sync_playwright
-
-    out_dir.mkdir(parents=True, exist_ok=True)
-    wanted = {
+def wanted(texts: dict) -> dict[str, dict]:
+    """The text of each overlay that has any, by type."""
+    all_ = {
         "title": {"headline": texts.get("headline", "")},
         "replay_bug": {"label": texts.get("replay_bug", "")},
         "end_card": {"headline": texts.get("headline", ""), "kicker": texts.get("kicker", "")},
         "ai_label": {"label": AI_LABEL},
     }
-    done: dict[str, Path] = {}
+    return {kind: text for kind, text in all_.items() if any(text.values())}
+
+
+def worker(request: str) -> list[str]:
+    return [sys.executable, "-m", "epic_replay.graphics.render", request]
+
+
+def render(texts: dict, graphics: dict, size: tuple[int, int], out_dir: Path) -> dict[str, Path]:
+    """PNGs by overlay type for the `texts` given (`headline`, `replay_bug`, `kicker`). Chromium
+    runs in a child process of its own session, killed with it after TIMEOUT_S: a hung Chromium
+    (it has hung on a screenshot) must end in an error the caller can fall back from. No pipes,
+    so nothing the child leaves running can hold this up."""
+    out_dir.mkdir(parents=True, exist_ok=True)
+    request = json.dumps({"texts": texts, "graphics": graphics, "size": size, "out_dir": str(out_dir)})  # fmt: skip
+    with (out_dir / "render.log").open("wb") as log:
+        proc = subprocess.Popen(
+            worker(request), stdin=subprocess.DEVNULL, stdout=log, stderr=log, start_new_session=True
+        )  # fmt: skip
+        try:
+            code = proc.wait(timeout=TIMEOUT_S)
+        except BaseException:
+            os.killpg(proc.pid, signal.SIGKILL)
+            proc.wait()
+            raise
+    if code != 0:
+        raise RuntimeError(f"overlay render exited with {code}; see {out_dir / 'render.log'}")
+    done = {kind: out_dir / f"{kind}.png" for kind in wanted(texts)}
+    empty = [k for k, p in done.items() if not p.exists() or p.stat().st_size == 0]
+    if empty:
+        raise RuntimeError(f"overlay render left no PNG for {', '.join(empty)}")
+    return done
+
+
+def render_here(texts: dict, graphics: dict, size: tuple[int, int], out_dir: Path) -> None:
+    """The work of `render`, in this process: one Chromium, one HTML and one PNG per overlay."""
+    from playwright.sync_api import sync_playwright
+
     with sync_playwright() as p:
         browser = p.chromium.launch()
         try:
             ctx = browser.new_context(viewport={"width": size[0], "height": size[1]})
-            for kind, text in wanted.items():
-                if not any(text.values()):
-                    continue
+            for kind, text in wanted(texts).items():
                 html = out_dir / f"{kind}.html"
                 html.write_text(page(kind, text, graphics, size))
                 pg = ctx.new_page()
                 pg.goto(html.as_uri())
                 pg.evaluate("document.fonts.ready")
-                png = out_dir / f"{kind}.png"
-                pg.screenshot(path=str(png), omit_background=True)
+                pg.screenshot(path=str(out_dir / f"{kind}.png"), omit_background=True)
                 pg.close()
-                done[kind] = png
         finally:
             browser.close()
-    return done
+
+
+if __name__ == "__main__":
+    r = json.loads(sys.argv[1])
+    render_here(r["texts"], r["graphics"], tuple(r["size"]), Path(r["out_dir"]))

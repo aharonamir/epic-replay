@@ -76,6 +76,17 @@ def test_the_video_is_still_made_with_text_overlays_when_the_graphics_fail(rende
     assert (d / "overlays" / "ai_label.txt").read_text() == "AI COMMENTARY"
 
 
+def test_the_video_is_still_made_with_text_overlays_when_chromium_hangs(rendered, monkeypatch):
+    d, _ = rendered
+    from epic_replay.stages import s10_compose as s10
+
+    monkeypatch.setattr(s10.html, "worker", lambda _: ["sleep", "60"])
+    monkeypatch.setattr(s10.html, "TIMEOUT_S", 0.5)
+    ctx = RunContext(run_dir=d, settings=config.load())
+    assert s10.run(ctx).status == "ok"
+    assert json.loads((d / "render.json").read_text())["graphics"] == "text"
+
+
 def test_the_onset_search_finds_a_take_that_landed_late():
     rng = np.random.default_rng(3)
     sr = s10_compose.SR

@@ -140,7 +140,7 @@ def png_graph(sb: dict, pngs: dict[str, Path], first_input: int) -> tuple[list[s
 
 def html_overlays(script: dict, pack: dict, frame: tuple[int, int], out_dir: Path) -> dict:
     """The overlay PNGs from the HTML templates, or {} when they cannot be rendered (no
-    Chromium, a skin missing): the caller then draws FFmpeg text."""
+    Chromium, Chromium hung, a skin missing): the caller then draws FFmpeg text."""
     labels = pack["script"]["labels"]
     texts = {"headline": script["headline"], "replay_bug": labels.get("replay_bug", "REPLAY"),
              "kicker": labels.get("end_card_kicker", "")}  # fmt: skip

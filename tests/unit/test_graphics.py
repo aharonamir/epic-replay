@@ -1,6 +1,10 @@
 """T023: the HTML overlay templates render to transparent PNGs that fit the frame, in both
 orientations and in both shipped skins (synthetic text only)."""
 
+import sys
+import time
+from pathlib import Path
+
 import numpy as np
 import pytest
 from PIL import Image
@@ -51,3 +55,36 @@ def test_a_pack_naming_a_skin_that_does_not_exist_is_refused():
     pack["graphics"]["skin"] = "no_such_skin"
     errs = loader.problems(pack, json.loads((loader.STYLES / "voices.json").read_text()), loader.ASSETS)  # fmt: skip
     assert errs == ["graphics/skin: no skin named no_such_skin"]
+
+
+G = {"accent": "#FFD23F", "skin": "stadium"}
+
+
+def test_a_hung_chromium_is_killed_with_its_children_in_bounded_time(tmp_path, monkeypatch):
+    pid_file = tmp_path / "grandchild.pid"
+    hang = f"sleep 60 & echo $! > {pid_file}; wait"
+    monkeypatch.setattr(render, "worker", lambda _: ["bash", "-c", hang])
+    monkeypatch.setattr(render, "TIMEOUT_S", 0.5)
+    t0 = time.monotonic()
+    with pytest.raises(Exception, match="timed out"):
+        render.render(TEXTS, G, (640, 360), tmp_path)
+    assert time.monotonic() - t0 < 5
+    stat = Path(f"/proc/{pid_file.read_text().strip()}/stat")
+    for _ in range(50):  # killed: gone, or a zombie until it is reaped
+        if not stat.exists() or stat.read_text().rsplit(")", 1)[1].split()[0] == "Z":
+            break
+        time.sleep(0.1)
+    else:
+        pytest.fail("the grandchild outlived the render")
+
+
+def test_a_failed_render_raises(tmp_path, monkeypatch):
+    monkeypatch.setattr(render, "worker", lambda _: [sys.executable, "-c", "raise SystemExit(3)"])
+    with pytest.raises(RuntimeError, match="exited with 3"):
+        render.render(TEXTS, G, (640, 360), tmp_path)
+
+
+def test_a_clean_exit_with_a_png_missing_raises(tmp_path, monkeypatch):
+    monkeypatch.setattr(render, "worker", lambda _: [sys.executable, "-c", "pass"])
+    with pytest.raises(RuntimeError, match="no PNG for title"):
+        render.render(TEXTS, G, (640, 360), tmp_path)
