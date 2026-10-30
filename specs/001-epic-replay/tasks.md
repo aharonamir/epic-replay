@@ -205,7 +205,8 @@ Result (2026-10-23, reached before Sun 25 morning): met, with the speaking-rate 
 
 The presentation was on Tuesday 27 October; on 2026-10-28 the owner moved it to Wednesday 4 November. The day table for Wed 28 October to Tue 3 November is in "Re-plan, Wed 28 October" above.
 
-- [ ] T034, second part (1h): three rehearsal runs in a row without touching code (cut item 14), on the single-shot clips; the SC-1, SC-2, SC-4 and SC-5 values written into `docs/eval-notes.md`, with what was not measured stated plainly.
+- [x] T034, second part (1h): three rehearsal runs in a row without touching code (cut item 14), on the single-shot clips; the SC-1, SC-2, SC-4 and SC-5 values written into `docs/eval-notes.md`, with what was not measured stated plainly.
+  Done (2026-10-30, owner's yes, 0.1617 USD): three live runs in a row at `880a73c`, one clip and style each, all finished. Card ready 27.1 to 49.1 s, video ready 15.8 to 20.2 s, 5 ms on every key line, at most 0.0686 USD a run, outcome right on 3 of 3. The picks came from the labels through the command line, so the page and the picker's time are not measured. `docs/eval-notes.md`.
 - [ ] T037, run-through (1h): the presentation once, timed, with the cached run as the fallback.
 
 **Gate 4, end of Mon 26**: rehearsed.
