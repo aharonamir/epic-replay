@@ -126,6 +126,7 @@ def script_panel(d: Path) -> dict | None:
     if not sc:
         return None
     voice = {x["id"]: x for x in (_read(d, "voice.json") or {}).get("lines", [])}
+    gloss = _read(d, "gloss_en.json") or {}  # zh runs only: review text
     lines = []
     for ln in sc.get("lines", []):
         v = voice.get(ln["id"], {})
@@ -134,6 +135,7 @@ def script_panel(d: Path) -> dict | None:
             "time": f"{start:.1f} s · " if start is not None and not v.get("dropped") else "",
             "role": copy.ROLES.get(ln["role"], ln["role"].replace("_", " ")),
             "text": ln["text"],
+            "gloss": gloss.get(ln["id"]),
             "key": ln["role"] in KEY_ROLES,
             "climax": ln["role"] == "climax",
             "dropped": bool(v.get("dropped")),

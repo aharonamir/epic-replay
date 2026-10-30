@@ -108,10 +108,16 @@ def run(args: argparse.Namespace) -> int:
             print("Add --consent to confirm the wording above.", file=sys.stderr)
             return 2
         pack = loader.load()[args.style] if args.style else loader.default(loader.load())
+        try:
+            loader.resolved(pack, args.language)
+        except loader.NoStyles as e:
+            print(e, file=sys.stderr)
+            return 2
         uc = {
             "consent": consent.record(True),
             "keep_for_demo": False,
             "style": pack["id"],
+            "language": args.language,
             "activity": None,
             "player_name": args.name,
             "team_home": None, "team_away": None, "score": None,
@@ -136,6 +142,7 @@ def main() -> None:
     r.add_argument("--mode", choices=("live", "record", "replay"))
     r.add_argument("--consent", action="store_true")
     r.add_argument("--style")
+    r.add_argument("--language", default="en", help="the commentary: en or zh")
     r.add_argument("--name", help="the player's name, if the user gives one")
     r.add_argument("--mute", action="store_true", help="mute the clip's own sound")
     r.add_argument("--pick", help="answer the play card: proposed, c1.., or a frame number")

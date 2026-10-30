@@ -81,11 +81,19 @@ class SpeechAdapter:
         return round(len(tagged(text, delivery)) * USD_PER_CHAR, 6)
 
     def _eleven(
-        self, text: str, voice_id: str, delivery: str, wav: Path, timings: bool = False
+        self,
+        text: str,
+        voice_id: str,
+        delivery: str,
+        wav: Path,
+        timings: bool = False,
+        language: str = "en",
     ) -> dict:
         if not self.s.elevenlabs_api_key:
             raise RuntimeError("ELEVENLABS_API_KEY is not set")
         body = {"text": tagged(text, delivery), "model_id": self.s.elevenlabs_model}
+        if language != "en":
+            body["language_code"] = language
         r = httpx.post(
             (ELEVEN_TIMED_URL if timings else ELEVEN_URL).format(voice_id=voice_id),
             headers={"xi-api-key": self.s.elevenlabs_api_key, "Content-Type": "application/json"},
@@ -131,7 +139,7 @@ class SpeechAdapter:
         def live() -> dict:
             if provider != "elevenlabs":
                 raise RuntimeError(f"speech provider {provider} is not built (T030)")
-            payload = self._eleven(text, voice_id, delivery, wav, timings)
+            payload = self._eleven(text, voice_id, delivery, wav, timings, language)
             if self.rec.mode == "record":
                 recorded.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copyfile(wav, recorded)

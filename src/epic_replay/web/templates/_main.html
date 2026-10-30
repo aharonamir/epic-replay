@@ -87,7 +87,7 @@
           {% for ln in script.lines %}
           <li class="{{ 'key' if ln.key else '' }}{{ ' climax' if ln.climax else '' }}">
             <span class="when data">{{ ln.time }}{{ ln.role }}</span>
-            <span class="words">{{ ln.text }}{% if ln.dropped %} <span class="data muted">({{ copy.PANELS.dropped }})</span>{% endif %}</span>
+            <span class="words">{{ ln.text }}{% if ln.gloss %} <span class="muted">({{ ln.gloss }})</span>{% endif %}{% if ln.dropped %} <span class="data muted">({{ copy.PANELS.dropped }})</span>{% endif %}</span>
           </li>
           {% endfor %}
         </ol>

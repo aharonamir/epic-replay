@@ -15,6 +15,10 @@ user, stage-contracts rule 2), without events that are on-screen captions or tex
 In generic mode (the user rejected the play card) no model is called: every line is a
 generic line (`generic`).
 
+In a `zh` run (revision 9) the pack's persona and rules are the `zh` block's, the prompt below
+has its rules for Mandarin (`ZH_PROMPT`), and budgets, `hit_word` and generic lines work in
+characters. English is not touched by any of it (tests/unit/test_english_golden.py).
+
 Fallback, when no draft is accepted within six iterations: one structured draft from the same
 model by a plain JSON call, and any line that still fails is replaced by a generic line, as is
 every line when that call fails too. The stage is then `degraded`.
@@ -37,6 +41,7 @@ from epic_replay.guards.budget import CapExceeded, Ledger, PaidResult, paid_call
 from epic_replay.providers import llm
 from epic_replay.providers.replay import Recorder, ReplayMiss, cache_key
 from epic_replay.stages import s6_checks
+from epic_replay.styles.slots import CJK, spoken_units
 
 MAX_ITERATIONS = 6
 PRICE_IN_PER_M, PRICE_OUT_PER_M = 0.30, 1.20  # deepseek-flash, as providers/vision.py
@@ -61,8 +66,26 @@ GENERIC = {
     "sign_off": ["Lovely.", "Lovely."],
 }
 
+# The same, in Mandarin; the shortest of each fits one character. Glosses in tasks.md (Z4).
+GENERIC_ZH = {
+    "opening": ["我们开始。", "开始。", "看！"],
+    "build_up": ["来了……", "来！"],
+    "climax": ["就是现在！", "现在！", "好！"],
+    "reaction": ["好一个瞬间。", "好！"],
+    "replay_watch": ["再看一次。", "再看。", "看！"],
+    "replay_climax": ["就是这里。", "这里。", "好。"],
+    "sign_off": ["真好。", "好。"],
+}
+ZH_HEADLINE_MAX = 16  # characters: more wraps to a third line on the title card
+ZH_PUNCTUATION = "！？。，、；：…·“”‘’"
 
-def generic_line(slot: dict) -> dict:
+
+def generic_line(slot: dict, language: str = "en") -> dict:
+    if language == "zh":
+        lines = GENERIC_ZH[slot["role"]]
+        text = next((t for t in lines if spoken_units(t, "zh") <= slot["max_words"]), lines[-1])
+        hit = CJK.search(text).group(0) if slot["role"] in KEY_ROLES else None
+        return {"id": slot["id"], "text": text, "hit_word": hit}
     text = next(
         (t for t in GENERIC[slot["role"]] if len(t.split()) <= slot["max_words"]),
         GENERIC[slot["role"]][-1],
@@ -145,7 +168,7 @@ def system_prompt(pack: dict) -> str:
     roles = "\n".join(f"- {r}: {n}" for r, n in sc["role_notes"].items())
     examples = "\n".join(f"- {r}: {t}" for r, t in sc["example_lines"].items())
     rules = "\n".join(f"- {r}" for r in sc["rules"])
-    return f"""You write the narration for a short replay video, one line per slot.
+    text = f"""You write the narration for a short replay video, one line per slot.
 
 Persona: {sc["persona"]}
 
@@ -172,6 +195,37 @@ Rules for every line:
 
 Work: draft all lines, call check_lines, fix what it reports, then call submit_script with the
 full draft. Finish by calling submit_script; do not answer in plain text."""
+    return language_prompt(text, pack.get("language", "en"))
+
+
+# Each pair replaces a sentence of the prompt above for a `zh` run (revision 9).
+ZH_PROMPT = (
+    ("You write the narration for a short replay video, one line per slot.",
+     "You write the narration for a short replay video, one line per slot, in Simplified Chinese "
+     "(mainland usage). The brief is in English: write from it, in Chinese. Lines, headline and "
+     "lower third are all in Chinese; delivery stays in short English words."),
+    ("Use only names and numbers that appear in the brief.",
+     "Use only names and numbers that appear in the brief, and no other name of any person, "
+     "team or place. Keep a name exactly as the user typed it. Write numbers in Chinese "
+     "numerals, never in digits."),
+    ("or as he/him.", "or as 他. Never write 她."),
+    ("- Each line fits its slot's max_words.",
+     "- Each line fits its slot's max_words, which counts Chinese characters; punctuation is "
+     "free."),
+    ("one word of the line, the word that\n  lands on the key moment, usually its first word.",
+     "one to three characters of the\n  line, exactly as written there, that land on the key "
+     "moment, usually its first characters."),
+    ("at most 40 characters each.", f"at most {ZH_HEADLINE_MAX} characters each."),
+)  # fmt: skip
+
+
+def language_prompt(text: str, language: str) -> str:
+    """The prompt for the run's language; English is `text` itself."""
+    if language != "zh":
+        return text
+    for old, new in ZH_PROMPT:
+        text = text.replace(old, new)
+    return text
 
 
 LINE_SCHEMA = {
@@ -196,7 +250,10 @@ DRAFT_SCHEMA = {
 }
 
 
-def word_in(word: str, text: str) -> bool:
+def word_in(word: str, text: str, language: str = "en") -> bool:
+    if language == "zh":
+        w = word.strip(ZH_PUNCTUATION + " ")
+        return 1 <= len(w) <= 3 and len(CJK.findall(w)) == len(w) and w in text
     w = word.strip(".,!?;:'\"…").lower()
     return bool(w) and w in [t.strip(".,!?;:'\"…").lower() for t in text.split()]
 
@@ -214,6 +271,19 @@ class Tools:
     accepted: dict | None = None
     accepted_draft: dict | None = None
 
+    @property
+    def language(self) -> str:
+        return self.pack.get("language", "en")
+
+    def delivery(self, slot: dict, draft_line: dict) -> str:
+        """The line's direction. In `zh` a climax keeps the pack's tags, the ones heard to shout
+        (Z1), and a direction that is not in English words is not used as tags."""
+        own = str(draft_line.get("delivery") or "")
+        default = self.pack["voice"]["delivery"][slot["role"]]
+        if self.language == "zh" and (slot["role"] == "climax" or not own.isascii()):
+            return default
+        return own or default
+
     def assemble(self, draft: dict) -> dict:
         by_id = {ln.get("id"): ln for ln in draft.get("lines", []) if isinstance(ln, dict)}
         known = {e["id"] for e in self.ps.get("events", [])}
@@ -224,18 +294,18 @@ class Tools:
             line = {
                 **s,
                 "text": str(d.get("text") or "").strip(),
-                "delivery": str(d.get("delivery") or self.pack["voice"]["delivery"][s["role"]]),
+                "delivery": self.delivery(s, d),
                 "event_refs": refs,
                 "generic": not [r for r in refs if r in known],
             }
             if s["role"] in KEY_ROLES and d.get("hit_word"):
-                line["hit_word"] = str(d["hit_word"]).strip(".,!?;:'\"… ")
+                line["hit_word"] = str(d["hit_word"]).strip(".,!?;:'\"… " + ZH_PUNCTUATION)
             lines.append(line)
         v = self.pack["voice"]
         return {
             "schema_version": "1.0",
             "run_id": self.ps["run_id"],
-            "language": "en",
+            "language": self.language,
             "style": self.pack["id"],
             "words_per_second": v["words_per_second"],
             "startup_s": v["startup_s"],
@@ -257,8 +327,13 @@ class Tools:
         for ln in script["lines"]:
             if not ln["text"]:
                 continue
-            if ln["role"] in KEY_ROLES and not word_in(ln.get("hit_word", ""), ln["text"]):
-                fails.append({"where": ln["id"], "detail": "hit_word must be one word of the line"})  # fmt: skip
+            if ln["role"] in KEY_ROLES and not word_in(ln.get("hit_word", ""), ln["text"], self.language):  # fmt: skip
+                what = "one word" if self.language == "en" else "one to three characters"
+                fails.append({"where": ln["id"], "detail": f"hit_word must be {what} of the line"})  # fmt: skip
+        if self.language == "zh":
+            for name in ("headline", "lower_third"):
+                if len(script[name]) > ZH_HEADLINE_MAX:
+                    fails.append({"where": name, "detail": f"at most {ZH_HEADLINE_MAX} characters"})  # fmt: skip
         fails += [{"where": "script", "detail": e} for e in contracts.validate("script", script)]
         fails += [
             {"where": "script", "detail": e}
@@ -300,7 +375,7 @@ class Tools:
             for s in self.slots:
                 if s["id"] in bad:
                     draft["lines"] = [ln for ln in draft["lines"] if ln.get("id") != s["id"]]
-                    draft["lines"].append(generic_line(s))
+                    draft["lines"].append(generic_line(s, self.language))
                     replaced.append(s["id"])
             labels = self.pack["script"]["labels"]
             if bad & {"headline", "script"} or not draft.get("headline"):
@@ -397,6 +472,49 @@ def _structured_draft(system: str, query: str) -> dict:
     except ValueError:
         draft = {}
     return {"draft": draft, "usage": usage, "latency_s": round(time.monotonic() - t0, 2)}
+
+
+GLOSS_ESTIMATE_USD = round((1000 * PRICE_IN_PER_M + 1500 * PRICE_OUT_PER_M) / 1e6, 6)
+
+
+def _gloss_call(lines: dict) -> dict:
+    """One plain JSON call: each line's English meaning."""
+    from openai import OpenAI
+
+    ep = llm.agent_endpoint()
+    r = OpenAI(api_key=ep.api_key or "unset", base_url=ep.api_base, timeout=60).chat.completions.create(
+        model=ep.model,
+        messages=[
+            {"role": "system", "content": "Give the plain English meaning of each Chinese line. "
+             "Answer with one JSON object with the same keys and nothing else."},
+            {"role": "user", "content": json.dumps(lines, ensure_ascii=False)},
+        ],
+        response_format={"type": "json_object"},
+    )  # fmt: skip
+    u = r.usage
+    usage = {"input_tokens": u.prompt_tokens, "output_tokens": u.completion_tokens} if u else {}
+    return {"gloss": json.loads(r.choices[0].message.content or "{}"), "usage": usage}
+
+
+def gloss(script: dict, ledger: Ledger, recorder: Recorder) -> tuple[dict, float]:
+    """What each line of a `zh` script means, for review only (`gloss_en.json`), and its cost.
+    Never voiced, and no stage reads it."""
+    lines = {ln["id"]: ln["text"] for ln in script["lines"]}
+    lines |= {"headline": script["headline"], "lower_third": script["lower_third"]}
+    model = llm.agent_endpoint().model
+    key = cache_key("commentator_gloss", model, {"lines": lines})
+    spent = []
+
+    def call() -> PaidResult:
+        p, hit = recorder.fetch("commentator_gloss", key, lambda: _gloss_call(lines))
+        spent.append(0.0 if hit else cost_of(p.get("usage", {})))
+        return PaidResult(p, spent[-1], hit)
+
+    got = paid_call(
+        ledger, stage="S5", provider="openai-compatible", model=model,
+        estimate_usd=GLOSS_ESTIMATE_USD, fn=call,
+    )  # fmt: skip
+    return got["gloss"], spent[-1]
 
 
 def generic(*, slots: list[dict], ps: dict, uc: dict, sb: dict, pack: dict) -> Outcome:

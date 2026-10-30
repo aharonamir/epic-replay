@@ -420,6 +420,9 @@ def make_run(s: config.Settings, upload: Path, form: dict):
     style = str(form.get("style") or "") or loader.default(packs)["id"]
     if style not in packs:
         return error(400, "unknown_style", f"No narrator called {style}.")
+    language = str(form.get("language") or "") or loader.DEFAULT_LANGUAGE
+    if language != loader.DEFAULT_LANGUAGE and language not in packs[style].get("languages", {}):
+        return error(400, "unknown_language", f"{packs[style]['name']} does not speak {language}.")
     why, _ = s0_intake.inspect(upload)
     if why:
         return error(400, "invalid_upload", why)
@@ -428,6 +431,7 @@ def make_run(s: config.Settings, upload: Path, form: dict):
         "consent": consent.record(True),
         "keep_for_demo": False,
         "style": style,
+        "language": language,
         "activity": None,
         "player_name": name,
         "team_home": None, "team_away": None, "score": None,
@@ -500,6 +504,7 @@ def state(run_id: str, d: Path) -> dict:
         "run_id": run_id,
         "status": m["status"],
         "style": m.get("style"),
+        "language": m.get("language", "en"),
         "created_at": m["created_at"],
         "now": datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "cost_usd": round(m.get("total_usd") or sum(x.get("cost_usd", 0) for x in m["stages"]), 4),

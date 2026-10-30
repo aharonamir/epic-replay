@@ -33,6 +33,7 @@ from epic_replay.media import audio
 from epic_replay.providers.replay import ReplayMiss
 from epic_replay.providers.speech import SpeechAdapter, tagged
 from epic_replay.stages.base import RunContext, StageResult
+from epic_replay.styles.slots import CJK
 
 VOICE = "voice.json"
 MAX_SPEEDUP = 1.12
@@ -54,13 +55,14 @@ def speech_for(ctx: RunContext):
     return ctx.adapters["speech"]
 
 
-def take(speech, line: dict, voice_id: str):
+def take(speech, line: dict, voice_id: str, language: str = "en"):
     key = line["role"] in KEY_ROLES and bool(line.get("hit_word"))
     for attempt in (1, 2):
         try:
             return speech.synthesise(
-                line["text"], voice_id=voice_id, delivery=line["delivery"], timings=key
-            )
+                line["text"], voice_id=voice_id, delivery=line["delivery"], language=language,
+                timings=key,
+            )  # fmt: skip
         except (CapExceeded, ReplayMiss):
             raise
         except Exception:  # noqa: BLE001 - one retry, then the stage stops
@@ -79,7 +81,9 @@ def trim(raw: Path, trimmed: Path) -> tuple[float, float]:
     return round((b - a) / sr, 3), a / sr
 
 
-def word_start(alignment: dict | None, delivery: str, text: str, word: str) -> float | None:
+def word_start(
+    alignment: dict | None, delivery: str, text: str, word: str, language: str = "en"
+) -> float | None:
     """Where `word` starts in the raw take, from the provider's character timings; None when
     there are none, they are not over the text as sent, the word is not in the line, or it is the
     line's first word (the take's first onset is better for that, and measured)."""
@@ -89,6 +93,11 @@ def word_start(alignment: dict | None, delivery: str, text: str, word: str) -> f
     starts = alignment.get("starts") or []
     if alignment.get("chars") != sent or len(starts) != len(sent):
         return None
+    if language == "zh":  # no spaces, and a neighbouring character counts as \\w
+        at = text.find(word) if word else -1
+        if at < 0 or not CJK.search(text[:at]):
+            return None
+        return float(starts[len(sent) - len(text) + at])
     m = re.search(rf"(?<![\w']){re.escape(word)}(?![\w'])", text, re.IGNORECASE)
     if not m or not re.search(r"\w", text[: m.start()]):
         return None
@@ -114,11 +123,12 @@ def run(ctx: RunContext) -> StageResult:
     sb = json.loads(ctx.path("storyboard.json").read_text())
     speech = speech_for(ctx)
     voice_id = script["voice"]["voice_id"]
+    language = script.get("language", "en")
     delay = script["reaction_delay_s"]
     lines = script["lines"]
     try:
         with ThreadPoolExecutor(max_workers=CONCURRENT) as pool:
-            takes = list(pool.map(lambda ln: take(speech, ln, voice_id), lines))
+            takes = list(pool.map(lambda ln: take(speech, ln, voice_id, language), lines))
     except CapExceeded as e:
         return StageResult("stopped", str(e))
     except ReplayMiss as e:
@@ -147,7 +157,7 @@ def run(ctx: RunContext) -> StageResult:
         if key:
             y, sr = audio.read_wav(path)
             rec["hit_offset_s"], rec["hit_source"] = round(audio.first_onset(y, sr), 3), "onset"
-            at = word_start(tk.alignment, ln["delivery"], ln["text"], ln.get("hit_word", ""))
+            at = word_start(tk.alignment, ln["delivery"], ln["text"], ln.get("hit_word", ""), language)  # fmt: skip
             if at is not None:
                 raw, rsr = audio.read_wav(tk.wav_path)
                 at = audio.snap_to_rise(raw, rsr, at, SNAP_S)

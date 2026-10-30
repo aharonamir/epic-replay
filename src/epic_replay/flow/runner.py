@@ -144,7 +144,8 @@ def rest_cost_usd(meta: dict, pack: dict) -> float:
     """What the run costs after the card (add-back 8): the Commentator's ceiling plus the voice
     for as many words as the clip's length holds at the pack's rate. Later steps are free."""
     words = meta["duration_s"] * pack["voice"]["words_per_second"]
-    return round(commentator.ESTIMATE_USD + words * CHARS_PER_WORD * speech.USD_PER_CHAR, 2)
+    per_word = 1.0 if pack.get("language") == "zh" else CHARS_PER_WORD  # a unit is a character
+    return round(commentator.ESTIMATE_USD + words * per_word * speech.USD_PER_CHAR, 2)
 
 
 def to_check(ps: dict) -> list[str]:
@@ -278,6 +279,7 @@ class Run:
         uc_path = self.dir / "user_context.json"
         uc = json.loads(uc_path.read_text())
         self.manifest["style"] = uc.get("style")
+        self.manifest["language"] = uc.get("language", "en")
         self.manifest["parent_run_id"] = uc.get("parent_run_id")
         self.manifest["status"] = "running"
         tried = {s["stage"]: s["status"] for s in self.manifest["stages"]}

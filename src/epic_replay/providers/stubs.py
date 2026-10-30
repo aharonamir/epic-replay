@@ -9,6 +9,7 @@ from pathlib import Path
 import numpy as np
 
 from epic_replay.providers.base import AudioResult, CallInfo, Frame, VisionResult
+from epic_replay.styles.slots import spoken_units
 
 FIXTURE = Path(__file__).resolve().parents[3] / "tests" / "fixtures" / "sample_run"
 _INFO = CallInfo("stub", "stub", 0.0, 0.0, True)
@@ -50,7 +51,7 @@ class StubSpeech:
         language: str = "en",
         timings: bool = False,
     ) -> AudioResult:
-        dur = max(0.3, len(text.split()) / self.wps)
+        dur = max(0.3, spoken_units(text, language) / self.wps)
         sr = 24000
         t = np.arange(int(sr * dur)) / sr
         pcm = (0.2 * np.sin(2 * np.pi * 220 * t) * 32767).astype("<i2")
