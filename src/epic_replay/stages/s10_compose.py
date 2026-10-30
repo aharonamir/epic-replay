@@ -116,6 +116,7 @@ def overlays(sb: dict, script: dict, pack: dict, text_dir: Path, frame: tuple[in
 
 
 FADE_S = 0.2
+JOINED = "joined.mp4"
 PNG_ORDER = ("title", "replay_bug", "end_card", "ai_label")
 
 
@@ -203,7 +204,7 @@ def run(ctx: RunContext) -> StageResult:
     voice = json.loads(ctx.path("voice.json").read_text())
     uc = json.loads(ctx.path("user_context.json").read_text())
     pack = loader.for_run(uc)
-    joined, final = ctx.path("segments/joined.mp4"), ctx.path(FINAL)
+    joined, final = ctx.path(f"segments/{JOINED}"), ctx.path(FINAL)
     parts = [ctx.path(f"segments/{s['id']}.mp4") for s in sb["segments"]]
     try:
         ffmpeg.concat(parts, joined)

@@ -3,6 +3,8 @@
     python -m epic_replay.flow styles
     python -m epic_replay.flow run CLIP --consent [--style ID] [--name NAME] [--mode MODE]
     python -m epic_replay.flow run --fixture tests/fixtures/sample_run --mode replay
+    python -m epic_replay.flow rerun RUN_ID --from S5 [--mode MODE] [--pick PICK]
+    python -m epic_replay.flow restyle RUN_ID --style ID [--run-id ID] [--mode MODE]
 
 `run CLIP` makes a new run folder under EPIC_RUNS_DIR and runs S0 to S10 (T027); the key
 moment is picked at the prompt. `--consent` records the consent wording, which is printed
@@ -10,6 +12,10 @@ first. `--pick` answers the play card without asking (`proposed`, `c1`.., or a f
 `--mode` sets EPIC_PROVIDER_MODE for this run (live, record or replay). `--card page` stops at
 the play card instead, for the page to answer (T014): open the address printed and confirm
 there, with the app running (`uvicorn epic_replay.web.app:app --port 8000`).
+
+`rerun` starts an ended run again at a stage, deleting that stage's outputs and those after it.
+`restyle` makes a new run of a finished run's play in another style, starting at S5. In live
+mode both spend money again from S5 on.
 """
 
 from __future__ import annotations
@@ -29,6 +35,52 @@ def styles() -> None:
         print(f"{mark} {pid:24} {pack['name']}: {pack['description']}")
 
 
+def answers(pick: str | None):
+    """What answers the play card: the prompt, or `pick` given on the command line."""
+    if pick is None:
+        return input
+    answer = "" if pick == "proposed" else pick
+    return lambda prompt: print(prompt + answer) or answer
+
+
+def report(status: str, d: Path) -> int:
+    print(f"status: {status}")
+    if status == "done":
+        print(f"video: {d / 'final.mp4'}")
+    if status == "waiting_play_card":
+        print(f"play card: http://localhost:8000/r/{d.name}")
+    return 0 if status in ("done", "waiting_play_card") else 1
+
+
+def again(args: argparse.Namespace) -> int:
+    """`rerun` and `restyle`: an existing run, started again or told in another style."""
+    if args.mode:
+        os.environ["EPIC_PROVIDER_MODE"] = args.mode
+    from epic_replay import config
+    from epic_replay.flow import runner
+    from epic_replay.styles import loader
+
+    s = config.load()
+    source = s.runs_dir / args.run
+    if not (source / runner.MANIFEST).exists():
+        print(f"no run {args.run} in {s.runs_dir}", file=sys.stderr)
+        return 2
+    try:
+        if args.command == "rerun":
+            runner.rerun(source, args.stage)
+            d, seeded = source, frozenset()
+        else:
+            if args.style not in loader.load():
+                print(f"no style {args.style}", file=sys.stderr)
+                return 2
+            d, seeded = runner.retell(source, s.runs_dir, args.style, args.run_id)
+    except ValueError as e:
+        print(e, file=sys.stderr)
+        return 2
+    print(f"run {d} (mode {s.provider_mode}); holds: {', '.join(sorted(seeded)) or 'as before'}")
+    return report(runner.Run(d, s, ask=answers(getattr(args, "pick", None))).run(seeded), d)
+
+
 def run(args: argparse.Namespace) -> int:
     if args.mode:
         os.environ["EPIC_PROVIDER_MODE"] = args.mode
@@ -41,10 +93,7 @@ def run(args: argparse.Namespace) -> int:
     if args.card == "page" and args.pick is not None:
         print("--pick answers at the prompt; with --card page the page answers", file=sys.stderr)
         return 2
-    ask = None if args.card == "page" else input
-    if args.pick is not None:
-        answer = "" if args.pick == "proposed" else args.pick
-        ask = lambda prompt: print(prompt + answer) or answer  # noqa: E731
+    ask = None if args.card == "page" else answers(args.pick)
     if args.fixture:
         d, seeded = runner.seed(Path(args.fixture), s.runs_dir, args.run_id or "fixture")
         print(f"run {d} (mode {s.provider_mode}); seeded: {', '.join(sorted(seeded)) or 'none'}")
@@ -73,12 +122,7 @@ def run(args: argparse.Namespace) -> int:
         d = runner.new_run(Path(args.clip), s.runs_dir, uc, args.run_id)
         print(f"run {d} (mode {s.provider_mode}, style {pack['id']})")
         status = runner.Run(d, s, ask=ask).run()
-    print(f"status: {status}")
-    if status == "done":
-        print(f"video: {d / 'final.mp4'}")
-    if status == "waiting_play_card":
-        print(f"play card: http://localhost:8000/r/{d.name}")
-    return 0 if status in ("done", "waiting_play_card") else 1
+    return report(status, d)
 
 
 def main() -> None:
@@ -102,11 +146,21 @@ def main() -> None:
         default="prompt",
         help="answer the play card at the prompt, or on the page",
     )
+    q = sub.add_parser("rerun", help="start an ended run again at a stage")
+    q.add_argument("run")
+    q.add_argument("--from", dest="stage", required=True, help="the stage, for example S5")
+    q.add_argument("--mode", choices=("live", "record", "replay"))
+    q.add_argument("--pick", help="answer the play card, if the stage comes before it")
+    t = sub.add_parser("restyle", help="the same play in another style, as a new run")
+    t.add_argument("run")
+    t.add_argument("--style", required=True)
+    t.add_argument("--run-id")
+    t.add_argument("--mode", choices=("live", "record", "replay"))
     args = ap.parse_args()
     if args.command == "styles":
         styles()
     else:
-        sys.exit(run(args))
+        sys.exit(run(args) if args.command == "run" else again(args))
 
 
 if __name__ == "__main__":

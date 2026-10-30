@@ -4,15 +4,18 @@ the fake voice; the command-line play card; consent before anything is sent."""
 import json
 import shutil
 import subprocess
+from pathlib import Path
 
 import pytest
 
 from epic_replay import config
 from epic_replay.flow import runner
+from epic_replay.stages.base import StageResult
 
 from .test_voice import FakeSpeech
 
 FIXTURE = "tests/fixtures/sample_run"
+FIXTURE_DIR = Path(FIXTURE)
 
 
 def small_fixture(tmp_path):
@@ -108,3 +111,122 @@ def test_the_manifest_is_never_seen_half_written(tmp_path):
     stop.set()
     t.join()
     assert not bad and not list(tmp_path.glob(".*.tmp"))
+
+
+def script_stage(monkeypatch, d, checks=True):
+    """S5 without the agent: writes the fixture's script and counts its runs. Under another
+    style `checks=False` passes S6, which refuses that script for the pack's rate."""
+    runs = []
+
+    def fake(ctx):
+        runs.append(ctx.run_dir.name)
+        ctx.path("script.json").write_text((FIXTURE_DIR / "script.json").read_text())
+        return StageResult("ok")
+
+    def passed(ctx):
+        ctx.path("checks.json").write_text("{}")
+        return StageResult("ok")
+
+    swap = {"S5": fake} | ({} if checks else {"S6": passed})
+    order = [(st, swap.get(st, fn), outs) for st, fn, outs in runner.ORDER]
+    monkeypatch.setattr(runner, "ORDER", order)
+    return runs
+
+
+def finished(tmp_path, run_id="first"):
+    d, seeded = runner.seed(small_fixture(tmp_path), tmp_path / "runs", run_id)
+    assert run_it(d, seeded) == "done"
+    return d
+
+
+def run_it(d, seeded=frozenset()):
+    sc = json.loads((FIXTURE_DIR / "script.json").read_text())
+    speech = FakeSpeech(d, lengths={ln["text"]: 0.75 * ln["max_duration_s"] for ln in sc["lines"]})
+    return runner.Run(d, config.load(), adapters={"speech": speech}, say=lambda _: None).run(seeded)
+
+
+def stages(d):
+    return json.loads((d / "manifest.json").read_text())["stages"]
+
+
+def test_a_re_run_from_the_script_keeps_the_analysis_and_the_storyboard(tmp_path, monkeypatch):
+    d = finished(tmp_path)  # US3 scenario 3
+    runs = script_stage(monkeypatch, d)
+    kept = {p: p.read_bytes() for n in ("play_sheet.json", "storyboard.json") for p in [d / n]}
+    segment = next((d / "segments").glob("s*.mp4"))
+    made = segment.stat().st_mtime_ns
+    (d / "final.mp4").write_bytes(b"old")
+
+    runner.rerun(d, "S5")
+    assert not (d / "script.json").exists() and not (d / "voice").exists()
+    assert not (d / "final.mp4").exists() and (d / "visuals.json").exists()
+    assert run_it(d) == "done"
+    assert runs == ["first"] and (d / "final.mp4").stat().st_size > 1000
+    assert all(p.read_bytes() == b for p, b in kept.items())
+    assert segment.stat().st_mtime_ns == made
+    assert [s["stage"] for s in stages(d)][-5:] == ["S5", "S6", "S7", "S8", "S10"]
+
+
+@pytest.mark.parametrize("stage, why", [("A", "no stage"), ("S11", "no stage")])
+def test_a_re_run_needs_a_stage(tmp_path, stage, why):
+    d = finished(tmp_path)
+    with pytest.raises(ValueError, match=why):
+        runner.rerun(d, stage)
+
+
+def test_a_run_still_going_is_not_re_run(tmp_path):
+    d = finished(tmp_path)
+    (d / "manifest.json").write_text(json.dumps({"status": "running", "stages": []}))
+    with pytest.raises(ValueError, match="only an ended run"):
+        runner.rerun(d, "S5")
+
+
+def test_a_stage_with_its_outputs_present_is_not_run_again(tmp_path):
+    d = finished(tmp_path)
+    m = json.loads((d / "manifest.json").read_text())
+    m["stages"] = [s for s in m["stages"] if s["stage"] != "S8"]
+    (d / "manifest.json").write_text(json.dumps(m))
+    before = (d / "mix.wav").stat().st_mtime_ns
+    assert run_it(d) == "done"
+    assert (d / "mix.wav").stat().st_mtime_ns == before
+    assert [s for s in stages(d) if s["stage"] == "S8"][0]["status"] == "seeded"
+
+
+def test_a_stage_that_failed_runs_again_whatever_it_left(tmp_path):
+    d = finished(tmp_path)
+    m = json.loads((d / "manifest.json").read_text())
+    for s in m["stages"]:
+        s["status"] = "failed" if s["stage"] == "S8" else s["status"]
+    (d / "manifest.json").write_text(json.dumps(m))
+    before = (d / "mix.wav").stat().st_mtime_ns
+    run_it(d)
+    assert (d / "mix.wav").stat().st_mtime_ns != before
+
+
+def test_a_re_telling_starts_at_the_script_and_touches_the_first_run(tmp_path, monkeypatch):
+    first = finished(tmp_path)
+    runs = script_stage(monkeypatch, first, checks=False)
+    (first / "segments" / "joined.mp4").write_bytes(b"left by a failed S10")
+    listing = sorted(p.name for p in (first / "segments").iterdir())
+    d, seeded = runner.retell(first, tmp_path / "runs", "news_reporter", "second")
+    assert {"S0", "S3", "A", "S4", "S9"} <= seeded and "S5" not in seeded
+    assert (d / "work.mp4").is_symlink() and not (d / "upload.mp4").exists()
+    assert not (d / "segments").is_symlink() and not (d / "segments" / "joined.mp4").exists()
+    assert run_it(d, seeded) == "done"
+    ran = [s["stage"] for s in stages(d) if s["status"] != "seeded"]
+    assert ran == ["S5", "S6", "S7", "S8", "S10"] and runs == ["second"]
+    m = json.loads((d / "manifest.json").read_text())
+    assert (m["style"], m["parent_run_id"]) == ("news_reporter", "first")
+    assert sorted(p.name for p in (first / "segments").iterdir()) == listing
+    assert (first / "segments" / "joined.mp4").read_bytes() == b"left by a failed S10"
+
+    third, _ = runner.retell(d, tmp_path / "runs", "nature_documentary", "third")
+    assert json.loads((third / "user_context.json").read_text())["parent_run_id"] == "first"
+    assert (third / "work.mp4").resolve() == (first / "work.mp4").resolve()
+
+
+def test_only_a_finished_run_is_re_told(tmp_path):
+    first = finished(tmp_path)
+    (first / "manifest.json").write_text(json.dumps({"status": "failed", "run_id": "first"}))
+    with pytest.raises(ValueError, match="only a finished run"):
+        runner.retell(first, tmp_path / "runs", "news_reporter")

@@ -15,7 +15,19 @@ done. At the prompt the answer is the proposed frame, a candidate, or a frame ty
 way the pick becomes the climax with method `user`, and the play sheet is marked confirmed.
 
 A run seeded from a fixture (`seed`) has the outputs of the stages it holds; those stages are
-recorded as `seeded` and not run.
+recorded as `seeded` and not run. So is any stage not tried yet whose outputs are all present
+(skip-if-present); a stage that was tried and failed runs again whatever it left behind.
+
+`rerun` deletes the outputs of a stage and of those after it in ORDER, and forgets them in the
+manifest, so that `Run.run` starts there (FR-033). Re-running S5 keeps S9's segments, which come
+before it in ORDER and do not depend on the script.
+
+`retell` makes a new run of a finished run's play in another style (FR-042): links to the outputs
+of S0 to S4 and S9, the segments linked one by one because S10 writes `joined.mp4` beside them,
+and the user context with the new style and the first run as parent, for the manifest. It
+goes straight to S5, at no vision cost. Links rather than copies, so no second copy of the
+footage exists: once the parent is deleted a re-telling keeps its video but cannot be re-run
+before S10's inputs that were linked.
 """
 
 from __future__ import annotations
@@ -70,6 +82,9 @@ AFTER_CARD = {st for st, _, _ in ORDER[[s for s, _, _ in ORDER].index(CHECKPOINT
 HEARTBEAT, HEARTBEAT_S = ".heartbeat", 30.0
 GO_ON = ("ok", "degraded")
 DONE = ("ok", "degraded", "seeded")
+ENDED = ("done", "failed", "stopped")
+SHARED = ("S0", "S1", "S2", "S3", "S4", "S9")  # what every telling of a play has in common
+FOLDERS = {"S7": "voice", "S9": "segments", "S10": "overlays"}  # removed by a re-run
 
 
 def write_json(path: Path, data: dict) -> None:
@@ -263,9 +278,11 @@ class Run:
         uc_path = self.dir / "user_context.json"
         uc = json.loads(uc_path.read_text())
         self.manifest["style"] = uc.get("style")
+        self.manifest["parent_run_id"] = uc.get("parent_run_id")
         self.manifest["status"] = "running"
-        done = {s["stage"] for s in self.manifest["stages"] if s["status"] in DONE}
-        for stage, fn, _ in ORDER:
+        tried = {s["stage"]: s["status"] for s in self.manifest["stages"]}
+        done = {st for st, status in tried.items() if status in DONE}
+        for stage, fn, outs in ORDER:
             t0 = time.monotonic()
             if stage in AFTER_CARD and (why := not_cleared(self.dir)):
                 # FR-009, checked before every stage after the card, done, seeded or not,
@@ -276,6 +293,9 @@ class Run:
                 continue
             if stage in seeded:
                 self.record(stage, "seeded", t0)
+                continue
+            if outs and stage not in tried and all((self.dir / o).exists() for o in outs):
+                self.record(stage, "seeded", t0, "its output was already there")
                 continue
             if stage == "S2":
                 try:
@@ -351,11 +371,14 @@ class Run:
         return StageResult("ok", f"key moment frame {frame}")
 
 
-def new_run(clip: Path, runs_dir: Path, user_context: dict, run_id: str | None = None) -> Path:
+def new_id() -> str:
     # the second alone let two uploads in one second collide (review, 2026-10-29); the random
     # part also keeps run ids from being guessed
-    run_id = run_id or datetime.now(UTC).strftime("r_%Y%m%d_%H%M%S_") + secrets.token_hex(3)
-    d = runs_dir / run_id
+    return datetime.now(UTC).strftime("r_%Y%m%d_%H%M%S_") + secrets.token_hex(3)
+
+
+def new_run(clip: Path, runs_dir: Path, user_context: dict, run_id: str | None = None) -> Path:
+    d = runs_dir / (run_id or new_id())
     d.mkdir(parents=True, exist_ok=False)
     shutil.copyfile(clip, d / f"upload{clip.suffix.lower()}")
     (d / "user_context.json").write_text(json.dumps(user_context, indent=2) + "\n")
@@ -378,9 +401,60 @@ def seed(fixture: Path, runs_dir: Path, run_id: str) -> tuple[Path, set[str]]:
                         "-f", "lavfi", "-i", f"anoisesrc=d={m['duration_s']}:a=0.05",
                         "-shortest", "-c:v", "libx264", "-preset", "veryfast", "-pix_fmt",
                         "yuv420p", "-c:a", "aac", str(d / "work.mp4")], check=True)  # fmt: skip
+    return d, held(d)
+
+
+def held(d: Path) -> set[str]:
+    """The stages whose outputs the folder holds, and the card if the play sheet is confirmed."""
     present = {p.name for p in d.iterdir()}
     seeded = {st for st, _, outs in ORDER if outs and all(o in present for o in outs)}
     if "S3" in seeded and json.loads((d / "play_sheet.json").read_text()).get("confirmed_by_user"):
         seeded.add(CHECKPOINT_A)
     seeded |= {"S1", "S2"} if "S3" in seeded else set()  # the play sheet stands for them
-    return d, seeded
+    return seeded
+
+
+def rerun(run_dir: Path, stage: str) -> None:
+    """Make an ended run start again at `stage`: delete the outputs of it and of the stages after
+    it in ORDER, and take them off the manifest."""
+    names = [st for st, _, _ in ORDER]
+    if stage not in names or stage == CHECKPOINT_A:
+        raise ValueError(f"no stage {stage} to re-run; one of {', '.join(n for n in names if n != CHECKPOINT_A)}")  # fmt: skip
+    mp = Path(run_dir) / MANIFEST
+    m = json.loads(mp.read_text())
+    if m["status"] not in ENDED:
+        raise ValueError(f"the run is {m['status']}; only an ended run can be re-run")
+    later = names[names.index(stage) :]
+    for st, _, outs in ORDER:
+        if st not in later:
+            continue
+        for name in [*outs, FOLDERS.get(st, "")]:
+            p = Path(run_dir) / name
+            if name and p.is_dir() and not p.is_symlink():
+                shutil.rmtree(p)
+            elif name:
+                p.unlink(missing_ok=True)
+    m["stages"] = [s for s in m["stages"] if s["stage"] not in later]
+    write_json(mp, m)
+
+
+def retell(source: Path, runs_dir: Path, style: str, run_id: str | None = None) -> tuple[Path, set[str]]:  # fmt: skip
+    """A new run of a finished run's play in `style`; returns its folder and the stages it
+    holds. Its user context names its parent, the first run of the play."""
+    m = json.loads((source / MANIFEST).read_text())
+    if m["status"] != "done":
+        raise ValueError(f"the run is {m['status']}; only a finished run can be re-told")
+    d = runs_dir / (run_id or new_id())
+    d.mkdir(parents=True, exist_ok=False)
+    for st, _, outs in ORDER:
+        for name in outs if st in SHARED else ():
+            if name != "segments" and (source / name).exists():
+                (d / name).symlink_to((source / name).resolve())
+    (d / "segments").mkdir()
+    for clip in (source / "segments").glob("*.mp4"):
+        if clip.name != s10_compose.JOINED:
+            (d / "segments" / clip.name).symlink_to(clip.resolve())
+    uc = json.loads((source / "user_context.json").read_text())
+    uc |= {"style": style, "parent_run_id": m.get("parent_run_id") or m["run_id"]}
+    (d / "user_context.json").write_text(json.dumps(uc, indent=2) + "\n")
+    return d, held(d)

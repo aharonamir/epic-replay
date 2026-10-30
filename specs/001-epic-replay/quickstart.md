@@ -72,6 +72,7 @@ EPIC_PROVIDER_MODE=live python -m epic_replay.flow run path/to/clip.mp4 \
 
 python -m epic_replay.flow styles                       # list the style packs (T038)
 python -m epic_replay.flow restyle <run_id> --style news_reporter   # same play, another narrator (T027, T039)
+python -m epic_replay.flow rerun <run_id> --from S5                  # start an ended run again at a stage (T027)
 ```
 
 The command stops at the play card and prints it for a yes or no. Add `--no-express` to stop at the script as well.
