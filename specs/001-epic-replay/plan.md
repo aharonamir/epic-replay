@@ -1,6 +1,6 @@
 # Implementation Plan: Epic Replay
 
-**Branch**: `001-epic-replay` | **Date**: 2026-10-11 | **Spec**: [spec.md](spec.md) | Revision 7 (2026-10-15)
+**Branch**: `001-epic-replay` | **Date**: 2026-10-11 | **Spec**: [spec.md](spec.md) | Revision 9 (2026-10-30)
 
 Supporting documents: [research.md](research.md) (providers), [data-model.md](data-model.md), [contracts/](contracts/), [quickstart.md](quickstart.md), [tasks.md](tasks.md).
 
@@ -324,6 +324,17 @@ Two things follow from the privacy decision and are part of the MVP, not deferre
 
 Principle IX ("a video always comes out") holds for analysis (generic mode) and slow motion (blending). It does not hold for the voice until a fallback provider is added; the cached demo run covers the presentation.
 
+### 4.16 Language (revision 9)
+
+`docs/chinese-language.md` holds the full design and the go/no-go. The parts that shape the code:
+
+- **Resolved pack.** `loader.for_run(user_context)` returns the pack as the run's language sees it, so stages have no language code for persona, voice, rates or labels. With no `language`, or `en`, it returns exactly what it returns today.
+- **Language is not a style.** Code may branch on `language` in the few places below, and never on a style id (working rule 9).
+- **The play sheet stays in English.** S2 and S3 do not change, so the Commentator writes Mandarin from English facts, and a re-telling reuses them.
+- **Places that branch:** the Commentator's `zh` wording and generic lines; `hit_word` as a substring (`commentator.word_in`, `s7_voice.word_start`); `spoken_units` for rule 5 and the summaries; the `zh` lists in S6 and `guards/lexicon.py`; `language_code` in the speech request and the speech recording key, which already holds `language`; the fonts and wrapping in S10 and `graphics/`; the cost line.
+- **Fonts.** The installed Noto Sans CJK SC, with `lang="zh-Hans"` in the overlay, because index 0 of the `.ttc` files is Japanese.
+- **Sidecar.** After S5 in a `zh` run, one cheap text call writes `gloss_en.json`, each line's English meaning, for review only. It is the first thing to cut.
+
 ## 5. Repository layout
 
 ```
@@ -446,6 +457,9 @@ A second person joining part-way should take, in order: the Verifier, the two ex
 | The chosen voice provider shouts well but reads flat, or the reverse | Medium | One style falls short | T004 tests a shout, a calm read and a hushed read before choosing; a pack may name a different provider |
 | The news style is mistaken for real news | Low | Misleading output | Persistent AI label, own brand, no real outlets, pack bans newsroom claims, the item reports only the clip |
 | The documentary style reads as mocking the people filmed | Medium | Someone is embarrassed | Pack rules: fond, role-based, nothing about bodies or ability; banned terms; the viewer test asks about it |
+| A change for Mandarin moves an English prompt or request | Low | Recordings miss; the demo needs paid calls | Work on branch `zh`; a hash test written before the first code change; English replay suite; one live English page run before a merge |
+| The owner cannot read the Mandarin output | Certain | A wrong or unsafe line goes unseen | Glosses on every list and sentence reviewed, `gloss_en.json` on each run, code guards, and the stated limit of the name check |
+| The Mandarin shout runs long (3.44 s for six characters, Z1) | High | The climax line overruns its slot | Budget of about three characters on the climax slot; the key line is never dropped |
 
 ## 9. Constitution check
 

@@ -85,10 +85,11 @@ Schema: [contracts/script.schema.json](contracts/script.schema.json). Example: [
 | Field | Meaning |
 |-------|---------|
 | `style` | Id of the style pack |
-| `words_per_second`, `startup_s`, `reaction_delay_s` | Copied from the pack when the slots were built: the numbers that turn slots into word budgets and anchors into start times |
+| `language` | `en` or `zh`, from the user context (revision 9) |
+| `words_per_second`, `startup_s`, `reaction_delay_s` | Copied from the resolved pack when the slots were built: the numbers that turn slots into word budgets and anchors into start times. In a `zh` run a "word" is one spoken unit: one CJK character, punctuation and spaces excluded, so `max_words` counts characters and `words_per_second` is characters per second (`spoken_units`, revision 9). English keeps its counts as they are |
 | `lines[]` | One take each: the segment, the role, the anchor, the longest it may run, the words, a delivery direction, and the events it relies on. Slot fields are written by code; text and delivery by the Commentator |
 | `anchor.type` | `start_at`: start at `timeline_t`. `hit_at`: the line's `hit_word` lands at `timeline_t` plus the reaction delay |
-| `hit_word` | Key lines only: the word that lands on the moment; it must occur in the text (revision 7) |
+| `hit_word` | Key lines only: the word that lands on the moment; it must occur in the text (revision 7). In `zh`, one to three characters of the line (revision 9) |
 | `headline`, `lower_third` | Text for the end card and the name strap; checked like spoken lines |
 | `approved` | `no`, `user` or `express` |
 
@@ -119,6 +120,7 @@ Rules beyond the schema: exactly one pack has `default: true`; ids and `order` v
   "consent": { "confirmed": true, "at": "2026-10-20T09:12:00Z", "text_version": "2" },
   "keep_for_demo": false,
   "style": "football_commentator",
+  "language": "en",
   "activity": null,
   "player_name": "Noa",
   "team_home": null, "team_away": null, "score": null,
@@ -128,7 +130,7 @@ Rules beyond the schema: exactly one pack has `default: true`; ids and `order` v
 }
 ```
 
-`keep_for_demo` is false unless the user ticks it; only then is the run exempt from the seven-day purge. `style` is a style pack id. `express` is true by default on the page. `description` is the one-line account the user may type after rejecting the play card.
+`keep_for_demo` is false unless the user ticks it; only then is the run exempt from the seven-day purge. `style` is a style pack id. `language` is `en` or `zh`; a file without it means `en` (revision 9). `express` is true by default on the page. `description` is the one-line account the user may type after rejecting the play card.
 
 ### Clip metadata - `clip_meta.json`
 
@@ -153,6 +155,10 @@ Revision 7, as written by the S1 stage (`src/epic_replay/stages/s1_signals.py`):
 | `candidates[]` | Up to five moments, best first (the overview's candidate sheets use the first three; the play card offers all five): `frame`, `t`, `score`, `motion_z`, `flow_z`, `change_z`, `sound_z`, and `sound_onset_t` / `sound_onset_frame` (the earliest onset from 0.25 s before to 0.1 s after) and `loud_peak_t` |
 
 The per-frame curves are not stored; `python -m epic_replay.stages.s1_signals <clip> --curves` writes them to a CSV for plotting.
+
+### English gloss - `gloss_en.json` (revision 9)
+
+`zh` runs only: each line's id and English meaning, written after S5 by one text call. Review text: never voiced, and no stage reads it.
 
 ### Check report - `checks.json`
 

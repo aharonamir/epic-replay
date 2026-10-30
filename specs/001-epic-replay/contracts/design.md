@@ -120,6 +120,8 @@ The sample caption shows the pack's `example_lines.climax` in the pack's own low
 | `ticker` | The pack's `end_card_kicker` in 12 px capitals, white on the pack accent (as built: the pack's `--on-accent`, which is white for the News reporter), joined to the line in 14 px weight 600, `--ink` on `--text` |
 | `caption` | The line in 16 px italic, `#D9E5D2`, under a 1 px rule in the pack accent |
 
+**Language control (revision 9).** Two options in one row, "English" and "中文", built as the "Choice" button above: when chosen, `--accent` fill and `--on-accent` text; each at least 44 px high. It sits in a wrapping flex row beside the narrator cards, with no media query. 中文 uses the system's Chinese face: the page's fonts have no Chinese glyphs and none is added.
+
 **Segmented bar.** Eight segments, 12 px high, 4 px apart. Finished: `--accent` fill. Running or waiting for the user: a 2 px `--accent` outline. Not started: `--line` fill. "Step N of 8" in the data face sits above it at the right. The bar changes only when a step finishes.
 
 **Step row.** At least 56 px high, a 1 px `--line` rule between rows: a 24 px mark, the step name, and at the right the duration in the data face or the word "Working".
@@ -165,7 +167,7 @@ With details open, one line in the data face (13 px, `--muted`) appears under ea
 ## 8. Accessibility
 
 - Text is at least 4.5:1 on what is behind it; section 2 gives the measured pairs.
-- Colour is never the only signal: step states differ in mark and wording, the item to check carries the words "Check this", the chosen narrator has a ticked radio button, a version being made says "making".
+- Colour is never the only signal: step states differ in mark and wording, the item to check carries the words "Check this", the chosen narrator has a ticked radio button, the chosen language is a checked radio input, a version being made says "making".
 - Controls are real buttons, links, inputs and labels, reachable by Tab, at least 44 px high. Icon-only buttons have a text name.
 - Secondary buttons are identified by their text; their border is 3.2:1 on the ground and 2.9:1 on the play card, which is enough for a decoration and is why the text field, which has no label inside it, sits on the ground and not on a card.
 

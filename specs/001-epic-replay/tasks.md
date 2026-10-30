@@ -211,6 +211,25 @@ The presentation was on Tuesday 27 October; on 2026-10-28 the owner moved it to 
 
 **Gate 4, end of Mon 26**: rehearsed.
 
+## Spec revision 9 - Chinese commentary, branch `zh` (owner, 2026-10-30)
+
+Full design, order and go/no-go in `docs/chinese-language.md`. Not merged into main unless the go/no-go passes on the evening of Sun 1 November.
+
+- [x] Z1 Voice IDs and audition (1h). Done 2026-10-30: 12 takes, 0.0153 USD. The owner heard Karo Yang shout on `eleven_v3` with `[excited] [shouts]` and not on `eleven_v4`, so v3 stays and no model field is needed. `docs/provider-notes.md`.
+- [x] Z2 Revision 9 as a diff, the owner's yes before any code (0.5h). Done 2026-10-30.
+- [ ] Z3 Golden-hash test first, on unchanged code; resolver, `languages.zh` blocks, loader checks with `ai_label` required, `spoken_units`; a livelier football delivery (1.5h)
+  Done when: the full suite passes and the hash test fails if one byte of an English prompt or request moves.
+- [ ] Z4 `language` end to end, `zh` generic lines, the S7 `hit_word` path with a test on the recorded timings, `language_code`, the call sites, the sidecar gloss (2h)
+  Done when: a `language=zh` fixture run reaches `final.mp4` with stubs at no cost, and every English recording replays with 0 new calls.
+- [ ] Z5 `zh` word lists with allowed phrases, about 100 ordinary sentences with glosses, S6 rules, a planted-error script (1.5h)
+  Done when: the owner has reviewed the lists and sentences with glosses, and the false-positive tests and the planted error pass.
+- [ ] Z6 CJK fonts in compose and overlays, `zh` labels (1h)
+  Done when: both overlay paths draw Simplified Chinese glyphs inside the frame, at both orientations.
+- [ ] Z7 Page toggle, persistence, docs (1h)
+  Done when: the toggle works by keyboard and without `localStorage`, and the page tests pass at 390 and 1280 px.
+- [ ] Z8 End to end on FlippingPancakes and bottle flip, cost first (1h)
+  Done when: the owner has listened and read the glosses; if accepted, a cached `zh` run and backup video exist.
+
 ## Deferred from the full design (not in the total)
 
 Listed in the order to add them back when there is time (plan.md section 6). Hours are the full-design hours.

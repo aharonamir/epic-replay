@@ -231,7 +231,9 @@ The key-moment line is no, so plan.md section 6 applies: the play card opens wit
 
 ### Z1: Mandarin voices, 2026-10-30 (owner's yes, cap 0.06 USD; 0.0153 USD at the 0.10 per 1,000 rate)
 
-`tools/spike_z1_zh.py`, 12 takes, every one through `with-timestamps` with `language_code: zh`. Takes in `eval/spike/zh_voices/`, numbers in `eval/spike/z1_zh.json`. Measured only: not yet listened to.
+`tools/spike_z1_zh.py`, 12 takes, every one through `with-timestamps` with `language_code: zh`. Takes in `eval/spike/zh_voices/`, numbers in `eval/spike/z1_zh.json`.
+
+Heard by the owner (2026-10-30): `eleven_v3` with `[excited] [shouts]` shouts very well; `eleven_v4` with the same tags does not shout, it only speaks faster; the calm football take may be too calm for football; the News and Nature calm takes are fine. So v3 stays.
 
 | Take | Trimmed s | Spoken chars/s | RMS | Median pitch Hz |
 |---|---|---|---|---|

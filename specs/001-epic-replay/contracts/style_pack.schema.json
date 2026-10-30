@@ -256,6 +256,16 @@
           ]
         }
       }
+    },
+    "languages": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Other languages this style can speak (revision 9). Top-level fields stay the English definition. A language with no block is not offered for this style.",
+      "properties": {
+        "zh": {
+          "$ref": "#/$defs/language_block"
+        }
+      }
     }
   },
   "$defs": {
@@ -308,6 +318,121 @@
         },
         "sign_off": {
           "type": "string"
+        }
+      }
+    },
+    "language_block": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "script",
+        "voice"
+      ],
+      "properties": {
+        "script": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "persona",
+            "rules",
+            "role_notes",
+            "example_lines",
+            "labels",
+            "banned_terms"
+          ],
+          "properties": {
+            "persona": {
+              "type": "string",
+              "description": "Who is speaking and how. Given to the Commentator."
+            },
+            "rules": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string"
+              }
+            },
+            "role_notes": {
+              "$ref": "#/$defs/per_role",
+              "description": "What each line is for in this style."
+            },
+            "example_lines": {
+              "$ref": "#/$defs/per_role",
+              "description": "Invented samples that show the register. The Commentator must not copy them."
+            },
+            "labels": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "replay_bug",
+                "end_card_kicker",
+                "ai_label"
+              ],
+              "properties": {
+                "replay_bug": {
+                  "type": "string",
+                  "maxLength": 24
+                },
+                "end_card_kicker": {
+                  "type": "string",
+                  "maxLength": 30
+                },
+                "ai_label": {
+                  "type": "string",
+                  "maxLength": 24,
+                  "description": "The visible AI label in this language (FR-030, FR-045)."
+                }
+              }
+            },
+            "banned_terms": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Added to the global banned lexicon for this style."
+            }
+          }
+        },
+        "voice": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "primary",
+            "fallback",
+            "delivery",
+            "words_per_second",
+            "startup_s",
+            "reaction_delay_s"
+          ],
+          "properties": {
+            "primary": {
+              "$ref": "#/$defs/voice_ref"
+            },
+            "fallback": {
+              "$ref": "#/$defs/voice_ref"
+            },
+            "delivery": {
+              "$ref": "#/$defs/per_role",
+              "description": "Default voice direction per line role. The Commentator may refine it per line."
+            },
+            "words_per_second": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "description": "Spoken units per second: characters per second for zh. Measured for the primary voice in this style."
+            },
+            "startup_s": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 2,
+              "description": "Time a take takes whatever its word count (measured, T020). A slot's word budget is floor((max_duration_s - startup_s) x words_per_second)."
+            },
+            "reaction_delay_s": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1.5,
+              "description": "How long after the key moment the key line starts."
+            }
+          }
         }
       }
     }

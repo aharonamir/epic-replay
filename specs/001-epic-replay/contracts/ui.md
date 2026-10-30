@@ -60,6 +60,7 @@ Order on a phone: headline, drop area, tip, narrators, optional fields, consent,
 - After a file is chosen the drop area becomes a preview: the clip's first frame, the file name and length, and a "Change" button. Length and type are checked in the browser first, then again by the server (FR-001).
 - Style cards come from `GET /styles`, in the packs' `order`. The default pack is preselected. Each card shows the pack's name, its description and its sample line set as that narrator's own caption. "Listen" plays the pack's sample; only one sample plays at a time.
 - Choosing a narrator recolours the page in that pack's accent.
+- Language (revision 9): a two-option control, "English | 中文", a radio group named `language` beside the narrator cards, English by default. 中文 is hidden for a pack with no `zh` block, and the choice falls back to English. The choice is remembered in `localStorage` as a convenience only (try and catch); without it the control still works. `GET /styles` does not change: the template marks which packs offer Mandarin. The page stays `lang="en"`; the 中文 label and any Chinese text carry `lang="zh-Hans"`.
 - "Make my replay" is disabled until there is a valid file and the consent box is ticked.
 - The line under the consent box says that still frames go to the vision model provider, without naming a service or country, so it stays true when the provider changes (owner, 2026-10-29). It makes no promise about deletion, and says plainly that the provider may use what it receives to train its models.
 - Score and team fields are in the API but not on the page in the one-person MVP, because the score bug is deferred.
@@ -222,7 +223,7 @@ All text on the page lives in one file, `web/copy.py`, so wording can be reviewe
 
 ## Not in the MVP page
 
-Accounts, a gallery of past runs, share links, editing single script lines, vertical export, a language switch, score and team fields.
+Accounts, a gallery of past runs, share links, editing single script lines, vertical export, score and team fields, any language but English in the page itself.
 
 ## Build notes
 

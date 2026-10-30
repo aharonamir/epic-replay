@@ -2,7 +2,7 @@
 
 **Feature branch**: `001-epic-replay`
 **Created**: 2026-10-11
-**Status**: Draft, revision 8
+**Status**: Draft, revision 9
 **Input**: "You film your own goal or trick. The agent watches the clip, writes and voices an excited broadcast-style call of what actually happened, then adds a slow-motion replay and a score graphic."
 **Added in revision 2**: "In the MVP it is a web page: upload the video, choose a narration style (football enthusiast, news reporter and so on), see the progress, see the result."
 **Added in revision 3**: one person builds it in two weeks; the clip does not have to be a sport event; children are likely to appear in the footage; the confirmation step and the three styles stay.
@@ -10,6 +10,7 @@
 **Added in revision 5**: the owner approved the visual design of the page.
 **Added in revision 6**: footage is adults only (men only in the MVP), with a disclaimer that frames go to DeepSeek; minimum output length and frame sampling are configuration; a case rule for the name check.
 **Added in revision 7**: nine working days; the key moment is proposed by code from motion and sound and chosen by the model on contact sheets; each key line is placed by its key word; the cuts that fit the remaining hours.
+**Added in revision 9**: a language toggle on the start page: English (default) or Mandarin in Simplified Chinese, for the whole run.
 
 ## 1. Summary
 
@@ -25,7 +26,7 @@ The hard part is describing correctly what happened, most of all when the action
 
 - One clip per run, 3 to 30 seconds, filmed by the user, horizontal or vertical.
 - Any short moment with a clear high point, filmed in one continuous shot: sport, a trick, a pet, a family milestone, an everyday win.
-- English commentary in three narration styles the user chooses from: Football commentator (the default), News reporter and Nature documentary. Each has its own voice, wording, sound and graphics skin.
+- Commentary in English (the default) or Mandarin, in three narration styles the user chooses from: Football commentator (the default), News reporter and Nature documentary. Each has its own voice, wording, sound and graphics skin; Mandarin has its own voice and wording per style (revision 9).
 - A second or third style of the same play on request, without analysing the clip again.
 - Slow-motion replay of the key moment, intro title, lower third, REPLAY bug, end card.
 - One web page for the whole flow, usable on a phone: upload and choose a style, watch progress, confirm what happened, watch and download the result (contracts/ui.md, with the approved look in contracts/design.md).
@@ -118,6 +119,19 @@ Before starting, the user picks a narration style from a small set of cards and 
 4. **Given** the News reporter style, **When** the video is rendered, **Then** the key line is spoken and not shouted, there is no crowd sound, and no real channel, programme or presenter is named or imitated.
 5. **Given** a new style pack file that validates against the schema, **When** the app is restarted, **Then** the style appears in the picker and can be used, with no change to code.
 
+### US6 - Hear it in Mandarin (Priority: P3, revision 9)
+
+On the start page the user chooses English or 中文. In a Mandarin run the commentary, the voice and the text in the video are Mandarin, in Simplified Chinese; the page, the play card and the progress text stay in English.
+
+**Independent test**: with the fixture play sheet and storyboard, and recorded replies, a `language=zh` run produces a valid script in Simplified Chinese and a finished video; a run without the setting is the same as before, byte for byte in its prompts and requests.
+
+**Acceptance scenarios**
+
+1. **Given** the start page, **When** it loads, **Then** English is selected and the control works by keyboard and without `localStorage`.
+2. **Given** a Mandarin run, **When** the video is rendered, **Then** every line is voiced by the pack's Mandarin voice, the on-screen text including the AI label is in Chinese, and no banned term appears.
+3. **Given** a Mandarin key line, **When** the video is rendered, **Then** its key word lands within the SC-4 tolerance of its target.
+4. **Given** a run in English, **When** it runs, **Then** every existing recording replays with no new call.
+
 ### Edge cases
 
 - Clip shorter than 3 seconds or longer than 30 seconds: rejected at upload with the reason. A clip between 20 and 30 seconds is trimmed around the key moment.
@@ -175,7 +189,7 @@ Before starting, the user picks a narration style from a small set of cards and 
 - **FR-016**: The script MUST be a list of lines, each tied to a segment, an anchor time, a maximum duration and the event ids it relies on (contracts/script.schema.json). The climax call MUST be its own line, anchored to the climax time.
 - **FR-017**: Lines MUST use only facts in the confirmed play sheet and the user's context. Names, numbers, scores, distances, history and statistics that are not in those sources MUST NOT appear.
 - **FR-018**: The script MUST NOT contain the name or signature phrases of a real commentator, news presenter or narrator, and the product MUST NOT imitate such a person's voice, or the graphics of a real league, broadcaster or news outlet.
-- **FR-019**: Before any model-based check, code MUST check every line for: valid event references, names and numbers present in the play sheet or user context, word budget, banned lexicon, and language.
+- **FR-019**: Before any model-based check, code MUST check every line for: valid event references, names and numbers present in the play sheet or user context, word budget, banned lexicon, and language. A Mandarin line is checked as in FR-046.
 - **FR-020**: An independent Verifier MUST compare the script to the play sheet and flag unsupported claims. A flagged line is rewritten at most twice, then replaced by a generic line or dropped. The climax call is never dropped; it falls back to a generic call.
 
 **Checkpoint B - script**
@@ -222,6 +236,13 @@ Before starting, the user picks a narration style from a small set of cards and 
 - **FR-042**: From a finished result the user MUST be able to produce the same play in another style. The new version MUST reuse the confirmed play sheet, the storyboard and the video segments, MUST NOT call the video-analysis provider, and MUST NOT ask for confirmation again. Versions of one play MUST be shown together.
 - **FR-043**: The whole flow (upload, style choice, progress, confirmation, result) MUST take place on one page without navigation, MUST be usable in a phone browser, and MUST survive a reload at any point.
 
+**Language (revision 9)**
+
+- **FR-044**: The system MUST let the user choose the language of the commentary at upload, English by default or Mandarin in Simplified Chinese, for the whole run. Mandarin is offered only for a style pack with a `languages.zh` block. The page, the play card and the progress text stay in English.
+- **FR-045**: A style pack's `languages.zh` block MUST give the persona, rules, role notes, example lines, labels and banned terms, and the voice, delivery and rates for Mandarin. Its labels MUST include the AI label; a block without it is refused by the loader. Top-level pack fields stay the English definition.
+- **FR-046**: In Mandarin the word budget counts spoken CJK characters, and `hit_word` is one to three characters of the line. Banned terms are multi-character terms matched as substrings after allowed phrases are masked out, plus the pronoun 她. Numbers are read as Chinese numerals as well as digits, and digits in a line are refused. Latin-script words not in the play sheet or user context are refused, and a list of famous names is banned.
+- **FR-047**: Choosing English MUST change nothing: no English prompt, request, recording key or pack field differs from revision 8, and a test holding their hashes proves it.
+
 ### 4.2 Key entities
 
 - **Run**: one clip told in one style, and everything produced for it; has a manifest, a cost ledger and a status. A second style of the same play is a new run that starts from a copy of the first run's analysis, play sheet, storyboard and video segments.
@@ -258,7 +279,7 @@ Targets marked (provisional) are re-set at Gate 0 from the spike measurements, a
 - Built by one person in ten working days of eight hours (plan.md section 6). What a second person would add is in plan.md section 7.
 - The agents are ReAct agents built with openJiuwen agent-core, running on DeepSeek's `deepseek-flash`. A plain Python runner moves the run between stages. plan.md section 3 lists what must be confirmed on day 2 and the fallback.
 - The person uploading is an adult using footage they have the right to use, which shows adult men only. There are no accounts.
-- English first. Hebrew is a stretch item because one of the candidate voice providers lists it as supported.
+- English first. Mandarin is built on branch `zh` and merged only if the go/no-go in `docs/chinese-language.md` passes (revision 9). Hebrew is a stretch item because one of the candidate voice providers lists it as supported.
 - Three styles in the MVP. All three use voices from the provider chosen in the bake-off, so one provider must be able to shout, read evenly and speak softly.
 - The confirmation step (Checkpoint A) is shown inside the progress list. Script approval is automatic by default.
 - Keys are available for DeepSeek (both agents and the vision calls) and for a voice provider. DeepSeek has no speech model, so the voices come from Gemini 3.8 Flash TTS on a paid key, or from ElevenLabs if the day-2 test prefers it.
@@ -328,6 +349,14 @@ Targets marked (provisional) are re-set at Gate 0 from the spike measurements, a
 - The vision model provider will not be DeepSeek every time. The consent note says that still frames go to "the vision model provider", that nothing else leaves the machine, and that the provider may use what it receives to train its models; it names no service or country. FR-003 reworded; `EPIC_VISION_SERVICE_NAME` and `EPIC_VISION_COUNTRY` removed; the consent record's `text_version` is 4.
 - The opt-out request to DeepSeek is no longer a requirement.
 
+**Decided by the owner on 2026-10-30 (revision 9)**
+
+- A language toggle on the start page: English (default) or 中文, Simplified Chinese, applying to the whole run; Cantonese is out of scope; the page and the play card stay in English.
+- Voices on `eleven_v3` with audio tags: Karo Yang, Lao Dao and Haoran. The owner heard the Z1 takes: Karo Yang shouts on v3 with `[excited] [shouts]`, and does not on `eleven_v4`. The calm football take may be too calm, so the Mandarin football delivery is set livelier.
+- Fallback voices: Yu (the name 小宇 is unconfirmed), LiuPing, Jason Chen. They pass the loader's check only: nothing uses a fallback voice until T030.
+- The invented-name check cannot find an arbitrary name written in Chinese (FR-046, section 10). The limit is stated plainly.
+- The work stays on branch `zh`. It merges only if the go/no-go passes on the evening of Sun 1 November; otherwise main stays as frozen.
+
 **Still open**
 
 None.
@@ -371,6 +400,8 @@ Sections 3 to 5 describe the full design. One person in ten working days builds 
 | Real-frame slow motion, the lower third, the vertical layout (revision 7) | Blending only; title, REPLAY bug, end card and AI label, horizontal | FR-028 (one of three methods), FR-029 (part) |
 | The sound set beyond a crowd bed, a roar and a sting (revision 7) | Those three per style | FR-026 (part) |
 | The automated single-endpoint test and the seven-day purge (revision 7) | Consent wording and delete-now checked by hand | FR-037 (test), retention |
+| An invented-name check for names written in Chinese (revision 9) | Latin-script words outside the sources and a list of famous names are refused; the Commentator's prompt forbids any name the user did not give | FR-017 in Mandarin, SC-8 in Mandarin |
+| A Mandarin sample per style (revision 9) | No sample player exists (T040) | FR-039 |
 
 Success criteria as measured in the one-person MVP:
 
@@ -390,4 +421,5 @@ Success criteria as measured in the one-person MVP:
 - Revision 6 (2026-10-12): adults only, men only in the MVP; DeepSeek sees frames, with a disclaimer, FR-037 waived for the demo (section 8). FR-003 and FR-008 reworded. Minimum output length is configuration (default 20 s, FR-014). Frame sampling default 4 per second with optional motion thinning; key-frame tolerance a quarter second. FFmpeg 8. The name check compares case-insensitively and runs on a sentence-cased copy of shouted lines. Existing ids are unchanged.
 - Revision 5 (2026-10-11): the owner approved the visual design of the page, made on the design canvas. Added contracts/design.md (colours, type, layout, parts) and a copy of the canvas files in contracts/design-canvas/. contracts/ui.md redrawn to the approved layout, with a table of all wording. Style packs gain an optional `graphics.accent_text`; the page takes its colour from the chosen pack. The descriptions of two example packs shortened, and the News reporter's no longer says "goal". No requirement, success criterion or task hour changed.
 - Revision 7 (2026-10-15): nine working days. The signal scan (S1) is built; the Spotter looks at contact sheets and answers with a cell, code refines and snaps to a sound onset; the Spotter runs as a fixed sequence (plan.md sections 4.2 to 4.4). Key lines are placed by their key word (`hit_word`, plan.md section 4.8). FR-007 and FR-024 extended. The MVP ships two styles; section 10 lists the other cuts. Section 8 records the decisions. Existing ids are unchanged.
+- Revision 9 (2026-10-30): a language toggle, English or Mandarin (US6, FR-044 to FR-047), on branch `zh`. FR-019 amended. Mandarin voices, budgets by character, its own guards and the stated limit of the name check. Section 8 records the decisions. Existing ids are unchanged, and nothing changes for English.
 - Revision 8 (2026-10-20): Gate 0's key-moment line is no (T003 contact sheets). The play card always opens with the nudge active, offers the S1 candidates as other moments, and the user's pick is the climax. The Spotter is overview-only; refining passes and the second look are deferred (section 10). SC-1, SC-2 and SC-5 re-set from T003. US2, FR-007 and FR-010 amended. Existing ids are unchanged.
