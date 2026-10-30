@@ -1,0 +1,33 @@
+{
+  "generic": "0384821fde88efa68001af4702fcbeeb9271b6db60d136461d0132975679ec03",
+  "lexicon": "d491e5e72744ddc5f781f2a0113bf5bb8afd8a0eb186c0dd09f31b5847d12909",
+  "styles_endpoint": "40054100623675497e3e067f79e617dbd4c34832c87868df34ba3e0a9b55a7ce",
+  "speech": {
+    "bodies": "c69ed81a94bc6a3a3b3cc8f2f11aab8d2ce3a3b77668635d082e323f18abe170",
+    "keys": "9027b5efdc66a43d4a2f02dbef2caddad29e2ad6d47a13b89f0898f579136c3e"
+  },
+  "football_commentator": {
+    "pack": "83cd44993319714117cf0c75511c249bfc7807ab6580111c80aebfcc2609d188",
+    "slots": "9ae2dbc28316f2a5085edf37b243d39afeb55369758956cf0ea9826e8f33c467",
+    "system": "b35717b762faba2852cf975fa0067c3f651bfbee8937dd371d4073c3fa86555d",
+    "query": "7f528c492b22abe4ece92007a330e46742ef7ede48046185813c8a650b0f3d63",
+    "key": "57fbd5d3269c66e76d71601beb8870a7c101fe045901f9df205d498d655a1607",
+    "rest_cost": 0.05
+  },
+  "news_reporter": {
+    "pack": "6199a659aa5931c1c14cd85a66ed49606ed17b235d69158a537f7646350d8c93",
+    "slots": "95a919842451dba93addc38290eaf4c9f5f00504a2ae228923de37a151f99a09",
+    "system": "0617d3f3a3e169f9a65a1c25b95d464dfc19d12f3a8be78cbbfc18b7e86c63b9",
+    "query": "9b48dc770d5bf8c0ce841e3e06e052a891047e043587ca95f88b48b7ee28f89a",
+    "key": "a853bdf7d8e65f6fb71e99c80e686db2fd7649d12fda76db5bbc7d1c1cc5d76d",
+    "rest_cost": 0.04
+  },
+  "nature_documentary": {
+    "pack": "0c878cd15727e2c54d0a4ab7e0b065e91b8ec67fe9bc3f1de50b42e722640383",
+    "slots": "467795ae5b900c08f2afd5df24110576ba4e3683d35fda3bcae22eea921d44a0",
+    "system": "471fbe62883db6433791b134f7893e7cb61b51f67799d3b701d0f383feaf3d95",
+    "query": "12666ebebc152422e7d3e1a1c2e74218f126a9457aa292cfb29c7b087ee46225",
+    "key": "a0298511bd3d85034067f6939f99b2e64603aa89da4cd0f4d53c1a58d581fcd5",
+    "rest_cost": 0.04
+  }
+}
