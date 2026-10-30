@@ -28,6 +28,7 @@ from epic_replay.styles import loader
 
 MIX, MIX_JSON = "mix.wav", "mix.json"
 TARGET_LUFS, CEILING_DBTP = -14.0, -1.0
+LIMIT_MARGIN_DB = 1.0  # alimiter limits sample peaks, and AAC adds up to 0.6 dB in S10
 FMT = "aformat=sample_rates=48000:channel_layouts=stereo"
 DUCK = "sidechaincompress=threshold=0.02:ratio=8:attack=20:release=350:makeup=1"
 
@@ -121,9 +122,9 @@ def normalise(raw: Path, out: Path) -> None:
     ffmpeg(["-i", str(raw), "-af", f"{second},aresample=48000", "-c:a", "pcm_s16le", str(first)])
     # loudnorm falls back to dynamic mode when the linear gain would break the ceiling, and can
     # then miss the target by more than 1 LU: correct the gain once, under a peak limiter set
-    # 0.5 dB below the ceiling (alimiter limits sample peaks, not true peaks)
+    # below the ceiling
     lufs, _ = audio.loudness(first)
-    limit = 10 ** ((CEILING_DBTP - 0.5) / 20)
+    limit = 10 ** ((CEILING_DBTP - LIMIT_MARGIN_DB) / 20)
     fix = f"volume={TARGET_LUFS - lufs:.2f}dB,alimiter=limit={limit:.4f}:level=disabled"
     ffmpeg(["-i", str(first), "-af", f"{fix},aresample=48000", "-c:a", "pcm_s16le", str(out)])
     first.unlink(missing_ok=True)

@@ -14,6 +14,7 @@ from epic_replay.styles import loader
 from .test_voice import FakeSpeech
 
 FIXTURE = "tests/fixtures/sample_run"
+BURSTS = "aevalsrc=sin(2*PI*2000*t)*(0.04+0.9*lt(mod(t\\,1)\\,0.03)):d=10:s=48000"  # quiet, with loud hits
 
 
 @pytest.fixture(scope="module")
@@ -41,6 +42,15 @@ def test_the_fixture_mix_meets_the_loudness_targets(run_dir):
     assert abs(doc["duration_s"] - 28.9) <= 1 / 30
     kinds = [ly["kind"] for ly in doc["layers"]]
     assert kinds.count("voice") == 7 and {"bed", "climax", "original"} <= set(kinds)
+
+
+def test_a_mix_held_at_the_limiter_stays_under_the_ceiling_after_aac(tmp_path):
+    raw, out, aac = tmp_path / "raw.wav", tmp_path / "out.wav", tmp_path / "out.m4a"
+    s8_mix.ffmpeg(["-f", "lavfi", "-i", BURSTS, "-ar", "48000", "-ac", "2", "-c:a", "pcm_s16le", str(raw)])  # fmt: skip
+    s8_mix.normalise(raw, out)
+    s8_mix.ffmpeg(["-i", str(out), "-c:a", "aac", "-b:a", "192k", str(aac)])
+    assert audio.loudness(out)[1] <= -2.0
+    assert audio.loudness(aac)[1] <= -1.0
 
 
 def test_layers_follow_the_pack_and_the_user(run_dir):
