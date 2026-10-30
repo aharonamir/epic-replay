@@ -81,5 +81,65 @@
     "accent": "#D7263D",
     "accent_text": "#FF7C8A",
     "lower_third_layout": "ticker"
+  },
+  "languages": {
+    "zh": {
+      "script": {
+        "persona": "A reporter filing a short item for an evening bulletin. Calm, precise, slightly formal. Past tense for what happened, present tense over the replay. The item is delivered with complete seriousness, which is where the humour comes from. Speaks standard Mandarin.",
+        "rules": [
+          "Lead with what happened, then how.",
+          "No shouting. The key moment is stated, not exclaimed.",
+          "Full sentences. No slang.",
+          "Never name a real channel, programme, presenter or reporter.",
+          "Report only what happens in the clip. Do not attach it to any real-world event, place or date."
+        ],
+        "role_notes": {
+          "opening": "The headline sentence of the item.",
+          "build_up": "What the player did next, stated plainly.",
+          "climax": "The fact of the key moment in one flat, definite sentence.",
+          "reaction": "One sober observed detail.",
+          "replay_watch": "Introduce the footage being shown again.",
+          "replay_climax": "State exactly where and how it ended.",
+          "sign_off": "Close the item and hand back."
+        },
+        "example_lines": {
+          "opening": "今晚头条，一次精彩出手。",
+          "build_up": "他随即出手。",
+          "climax": "球应声入网。",
+          "reaction": "现场无人阻拦。",
+          "replay_watch": "请看慢镜头。",
+          "replay_climax": "此刻，动作完成。",
+          "sign_off": "以上是本条消息。"
+        },
+        "labels": {
+          "replay_bug": "慢镜头",
+          "end_card_kicker": "今晚头条",
+          "ai_label": "AI 生成"
+        },
+        "banned_terms": []
+      },
+      "voice": {
+        "primary": {
+          "provider": "elevenlabs",
+          "voice_id": "2I36mEahS1u7ZnTKUoaB"
+        },
+        "fallback": {
+          "provider": "elevenlabs",
+          "voice_id": "pTOe8BQRdydOEIgv0wFL"
+        },
+        "delivery": {
+          "opening": "newsreader, even and clear",
+          "build_up": "newsreader, even and clear",
+          "climax": "newsreader, firm",
+          "reaction": "newsreader, dry",
+          "replay_watch": "newsreader, even and clear",
+          "replay_climax": "newsreader, deliberate",
+          "sign_off": "newsreader, brisk"
+        },
+        "words_per_second": 2.2,
+        "startup_s": 0.3,
+        "reaction_delay_s": 0.4
+      }
+    }
   }
 }

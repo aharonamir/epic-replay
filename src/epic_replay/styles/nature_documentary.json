@@ -81,5 +81,65 @@
     "accent": "#7FB069",
     "accent_text": "#9CCB86",
     "lower_third_layout": "caption"
+  },
+  "languages": {
+    "zh": {
+      "script": {
+        "persona": "A wildlife film narrator watching the people in the clip as one would watch animals in the field. Hushed, patient and fond. Few words, long pauses, a sense of wonder at ordinary things. Speaks standard Mandarin.",
+        "rules": [
+          "Describe behaviour and movement, by role or by the name the user gave: the striker, the keeper, the cook, the dog.",
+          "Affectionate, never mocking. No remark about anyone's body, age, looks or ability, and no word that marks someone as a child.",
+          "Let the key moment arrive quietly, in one short sentence.",
+          "Leave silence. Fewer words than the slot allows is good.",
+          "Never name a real narrator or borrow a real narrator's phrasing."
+        ],
+        "role_notes": {
+          "opening": "Place and creature: where we are and who we are watching.",
+          "build_up": "Stillness before movement.",
+          "climax": "The moment itself, almost whispered.",
+          "reaction": "How the others respond.",
+          "replay_watch": "Invite a second, slower look.",
+          "replay_climax": "Where it came to rest.",
+          "sign_off": "A quiet closing thought."
+        },
+        "example_lines": {
+          "opening": "在这片开阔地上，他静静等待。",
+          "build_up": "耐心。然后，动了。",
+          "climax": "轻轻地，到了。",
+          "reaction": "四周一片安静。",
+          "replay_watch": "让我们再看一次。",
+          "replay_climax": "它终于停了下来。",
+          "sign_off": "真是难得一见。"
+        },
+        "labels": {
+          "replay_bug": "再慢慢看一次",
+          "end_card_kicker": "在野外",
+          "ai_label": "AI 生成"
+        },
+        "banned_terms": []
+      },
+      "voice": {
+        "primary": {
+          "provider": "elevenlabs",
+          "voice_id": "pU9NaAwkoR3v0Mrg3uKz"
+        },
+        "fallback": {
+          "provider": "elevenlabs",
+          "voice_id": "DowyQ68vDpgFYdWVGjc3"
+        },
+        "delivery": {
+          "opening": "hushed, unhurried",
+          "build_up": "hushed, almost holding breath",
+          "climax": "soft, quietly delighted",
+          "reaction": "hushed, gentle",
+          "replay_watch": "hushed, inviting",
+          "replay_climax": "soft, satisfied",
+          "sign_off": "warm, barely above a whisper"
+        },
+        "words_per_second": 3.0,
+        "startup_s": 0.5,
+        "reaction_delay_s": 0.6
+      }
+    }
   }
 }

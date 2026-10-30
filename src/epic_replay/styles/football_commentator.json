@@ -75,5 +75,65 @@
     "skin": "stadium",
     "accent": "#FFD23F",
     "lower_third_layout": "strap"
+  },
+  "languages": {
+    "zh": {
+      "script": {
+        "persona": "A play-by-play commentator in a stadium booth who treats every moment as the big match. Short sentences in the present tense. The voice rises with the action and peaks on the key moment. Speaks standard Mandarin.",
+        "rules": [
+          "Name the action as it happens. Do not explain it.",
+          "One idea per line.",
+          "The key line is one short exclamation.",
+          "Call whatever happens as if it were a cup final, in the words the play sheet uses for it. It does not have to be a sport.",
+          "After the key moment, come down: one line of disbelief or admiration."
+        ],
+        "role_notes": {
+          "opening": "Set the scene in a few words.",
+          "build_up": "The last beat before the moment. Leave it hanging.",
+          "climax": "The shout. Say what just happened, then one burst of feeling.",
+          "reaction": "Come down from the shout with one observed detail.",
+          "replay_watch": "Invite the viewer to look again and point at one thing.",
+          "replay_climax": "Name where it ended up, warmly, without shouting.",
+          "sign_off": "A short tribute to the player."
+        },
+        "example_lines": {
+          "opening": "全场屏息，看他出手。",
+          "build_up": "来了！",
+          "climax": "进了！",
+          "reaction": "漂亮！",
+          "replay_watch": "再看一遍动作。",
+          "replay_climax": "就是这一下！",
+          "sign_off": "精彩！"
+        },
+        "labels": {
+          "replay_bug": "回放",
+          "end_card_kicker": "今日最佳",
+          "ai_label": "AI 生成"
+        },
+        "banned_terms": []
+      },
+      "voice": {
+        "primary": {
+          "provider": "elevenlabs",
+          "voice_id": "5mZxJZhSmJTjL7GoYfYI"
+        },
+        "fallback": {
+          "provider": "elevenlabs",
+          "voice_id": "fQj4gJSexpu8RDE2Ii5m"
+        },
+        "delivery": {
+          "opening": "excited, quick",
+          "build_up": "excited, rising, quick",
+          "climax": "excited, shouts",
+          "reaction": "amazed, excited",
+          "replay_watch": "lively, clear",
+          "replay_climax": "warm, admiring",
+          "sign_off": "smiling"
+        },
+        "words_per_second": 2.6,
+        "startup_s": 0.8,
+        "reaction_delay_s": 0.15
+      }
+    }
   }
 }

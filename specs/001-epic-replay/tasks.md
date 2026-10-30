@@ -217,8 +217,9 @@ Full design, order and go/no-go in `docs/chinese-language.md`. Not merged into m
 
 - [x] Z1 Voice IDs and audition (1h). Done 2026-10-30: 12 takes, 0.0153 USD. The owner heard Karo Yang shout on `eleven_v3` with `[excited] [shouts]` and not on `eleven_v4`, so v3 stays and no model field is needed. `docs/provider-notes.md`.
 - [x] Z2 Revision 9 as a diff, the owner's yes before any code (0.5h). Done 2026-10-30.
-- [ ] Z3 Golden-hash test first, on unchanged code; resolver, `languages.zh` blocks, loader checks with `ai_label` required, `spoken_units`; a livelier football delivery (1.5h)
+- [x] Z3 Golden-hash test first, on unchanged code; resolver, `languages.zh` blocks, loader checks with `ai_label` required, `spoken_units`; a livelier football delivery (1.5h)
   Done when: the full suite passes and the hash test fails if one byte of an English prompt or request moves.
+  As built (2026-10-30, no paid call): `tests/unit/test_english_golden.py` and `tests/fixtures/english_golden.json`, taken on the code before any change; three deliberate changes (a prompt byte, a request field, a recording key) each failed it. `loader.resolved` and `loader.for_run` give the pack as the language sees it, English being the pack itself. A language block that fails is refused alone and logged, so a bad `zh` block cannot take an English pack out of the picker. `slots.spoken_units`. `languages.zh` in the three packs and six voices in `voices.json`. Rates are starting values from Z1, conservative: football 2.6 with 0.8 s start-up (the climax slot holds three characters), news 2.2 with 0.3, nature 3.0 with 0.5. The pack `banned_terms` of the `zh` blocks stay empty until Z5. Tests: `tests/unit/test_languages.py`.
 - [ ] Z4 `language` end to end, `zh` generic lines, the S7 `hit_word` path with a test on the recorded timings, `language_code`, the call sites, the sidecar gloss (2h)
   Done when: a `language=zh` fixture run reaches `final.mp4` with stubs at no cost, and every English recording replays with 0 new calls.
 - [ ] Z5 `zh` word lists with allowed phrases, about 100 ordinary sentences with glosses, S6 rules, a planted-error script (1.5h)

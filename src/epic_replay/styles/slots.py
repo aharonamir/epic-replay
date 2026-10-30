@@ -12,11 +12,15 @@ budget. The rules:
 - the word budget is floor((max_duration_s - startup_s) x words_per_second): a take spends about
   `startup_s` on getting going whatever its length (T020), then speaks at the pack's rate; a
   slot left with no word is dropped, except a key slot, which keeps one.
+
+The budget's unit is `spoken_units`: in a `zh` run a word is one CJK character (data-model.md),
+and the resolved pack's rate is characters per second.
 """
 
 from __future__ import annotations
 
 import math
+import re
 from dataclasses import dataclass
 
 GAP_S = 0.1
@@ -29,6 +33,13 @@ class NoRoom(ValueError):
 
 
 EPS = 1e-6
+CJK = re.compile(r"[\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff]")
+
+
+def spoken_units(text: str, language: str = "en") -> int:
+    """How many units of the word budget `text` holds: a CJK character in `zh`, with punctuation
+    and spaces not counted; otherwise a whitespace token."""
+    return len(CJK.findall(text)) if language == "zh" else len(text.split())
 
 
 @dataclass(frozen=True)
