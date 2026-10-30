@@ -1,0 +1,202 @@
+{
+  "takes": {
+    "football_v3_shout_tags": {
+      "chars_sent": 27,
+      "billed_chars": 11,
+      "header": "11",
+      "spoken_chars": 6,
+      "trimmed_s": 3.44,
+      "chars_per_s": 1.74,
+      "rms": 0.2622,
+      "peak": 0.909,
+      "pitch_hz": 375.0,
+      "timing": {
+        "over_text_as_sent": true,
+        "entries": 27,
+        "char_s": 1.6,
+        "rise_s": 1.65
+      }
+    },
+    "football_v3_shout_plain": {
+      "chars_sent": 8,
+      "billed_chars": 3,
+      "header": "3",
+      "spoken_chars": 6,
+      "trimmed_s": 2.24,
+      "chars_per_s": 2.68,
+      "rms": 0.1864,
+      "peak": 0.831,
+      "pitch_hz": 258.8,
+      "timing": {
+        "over_text_as_sent": true,
+        "entries": 8,
+        "char_s": 0.88,
+        "rise_s": 0.96
+      }
+    },
+    "football_v4_shout_tags": {
+      "chars_sent": 27,
+      "billed_chars": 11,
+      "header": "11",
+      "spoken_chars": 6,
+      "trimmed_s": 1.99,
+      "chars_per_s": 3.02,
+      "rms": 0.0974,
+      "peak": 0.711,
+      "pitch_hz": 350.4,
+      "timing": {
+        "over_text_as_sent": true,
+        "entries": 27,
+        "char_s": 1.12,
+        "rise_s": 1.09
+      }
+    },
+    "football_v4_shout_plain": {
+      "chars_sent": 8,
+      "billed_chars": 3,
+      "header": "3",
+      "spoken_chars": 6,
+      "trimmed_s": 1.93,
+      "chars_per_s": 3.11,
+      "rms": 0.0502,
+      "peak": 0.44,
+      "pitch_hz": 256.0,
+      "timing": {
+        "over_text_as_sent": true,
+        "entries": 8,
+        "char_s": 0.96,
+        "rise_s": 0.99
+      }
+    },
+    "football_v3_calm": {
+      "chars_sent": 35,
+      "billed_chars": 14,
+      "header": "14",
+      "spoken_chars": 10,
+      "trimmed_s": 3.6,
+      "chars_per_s": 2.78,
+      "rms": 0.0926,
+      "peak": 0.81,
+      "pitch_hz": 177.1,
+      "timing": {
+        "over_text_as_sent": true,
+        "entries": 35
+      }
+    },
+    "football_v3_long": {
+      "chars_sent": 45,
+      "billed_chars": 18,
+      "header": "18",
+      "spoken_chars": 18,
+      "trimmed_s": 6.86,
+      "chars_per_s": 2.62,
+      "rms": 0.1273,
+      "peak": 0.911,
+      "pitch_hz": 183.9,
+      "timing": {
+        "over_text_as_sent": true,
+        "entries": 45
+      }
+    },
+    "news_v3_calm": {
+      "chars_sent": 42,
+      "billed_chars": 17,
+      "header": "17",
+      "spoken_chars": 10,
+      "trimmed_s": 4.21,
+      "chars_per_s": 2.38,
+      "rms": 0.1067,
+      "peak": 0.803,
+      "pitch_hz": 148.1,
+      "timing": {
+        "over_text_as_sent": true,
+        "entries": 42
+      }
+    },
+    "news_v3_key": {
+      "chars_sent": 28,
+      "billed_chars": 11,
+      "header": "11",
+      "spoken_chars": 6,
+      "trimmed_s": 2.21,
+      "chars_per_s": 2.71,
+      "rms": 0.1571,
+      "peak": 0.763,
+      "pitch_hz": 174.5,
+      "timing": {
+        "over_text_as_sent": true,
+        "entries": 28,
+        "char_s": 0.96,
+        "rise_s": 1.03
+      }
+    },
+    "news_v3_long": {
+      "chars_sent": 52,
+      "billed_chars": 21,
+      "header": "21",
+      "spoken_chars": 18,
+      "trimmed_s": 8.09,
+      "chars_per_s": 2.22,
+      "rms": 0.119,
+      "peak": 0.872,
+      "pitch_hz": 144.4,
+      "timing": {
+        "over_text_as_sent": true,
+        "entries": 52
+      }
+    },
+    "nature_v3_calm": {
+      "chars_sent": 33,
+      "billed_chars": 13,
+      "header": "13",
+      "spoken_chars": 10,
+      "trimmed_s": 2.33,
+      "chars_per_s": 4.29,
+      "rms": 0.1163,
+      "peak": 0.898,
+      "pitch_hz": 89.7,
+      "timing": {
+        "over_text_as_sent": true,
+        "entries": 33
+      }
+    },
+    "nature_v3_key": {
+      "chars_sent": 35,
+      "billed_chars": 14,
+      "header": "14",
+      "spoken_chars": 6,
+      "trimmed_s": 2.27,
+      "chars_per_s": 2.64,
+      "rms": 0.1647,
+      "peak": 0.918,
+      "pitch_hz": 146.2,
+      "timing": {
+        "over_text_as_sent": true,
+        "entries": 35,
+        "char_s": 1.36,
+        "rise_s": 1.45
+      }
+    },
+    "nature_v3_long": {
+      "chars_sent": 43,
+      "billed_chars": 17,
+      "header": "17",
+      "spoken_chars": 18,
+      "trimmed_s": 5.93,
+      "chars_per_s": 3.04,
+      "rms": 0.1353,
+      "peak": 0.887,
+      "pitch_hz": 93.4,
+      "timing": {
+        "over_text_as_sent": true,
+        "entries": 43
+      }
+    }
+  },
+  "account_chars_before": 3212,
+  "account_chars_after": 3365,
+  "account_delta": 153,
+  "chars_sent": 383,
+  "billed_by_header": 153,
+  "usd_by_header": 0.0153
+}

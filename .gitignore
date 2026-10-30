@@ -11,6 +11,7 @@ eval/originals/
 node_modules/
 *.egg-info/
 eval/spike/voices/
+eval/spike/zh_voices/
 eval/spike/frames/
 eval/spike/work/
 logs/

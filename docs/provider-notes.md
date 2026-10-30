@@ -228,3 +228,24 @@ The key-moment line is no, so plan.md section 6 applies: the play card opens wit
 - The times are not exact. Compared with the energy of the same audio (10 ms blocks): "Top" in "There it is. Top corner." is given 1.38 s and the sound starts at 1.47 to 1.50 s (0.1 s early); "There" is given 0.21 s and starts at 0.16 s (0.05 s late); the first word "TOP" of "TOP CORNER!" is given 0.37 s and sounds from 0.14 s (0.2 s late, as if the tags took up speaking time).
 - Decision in `stages/s7_voice.py`: the first word of a line is placed by the take's first onset, as before. A later `hit_word` uses the character time moved to the nearest rise in the audio within 0.15 s (`audio.snap_to_rise`; 1.38 s gives 1.50 s here), or the raw character time when no rise is near. A recording without timings (every earlier one) is placed by the onset.
 - Football key lines in practice have the key word first, so the timings change nothing for them; they matter for the News reporter, whose key line starts with a lead-in.
+
+### Z1: Mandarin voices, 2026-10-30 (owner's yes, cap 0.06 USD; 0.0153 USD at the 0.10 per 1,000 rate)
+
+`tools/spike_z1_zh.py`, 12 takes, every one through `with-timestamps` with `language_code: zh`. Takes in `eval/spike/zh_voices/`, numbers in `eval/spike/z1_zh.json`. Measured only: not yet listened to.
+
+| Take | Trimmed s | Spoken chars/s | RMS | Median pitch Hz |
+|---|---|---|---|---|
+| Karo Yang v3 shout, tags | 3.44 | 1.74 | 0.262 | 375 |
+| Karo Yang v3 shout, plain | 2.24 | 2.68 | 0.186 | 259 |
+| Karo Yang v4 shout, tags | 1.99 | 3.02 | 0.097 | 350 |
+| Karo Yang v4 shout, plain | 1.93 | 3.11 | 0.050 | 256 |
+| Karo Yang v3 calm / long | 3.60 / 6.86 | 2.78 / 2.62 | 0.093 / 0.127 | 177 / 184 |
+| Lao Dao v3 calm / key / long | 4.21 / 2.21 / 8.09 | 2.38 / 2.71 / 2.22 | 0.107 / 0.157 / 0.119 | 148 / 175 / 144 |
+| Haoran v3 calm / key / long | 2.33 / 2.27 / 5.93 | 4.29 / 2.64 / 3.04 | 0.116 / 0.165 / 0.135 | 90 / 146 / 93 |
+
+- Baseline, Gerald's English shout on v3 with the same tags: 1.87 s, RMS 0.222, 316 Hz.
+- Billing: the account's count rose by 153 for 383 characters sent, which matches the `character-cost` header on every take: 0.40 a character on both `eleven_v3` and `eleven_v4`, tags and punctuation counted. The USD rate per credit is still not checked against billing. English was not measured here.
+- Character timings work in Chinese on both models: `alignment` is over the text as sent, tags included. The start of 太 against the nearest rise: -0.03 to +0.09 s, inside S7's 0.15 s snap. The first character is late, as in English (进 is given 0.48 s, the sound starts about 0.1 s), so a first-word key still uses the onset.
+- The library verifies these voices on `eleven_v4`, not `eleven_v3`; `/v1/models` and the docs list Mandarin on v3, and all takes returned audio.
+- Shared voices synthesised without being added to the account, as in T004.
+
