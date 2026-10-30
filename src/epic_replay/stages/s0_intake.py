@@ -2,8 +2,9 @@
 
 The working copy is constant 30 fps, at most 1080 lines high, with the sound kept because
 S1 needs it. FFmpeg applies the container's rotation while converting, so the working copy is
-upright and its `rotation` is 0. Vertical clips and capture-rate detection come back later
-(re-plan, cut item 12): `capture_fps` equals `fps` until then.
+upright and its `rotation` is 0; a vertical clip stays vertical. `capture_fps` is the upload's
+own average frame rate when the container gives one, else `fps`. S9's real-frame path, which
+would use it, stays deferred.
 
 The length is checked twice: on the container, and again on the working copy, because a file
 cut short keeps the length its header promised and FFmpeg converts only what it can read.
@@ -31,7 +32,7 @@ def probe(path: Path) -> dict:
     """ffprobe's format duration and streams, or {} when the file cannot be read."""
     out = subprocess.run(
         ["ffprobe", "-v", "error", "-show_entries",
-         "format=duration:stream=codec_type,width,height", "-of", "json", str(path)],
+         "format=duration:stream=codec_type,width,height,avg_frame_rate,r_frame_rate", "-of", "json", str(path)],
         capture_output=True, text=True,
     )  # fmt: skip
     if out.returncode != 0:
@@ -45,6 +46,19 @@ def probe(path: Path) -> dict:
 
 def video_stream(info: dict) -> dict | None:
     return next((s for s in info.get("streams", []) if s.get("codec_type") == "video"), None)
+
+
+def capture_fps(v: dict | None) -> float:
+    """The source's frame rate, or WORK_FPS when ffprobe gives none (it says "0/0")."""
+    for key in ("avg_frame_rate", "r_frame_rate"):
+        num, _, den = str((v or {}).get(key, "")).partition("/")
+        try:
+            rate = float(num) / float(den or 1)
+        except (ValueError, ZeroDivisionError):
+            continue
+        if rate > 0:
+            return round(rate, 3)
+    return WORK_FPS
 
 
 def duration(info: dict) -> float:
@@ -116,7 +130,7 @@ def run(ctx: RunContext) -> StageResult:
         "height": v["height"],
         "rotation": 0,
         "fps": WORK_FPS,
-        "capture_fps": WORK_FPS,
+        "capture_fps": capture_fps(video_stream(src_info)),
         "has_audio": has_audio,
         "source_sha256": sha256_file(src),
     }

@@ -38,7 +38,7 @@ def test_a_valid_clip_gives_a_30fps_working_copy_and_clip_meta(tmp_path):
     assert res.status == "ok", res.note
     meta = json.loads((tmp_path / "clip_meta.json").read_text())
     assert set(meta) == set(json.loads(open(FIXTURE_META).read()))
-    assert meta["fps"] == 30 and meta["capture_fps"] == 30 and meta["rotation"] == 0
+    assert meta["fps"] == 30 and meta["capture_fps"] == 25 and meta["rotation"] == 0
     assert meta["has_audio"] is True and abs(meta["duration_s"] - 4) < 0.1
     assert (meta["width"], meta["height"]) == (320, 180)
     assert len(meta["source_sha256"]) == 64
@@ -139,6 +139,25 @@ def test_a_rotated_clip_comes_out_upright(tmp_path):
     assert s0_intake.run(ctx(tmp_path)).status == "ok"
     meta = json.loads((tmp_path / "clip_meta.json").read_text())
     assert (meta["width"], meta["height"], meta["rotation"]) == (180, 320, 0)
+
+
+def test_a_vertical_clip_stays_vertical_and_its_capture_rate_is_kept(tmp_path):
+    make(tmp_path / "upload.mp4", 3, size="180x320", rate=120, audio=False)
+    assert s0_intake.run(ctx(tmp_path)).status == "ok"
+    meta = json.loads((tmp_path / "clip_meta.json").read_text())
+    assert (meta["width"], meta["height"]) == (180, 320)
+    assert (meta["fps"], meta["capture_fps"]) == (30, 120)
+
+
+@pytest.mark.parametrize("stream, want", [
+    ({"avg_frame_rate": "30000/1001", "r_frame_rate": "30/1"}, 29.97),
+    ({"avg_frame_rate": "0/0", "r_frame_rate": "240/1"}, 240),
+    ({"avg_frame_rate": "0/0", "r_frame_rate": "0/0"}, 30),
+    ({}, 30),
+    (None, 30),
+])  # fmt: skip
+def test_the_capture_rate_falls_back_to_the_working_rate(stream, want):
+    assert s0_intake.capture_fps(stream) == want
 
 
 def test_the_source_hash_is_of_the_whole_upload(tmp_path):
