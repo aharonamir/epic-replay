@@ -13,19 +13,19 @@ Every Chinese term and line the build uses, with its English meaning. Terms come
 | 幼童 | small child |
 | 小朋友 | little one |
 | 男孩 | boy |
-| 少年 | youth |
+| 少年 | young teen; adolescent boy |
 | 青少年 | teenager |
-| 青年 | youth |
+| 青年 | young adult |
 | 年轻 | young |
 | 年幼 | very young |
 | 婴儿 | baby |
 | 宝宝 | baby |
 | 幼儿 | toddler |
 | 未成年 | minor |
-| 小伙 | young lad |
-| 小学生 | primary pupil |
-| 中学生 | secondary pupil |
-| 高中生 | high-school pupil |
+| 小伙 | young fellow; young man |
+| 小学生 | primary-school pupil |
+| 中学生 | secondary pupil (middle/high schooler) |
+| 高中生 | high-school student |
 | 老人 | old person |
 | 老年 | elderly |
 | 年长 | older |
@@ -36,12 +36,12 @@ Every Chinese term and line the build uses, with its English meaning. Terms come
 | 长者 | elder |
 | 老将 | veteran |
 | 中年 | middle-aged |
-| 大爷 | old fellow |
-| 大叔 | middle-aged man |
+| 大爷 | old fellow; (also respectful) uncle, sir |
+| 大叔 | middle-aged man; uncle-ish older man |
 | 爷爷 | grandfather |
 | 外公 | grandfather |
 | 姥爷 | grandfather |
-| 年纪 | age |
+| 年纪 | age (colloquial) |
 | 年龄 | age |
 | 几岁 | how old |
 | 老当益壮 | vigorous for his age |
@@ -63,13 +63,13 @@ Every Chinese term and line the build uses, with its English meaning. Terms come
 | 女儿 | daughter |
 | 女友 | girlfriend |
 | 女朋友 | girlfriend |
-| 女将 | female athlete |
+| 女将 | female warrior/general; (fig.) formidable woman |
 | 女运动员 | female athlete |
 | 女选手 | female competitor |
 | 女球员 | female player |
 | 女裁判 | female referee |
 | 女教练 | female coach |
-| 女司机 | female driver |
+| 女司机 | female driver; (derogatory meme) "woman driver" |
 | 女同学 | female classmate |
 | 女足 | women's football |
 | 女篮 | women's basketball |
@@ -81,21 +81,21 @@ Every Chinese term and line the build uses, with its English meaning. Terms come
 | 闺女 | daughter |
 | 妈妈 | mum |
 | 母亲 | mother |
-| 大妈 | older woman |
-| 大婶 | older woman |
+| 大妈 | older woman; (often jokey/pejorative) auntie |
+| 大婶 | auntie (older woman, respectful address) |
 | 阿姨 | auntie |
 | 奶奶 | grandmother |
 | 外婆 | grandmother |
 | 姥姥 | grandmother |
-| 婆婆 | mother-in-law |
+| 婆婆 | mother-in-law (husband's mother) |
 | 妇女 | woman |
 | 妻子 | wife |
 | 老婆 | wife |
 | 太太 | wife, Mrs |
 | 夫人 | Madam, wife |
-| 媳妇 | wife |
+| 媳妇 | wife; (regional) daughter-in-law |
 | 新娘 | bride |
-| 小姐 | Miss |
+| 小姐 | Miss; young woman (note: can also mean prostitute in some contexts) |
 | 姐姐 | older sister |
 | 妹妹 | younger sister |
 
@@ -103,48 +103,50 @@ Every Chinese term and line the build uses, with its English meaning. Terms come
 
 | Term | Meaning |
 |---|---|
-| 胖子 | fatty |
+| 胖子 | fat person; chubby person (insulting: fatty) |
 | 肥胖 | obese |
 | 很胖 | very fat |
 | 胖乎乎 | chubby |
 | 小胖 | chubby one |
-| 大块头 | big guy |
+| 大块头 | big burly guy |
 | 瘦子 | skinny person |
 | 瘦弱 | frail |
 | 消瘦 | gaunt |
 | 苗条 | slim |
 | 矮子 | short person |
-| 个子 | a person's height |
+| 个子 | height; stature |
 | 身材 | figure |
 | 肌肉 | muscle |
 | 丑陋 | ugly |
-| 难看 | ugly |
-| 美丽 | beautiful (of a person) |
+| 难看 | ugly; unsightly; embarrassing |
+| 美丽 | beautiful (people, scenery, abstract things) |
 | 英俊 | handsome |
 | 帅气 | handsome |
 | 帅哥 | handsome guy |
-| 颜值 | looks |
+| 颜值 | looks; attractiveness |
 | 长相 | looks |
 | 性感 | sexy |
-| 秃头 | bald |
-| 光头 | shaved head |
+| 秃头 | bald; bald head |
+| 光头 | shaved head; bald head |
 
 ## Ability (12)
+
+Note: all entries in this section are considered derogatory in modern usage.
 
 | Term | Meaning |
 |---|---|
 | 残疾 | disabled |
-| 残废 | crippled |
-| 瘸子 | lame person |
+| 残废 | crippled (dated, offensive) |
+| 瘸子 | lame person (derogatory) |
 | 瘫痪 | paralysed |
-| 弱智 | retarded |
-| 智障 | intellectually disabled |
+| 弱智 | retarded (insult; clinical term now 智力障碍) |
+| 智障 | intellectually disabled (in practice almost always an insult: "retard") |
 | 傻子 | idiot |
-| 白痴 | idiot |
-| 脑残 | brain-dead |
-| 聋子 | deaf person |
-| 瞎子 | blind person |
-| 哑巴 | mute person |
+| 白痴 | idiot; imbecile |
+| 脑残 | brain-dead (insult) |
+| 聋子 | deaf person (derogatory) |
+| 瞎子 | blind person (derogatory) |
+| 哑巴 | mute person (derogatory) |
 
 ## Profanity and slurs (18)
 
@@ -153,21 +155,21 @@ Every Chinese term and line the build uses, with its English meaning. Terms come
 | 他妈的 | fucking |
 | 妈的 | damn |
 | 操你 | fuck you |
-| 傻逼 | cunt |
-| 牛逼 | fucking great |
+| 傻逼 | dumbass; fucker |
+| 牛逼 | fucking great; badass; awesome |
 | 卧槽 | holy shit |
 | 我靠 | holy shit |
-| 草泥马 | fuck your mother |
-| 尼玛 | your mother |
+| 草泥马 | fuck your mother (euphemistic internet pun: grass-mud horse) |
+| 尼玛 | (euphemism) damn; your mother |
 | 混蛋 | bastard |
 | 王八蛋 | bastard |
 | 狗屎 | dogshit |
 | 婊子 | bitch |
 | 贱人 | bitch |
-| 黑鬼 | racial slur |
-| 支那 | racial slur |
-| 鬼子 | racial slur |
-| 阿三 | racial slur |
+| 黑鬼 | racial slur (anti-Black) |
+| 支那 | racial slur (anti-Chinese, historical) |
+| 鬼子 | racial slur (anti-Japanese: "Japanese devil") |
+| 阿三 | racial slur (anti-Indian) |
 
 ## Real people and catchphrases (26)
 
@@ -184,7 +186,7 @@ Every Chinese term and line the build uses, with its English meaning. Terms come
 | 孙正平 | commentator |
 | 于嘉 | commentator |
 | 杨健 | commentator |
-| 苏群 | commentator |
+| 苏群 | commentator (basketball) |
 | 赵忠祥 | narrator |
 | 白岩松 | news presenter |
 | 康辉 | news presenter |
@@ -251,15 +253,15 @@ Refused unless the user gave the name.
 | Term | Meaning |
 |---|---|
 | 梅西 | Messi |
-| 罗纳尔多 | Ronaldo |
-| C罗 | Ronaldo |
+| 罗纳尔多 | Ronaldo (Brazilian, R9) |
+| C罗 | Ronaldo (Cristiano) |
 | 内马尔 | Neymar |
-| 姆巴佩 | Mbappe |
+| 姆巴佩 | Mbappé |
 | 哈兰德 | Haaland |
 | 贝克汉姆 | Beckham |
 | 齐达内 | Zidane |
 | 马拉多纳 | Maradona |
-| 贝利 | Pele |
+| 贝利 | Pelé |
 | 穆里尼奥 | Mourinho |
 | 瓜迪奥拉 | Guardiola |
 | 孙兴慜 | Son Heung-min |
@@ -351,12 +353,12 @@ Refused unless the user gave the name.
 | 百发百中 | never misses |
 | 再三 | again and again |
 | 三番五次 | time after time |
-| 四平八稳 | steady |
+| 四平八稳 | steady; well-balanced |
 | 四面八方 | from all sides |
 | 七上八下 | nervous |
 | 五花八门 | all kinds of |
 | 九死一生 | a narrow escape |
-| 两全其美 | best of both |
+| 两全其美 | best of both worlds |
 | 二话不说 | without a word |
 | 三心二意 | half-hearted |
 | 一两 | one or two |
@@ -398,7 +400,7 @@ Refused unless the user gave the name.
 | 百分之百 | one hundred percent |
 | 千变万化 | ever-changing |
 | 三下五除二 | in no time |
-| 一举两得 | two gains at one go |
+| 一举两得 | kill two birds with one stone; two gains at one go |
 
 ## Conditional, not a number here (2)
 
@@ -568,7 +570,7 @@ Refused unless the user gave the name.
 | 小伙伴们都欢呼起来。 | His pals all cheer. |
 | 这是今天比赛中年度最好的一脚。 | In today's match, the best strike of the year. |
 | 他就像电影中超人一样飞了起来。 | He flew like Superman in the film. |
-| 这一传让对方防线瘫痪了。 | That pass left the other defence collapsed. |
+| 这一传让对方防线瘫痪了。 | That pass left the other defence in disarray. |
 | 他四两拨千斤，轻松化解。 | A light touch, and he deals with it easily. |
 | 这是百年一遇的进球。 | A once-in-a-century goal. |
 | 这一脚十全十美。 | That strike was perfect. |

@@ -13,54 +13,54 @@ import re
 
 AGE = {
     "孩子": "child", "小孩": "kid", "儿童": "children", "少儿": "children", "幼童": "small child",
-    "小朋友": "little one", "男孩": "boy", "少年": "youth", "青少年": "teenager", "青年": "youth",
+    "小朋友": "little one", "男孩": "boy", "少年": "young teen; adolescent boy", "青少年": "teenager", "青年": "young adult",
     "年轻": "young", "年幼": "very young", "婴儿": "baby", "宝宝": "baby", "幼儿": "toddler",
-    "未成年": "minor", "小伙": "young lad", "小学生": "primary pupil", "中学生": "secondary pupil",
-    "高中生": "high-school pupil", "老人": "old person", "老年": "elderly", "年长": "older",
+    "未成年": "minor", "小伙": "young fellow; young man", "小学生": "primary-school pupil", "中学生": "secondary pupil (middle/high schooler)",
+    "高中生": "high-school student", "老人": "old person", "老年": "elderly", "年长": "older",
     "高龄": "advanced age", "老头": "old man", "老汉": "old man", "老者": "elder", "长者": "elder",
-    "老将": "veteran", "中年": "middle-aged", "大爷": "old fellow", "大叔": "middle-aged man",
-    "爷爷": "grandfather", "外公": "grandfather", "姥爷": "grandfather", "年纪": "age",
+    "老将": "veteran", "中年": "middle-aged", "大爷": "old fellow; (also respectful) uncle, sir", "大叔": "middle-aged man; uncle-ish older man",
+    "爷爷": "grandfather", "外公": "grandfather", "姥爷": "grandfather", "年纪": "age (colloquial)",
     "年龄": "age", "几岁": "how old", "老当益壮": "vigorous for his age", "成年": "adult",
     "成人": "adult",
 }  # fmt: skip
 FEMALE = {
     "女人": "woman", "女孩": "girl", "女士": "lady", "女子": "woman", "女性": "female",
     "女生": "girl", "女儿": "daughter", "女友": "girlfriend", "女朋友": "girlfriend",
-    "女将": "female athlete", "女运动员": "female athlete", "女选手": "female competitor",
+    "女将": "female warrior/general; (fig.) formidable woman", "女运动员": "female athlete", "女选手": "female competitor",
     "女球员": "female player", "女裁判": "female referee", "女教练": "female coach",
-    "女司机": "female driver", "女同学": "female classmate", "女足": "women's football",
+    "女司机": "female driver; (derogatory meme) \"woman driver\"", "女同学": "female classmate", "女足": "women's football",
     "女篮": "women's basketball", "女排": "women's volleyball", "女队": "women's team",
     "少女": "young girl", "美女": "beautiful woman",
-    "姑娘": "young woman", "闺女": "daughter", "妈妈": "mum", "母亲": "mother", "大妈": "older woman",
-    "大婶": "older woman", "阿姨": "auntie", "奶奶": "grandmother", "外婆": "grandmother",
-    "姥姥": "grandmother", "婆婆": "mother-in-law", "妇女": "woman", "妻子": "wife", "老婆": "wife",
-    "太太": "wife, Mrs", "夫人": "Madam, wife", "媳妇": "wife", "新娘": "bride", "小姐": "Miss",
+    "姑娘": "young woman", "闺女": "daughter", "妈妈": "mum", "母亲": "mother", "大妈": "older woman; (often jokey/pejorative) auntie",
+    "大婶": "auntie (older woman, respectful address)", "阿姨": "auntie", "奶奶": "grandmother", "外婆": "grandmother",
+    "姥姥": "grandmother", "婆婆": "mother-in-law (husband's mother)", "妇女": "woman", "妻子": "wife", "老婆": "wife",
+    "太太": "wife, Mrs", "夫人": "Madam, wife", "媳妇": "wife; (regional) daughter-in-law", "新娘": "bride", "小姐": "Miss; young woman (note: can also mean prostitute in some contexts)",
     "姐姐": "older sister", "妹妹": "younger sister",
 }  # fmt: skip
 FEMALE_PRONOUN = "她"  # she; 她们 (they, female) holds it
 APPEARANCE = {
-    "胖子": "fatty", "肥胖": "obese", "很胖": "very fat", "胖乎乎": "chubby", "小胖": "chubby one",
-    "大块头": "big guy", "瘦子": "skinny person", "瘦弱": "frail", "消瘦": "gaunt",
-    "苗条": "slim", "矮子": "short person", "个子": "a person's height", "身材": "figure",
-    "肌肉": "muscle", "丑陋": "ugly", "难看": "ugly", "美丽": "beautiful (of a person)",
-    "英俊": "handsome", "帅气": "handsome", "帅哥": "handsome guy", "颜值": "looks",
-    "长相": "looks", "性感": "sexy", "秃头": "bald", "光头": "shaved head",
+    "胖子": "fat person; chubby person (insulting: fatty)", "肥胖": "obese", "很胖": "very fat", "胖乎乎": "chubby", "小胖": "chubby one",
+    "大块头": "big burly guy", "瘦子": "skinny person", "瘦弱": "frail", "消瘦": "gaunt",
+    "苗条": "slim", "矮子": "short person", "个子": "height; stature", "身材": "figure",
+    "肌肉": "muscle", "丑陋": "ugly", "难看": "ugly; unsightly; embarrassing", "美丽": "beautiful (people, scenery, abstract things)",
+    "英俊": "handsome", "帅气": "handsome", "帅哥": "handsome guy", "颜值": "looks; attractiveness",
+    "长相": "looks", "性感": "sexy", "秃头": "bald; bald head", "光头": "shaved head; bald head",
 }  # fmt: skip
 ABILITY = {
-    "残疾": "disabled", "残废": "crippled", "瘸子": "lame person", "瘫痪": "paralysed",
-    "弱智": "retarded", "智障": "intellectually disabled", "傻子": "idiot", "白痴": "idiot",
-    "脑残": "brain-dead", "聋子": "deaf person", "瞎子": "blind person", "哑巴": "mute person",
+    "残疾": "disabled", "残废": "crippled (dated, offensive)", "瘸子": "lame person (derogatory)", "瘫痪": "paralysed",
+    "弱智": "retarded (insult; clinical term now 智力障碍)", "智障": "intellectually disabled (in practice almost always an insult: \"retard\")", "傻子": "idiot", "白痴": "idiot; imbecile",
+    "脑残": "brain-dead (insult)", "聋子": "deaf person (derogatory)", "瞎子": "blind person (derogatory)", "哑巴": "mute person (derogatory)",
 }  # fmt: skip
 PROFANITY = {
-    "他妈的": "fucking", "妈的": "damn", "操你": "fuck you", "傻逼": "cunt", "牛逼": "fucking great",
-    "卧槽": "holy shit", "我靠": "holy shit", "草泥马": "fuck your mother", "尼玛": "your mother",
+    "他妈的": "fucking", "妈的": "damn", "操你": "fuck you", "傻逼": "dumbass; fucker", "牛逼": "fucking great; badass; awesome",
+    "卧槽": "holy shit", "我靠": "holy shit", "草泥马": "fuck your mother (euphemistic internet pun: grass-mud horse)", "尼玛": "(euphemism) damn; your mother",
     "混蛋": "bastard", "王八蛋": "bastard", "狗屎": "dogshit", "婊子": "bitch", "贱人": "bitch",
-    "黑鬼": "racial slur", "支那": "racial slur", "鬼子": "racial slur", "阿三": "racial slur",
+    "黑鬼": "racial slur (anti-Black)", "支那": "racial slur (anti-Chinese, historical)", "鬼子": "racial slur (anti-Japanese: \"Japanese devil\")", "阿三": "racial slur (anti-Indian)",
 }  # fmt: skip
 REAL_PEOPLE = {
     "黄健翔": "commentator", "宋世雄": "commentator", "詹俊": "commentator", "韩乔生": "commentator",
     "刘建宏": "commentator", "贺炜": "commentator", "段暄": "commentator", "张路": "commentator",
-    "孙正平": "commentator", "于嘉": "commentator", "杨健": "commentator", "苏群": "commentator",
+    "孙正平": "commentator", "于嘉": "commentator", "杨健": "commentator", "苏群": "commentator (basketball)",
     "赵忠祥": "narrator", "白岩松": "news presenter", "康辉": "news presenter",
     "罗京": "news presenter", "海霞": "news presenter", "李瑞英": "news presenter",
     "崔永元": "presenter", "爱登堡": "Attenborough", "艾登堡": "Attenborough",
@@ -83,9 +83,9 @@ NEWSROOM = {
 }  # fmt: skip
 # Not banned as such: a name or place is an invented name unless the user gave it (rule 4).
 FAMOUS_NAMES = {
-    "梅西": "Messi", "罗纳尔多": "Ronaldo", "C罗": "Ronaldo", "内马尔": "Neymar", "姆巴佩": "Mbappe",
+    "梅西": "Messi", "罗纳尔多": "Ronaldo (Brazilian, R9)", "C罗": "Ronaldo (Cristiano)", "内马尔": "Neymar", "姆巴佩": "Mbappé",
     "哈兰德": "Haaland", "贝克汉姆": "Beckham", "齐达内": "Zidane", "马拉多纳": "Maradona",
-    "贝利": "Pele", "穆里尼奥": "Mourinho", "瓜迪奥拉": "Guardiola", "孙兴慜": "Son Heung-min",
+    "贝利": "Pelé", "穆里尼奥": "Mourinho", "瓜迪奥拉": "Guardiola", "孙兴慜": "Son Heung-min",
     "武磊": "Wu Lei", "科比": "Kobe", "乔丹": "Jordan", "詹姆斯": "James", "库里": "Curry",
     "姚明": "Yao Ming", "易建联": "Yi Jianlian", "刘翔": "Liu Xiang", "苏炳添": "Su Bingtian",
     "林丹": "Lin Dan", "伦敦": "London", "巴黎": "Paris", "马德里": "Madrid", "巴塞罗那": "Barcelona",
@@ -115,9 +115,9 @@ NOT_NUMBERS = {
     "千钧一发": "at the critical moment", "千载难逢": "once in a lifetime", "万一": "in case",
     "万分": "extremely", "万众瞩目": "all eyes on it", "万无一失": "without fail",
     "百分百": "one hundred percent", "百发百中": "never misses", "再三": "again and again",
-    "三番五次": "time after time", "四平八稳": "steady", "四面八方": "from all sides",
+    "三番五次": "time after time", "四平八稳": "steady; well-balanced", "四面八方": "from all sides",
     "七上八下": "nervous", "五花八门": "all kinds of", "九死一生": "a narrow escape",
-    "两全其美": "best of both", "二话不说": "without a word", "三心二意": "half-hearted",
+    "两全其美": "best of both worlds", "二话不说": "without a word", "三心二意": "half-hearted",
     "一两": "one or two", "两三": "two or three", "三五": "a few", "十几": "a dozen or so",
     "几十": "dozens", "几百": "hundreds", "上百": "hundreds", "上千": "thousands",
     "四周": "all around", "四溢": "spreading everywhere", "四处": "everywhere", "四散": "scattering",
@@ -128,7 +128,7 @@ NOT_NUMBERS = {
     "两手": "both hands", "两脚": "both feet", "零距离": "up close", "零星": "scattered",
     "四两拨千斤": "a light touch beats great force", "百年一遇": "once in a century",
     "十全十美": "perfect", "百分之百": "one hundred percent", "千变万化": "ever-changing",
-    "三下五除二": "in no time", "一举两得": "two gains at one go",
+    "三下五除二": "in no time", "一举两得": "kill two birds with one stone; two gains at one go",
 }  # fmt: skip
 # Not a number here, but a number beside other words: 十分钟 is ten minutes, 一千万 ten million.
 NOT_NUMBERS_WHEN = {
