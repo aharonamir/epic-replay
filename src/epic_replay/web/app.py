@@ -710,6 +710,8 @@ def render(
     d: Path | None,
     demo: str | None = None,
     part: bool = False,
+    past: list[dict] | None = None,
+    past_count: int = 0,
 ):
     """The whole page, or with `part` only what changes as the run goes on (the inside of
     `<main>` and the header's right side), which the page swaps in place."""
@@ -720,7 +722,7 @@ def render(
     ctx = {"copy": copy, "pack": pack, "accents": accents(pack), "run": st,
            "provider_line": copy.provider_line(s), "styles": styles(packs),
            "zh_styles": [i for i, p in packs.items() if "zh" in p.get("languages", {})],
-           "demo": demo, "video_url": f"/demo/{run_id}/final.mp4" if demo else f"/runs/{run_id}/final.mp4"}  # fmt: skip
+           "past": past, "past_count": past_count, "demo": demo, "video_url": f"/demo/{run_id}/final.mp4" if demo else f"/runs/{run_id}/final.mp4"}  # fmt: skip
     if st and st["status"] == "waiting_play_card":
         card = card_data(run_id, d)
         ctx["card"] = card
@@ -737,7 +739,16 @@ def render(
 
 @app.get("/", response_class=HTMLResponse)
 def home(request: Request):
-    return render(request, None, None)
+    return render(request, None, None, past_count=len(past_videos()))
+
+
+def past_videos() -> list[dict]:
+    return views.past(settings().runs_dir, loader.load(), accents)
+
+
+@app.get("/past", response_class=HTMLResponse)
+def past(request: Request):
+    return render(request, None, None, past=past_videos())
 
 
 @app.get("/r/{run_id}", response_class=HTMLResponse)

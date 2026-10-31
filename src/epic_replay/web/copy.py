@@ -104,6 +104,11 @@ DETAILS = {
 
 DEMO = "Cached run from {date}"
 
+# The past replays view (ui.md, "Past replays").
+PAST = {"link": "Past replays", "headline": "Past replays", "one": "1 video", "many": "{n} videos",
+        "empty": "No replays yet. Make your first one.", "make": "Make a replay",
+        "untitled": "Your replay"}  # fmt: skip
+
 STOPPED = {
     "headline": "Stopped",
     "sensitive": "This clip isn't one we can narrate: {reason}.",

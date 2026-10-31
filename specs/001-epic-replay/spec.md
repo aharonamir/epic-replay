@@ -2,7 +2,7 @@
 
 **Feature branch**: `001-epic-replay`
 **Created**: 2026-10-11
-**Status**: Draft, revision 9
+**Status**: Draft, revision 10
 **Input**: "You film your own goal or trick. The agent watches the clip, writes and voices an excited broadcast-style call of what actually happened, then adds a slow-motion replay and a score graphic."
 **Added in revision 2**: "In the MVP it is a web page: upload the video, choose a narration style (football enthusiast, news reporter and so on), see the progress, see the result."
 **Added in revision 3**: one person builds it in two weeks; the clip does not have to be a sport event; children are likely to appear in the footage; the confirmation step and the three styles stay.
@@ -243,6 +243,10 @@ On the start page the user chooses English or 中文. In a Mandarin run the comm
 - **FR-046**: In Mandarin the word budget counts spoken CJK characters, and `hit_word` is one to three characters of the line. Banned terms are multi-character terms matched as substrings after allowed phrases are masked out, plus the pronoun 她. Numbers are read as Chinese numerals as well as digits, and digits in a line are refused. Latin-script words not in the play sheet or user context are refused, and a list of famous names is banned.
 - **FR-047**: Choosing English MUST change nothing: no English prompt, request, recording key or pack field differs from revision 8, and a test holding their hashes proves it.
 
+**Past replays (revision 10)**
+
+- **FR-048**: The start page MUST offer a link, shown once at least one finished video exists, to a view listing every finished video on this machine, newest first and grouped by day, each opening its result page. The start page itself MUST show no picture from a clip. Deleting a clip removes it from the list.
+
 ### 4.2 Key entities
 
 - **Run**: one clip told in one style, and everything produced for it; has a manifest, a cost ledger and a status. A second style of the same play is a new run that starts from a copy of the first run's analysis, play sheet, storyboard and video segments.
@@ -422,4 +426,5 @@ Success criteria as measured in the one-person MVP:
 - Revision 5 (2026-10-11): the owner approved the visual design of the page, made on the design canvas. Added contracts/design.md (colours, type, layout, parts) and a copy of the canvas files in contracts/design-canvas/. contracts/ui.md redrawn to the approved layout, with a table of all wording. Style packs gain an optional `graphics.accent_text`; the page takes its colour from the chosen pack. The descriptions of two example packs shortened, and the News reporter's no longer says "goal". No requirement, success criterion or task hour changed.
 - Revision 7 (2026-10-15): nine working days. The signal scan (S1) is built; the Spotter looks at contact sheets and answers with a cell, code refines and snaps to a sound onset; the Spotter runs as a fixed sequence (plan.md sections 4.2 to 4.4). Key lines are placed by their key word (`hit_word`, plan.md section 4.8). FR-007 and FR-024 extended. The MVP ships two styles; section 10 lists the other cuts. Section 8 records the decisions. Existing ids are unchanged.
 - Revision 9 (2026-10-30): a language toggle, English or Mandarin (US6, FR-044 to FR-047), on branch `zh`. FR-019 amended. Mandarin voices, budgets by character, its own guards and the stated limit of the name check. Section 8 records the decisions. Existing ids are unchanged, and nothing changes for English.
+- Revision 10 (2026-10-31): the past replays view (FR-048), asked for by the owner; the gallery was out of scope until now. No authentication is added: the list makes every run reachable by anyone who can reach the server, so the app stays local.
 - Revision 8 (2026-10-20): Gate 0's key-moment line is no (T003 contact sheets). The play card always opens with the nudge active, offers the S1 candidates as other moments, and the user's pick is the climax. The Spotter is overview-only; refining passes and the second look are deferred (section 10). SC-1, SC-2 and SC-5 re-set from T003. US2, FR-007 and FR-010 amended. Existing ids are unchanged.

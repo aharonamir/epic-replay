@@ -1,6 +1,34 @@
 {# The inside of <main>, in the run's state. The page swaps it in place as the run goes on;
    every value reaches it through autoescape, or through tojson in a JSON script block. #}
-{% if not run %}
+{% if past is not none %}
+{# ---------------------------------------------------------------- Past replays #}
+<div class="past-head">
+  <h1 class="result">{{ copy.PAST.headline }}</h1>
+  {% if past %}<span class="data muted">{{ copy.PAST.one if past | length == 1 else copy.PAST.many.format(n=past | length) }}</span>{% endif %}
+</div>
+{% for day in past | groupby("date") | reverse %}
+<section class="past-day">
+  <h2>{{ day.grouper }}</h2>
+  <div class="replays">
+    {% for v in day.list %}
+    <a class="replay" href="/r/{{ v.run_id }}" style="--card-accent:{{ v.accent }};--card-on-accent:{{ v.on_accent }}">
+      <span class="thumb replay-frame">
+        {% if v.frame_url %}<img src="{{ v.frame_url }}" alt="" loading="lazy">{% endif %}
+        <span class="sample {{ v.layout }}">{% if v.layout == "ticker" %}<span class="kicker"{% if v.lang %} lang="{{ v.lang }}"{% endif %}>{{ v.kicker }}</span>{% endif %}<span class="line"{% if v.lang %} lang="{{ v.lang }}"{% endif %}>{{ v.headline }}</span></span>
+      </span>
+      <span class="replay-meta"><span class="dot" aria-hidden="true"></span><span class="name">{{ v.narrator }}</span>{% if v.lang %}<span lang="zh-Hans">中文</span>{% endif %}<span class="data muted">{{ v.duration }}</span></span>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+{% else %}
+<div class="past-empty">
+  <p>{{ copy.PAST.empty }}</p>
+  <a class="button primary" href="/">{{ copy.PAST.make }}</a>
+</div>
+{% endfor %}
+
+{% elif not run %}
 {# ---------------------------------------------------------------- 1. Start #}
 <form id="start" class="cols" novalidate>
   <div class="left">
@@ -119,7 +147,8 @@
   </div>
   <div class="result-side">
     <a class="button strong" href="/">{{ copy.RESULT.start_over }}</a>
-    {% if not demo %}<button type="button" class="delete" data-delete="{{ run.run_id }}">{{ copy.RESULT.delete }}</button>
+    {% if not demo %}<a class="button" href="/past">{{ copy.PAST.link }}</a>
+    <button type="button" class="delete" data-delete="{{ run.run_id }}">{{ copy.RESULT.delete }}</button>
     <p class="error" id="delete-error" role="alert"></p>{% endif %}
   </div>
 </div>

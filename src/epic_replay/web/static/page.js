@@ -240,12 +240,14 @@
 
   // ---- the swapped part: delete, details, the card
   function initMain(root) {
-    // Delete this clip now (FR-037): at once, then back to the start
+    // Delete this clip now (FR-037): at once, then back to the start, or to the past replays
+    // if that is where the clip was opened, so old clips can be cleared one after another
+    const after = document.referrer.endsWith("/past") ? "/past" : "/";
     root.querySelectorAll("[data-delete]").forEach((b) => b.addEventListener("click", async () => {
       b.disabled = true;
       try {
         const r = await fetch(`/runs/${b.dataset.delete}`, { method: "DELETE" });
-        if (r.ok || r.status === 404) { live.stop(); location.href = "/"; return; }
+        if (r.ok || r.status === 404) { live.stop(); location.href = after; return; }
         $("delete-error").textContent = await why(r, "The clip was not deleted. Try again.");
       } catch (err) {
         $("delete-error").textContent = "The clip was not deleted. Try again.";

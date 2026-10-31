@@ -9,6 +9,7 @@ import json
 from pathlib import Path
 
 from epic_replay.flow import runner
+from epic_replay.styles import loader
 from epic_replay.web import copy
 
 D = copy.DETAILS
@@ -155,3 +156,45 @@ def time_and_cost(state: dict) -> dict:
     ]  # fmt: skip
     total_s = sum(s["duration_s"] or 0 for s in state["steps"])
     return {"rows": rows, "duration": f"{total_s} s", "cost": _num(state["cost_usd"], 4)}
+
+
+def _past_item(d: Path, m: dict, packs: dict, accents) -> dict:
+    """One finished video as the past replays view shows it, in its narrator's lower third."""
+    zh = m.get("language") == "zh"
+    pack = packs.get(m.get("style")) or loader.default(packs)
+    labels = pack["languages"]["zh"]["script"]["labels"] if zh and "zh" in pack.get("languages", {}) else pack["script"]["labels"]  # fmt: skip
+    meta, ps = _read(d, "clip_meta.json"), _read(d, "play_sheet.json") or {}
+    has_frames = meta is not None and (d / "work.mp4").is_file()
+    frame = ps.get("climax", {}).get("frame", 0)
+    duration = (_read(d, "render.json") or {}).get("duration_s")
+    return {
+        "run_id": d.name,
+        "created_at": m["created_at"],
+        "date": m["created_at"][:10],
+        "headline": (_read(d, "script.json") or {}).get("headline") or copy.PAST["untitled"],
+        "lang": "zh-Hans" if zh else None,
+        "frame_url": f"/runs/{d.name}/frames/{frame}.jpg" if has_frames else None,
+        "duration": f"{duration:.0f} s" if duration is not None else "",
+        "narrator": pack["name"],
+        "layout": pack["graphics"]["lower_third_layout"],
+        "kicker": labels["end_card_kicker"],
+        **accents(pack),
+    }
+
+
+def past(root: Path, packs: dict, accents) -> list[dict]:
+    """Every finished video in the runs folder, newest first (FR-048). A folder on its way out
+    (`.deleting-*`) or one that cannot be read is left out, never an error. `accents` is the
+    page's own function, passed in because the app imports this module."""
+    items = []
+    for d in root.iterdir() if root.is_dir() else ():
+        m = _read(d, "manifest.json")
+        if d.name.startswith(".") or not isinstance(m, dict):
+            continue
+        if m.get("status") != "done" or not (d / "final.mp4").is_file():
+            continue
+        try:
+            items.append(_past_item(d, m, packs, accents))
+        except (AttributeError, KeyError, TypeError, ValueError):
+            continue
+    return sorted(items, key=lambda x: (x["created_at"], x["run_id"]), reverse=True)

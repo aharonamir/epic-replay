@@ -184,3 +184,101 @@ def test_a_cached_run_is_shown_with_its_date_and_no_delete(app, tmp_path, monkey
     assert client.get("/demo/pancakes/final.mp4").status_code == 200
     assert client.get("/demo/nope").status_code == 404
     assert client.get("/demo/..%2Fruns%2Fd").status_code == 404
+
+
+# -- past replays (FR-048)
+
+
+def finished(s, run_id, created_at="2026-10-31T10:00:00Z", status="done", video=True, headline="A great moment", **extra):  # fmt: skip
+    d = s.runs_dir / run_id
+    d.mkdir(parents=True)
+    manifest = {"run_id": run_id, "created_at": created_at, "status": status, "style": "news_reporter",
+                "stack": {"mode": "replay"}, "stages": [], **extra}  # fmt: skip
+    (d / "manifest.json").write_text(json.dumps(manifest))
+    (d / "script.json").write_text(json.dumps({"headline": headline}))
+    (d / "render.json").write_text(json.dumps({"duration_s": 33.6}))
+    if video:
+        (d / "final.mp4").write_bytes(b"video")
+    return d
+
+
+def test_past_lists_finished_videos_newest_first_by_day_and_opens_their_result(app):
+    client, s, _, _ = app
+    finished(s, "old", created_at="2026-10-29T10:00:00Z", headline="Older one")
+    finished(s, "new", created_at="2026-10-31T09:00:00Z", headline="Newer one")
+    finished(s, "newest", created_at="2026-10-31T11:00:00Z", headline="Newest one")
+    page = client.get("/past").text
+    assert page.index("Newest one") < page.index("Newer one") < page.index("Older one")
+    assert page.index("2026-10-31") < page.index("2026-10-29") and page.count("<h2>") == 2
+    assert 'href="/r/new"' in page and "3 videos" in page and "34 s" in page
+
+
+def test_past_leaves_out_what_has_no_finished_video(app):
+    client, s, _, _ = app
+    finished(s, "good")
+    finished(s, "failed", status="failed")
+    finished(s, "running", status="running", video=False)
+    finished(s, "no_video", video=False)
+    finished(s, ".deleting-gone")
+    page = client.get("/past").text
+    assert 'href="/r/good"' in page and page.count('class="replay"') == 1 and "1 video" in page
+
+
+def test_past_survives_unreadable_folders_and_names_a_video_with_no_script(app):
+    client, s, _, _ = app
+    (s.runs_dir / "broken").mkdir(parents=True)
+    (s.runs_dir / "broken" / "manifest.json").write_text("{not json")
+    (s.runs_dir / "stray.txt").write_text("not a run")
+    finished(s, "bad_times", created_at=None)
+    d = finished(s, "bad_script")
+    (d / "script.json").write_text("{not json")
+    (d / "play_sheet.json").write_text('{"climax": []}')
+    r = client.get("/past")
+    assert r.status_code == 200 and r.text.count('class="replay"') == 0  # a bad play sheet too
+    (d / "play_sheet.json").unlink()
+    page = client.get("/past").text
+    assert page.count('class="replay"') == 1 and copy.PAST["untitled"] in page
+
+
+def test_past_uses_the_key_moment_as_the_picture_and_stripes_without_a_clip(app):
+    client, s, _, _ = app
+    d = finished(s, "has_clip")
+    (d / "clip_meta.json").write_text("{}")
+    (d / "work.mp4").write_bytes(b"video")
+    (d / "play_sheet.json").write_text(json.dumps({"climax": {"frame": 42}}))
+    finished(s, "cli_run")
+    page = client.get("/past").text
+    assert "/runs/has_clip/frames/42.jpg" in page and "/runs/cli_run/frames" not in page
+
+
+def test_past_escapes_a_headline_and_marks_mandarin(app):
+    client, s, _, _ = app
+    finished(s, "en", headline="<script>alert(1)</script>")
+    finished(s, "zh", headline="全场沸腾", language="zh")
+    page = client.get("/past").text
+    assert "<script>alert(1)" not in page and "&lt;script&gt;alert(1)" in page
+    assert '<span class="line" lang="zh-Hans">全场沸腾</span>' in page
+
+
+def test_past_with_nothing_in_it_says_how_to_make_one(app):
+    client, _, _, _ = app
+    page = client.get("/past").text
+    assert copy.PAST["empty"] in page and copy.PAST["make"] in page and "0 videos" not in page
+
+
+def test_home_links_to_past_only_with_a_video_and_shows_no_picture_of_a_clip(app):
+    client, s, _, _ = app
+    assert 'href="/past"' not in client.get("/").text
+    d = finished(s, "one")
+    (d / "clip_meta.json").write_text("{}")
+    (d / "work.mp4").write_bytes(b"video")
+    page = client.get("/").text
+    assert 'href="/past"' in page and "(1)" in page and "/frames/" not in page
+
+
+def test_a_deleted_run_leaves_past_and_a_result_links_back(app):
+    client, s, _, _ = app
+    finished(s, "gone")
+    assert 'href="/past"' in client.get("/r/gone").text
+    assert client.delete("/runs/gone").status_code == 204
+    assert 'href="/r/gone"' not in client.get("/past").text

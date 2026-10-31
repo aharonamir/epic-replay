@@ -2,9 +2,9 @@
 
 Revision 5 (2026-10-11): layout and wording brought in line with the design the owner approved on the design canvas. What the page does is unchanged from revision 3. Colours, type and measurements are in [design.md](design.md).
 
-The MVP is one web page. It never navigates away: the same page moves through four states. It must work in a phone browser as well as on a laptop, because people will upload straight from the phone they filmed on. The wireframes below show the laptop layout; on a phone every two-column area becomes one column, in the order given under each wireframe.
+The MVP is one web page. It moves through four states without navigating away; the only other view is the list of past replays (revision 10). It must work in a phone browser as well as on a laptop, because people will upload straight from the phone they filmed on. The wireframes below show the laptop layout; on a phone every two-column area becomes one column, in the order given under each wireframe.
 
-Address: `/` for a new run, `/r/<run_id>` for an existing one. Reloading `/r/<run_id>` restores the state from `GET /runs/{id}` and re-subscribes to progress.
+Address: `/` for a new run, `/r/<run_id>` for an existing one, `/past` for the past replays. Reloading `/r/<run_id>` restores the state from `GET /runs/{id}` and re-subscribes to progress.
 
 ## States
 
@@ -15,6 +15,7 @@ Address: `/` for a new run, `/r/<run_id>` for an existing one. Reloading `/r/<ru
 | 3. Confirm | run is `waiting_play_card` | The play card, inside the progress list |
 | 4. Result | run is `done` | Video, download, try another style, details |
 | Stopped | run is `stopped` or `failed` | What happened in plain words, and what to do |
+| Past replays | `/past` (revision 10) | Every finished video, newest first |
 
 Every state has the same header: the wordmark "Epic Replay" with a rewind mark, in the colour of the chosen narrator.
 
@@ -188,6 +189,34 @@ Order on a phone: headline, tabs, player, download, the three panels, "Try anoth
 - "Delete this clip now" removes every version and the provider-side copy at once. "Keep for the demo", off by default, exempts the run from the seven-day purge.
 - In demo mode a band across the top reads "Cached run from <date>" (FR-038).
 
+## Past replays
+
+Revision 10 (2026-10-31, FR-048).
+
+```
++------------------------------------------------------------------------------+
+|  << EPIC REPLAY                                                              |
++------------------------------------------------------------------------------+
+|  PAST REPLAYS                                                      42 videos |
+|                                                                              |
+|  2026-10-31                                                                  |
+|  --------------------------------------------------------------------------  |
+|  +---------------------+  +---------------------+  +---------------------+   |
+|  |        frame        |  |        frame        |  |        frame        |   |
+|  | [TOP CORNER!]       |  | [TOP STORY | Local] |  | ___________________ |   |
+|  +---------------------+  +---------------------+  +---------------------+   |
+|  o Football      34 s     o News          31 s     o Nature        33 s      |
++------------------------------------------------------------------------------+
+```
+
+Order on a phone: one column, newest first.
+
+- The link "Past replays (N)" is at the right of the header on Start, and only when N is at least 1. No picture from a clip is on Start, so nothing from a clip shows on a projector until the link is pressed.
+- The list holds every run in the runs folder with status `done` and a `final.mp4`, whether it was made through the page or from the command line. A cached run in `demo/` is not listed.
+- Each item is one link to `/r/<run_id>`, which shows the Result state with its player, download and delete. It shows the key-moment frame, the headline in its narrator's lower third, the narrator, the length, and 中文 on a Mandarin run. A run with no working copy shows the placeholder stripes.
+- Result has a "Past replays" button. After a delete, a clip opened from the list returns to the list; any other returns to Start.
+- With nothing to list: "No replays yet. Make your first one." and "Make a replay".
+
 ## Stopped
 
 The Progress layout, with the message in place of the time left and one button for the action, by error code (contracts/http-api.md):
@@ -220,11 +249,12 @@ All text on the page lives in one file, `web/copy.py`, so wording can be reviewe
 | Confirm | Your turn. / Is this what happened? / 10 back / Earlier / Later / 10 on / Frame N · T s / Pick the moment / This one / Other moments / Check this / Keep / Remove / Yes, that's it / Fix something / Not at all / The rest will cost about $X. |
 | Result | Your replay / making / Download / AI commentary / Try another narrator / Same moment, new voice. No need to confirm again. |
 | Panels | What we saw / The script / Write it again / Every line passed its checks. / Time and cost |
-| End of page | Start over with a new clip / Keep for the demo / Delete this clip now |
+| End of page | Start over with a new clip / Past replays / Keep for the demo / Delete this clip now |
+| Past replays | Past replays (N) / N videos / 1 video / No replays yet. Make your first one. / Make a replay / Your replay (a video with no headline) |
 
 ## Not in the MVP page
 
-Accounts, a gallery of past runs, share links, editing single script lines, vertical export, score and team fields, any language but English in the page itself.
+Accounts, share links, editing single script lines, vertical export, score and team fields, any language but English in the page itself.
 
 ## Build notes
 

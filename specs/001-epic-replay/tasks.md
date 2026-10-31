@@ -236,6 +236,11 @@ Full design, order and go/no-go in `docs/chinese-language.md`. Not merged into m
   Done when: the owner has listened and read the glosses; if accepted, a cached `zh` run and backup video exist.
   As built (2026-10-31, owner's yes, 0.0338 USD against a 0.10 cap): both clips ran from the command line, `docs/eval-notes.md`. The owner watched FlippingPancakes and accepted it, noting the voice comes a little after the climax, which is minor; left as it is. In that take the shout's strong sound lands 5 ms from its target, 0.15 s after the picked frame, and the frame is the label's whole second. Bottle flip has no verdict yet. Cached at `/demo/flipping_pancakes_football_zh`, backup `demo/backup/flipping_pancakes_football_commentator_zh.mp4`; the English cached runs are unchanged. No `zh` run has gone through the page yet (go/no-go).
 
+## Spec revision 10 - Past replays (owner, 2026-10-31)
+
+- [x] P1 The past replays view: a link on Start, `GET /past`, a way back from Result (FR-048). Done when: every finished video in the runs folder is listed newest first and opens its result, a delete removes it, and Start shows no picture from a clip.
+  As built (2026-10-31, no paid call; designed with the `frontend-design` skill within design.md, as the `impeccable` skill the owner named is not on this machine): `views.past` reads the run folders and leaves out what is unfinished or unreadable; `GET /past` renders through the page's templates, each headline in its narrator's lower third. After a delete, a clip opened from the list returns to the list. Tests are in `tests/unit/test_page.py`; the look was checked by screenshot at 1280 and 390 px on made-up runs only, and the real runs folder was counted as text (42 items), with no picture opened.
+
 ## Deferred from the full design (not in the total)
 
 Listed in the order to add them back when there is time (plan.md section 6). Hours are the full-design hours.

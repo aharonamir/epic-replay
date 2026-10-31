@@ -143,6 +143,8 @@ With details open, one line in the data face (13 px, `--muted`) appears under ea
 
 **Panels.** Three native disclosure elements under the player, separated by `--line` rules, summary in weight 700. "The script" is open when the result first appears; the other two are closed. A script line is a wrapping row: time and role in the data face (168 px wide, `--muted`, or the narrator's accent text for the two key lines), then the words. The climax line is weight 700.
 
+**Past replay (revision 10).** No card box: the frame and one line under it are the whole item, and the items sit in a grid, `repeat(auto-fill, minmax(min(100%, 280px), 1fr))`, so a phone gets one column with no media query and a short last row does not stretch. The frame is 16:9 with the key-moment image or the placeholder stripes. Over its foot, the headline in the run's own lower third, as the sample caption above, at most two lines; the `caption` layout sits on a solid `--ground` band, because it has no fill of its own. Beneath: a 10 px dot in the run's accent, the narrator's name, 中文 on a Mandarin run, and the length at the right in the data face. Hover draws a 2 px border in the run's accent inside the frame, with no transition. Each day is a heading in the data face, 14 px `--muted`, over a 1 px `--line` rule. The header link is weight 600, underlined, with the count in the data face.
+
 **Form controls.** The text field is 48 px high, `--ground` fill, 1 px `--control-line` border, 4 px radius. Checkboxes and radio buttons are 20 px and use `accent-color`. Every label row is at least 44 px high.
 
 **Frames that have not loaded.** Diagonal stripes of the two placeholder colours with a short caption in the data face. On the canvas every picture is such a placeholder, because there was no footage.
@@ -162,6 +164,7 @@ With details open, one line in the data face (13 px, `--muted`) appears under ea
 | "Fix something" | The play card, with the activity and the outcome sentence as text fields. On the card the fields take a 1 px `--muted` border, because `--control-line` is too faint there |
 | "Not at all" | The play card's facts replaced by a text field for one line (bordered as above) and two buttons: a primary "Try again" and a secondary for a narration with no specific claims |
 | Re-telling | On Result, under the tabs, step rows 5 to 8 only, without the bar. The current video stays in the player |
+| Past replays, empty | The result headline, one line of body text, one primary button |
 | Demo band | A full-width strip above the header: `--raised`, small label style, "Cached run from <date>" |
 
 ## 8. Accessibility
