@@ -226,8 +226,9 @@ Full design, order and go/no-go in `docs/chinese-language.md`. Not merged into m
 - [x] Z5 `zh` word lists with allowed phrases, about 100 ordinary sentences with glosses, S6 rules, a planted-error script (1.5h)
   Done when: the owner has reviewed the lists and sentences with glosses, and the false-positive tests and the planted error pass.
   As built (2026-10-31, no paid call; lists accepted by the owner with changes, docs/zh-review.md): `guards/lexicon_zh.py`, each term with its meaning, and `s6_checks.check_text_zh`. 漂亮 stays allowed. 世界杯, 奥运会 and 肌肉 are banned in `zh` though English has no such terms, and English stays unchanged on this branch. Follow-up for after the demo: consider World Cup and Olympics for the English list. Tests: `tests/unit/test_zh_checks.py`, 123 ordinary sentences, every term caught inside a sentence, numerals, names, Latin, and the planted error `zh_banned_term.json`.
-- [ ] Z6 CJK fonts in compose and overlays, `zh` labels (1h)
+- [x] Z6 CJK fonts in compose and overlays, `zh` labels (1h)
   Done when: both overlay paths draw Simplified Chinese glyphs inside the frame, at both orientations.
+  As built (2026-10-31, no paid call): the overlay template takes `lang="zh-Hans"` and the installed Noto Sans CJK SC, with the skins' italics, capitals and wide spacing off, and each label from the resolved pack, including `ai_label`. The FFmpeg path names the face by family, because index 0 of the `.ttc` is Japanese, and wraps between characters. The English overlay HTML hashes the same before and after. The file's metadata tag stays English. 再慢慢看一次 fits one line at 360 and 1080 px wide. Tests: `tests/unit/test_zh_graphics.py`, including the platform font the browser actually used.
 - [ ] Z7 Page toggle, persistence, docs (1h)
   Done when: the toggle works by keyboard and without `localStorage`, and the page tests pass at 390 and 1280 px.
 - [ ] Z8 End to end on FlippingPancakes and bottle flip, cost first (1h)

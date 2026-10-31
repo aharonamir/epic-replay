@@ -34,6 +34,13 @@ from epic_replay.styles import loader
 log = logging.getLogger(__name__)
 FINAL, RENDER = "final.mp4", "render.json"
 FONT = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
+# Mandarin (revision 9). The `.ttc` holds five faces and index 2 is Simplified Chinese; index 0
+# is Japanese, whose forms of the same characters differ, so FFmpeg names the face by family.
+ZH_FONT, ZH_FACE, ZH_FAMILY = (
+    "/usr/share/fonts/opentype/noto/NotoSansCJK-Bold.ttc",
+    2,
+    "Noto Sans CJK SC",
+)
 AI_LABEL = "AI COMMENTARY"
 SR = 48000
 SEARCH_S = 0.5
@@ -44,11 +51,13 @@ SIDE = 0.04  # share of the width kept clear on each side
 MIN_SHARE = 0.6  # a text is shrunk to this share of its size before it is wrapped
 
 
-def fitted(text: str, size: float, width: int) -> tuple[str, float]:
-    """The text and font size that fit across `width` px: shrunk first, then wrapped at spaces
-    (a narrow, vertical frame cannot hold a headline at a landscape frame's size)."""
+def fitted(text: str, size: float, width: int, language: str = "en") -> tuple[str, float]:
+    """The text and font size that fit across `width` px: shrunk first, then wrapped at spaces,
+    or between characters in Mandarin (a narrow, vertical frame cannot hold a headline at a
+    landscape frame's size)."""
     room = width * (1 - 2 * SIDE) - 2 * BOX
-    font = ImageFont.truetype(FONT, 100)
+    zh = language == "zh"
+    font = ImageFont.truetype(ZH_FONT, 100, index=ZH_FACE) if zh else ImageFont.truetype(FONT, 100)
     per_px = font.getlength(text) / 100  # the text's width at a size of 1 px
     if per_px * size <= room:
         return text, size
@@ -56,19 +65,21 @@ def fitted(text: str, size: float, width: int) -> tuple[str, float]:
         return text, room / per_px
     px = size * MIN_SHARE
     lines: list[str] = []
-    for word in text.split():
-        if lines and font.getlength(f"{lines[-1]} {word}") / 100 * px <= room:
-            lines[-1] += f" {word}"
+    gap = "" if zh else " "
+    for word in text.replace(" ", "") if zh else text.split():
+        if lines and font.getlength(f"{lines[-1]}{gap}{word}") / 100 * px <= room:
+            lines[-1] += f"{gap}{word}"
         else:
             lines.append(word)
     longest = max(font.getlength(ln) / 100 for ln in lines)
     return "\n".join(lines), min(px, room / longest)
 
 
-def drawtext(textfile: Path, size: float, x: str, y: str, start: float, end: float, box: bool = True) -> str:  # fmt: skip
+def drawtext(textfile: Path, size: float, x: str, y: str, start: float, end: float, box: bool = True, language: str = "en") -> str:  # fmt: skip
     boxes = f":box=1:boxcolor=black@0.55:boxborderw={BOX}" if box else ""
+    face = f"font='{ZH_FAMILY}\\:style=Bold'" if language == "zh" else f"fontfile={FONT}"
     return (
-        f"drawtext=fontfile={FONT}:textfile='{textfile}':fontsize={size:.0f}:fontcolor=white"
+        f"drawtext={face}:textfile='{textfile}':fontsize={size:.0f}:fontcolor=white"
         f"{boxes}:text_align=center:x={x}:y={y}:enable='between(t,{start},{end})'"
     )
 
@@ -80,20 +91,21 @@ def overlays(sb: dict, script: dict, pack: dict, text_dir: Path, frame: tuple[in
     w, h = frame
     u = min(w, h)
     labels = pack["script"]["labels"]
+    language = pack.get("language", "en")
     texts = {
         "title": script["headline"],
         "replay_bug": labels.get("replay_bug", "REPLAY"),
         "kicker": labels.get("end_card_kicker", ""),
         "headline": script["headline"],
-        "ai_label": AI_LABEL,
+        "ai_label": labels.get("ai_label", AI_LABEL),
     }
     text_dir.mkdir(parents=True, exist_ok=True)
 
     def text(key: str, share: float, x: str, y: str, start: float, end: float, box: bool = True):
-        body, size = fitted(texts[key], u * share, w)
+        body, size = fitted(texts[key], u * share, w, language)
         path = text_dir / f"{key}.txt"
-        path.write_text(body)
-        return drawtext(path, size, x, y, start, end, box)
+        path.write_text(body, encoding="utf-8")
+        return drawtext(path, size, x, y, start, end, box, language)
 
     ov = {o["type"]: o for o in sb["overlays"]}
     steps = []
@@ -145,8 +157,10 @@ def html_overlays(script: dict, pack: dict, frame: tuple[int, int], out_dir: Pat
     labels = pack["script"]["labels"]
     texts = {"headline": script["headline"], "replay_bug": labels.get("replay_bug", "REPLAY"),
              "kicker": labels.get("end_card_kicker", "")}  # fmt: skip
+    if "ai_label" in labels:
+        texts["ai_label"] = labels["ai_label"]
     try:
-        return html.render(texts, pack["graphics"], frame, out_dir)
+        return html.render(texts, pack["graphics"], frame, out_dir, pack.get("language", "en"))
     except Exception:  # noqa: BLE001 - the video is still made, with text overlays
         log.warning("HTML graphics failed; using FFmpeg text", exc_info=True)
         return {}
@@ -242,7 +256,7 @@ def run(ctx: RunContext) -> StageResult:
         "video_codec": v["codec_name"], "audio_codec": a["codec_name"],
         "loudness_lufs": lufs, "true_peak_dbtp": peak,
         "climax_onsets": hits,
-        "ai_label": AI_LABEL,
+        "ai_label": pack["script"]["labels"].get("ai_label", AI_LABEL),
         "graphics": "html" if pngs else "text",
     }  # fmt: skip
     ctx.path(RENDER).write_text(json.dumps(render, indent=2) + "\n")

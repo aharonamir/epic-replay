@@ -35,9 +35,10 @@ def on_accent(hex_colour: str) -> str:
     return "#121416" if (lum + 0.05) / 0.05 > 1.05 / (lum + 0.05) else "#FFFFFF"
 
 
-def page(kind: str, text: dict, graphics: dict, size: tuple[int, int]) -> str:
+def page(kind: str, text: dict, graphics: dict, size: tuple[int, int], language: str = "en") -> str:
     return _env.get_template("overlay.html").render(
         kind=kind, text=text, w=size[0], h=size[1], u=min(size),
+        lang="zh-Hans" if language == "zh" else "en", zh=language == "zh",
         accent=graphics["accent"], accent_text=graphics.get("accent_text") or graphics["accent"], on_accent=on_accent(graphics["accent"]),
         skin_css=skin_file(graphics["skin"]).read_text(), fonts=FONTS.as_uri(),
     )  # fmt: skip
@@ -49,7 +50,7 @@ def wanted(texts: dict) -> dict[str, dict]:
         "title": {"headline": texts.get("headline", "")},
         "replay_bug": {"label": texts.get("replay_bug", "")},
         "end_card": {"headline": texts.get("headline", ""), "kicker": texts.get("kicker", "")},
-        "ai_label": {"label": AI_LABEL},
+        "ai_label": {"label": texts.get("ai_label") or AI_LABEL},
     }
     return {kind: text for kind, text in all_.items() if any(text.values())}
 
@@ -58,13 +59,15 @@ def worker(request: str) -> list[str]:
     return [sys.executable, "-m", "epic_replay.graphics.render", request]
 
 
-def render(texts: dict, graphics: dict, size: tuple[int, int], out_dir: Path) -> dict[str, Path]:
+def render(
+    texts: dict, graphics: dict, size: tuple[int, int], out_dir: Path, language: str = "en"
+) -> dict[str, Path]:
     """PNGs by overlay type for the `texts` given (`headline`, `replay_bug`, `kicker`). Chromium
     runs in a child process of its own session, killed with it after TIMEOUT_S: a hung Chromium
     (it has hung on a screenshot) must end in an error the caller can fall back from. No pipes,
     so nothing the child leaves running can hold this up."""
     out_dir.mkdir(parents=True, exist_ok=True)
-    request = json.dumps({"texts": texts, "graphics": graphics, "size": size, "out_dir": str(out_dir)})  # fmt: skip
+    request = json.dumps({"texts": texts, "graphics": graphics, "size": size, "out_dir": str(out_dir), "language": language})  # fmt: skip
     with (out_dir / "render.log").open("wb") as log:
         proc = subprocess.Popen(
             worker(request), stdin=subprocess.DEVNULL, stdout=log, stderr=log, start_new_session=True
@@ -84,7 +87,9 @@ def render(texts: dict, graphics: dict, size: tuple[int, int], out_dir: Path) ->
     return done
 
 
-def render_here(texts: dict, graphics: dict, size: tuple[int, int], out_dir: Path) -> None:
+def render_here(
+    texts: dict, graphics: dict, size: tuple[int, int], out_dir: Path, language: str = "en"
+) -> None:
     """The work of `render`, in this process: one Chromium, one HTML and one PNG per overlay."""
     from playwright.sync_api import sync_playwright
 
@@ -94,7 +99,7 @@ def render_here(texts: dict, graphics: dict, size: tuple[int, int], out_dir: Pat
             ctx = browser.new_context(viewport={"width": size[0], "height": size[1]})
             for kind, text in wanted(texts).items():
                 html = out_dir / f"{kind}.html"
-                html.write_text(page(kind, text, graphics, size))
+                html.write_text(page(kind, text, graphics, size, language), encoding="utf-8")
                 pg = ctx.new_page()
                 pg.goto(html.as_uri())
                 pg.evaluate("document.fonts.ready")
@@ -106,4 +111,4 @@ def render_here(texts: dict, graphics: dict, size: tuple[int, int], out_dir: Pat
 
 if __name__ == "__main__":
     r = json.loads(sys.argv[1])
-    render_here(r["texts"], r["graphics"], tuple(r["size"]), Path(r["out_dir"]))
+    render_here(r["texts"], r["graphics"], tuple(r["size"]), Path(r["out_dir"]), r["language"])

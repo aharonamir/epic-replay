@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="{{ lang }}">
 <head>
 <meta charset="utf-8">
 <style>
@@ -32,6 +32,11 @@ body { position: relative; font-family: "Body", sans-serif; color: var(--ink); }
 
 /* skin: type and case only */
 {{ skin_css }}
+{%- if zh %}
+
+/* Mandarin: the installed Simplified Chinese face; no italics, capitals or wide spacing */
+body, .display, .skin-head, .skin-bug, .endcard .kicker, .ai { font-family: "Noto Sans CJK SC", sans-serif; font-weight: 700; font-style: normal; text-transform: none; letter-spacing: 0; }
+{%- endif %}
 </style>
 </head>
 <body>
