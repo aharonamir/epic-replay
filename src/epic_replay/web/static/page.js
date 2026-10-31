@@ -68,8 +68,23 @@
       root.setProperty("--on-accent", card.dataset.onAccent);
       root.setProperty("--accent-text", card.dataset.accentText);
     };
-    form.querySelectorAll('input[name="style"]').forEach((r) => r.addEventListener("change", recolour));
+
+    // the language: 中文 only for a narrator who speaks it, and remembered if the browser lets us
+    const zh = $("lang-zh");
+    const recall = () => { try { return localStorage.getItem("epic-language"); } catch { return null; } };
+    const remember = (v) => { try { localStorage.setItem("epic-language", v); } catch { /* a convenience only */ } };
+    const offerLanguage = () => {
+      if (!zh) return;
+      const speaks = form.querySelector('input[name="style"]:checked')?.closest(".narrator").dataset.zh === "true";
+      zh.hidden = !speaks;
+      const want = speaks && recall() === "zh" ? "zh" : "en";
+      form.querySelector(`input[name="language"][value="${want}"]`).checked = true;
+    };
+    form.querySelectorAll('input[name="language"]').forEach((r) =>
+      r.addEventListener("change", () => remember(r.value)));
+    form.querySelectorAll('input[name="style"]').forEach((r) => r.addEventListener("change", () => { recolour(); offerLanguage(); }));
     recolour();
+    offerLanguage();
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();

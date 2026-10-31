@@ -229,8 +229,9 @@ Full design, order and go/no-go in `docs/chinese-language.md`. Not merged into m
 - [x] Z6 CJK fonts in compose and overlays, `zh` labels (1h)
   Done when: both overlay paths draw Simplified Chinese glyphs inside the frame, at both orientations.
   As built (2026-10-31, no paid call): the overlay template takes `lang="zh-Hans"` and the installed Noto Sans CJK SC, with the skins' italics, capitals and wide spacing off, and each label from the resolved pack, including `ai_label`. The FFmpeg path names the face by family, because index 0 of the `.ttc` is Japanese, and wraps between characters. The English overlay HTML hashes the same before and after. The file's metadata tag stays English. 再慢慢看一次 fits one line at 360 and 1080 px wide. Tests: `tests/unit/test_zh_graphics.py`, including the platform font the browser actually used.
-- [ ] Z7 Page toggle, persistence, docs (1h)
+- [x] Z7 Page toggle, persistence, docs (1h)
   Done when: the toggle works by keyboard and without `localStorage`, and the page tests pass at 390 and 1280 px.
+  As built (2026-10-31, no paid call): "Commentary language", a native radio group under the narrator cards, English by default; 中文 is offered per narrator from a `data-zh` mark, so `GET /styles` is unchanged; the chosen language goes out with the form. A remembered 中文 returns when a narrator speaks it, and a narrator who does not leaves the memory alone. The script panel marks its lines `lang="zh-Hans"` and shows the gloss. Tests: `tests/unit/test_zh_page.py`.
 - [ ] Z8 End to end on FlippingPancakes and bottle flip, cost first (1h)
   Done when: the owner has listened and read the glosses; if accepted, a cached `zh` run and backup video exist.
 

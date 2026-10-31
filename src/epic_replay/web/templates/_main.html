@@ -27,7 +27,7 @@
     <fieldset class="narrators">
       <legend>{{ copy.NARRATORS }}</legend>
       {% for st in styles %}
-      <label class="narrator" data-accent="{{ st.accent }}" data-on-accent="{{ st.on_accent }}" data-accent-text="{{ st.accent_text }}"
+      <label class="narrator" data-accent="{{ st.accent }}" data-on-accent="{{ st.on_accent }}" data-accent-text="{{ st.accent_text }}"{% if st.id in zh_styles %} data-zh="true"{% endif %}
              style="--card-accent:{{ st.accent }};--card-on-accent:{{ st.on_accent }}">
         <input type="radio" name="style" value="{{ st.id }}"{% if st.id == pack.id %} checked{% endif %}>
         <span class="text">
@@ -40,6 +40,15 @@
       </label>
       {% endfor %}
     </fieldset>
+    {% if zh_styles %}
+    <fieldset class="languages">
+      <legend class="label muted">{{ copy.LANGUAGE }}</legend>
+      <div class="row">
+        <label class="lang"><input type="radio" checked name="language" value="en"><span>English</span></label>
+        <label class="lang" id="lang-zh"><input type="radio" name="language" value="zh"><span lang="zh-Hans">中文</span></label>
+      </div>
+    </fieldset>
+    {% endif %}
     <div class="label muted">{{ copy.OPTIONAL.label }}</div>
     <label class="field">{{ copy.OPTIONAL.star }}<input type="text" name="player_name" maxlength="40" autocomplete="off"></label>
     <label class="check-row"><input type="checkbox" id="mute">{{ copy.OPTIONAL.mute }}</label>
@@ -87,7 +96,7 @@
           {% for ln in script.lines %}
           <li class="{{ 'key' if ln.key else '' }}{{ ' climax' if ln.climax else '' }}">
             <span class="when data">{{ ln.time }}{{ ln.role }}</span>
-            <span class="words">{{ ln.text }}{% if ln.gloss %} <span class="muted">({{ ln.gloss }})</span>{% endif %}{% if ln.dropped %} <span class="data muted">({{ copy.PANELS.dropped }})</span>{% endif %}</span>
+            <span class="words"{% if script.lang %} lang="{{ script.lang }}"{% endif %}>{{ ln.text }}{% if ln.gloss %} <span class="muted" lang="en">({{ ln.gloss }})</span>{% endif %}{% if ln.dropped %} <span class="data muted">({{ copy.PANELS.dropped }})</span>{% endif %}</span>
           </li>
           {% endfor %}
         </ol>

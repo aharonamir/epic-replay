@@ -15,6 +15,7 @@ DROP = {
 }
 TIP = "Tip: film in slo-mo mode for a sharper replay."
 NARRATORS = "Who's narrating?"
+LANGUAGE = "Commentary language"
 OPTIONAL = {"label": "Optional", "star": "Who's the star?", "mute": "Remove the clip's own sound"}
 CONSENT = consent.CONSENT_TEXT
 GO = "Make my replay"

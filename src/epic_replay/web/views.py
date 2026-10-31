@@ -142,7 +142,8 @@ def script_panel(d: Path) -> dict | None:
         })  # fmt: skip
     checks = _read(d, "checks.json") or {"passed": True, "failures": []}
     failed = [f"{f.get('where', '')}: {f.get('detail', '')}" for f in checks.get("failures", [])]
-    return {"lines": lines, "passed": checks.get("passed", True) and not failed, "failures": failed}
+    lang = "zh-Hans" if sc.get("language") == "zh" else None
+    return {"lines": lines, "lang": lang, "passed": checks.get("passed", True) and not failed, "failures": failed}  # fmt: skip
 
 
 def time_and_cost(state: dict) -> dict:

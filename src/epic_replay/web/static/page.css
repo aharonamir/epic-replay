@@ -102,6 +102,16 @@ button, .button { font: 600 17px/1.2 var(--body); color: var(--text); background
   font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
 .sample.ticker .line { padding: 3px 10px; background: var(--text); color: var(--ink); font-weight: 600; }
 .sample.caption { border-top: 1px solid var(--card-accent); padding-top: 4px; color: #D9E5D2; font-style: italic; font-size: 16px; }
+/* the language: two options in a wrapping row (design.md section 5) */
+.languages { margin: 0; padding: 0; border: 0; min-width: 0; }
+.languages legend { padding: 0; }
+.lang { display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 16px; border: 1px solid var(--control-line);
+        border-radius: 4px; cursor: pointer; font-weight: 600; }
+.lang[hidden] { display: none; }
+.lang input { margin: 0; }
+.lang:has(input:checked) { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+.lang:has(input:checked) input { accent-color: var(--on-accent); }
+.lang:has(input:focus-visible) { outline: 2px solid var(--text); outline-offset: 2px; }
 .field { display: flex; flex-direction: column; gap: 6px; }
 input[type=text] { height: 48px; background: var(--ground); color: var(--text); border: 1px solid var(--control-line);
                    border-radius: 4px; padding: 0 12px; font: inherit; }

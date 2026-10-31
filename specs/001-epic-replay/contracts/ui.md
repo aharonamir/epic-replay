@@ -210,6 +210,7 @@ All text on the page lives in one file, `web/copy.py`, so wording can be reviewe
 | Drop area | Drop your clip here, or choose a file. / Any great moment. / Choose a file / 3 to 30 seconds · MP4, MOV or WebM · up to 200 MB / Change |
 | Tip | Tip: film in slo-mo mode for a sharper replay. |
 | Narrators | Who's narrating? / Listen |
+| Language | Commentary language / English / 中文 |
 | Optional | Optional / Who's the star? / Remove the clip's own sound |
 | Consent | I filmed this or have permission to use it. Everyone in it is an adult man who is happy to be filmed. I have read the note below. |
 | Provider line | Still frames from the clip are sent to the vision model provider to be looked at. Nothing else leaves this machine. The provider may use what it receives to train its models. |

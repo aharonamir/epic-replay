@@ -719,6 +719,7 @@ def render(
     pack = packs.get(st["style"]) if st and st["style"] in packs else loader.default(packs)
     ctx = {"copy": copy, "pack": pack, "accents": accents(pack), "run": st,
            "provider_line": copy.provider_line(s), "styles": styles(packs),
+           "zh_styles": [i for i, p in packs.items() if "zh" in p.get("languages", {})],
            "demo": demo, "video_url": f"/demo/{run_id}/final.mp4" if demo else f"/runs/{run_id}/final.mp4"}  # fmt: skip
     if st and st["status"] == "waiting_play_card":
         card = card_data(run_id, d)
