@@ -234,6 +234,7 @@ Full design, order and go/no-go in `docs/chinese-language.md`. Not merged into m
   As built (2026-10-31, no paid call): "Commentary language", a native radio group under the narrator cards, English by default; 中文 is offered per narrator from a `data-zh` mark, so `GET /styles` is unchanged; the chosen language goes out with the form. A remembered 中文 returns when a narrator speaks it, and a narrator who does not leaves the memory alone. The script panel marks its lines `lang="zh-Hans"` and shows the gloss. Tests: `tests/unit/test_zh_page.py`.
 - [ ] Z8 End to end on FlippingPancakes and bottle flip, cost first (1h)
   Done when: the owner has listened and read the glosses; if accepted, a cached `zh` run and backup video exist.
+  Progress (2026-10-31, owner's yes, 0.0338 USD against a 0.10 cap): both clips ran from the command line, `docs/eval-notes.md`. Not ticked: the owner has not listened yet, and no `zh` run has gone through the page.
 
 ## Deferred from the full design (not in the total)
 

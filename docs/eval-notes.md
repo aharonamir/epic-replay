@@ -71,3 +71,15 @@ All three: -14.1 LUFS and -1.9 dBTP on the finished video, after the limiter cha
 - A clip of exactly 20 s. The clips were 16.7 to 20.2 s.
 - The 30-clip evaluation set behind SC-2 (T025, deferred).
 - Whether the replays land on the climax to a viewer's eye. Nobody has watched these three videos; the timing figures come from measured onsets.
+
+## Z8 Mandarin, first real runs, 2026-10-31
+
+Owner's yes, cap 0.10 USD; spent 0.0338 USD by the ledger. Branch `zh` at `f8b300f`, command line in record mode, Football style, key moment frame 60 from the labels, no frame sent (the analysis came from recordings). Folders `runs/z8_pancakes` and `runs/z8_bottle`. Both replay for 0 USD to byte-identical videos.
+
+| Clip | Lines kept | Video | Key lines off target | Loudness | Peak | USD |
+|---|---|---|---|---|---|---|
+| FlippingPancakes | 6 of 6 | 30.6 s | 5 ms, 5 ms | -14.1 LUFS | -1.6 dBTP | 0.0193 |
+| bottle flip | 4 of 5 | 20.0 s | 5 ms, 5 ms | -14.2 LUFS | -1.6 dBTP | 0.0146 |
+
+Checks passed first time on both, the agent's first draft accepted; HTML graphics; the sign-off 漂亮 ("Beautiful!") on bottle flip ran 2.01 s at 12 percent faster and was dropped. Not measured: a run through the page, and whether it sounds right, which is the owner's to judge.
+
