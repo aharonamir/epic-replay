@@ -232,9 +232,9 @@ Full design, order and go/no-go in `docs/chinese-language.md`. Not merged into m
 - [x] Z7 Page toggle, persistence, docs (1h)
   Done when: the toggle works by keyboard and without `localStorage`, and the page tests pass at 390 and 1280 px.
   As built (2026-10-31, no paid call): "Commentary language", a native radio group under the narrator cards, English by default; 中文 is offered per narrator from a `data-zh` mark, so `GET /styles` is unchanged; the chosen language goes out with the form. A remembered 中文 returns when a narrator speaks it, and a narrator who does not leaves the memory alone. The script panel marks its lines `lang="zh-Hans"` and shows the gloss. Tests: `tests/unit/test_zh_page.py`.
-- [ ] Z8 End to end on FlippingPancakes and bottle flip, cost first (1h)
+- [x] Z8 End to end on FlippingPancakes and bottle flip, cost first (1h)
   Done when: the owner has listened and read the glosses; if accepted, a cached `zh` run and backup video exist.
-  Progress (2026-10-31, owner's yes, 0.0338 USD against a 0.10 cap): both clips ran from the command line, `docs/eval-notes.md`. Not ticked: the owner has not listened yet, and no `zh` run has gone through the page.
+  As built (2026-10-31, owner's yes, 0.0338 USD against a 0.10 cap): both clips ran from the command line, `docs/eval-notes.md`. The owner watched FlippingPancakes and accepted it, noting the voice comes a little after the climax, which is minor; left as it is. In that take the shout's strong sound lands 5 ms from its target, 0.15 s after the picked frame, and the frame is the label's whole second. Bottle flip has no verdict yet. Cached at `/demo/flipping_pancakes_football_zh`, backup `demo/backup/flipping_pancakes_football_commentator_zh.mp4`; the English cached runs are unchanged. No `zh` run has gone through the page yet (go/no-go).
 
 ## Deferred from the full design (not in the total)
 
