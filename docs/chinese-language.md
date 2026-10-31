@@ -15,8 +15,8 @@ Written 2026-10-30 (revised against the repo at 38ff345; corrected against `bd97
 
 | Style | Voice (primary) | Voice id | Fallback (owner agreed 2026-10-30) | Voice id |
 |---|---|---|---|---|
-| Football commentator | Karo Yang | `5mZxJZhSmJTjL7GoYfYI` | Yu (Taiwanese accent; the name 小宇 is **unconfirmed**, the library says only "Yu") | `fQj4gJSexpu8RDE2Ii5m` |
-| News reporter | Lao Dao | `2I36mEahS1u7ZnTKUoaB` | LiuPing (Beijing) | `pTOe8BQRdydOEIgv0wFL` |
+| Football commentator | DJ Allen (chosen 2026-10-31, replaced Karo Yang) | `lcRaSg5QsH61bfHjo8qM` | Yu (Taiwanese accent; the name 小宇 is **unconfirmed**, the library says only "Yu") | `fQj4gJSexpu8RDE2Ii5m` |
+| News reporter | Jerry (chosen 2026-10-31, replaced Lao Dao) | `pz7hOfW7kgI9kF818eDS` | LiuPing (Beijing) | `pTOe8BQRdydOEIgv0wFL` |
 | Nature documentary | Haoran | `pU9NaAwkoR3v0Mrg3uKz` | Jason Chen (Beijing) | `DowyQ68vDpgFYdWVGjc3` |
 
 - All six are male, looked up with `/v1/shared-voices` (free). The Starter plan can use them; a shared voice synthesises without being added to the account. New ids go into `src/epic_replay/styles/voices.json` (the loader checks voices there with no network).
@@ -86,6 +86,10 @@ The rehearsals of 2026-10-30 were run at `880a73c`, so after a merge they descri
 - Characters per second, punctuation excluded (calm line / long line): Karo Yang 2.78 / 2.62, Lao Dao 2.38 / 2.22, Haoran 4.29 / 3.04.
 - The two-point fit gives a negative start-up on every voice, so these are not a start-up plus a rate. Pack values are set in Z3 from the slower figure.
 - The six-character shout (`[excited] [shouts]` on v3) lasts 3.44 s, too long for the 2.0 s climax slot even at 12 percent faster, so the `zh` climax line must be about three characters.
+
+## Voice change (2026-10-31)
+
+The owner found that Karo Yang sounded a bit like a woman and auditioned DJ Allen and Xiaoming for football, then Jerry for news. Eight takes, 0.0117 USD, on `eleven_v3`. DJ Allen and Jerry replace Karo Yang and Lao Dao; the Z1 notes above describe the voices as they were. Pack rates are the slowest of the three lines, rounded down: football 2.8, news 3.1. Start-up values are unchanged and were not re-measured. Numbers in `docs/provider-notes.md` and `eval/spike/z1b_zh.json`.
 
 ## Open choices (ask the owner, do not decide alone)
 

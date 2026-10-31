@@ -352,7 +352,7 @@ Targets marked (provisional) are re-set at Gate 0 from the spike measurements, a
 **Decided by the owner on 2026-10-30 (revision 9)**
 
 - A language toggle on the start page: English (default) or 中文, Simplified Chinese, applying to the whole run; Cantonese is out of scope; the page and the play card stay in English.
-- Voices on `eleven_v3` with audio tags: Karo Yang, Lao Dao and Haoran. The owner heard the Z1 takes: Karo Yang shouts on v3 with `[excited] [shouts]`, and does not on `eleven_v4`. The calm football take may be too calm, so the Mandarin football delivery is set livelier.
+- Voices on `eleven_v3` with audio tags: DJ Allen, Jerry and Haoran, chosen by ear on 2026-10-31 (DJ Allen and Jerry replaced Karo Yang and Lao Dao). The owner heard the Z1 takes: Karo Yang shouts on v3 with `[excited] [shouts]`, and does not on `eleven_v4`. The calm football take may be too calm, so the Mandarin football delivery is set livelier.
 - Fallback voices: Yu (the name 小宇 is unconfirmed), LiuPing, Jason Chen. They pass the loader's check only: nothing uses a fallback voice until T030.
 - The invented-name check cannot find an arbitrary name written in Chinese (FR-046, section 10). The limit is stated plainly.
 - The work stays on branch `zh`. It merges only if the go/no-go passes on the evening of Sun 1 November; otherwise main stays as frozen.

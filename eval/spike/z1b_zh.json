@@ -1,0 +1,134 @@
+{
+  "takes": {
+    "football_djallen_v3_shout_tags": {
+      "chars_sent": 27,
+      "billed_chars": 11,
+      "header": "11",
+      "spoken_chars": 6,
+      "trimmed_s": 2.1,
+      "chars_per_s": 2.86,
+      "rms": 0.15,
+      "peak": 0.824,
+      "pitch_hz": 182.5,
+      "timing": {
+        "over_text_as_sent": true,
+        "entries": 27,
+        "char_s": 1.04,
+        "rise_s": 1.05
+      }
+    },
+    "football_djallen_v3_calm": {
+      "chars_sent": 35,
+      "billed_chars": 14,
+      "header": "14",
+      "spoken_chars": 10,
+      "trimmed_s": 3.17,
+      "chars_per_s": 3.15,
+      "rms": 0.1082,
+      "peak": 0.882,
+      "pitch_hz": 105.3,
+      "timing": {
+        "over_text_as_sent": true,
+        "entries": 35
+      }
+    },
+    "football_xiaoming_v3_shout_tags": {
+      "chars_sent": 27,
+      "billed_chars": 11,
+      "header": "11",
+      "spoken_chars": 6,
+      "trimmed_s": 2.47,
+      "chars_per_s": 2.43,
+      "rms": 0.246,
+      "peak": 0.968,
+      "pitch_hz": 266.7,
+      "timing": {
+        "over_text_as_sent": true,
+        "entries": 27,
+        "char_s": 0.96,
+        "rise_s": 1.08
+      }
+    },
+    "football_xiaoming_v3_calm": {
+      "chars_sent": 35,
+      "billed_chars": 14,
+      "header": "14",
+      "spoken_chars": 10,
+      "trimmed_s": 2.24,
+      "chars_per_s": 4.46,
+      "rms": 0.1514,
+      "peak": 0.905,
+      "pitch_hz": 147.3,
+      "timing": {
+        "over_text_as_sent": true,
+        "entries": 35
+      }
+    },
+    "news_jerry_v3_calm": {
+      "chars_sent": 42,
+      "billed_chars": 17,
+      "header": "17",
+      "spoken_chars": 10,
+      "trimmed_s": 2.88,
+      "chars_per_s": 3.47,
+      "rms": 0.117,
+      "peak": 0.815,
+      "pitch_hz": 169.9,
+      "timing": {
+        "over_text_as_sent": true,
+        "entries": 42
+      }
+    },
+    "news_jerry_v3_key": {
+      "chars_sent": 28,
+      "billed_chars": 11,
+      "header": "11",
+      "spoken_chars": 6,
+      "trimmed_s": 1.9,
+      "chars_per_s": 3.16,
+      "rms": 0.1313,
+      "peak": 0.801,
+      "pitch_hz": 161.6,
+      "timing": {
+        "over_text_as_sent": true,
+        "entries": 28,
+        "char_s": 0.96,
+        "rise_s": 1.04
+      }
+    },
+    "news_jerry_v3_long": {
+      "chars_sent": 52,
+      "billed_chars": 21,
+      "header": "21",
+      "spoken_chars": 18,
+      "trimmed_s": 5.2,
+      "chars_per_s": 3.46,
+      "rms": 0.1257,
+      "peak": 0.852,
+      "pitch_hz": 148.6,
+      "timing": {
+        "over_text_as_sent": true,
+        "entries": 52
+      }
+    },
+    "football_djallen_v3_long": {
+      "chars_sent": 45,
+      "billed_chars": 18,
+      "header": "18",
+      "spoken_chars": 18,
+      "trimmed_s": 5.68,
+      "chars_per_s": 3.17,
+      "rms": 0.1134,
+      "peak": 0.801,
+      "pitch_hz": 110.3,
+      "timing": {
+        "over_text_as_sent": true,
+        "entries": 45
+      }
+    }
+  },
+  "account_chars_before": 3811,
+  "account_chars_after": 3811,
+  "account_delta": 0,
+  "usd_by_header": 0.0117
+}

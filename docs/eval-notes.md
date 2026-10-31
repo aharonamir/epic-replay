@@ -96,3 +96,15 @@ Through the page, 1280 px browser driven by a script, frame 60 set by the script
 
 Mandarin: the climax 翻！金黄！ ("Flip! Golden brown!") is three characters with two exclamations and ran 0.365 s over its slot at 12 percent faster, so S7 is `degraded` and the reaction line was dropped. The English replay on the fixture and on FlippingPancakes ran at 0 USD. The English run came before the last two review fixes, which touch only the Mandarin path.
 
+## Mandarin voice change, 2026-10-31
+
+Owner's yes, cap 0.03 USD for the football re-record; the auditions (0.0099 USD) had their own yes. Spent on the re-record 0.0176 USD: one long DJ Allen take 0.0018, then six takes 0.0158. The Commentator was not called: its recorded answer was reused, so the words are the same as Z8. Folder `runs/z8b_pancakes`, command line in record mode, frame 60, not reviewed by the owner yet. Copied to `demo/flipping_pancakes_football_zh/` and the Mandarin backup; the English demo folders are byte for byte unchanged.
+
+| Clip | Lines kept | Video | Key lines | Loudness | Peak | USD |
+|---|---|---|---|---|---|---|
+| FlippingPancakes | 5 of 6 | 30.6 s | start at target less hit offset (3.15 s, 24.268 s) | -14.2 LUFS | -1.6 dBTP | 0.0158 |
+
+The reaction 漂亮！ ("Beautiful!") took 2.0 s and was dropped: 1.79 s at 12 percent faster does not fit its 1.60 s. One retry with a quicker delivery was stopped by the run cap before any call, because a delivery change calls the Commentator again, estimate 0.0198 USD; the change was reverted.
+
+Jerry (news) has been auditioned but not run through a whole Mandarin video. Earlier Mandarin command-line runs set the wrong cap variables, `EPIC_RUN_CAP_USD` and `EPIC_PER_RUN_CAP_USD`; the right one is `EPIC_CAP_RUN_USD`, so those runs were held by the 1.00 USD default, and each stayed inside the owner's cap by its own cost.
+

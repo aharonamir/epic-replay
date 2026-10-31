@@ -147,7 +147,7 @@ def test_a_mandarin_generic_run_reaches_the_video_at_no_cost(tmp_path, monkeypat
     assert post(client, "generic", {"climax_frame": 300}).status_code == 200
     assert done.wait(120)
     script = read(d, "script.json")
-    assert script["language"] == "zh" and script["voice"]["voice_id"] == "5mZxJZhSmJTjL7GoYfYI"
+    assert script["language"] == "zh" and script["voice"]["voice_id"] == "lcRaSg5QsH61bfHjo8qM"
     assert all(ln["text"] in cm.GENERIC_ZH[ln["role"]] for ln in script["lines"])
     assert read(d, "checks.json")["passed"]
     assert (d / "final.mp4").stat().st_size > 0

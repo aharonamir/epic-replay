@@ -128,7 +128,7 @@
       "voice": {
         "primary": {
           "provider": "elevenlabs",
-          "voice_id": "2I36mEahS1u7ZnTKUoaB"
+          "voice_id": "pz7hOfW7kgI9kF818eDS"
         },
         "fallback": {
           "provider": "elevenlabs",
@@ -143,7 +143,7 @@
           "replay_climax": "newsreader, deliberate",
           "sign_off": "newsreader, brisk"
         },
-        "words_per_second": 2.2,
+        "words_per_second": 3.1,
         "startup_s": 0.3,
         "reaction_delay_s": 0.4
       }

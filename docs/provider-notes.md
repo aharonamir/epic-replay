@@ -245,6 +245,13 @@ Heard by the owner (2026-10-30): `eleven_v3` with `[excited] [shouts]` shouts ve
 | Lao Dao v3 calm / key / long | 4.21 / 2.21 / 8.09 | 2.38 / 2.71 / 2.22 | 0.107 / 0.157 / 0.119 | 148 / 175 / 144 |
 | Haoran v3 calm / key / long | 2.33 / 2.27 / 5.93 | 4.29 / 2.64 / 3.04 | 0.116 / 0.165 / 0.135 | 90 / 146 / 93 |
 
+| DJ Allen v3 shout, tags | 2.10 | 2.86 | 0.150 | 182 |
+| DJ Allen v3 calm / long | 3.17 / 5.68 | 3.15 / 3.17 | 0.108 / 0.113 | 105 / 110 |
+| Xiaoming v3 shout, tags | 2.47 | 2.43 | 0.246 | 267 |
+| Xiaoming v3 calm | 2.24 | 4.46 | 0.151 | 147 |
+| Jerry v3 calm / key / long | 2.88 / 1.90 / 5.20 | 3.47 / 3.16 / 3.46 | 0.117 / 0.131 / 0.126 | 170 / 162 / 149 |
+
+- Added 2026-10-31, after the owner found that Karo Yang sounded a bit like a woman: DJ Allen and Jerry chosen by ear. The library lists Karo Yang as male, and the voice's description says "slightly neutral tone".
 - Baseline, Gerald's English shout on v3 with the same tags: 1.87 s, RMS 0.222, 316 Hz.
 - Billing: the account's count rose by 153 for 383 characters sent, which matches the `character-cost` header on every take: 0.40 a character on both `eleven_v3` and `eleven_v4`, tags and punctuation counted. The USD rate per credit is still not checked against billing. English was not measured here.
 - Character timings work in Chinese on both models: `alignment` is over the text as sent, tags included. The start of 太 against the nearest rise: -0.03 to +0.09 s, inside S7's 0.15 s snap. The first character is late, as in English (进 is given 0.48 s, the sound starts about 0.1 s), so a first-word key still uses the onset.

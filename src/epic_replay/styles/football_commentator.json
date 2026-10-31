@@ -115,7 +115,7 @@
       "voice": {
         "primary": {
           "provider": "elevenlabs",
-          "voice_id": "5mZxJZhSmJTjL7GoYfYI"
+          "voice_id": "lcRaSg5QsH61bfHjo8qM"
         },
         "fallback": {
           "provider": "elevenlabs",
@@ -130,7 +130,7 @@
           "replay_climax": "warm, admiring",
           "sign_off": "smiling"
         },
-        "words_per_second": 2.6,
+        "words_per_second": 2.8,
         "startup_s": 0.8,
         "reaction_delay_s": 0.15
       }
