@@ -20,12 +20,17 @@ AGE = {
     "高龄": "advanced age", "老头": "old man", "老汉": "old man", "老者": "elder", "长者": "elder",
     "老将": "veteran", "中年": "middle-aged", "大爷": "old fellow", "大叔": "middle-aged man",
     "爷爷": "grandfather", "外公": "grandfather", "姥爷": "grandfather", "年纪": "age",
-    "年龄": "age", "几岁": "how old", "老当益壮": "vigorous for his age",
+    "年龄": "age", "几岁": "how old", "老当益壮": "vigorous for his age", "成年": "adult",
+    "成人": "adult",
 }  # fmt: skip
 FEMALE = {
     "女人": "woman", "女孩": "girl", "女士": "lady", "女子": "woman", "女性": "female",
     "女生": "girl", "女儿": "daughter", "女友": "girlfriend", "女朋友": "girlfriend",
-    "女将": "female athlete", "少女": "young girl", "美女": "beautiful woman",
+    "女将": "female athlete", "女运动员": "female athlete", "女选手": "female competitor",
+    "女球员": "female player", "女裁判": "female referee", "女教练": "female coach",
+    "女司机": "female driver", "女同学": "female classmate", "女足": "women's football",
+    "女篮": "women's basketball", "女排": "women's volleyball", "女队": "women's team",
+    "少女": "young girl", "美女": "beautiful woman",
     "姑娘": "young woman", "闺女": "daughter", "妈妈": "mum", "母亲": "mother", "大妈": "older woman",
     "大婶": "older woman", "阿姨": "auntie", "奶奶": "grandmother", "外婆": "grandmother",
     "姥姥": "grandmother", "婆婆": "mother-in-law", "妇女": "woman", "妻子": "wife", "老婆": "wife",
@@ -99,7 +104,8 @@ ALLOWED = {
     "太太太": "so, so (太太太棒了)", "紧张路": "tense road", "我靠近": "I come near", "我靠着": "I lean on",
     "仓库里": "in the warehouse", "车库里": "in the garage", "水库里": "in the reservoir",
     "肌肉记忆": "muscle memory", "小伙伴": "pal", "中年度": "in the year's", "中超人": "Superman in",
-    "防线瘫痪": "the defence collapsed",
+    "防线瘫痪": "the defence collapsed", "完成人": "completed by; finishing a person's",
+    "变成人": "turned into a person", "达成人": "reaching a person's",
 }  # fmt: skip
 # 太太 is "wife" unless an adjective follows: 太太棒了 is "so, so great".
 ALLOWED_WHEN = {r"太太(?=棒|好|厉害|精彩|漂亮|强|快)": "太太 before an adjective: so, so"}
@@ -129,7 +135,12 @@ NOT_NUMBERS_WHEN = {
     r"十分(?!钟)": "十分 not before 钟: very",
     r"(?<![一二两三四五六七八九十百])千万": "千万 not after a numeral: must, by all means",
 }
-NUMERAL_RUN = re.compile(r"(?<!第)[零〇一二两三四五六七八九十百千万]+")
+NUMERAL_RUN = re.compile(
+    r"(?<![第零〇一二两三四五六七八九十百千万])[零〇一二两三四五六七八九十百千万]+"
+)
+# Traditional forms that GB 2312 also holds, so its check cannot see them. 著 and 乾 are not here:
+# both are ordinary Simplified characters too (著名 famous, 乾坤 heaven and earth).
+TRADITIONAL_IN_GB2312 = set("後於徵麽")
 DIGIT = dict(zip("零〇一二两三四五六七八九", (0, 0, 1, 2, 2, 3, 4, 5, 6, 7, 8, 9), strict=True))
 UNIT = {"十": 10, "百": 100, "千": 1000}
 

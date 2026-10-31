@@ -75,12 +75,37 @@ def test_digits_are_refused(text):
     ("text", "known", "want"),
     [("他踢了七脚", "", ["invented_number"]), ("他踢了七脚", "seven kicks", []),
      ("他踢了七脚", "7 kicks", []), ("两个人", "", ["invented_number"]), ("两个人", "two players", []),
-     ("一下子", "", []), ("半空中", "", []), ("十分精彩", "", []), ("第二次", "", []), ("二十五脚", "", ["invented_number"]),
+     ("一下子", "", []), ("半空中", "", []), ("十分精彩", "", []), ("第二次", "", []), ("第十二次扑救", "", []), ("第一百次", "", []), ("二十五脚", "", ["invented_number"]),
      ("他跑了十分钟", "", ["invented_number"]), ("他跑了十分钟", "ten minutes", []),
      ("千万别眨眼", "", []), ("一千万人", "", ["invented_number"]), ("两千万人", "", ["invented_number"])],
 )  # fmt: skip
 def test_numerals(text, known, want):
     assert kinds(text, known=known) == want
+
+
+@pytest.mark.parametrize("text", ["女裁判吹哨了", "女运动员出手了", "成年人进球了"])
+def test_review_round_one_terms_are_caught(text):
+    assert "banned_term" in kinds(text)
+
+
+@pytest.mark.parametrize("text", ["他完成人生第一次飞跃", "他变成人们的焦点"])
+def test_ordinary_words_that_hold_adult_pass(text):
+    assert kinds(text) == []
+
+
+@pytest.mark.parametrize("text", ["球進了！", "然後进球"])
+def test_traditional_characters_are_the_wrong_language(text):
+    assert "wrong_language" in kinds(text)
+    assert "wrong_language" in kinds(text, known=text)  # the sources do not excuse it
+
+
+def test_a_name_the_user_typed_stays_as_typed_and_excuses_nothing_else():
+    assert s6.check_text_zh("陳進球了", "陳", [], ("陳",)) != []  # 進 is still Traditional
+    assert s6.check_text_zh("陳出手了", "陳", [], ("陳",)) == []
+
+
+def test_famous_is_ordinary_simplified():
+    assert kinds("这是著名的一脚") == []
 
 
 def test_a_line_with_no_chinese_is_the_wrong_language():

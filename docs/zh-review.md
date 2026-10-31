@@ -2,7 +2,7 @@
 
 Every Chinese term and line the build uses, with its English meaning. Terms come from `src/epic_replay/guards/lexicon_zh.py`.
 
-## Age words (39)
+## Age words (41)
 
 | Term | Meaning |
 |---|---|
@@ -45,8 +45,10 @@ Every Chinese term and line the build uses, with its English meaning. Terms come
 | 年龄 | age |
 | 几岁 | how old |
 | 老当益壮 | vigorous for his age |
+| 成年 | adult |
+| 成人 | adult |
 
-## Female terms (33)
+## Female terms (44)
 
 她 (she) is also banned, the only single character.
 
@@ -62,6 +64,17 @@ Every Chinese term and line the build uses, with its English meaning. Terms come
 | 女友 | girlfriend |
 | 女朋友 | girlfriend |
 | 女将 | female athlete |
+| 女运动员 | female athlete |
+| 女选手 | female competitor |
+| 女球员 | female player |
+| 女裁判 | female referee |
+| 女教练 | female coach |
+| 女司机 | female driver |
+| 女同学 | female classmate |
+| 女足 | women's football |
+| 女篮 | women's basketball |
+| 女排 | women's volleyball |
+| 女队 | women's team |
 | 少女 | young girl |
 | 美女 | beautiful woman |
 | 姑娘 | young woman |
@@ -289,7 +302,7 @@ Refused unless the user gave the name.
 | 尤文 | Juventus |
 | 温布利 | Wembley |
 
-## Allowed phrases, masked before banned terms are read (19)
+## Allowed phrases, masked before banned terms are read (22)
 
 | Term | Meaning |
 |---|---|
@@ -312,6 +325,9 @@ Refused unless the user gave the name.
 | 中年度 | in the year's |
 | 中超人 | Superman in |
 | 防线瘫痪 | the defence collapsed |
+| 完成人 | completed by; finishing a person's |
+| 变成人 | turned into a person |
+| 达成人 | reaching a person's |
 
 ## Conditional allowed phrases (1)
 

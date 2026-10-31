@@ -126,10 +126,30 @@ def check_text(text: str, known: str, banned_extra: list[str]) -> list[dict]:
     return fails
 
 
-def check_text_zh(text: str, known: str, banned_extra: list[str]) -> list[dict]:
+def not_simplified(text: str, typed: tuple[str, ...] = ()) -> list[str]:
+    """Traditional characters: those outside GB 2312, which holds Simplified forms, and the few
+    it also holds. Names the user typed are left as typed (FR-008), and nothing else is."""
+
+    def simplified(c: str) -> bool:
+        try:
+            c.encode("gb2312")
+        except UnicodeEncodeError:
+            return False
+        return c not in lexicon_zh.TRADITIONAL_IN_GB2312
+
+    for name in typed:
+        text = text.replace(name, "")
+    return [c for c in CJK.findall(text) if not simplified(c)]
+
+
+def check_text_zh(
+    text: str, known: str, banned_extra: list[str], typed: tuple[str, ...] = ()
+) -> list[dict]:
     fails = []
     if not CJK.search(text):
         fails.append({"rule": 4, "kind": "wrong_language", "detail": "this line has no Chinese in it"})  # fmt: skip
+    if not_simplified(text, typed):
+        fails.append({"rule": 4, "kind": "wrong_language", "detail": "write in Simplified Chinese"})  # fmt: skip
     known_words = set(WORD.findall(known))
     names = [w for w in WORD.findall(text) if w.lower() not in known_words]
     names += [n for n in lexicon_zh.famous_names(text) if n.lower() not in known]
@@ -193,13 +213,19 @@ def check(script: dict, ps: dict, uc: dict, pack: dict) -> list[dict]:
     """Every failure as {where, rule, kind, detail}; empty when the script passes."""
     known = corpus(ps, uc)
     extra = pack["script"].get("banned_terms", [])
-    read_text = check_text_zh if script.get("language") == "zh" else check_text
+    typed = tuple(str(uc[k]) for k in ("player_name", "team_home", "team_away") if uc.get(k))
+
+    def read_text(text: str) -> list[dict]:
+        if script.get("language") == "zh":
+            return check_text_zh(text, known, extra, typed)
+        return check_text(text, known, extra)
+
     fails = []
     for ln in script.get("lines", []):
-        fails += [{"where": ln["id"], **f} for f in read_text(ln["text"], known, extra)]
+        fails += [{"where": ln["id"], **f} for f in read_text(ln["text"])]
     for field in ("headline", "lower_third"):
         if script.get(field):
-            fails += [{"where": field, **f} for f in read_text(script[field], known, extra)]
+            fails += [{"where": field, **f} for f in read_text(script[field])]
     return fails + check_refs(script, ps) + check_budget(script, pack)
 
 
