@@ -114,9 +114,14 @@
         "labels": {
           "replay_bug": "再慢慢看一次",
           "end_card_kicker": "在野外",
-          "ai_label": "AI 生成"
+          "ai_label": "AI 解说"
         },
-        "banned_terms": []
+        "banned_terms": [
+          "标本",
+          "交配",
+          "捕食者",
+          "猎物"
+        ]
       },
       "voice": {
         "primary": {

@@ -99,7 +99,7 @@
         "example_lines": {
           "opening": "全场屏息，看他出手。",
           "build_up": "来了！",
-          "climax": "进了！",
+          "climax": "成了！",
           "reaction": "漂亮！",
           "replay_watch": "再看一遍动作。",
           "replay_climax": "就是这一下！",
@@ -108,7 +108,7 @@
         "labels": {
           "replay_bug": "回放",
           "end_card_kicker": "今日最佳",
-          "ai_label": "AI 生成"
+          "ai_label": "AI 解说"
         },
         "banned_terms": []
       },

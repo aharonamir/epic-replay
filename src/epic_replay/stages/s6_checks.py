@@ -10,6 +10,11 @@ Five kinds of check, one for each kind of planted error:
 The headline and the lower third pass rules 4 and 8. The Commentator's `check_lines` runs the same function on a draft;
 S6 runs it again on what was submitted.
 
+A `zh` line is read by `check_text_zh` (FR-046): it must hold Chinese; Latin-script words outside
+the sources and the listed famous names are invented names; digits are refused and Chinese
+numerals must be in the sources; the `zh` lists apply on top of the English ones. A name written
+in Chinese that is not on the list cannot be found (spec.md section 10).
+
 Rule 4 in detail (working rule 12): the line is read with its shouted words (all capitals, two
 letters or more) in lower case, so "TOP CORNER!" holds no names. A capitalised word that does
 not start a sentence must occur in the play sheet or the user context, compared without case.
@@ -25,10 +30,10 @@ import math
 import re
 
 from epic_replay import contracts
-from epic_replay.guards import lexicon
+from epic_replay.guards import lexicon, lexicon_zh
 from epic_replay.stages.base import RunContext, StageResult
 from epic_replay.styles import loader
-from epic_replay.styles.slots import spoken_units
+from epic_replay.styles.slots import CJK, spoken_units
 
 CHECKS = "checks.json"
 
@@ -121,6 +126,27 @@ def check_text(text: str, known: str, banned_extra: list[str]) -> list[dict]:
     return fails
 
 
+def check_text_zh(text: str, known: str, banned_extra: list[str]) -> list[dict]:
+    fails = []
+    if not CJK.search(text):
+        fails.append({"rule": 4, "kind": "wrong_language", "detail": "this line has no Chinese in it"})  # fmt: skip
+    known_words = set(WORD.findall(known))
+    names = [w for w in WORD.findall(text) if w.lower() not in known_words]
+    names += [n for n in lexicon_zh.famous_names(text) if n.lower() not in known]
+    for name in names:
+        fails.append({"rule": 4, "kind": "invented_name", "detail": f"'{name}' is not in the play sheet or the user context"})  # fmt: skip
+    if DIGITS.search(text):
+        fails.append({"rule": 4, "kind": "invented_number", "detail": "write numbers in Chinese numerals, not digits"})  # fmt: skip
+    allowed = numbers_in(known) | lexicon_zh.numbers_in(known)
+    for n in sorted(lexicon_zh.numbers_in(text) - allowed):
+        fails.append({"rule": 4, "kind": "invented_number", "detail": f"the number {n} is not in the play sheet or the user context"})  # fmt: skip
+    latin = [t for t in banned_extra if t.isascii()]
+    chinese = [t for t in banned_extra if not t.isascii()]
+    for term in lexicon.find_banned(text, latin) + lexicon_zh.find_banned(text, chinese):
+        fails.append({"rule": 8, "kind": "banned_term", "detail": f"'{term}' is a banned term"})
+    return fails
+
+
 KEY_ROLES = ("climax", "replay_climax")
 EPS = 1e-6  # as styles/slots.py
 
@@ -167,12 +193,13 @@ def check(script: dict, ps: dict, uc: dict, pack: dict) -> list[dict]:
     """Every failure as {where, rule, kind, detail}; empty when the script passes."""
     known = corpus(ps, uc)
     extra = pack["script"].get("banned_terms", [])
+    read_text = check_text_zh if script.get("language") == "zh" else check_text
     fails = []
     for ln in script.get("lines", []):
-        fails += [{"where": ln["id"], **f} for f in check_text(ln["text"], known, extra)]
+        fails += [{"where": ln["id"], **f} for f in read_text(ln["text"], known, extra)]
     for field in ("headline", "lower_third"):
         if script.get(field):
-            fails += [{"where": field, **f} for f in check_text(script[field], known, extra)]
+            fails += [{"where": field, **f} for f in read_text(script[field], known, extra)]
     return fails + check_refs(script, ps) + check_budget(script, pack)
 
 
