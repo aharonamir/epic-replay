@@ -555,10 +555,17 @@ def write(
         spent.append(0.0 if hit else cost_of(payload["usage"]))
         return PaidResult(payload, spent[-1], hit)
 
-    payload = paid_call(
-        ledger, stage="S5", provider="agent-core", model=model,
-        estimate_usd=ESTIMATE_USD, fn=agent_call,
-    )  # fmt: skip
+    note = "the agent submitted no script that passes"
+    try:
+        payload = paid_call(
+            ledger, stage="S5", provider="agent-core", model=model,
+            estimate_usd=ESTIMATE_USD, fn=agent_call,
+        )  # fmt: skip
+    except (CapExceeded, ReplayMiss):
+        raise
+    except Exception as e:  # noqa: BLE001 - any other failure goes to the fallback
+        payload, note = {}, f"the agent failed ({type(e).__name__})"
+        spent.append(0.0)
     calls = list(payload.get("calls", []))
     cost = spent[-1]
     draft = payload.get("draft")
@@ -566,7 +573,6 @@ def write(
         script = tools.assemble(draft)
         return Outcome(script, draft, "ok", f"{len(script['lines'])} lines", calls, cost)
 
-    note = "the agent submitted no script that passes"
     dkey = cache_key("commentator_draft", model, {"system": system, "query": query})
     try:
 

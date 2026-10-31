@@ -174,6 +174,26 @@ def test_s5_falls_back_to_the_structured_draft_then_generic_lines(tmp_path):
     assert s6_checks.check(script, PS, UC, PACK) == []
 
 
+def test_an_agent_that_raises_goes_to_the_fallback_and_the_run_goes_on(tmp_path, monkeypatch):
+    rec = tmp_path / "rec"
+    record(rec, "commentator_draft", {"draft": fixture_draft(), "usage": {}})
+    replayed = Recorder.fetch
+
+    def fetch(self, adapter, key, fn):
+        if adapter == "commentator":
+            raise ConnectionError("Connection error.")
+        return replayed(self, adapter, key, fn)
+
+    monkeypatch.setattr(Recorder, "fetch", fetch)
+    run_dir = tmp_path / "run"
+    run_dir.mkdir()
+    res, _ = run_s5(run_dir, rec)
+    assert res.status == "degraded" and "the agent failed (ConnectionError)" in res.note
+    assert [ln["text"] for ln in json.loads((run_dir / "script.json").read_text())["lines"]] == [ln["text"] for ln in SCRIPT["lines"]]  # fmt: skip
+    cost = json.loads((run_dir / "cost.json").read_text())
+    assert [c["provider"] for c in cost["calls"]] == ["openai-compatible"]
+
+
 def test_s5_without_a_recording_fails_in_replay_mode(tmp_path):
     res, _ = run_s5(tmp_path, tmp_path / "empty")
     assert res.status == "failed" and "no recording" in res.note

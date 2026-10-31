@@ -108,3 +108,7 @@ The reaction 漂亮！ ("Beautiful!") took 2.0 s and was dropped: 1.79 s at 12 p
 
 Jerry (news) has been auditioned but not run through a whole Mandarin video. Earlier Mandarin command-line runs set the wrong cap variables, `EPIC_RUN_CAP_USD` and `EPIC_PER_RUN_CAP_USD`; the right one is `EPIC_CAP_RUN_USD`, so those runs were held by the 1.00 USD default, and each stayed inside the owner's cap by its own cost.
 
+## S5 failure on the page, 2026-10-31
+
+Run `r_20261031_144821_941330`, a new clip in Mandarin, football: the agent's first model call failed after 10.0 s with `APIConnectionError: Connection error`, at 0 USD. The cause of the connection error is not proved. DeepSeek answered a TLS check straight after, the system log shows no network event, and the call came 59 s after the last one in that server, inside agent-core's 60 s keep-alive; two local tries with fresh event loops (plain and TLS, stub server, no cost) did not reproduce a failure. Fixed what was certainly wrong: an exception from the agent ended the run, where it now goes to the coded fallback (structured draft, then generic lines) and the run is `degraded`.
+
