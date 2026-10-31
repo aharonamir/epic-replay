@@ -83,3 +83,16 @@ Owner's yes, cap 0.10 USD; spent 0.0338 USD by the ledger. Branch `zh` at `f8b30
 
 Checks passed first time on both, the agent's first draft accepted; HTML graphics; the sign-off 漂亮 ("Beautiful!") on bottle flip ran 2.01 s at 12 percent faster and was dropped. Not measured: a run through the page, and whether it sounds right, which is the owner's to judge.
 
+## Go/no-go checks for Mandarin, 2026-10-31
+
+Fresh review: Codex, read-only, four rounds, approved at `c4b4fc7`'s content. Six real Mandarin gaps found and fixed, none in English; a claimed change to the English recording key was false and was withdrawn.
+
+Through the page, 1280 px browser driven by a script, frame 60 set by the script, not a person's time:
+
+| Run | Commit | Mode | Upload to card | Confirm to video | USD | Lines | Key lines off target | Loudness | Peak |
+|---|---|---|---|---|---|---|---|---|---|
+| English, FlippingPancakes | review fixes in the working tree | live | 40 s | 21 s | 0.0474 | 6 of 6 | 5, 5 ms | -14.0 LUFS | -1.9 dBTP |
+| Mandarin, FlippingPancakes | `c4b4fc7` | record | 3 s (analysis recorded) | 21 s | 0.0195 | 5 of 6 | 5, 5 ms | -14.1 LUFS | -1.8 dBTP |
+
+Mandarin: the climax 翻！金黄！ ("Flip! Golden brown!") is three characters with two exclamations and ran 0.365 s over its slot at 12 percent faster, so S7 is `degraded` and the reaction line was dropped. The English replay on the fixture and on FlippingPancakes ran at 0 USD. The English run came before the last two review fixes, which touch only the Mandarin path.
+
