@@ -288,3 +288,13 @@ def test_a_gloss_reply_that_is_not_json_is_still_billed(tmp_path, monkeypatch):
     monkeypatch.setattr("openai.OpenAI", lambda **_: client)
     got = cm._gloss_call({"l1": "进球了"})
     assert got["gloss"] == {} and got["usage"]["input_tokens"] == 1000
+
+
+def test_a_recorded_agent_run_is_not_stopped_by_a_cap_it_cannot_reach(tmp_path):
+    rec = tmp_path / "rec"
+    usage = {"input_tokens": 9000, "output_tokens": 2000}
+    record(rec, "commentator", {"draft": fixture_draft(), "calls": [], "usage": usage})
+    run_dir = tmp_path / "run"
+    run_dir.mkdir()
+    res, _ = run_s5(run_dir, rec, dataclasses.replace(config.load(), cap_run_usd=0.001))
+    assert res.status == "ok"

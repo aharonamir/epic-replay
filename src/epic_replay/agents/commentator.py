@@ -518,7 +518,7 @@ def gloss(script: dict, ledger: Ledger, recorder: Recorder) -> tuple[dict, float
 
     got = paid_call(
         ledger, stage="S5", provider="openai-compatible", model=model,
-        estimate_usd=GLOSS_ESTIMATE_USD, fn=call, billed_on=(APITimeoutError,),
+        estimate_usd=0.0 if recorder.has("commentator_gloss", key) else GLOSS_ESTIMATE_USD, fn=call, billed_on=(APITimeoutError,),
     )  # fmt: skip
     return got["gloss"], spent[-1]
 
@@ -574,7 +574,7 @@ def write(
     try:
         payload = paid_call(
             ledger, stage="S5", provider="agent-core", model=model,
-            estimate_usd=ESTIMATE_USD, fn=agent_call, billed_on=(AgentFailed,),
+            estimate_usd=0.0 if recorder.has("commentator", key) else ESTIMATE_USD, fn=agent_call, billed_on=(AgentFailed,),
         )  # fmt: skip
     except AgentFailed as e:  # the fallback goes on, with the estimate counted as spent
         payload, note = {}, f"the agent failed ({e})"
@@ -596,7 +596,7 @@ def write(
 
         got = paid_call(
             ledger, stage="S5", provider="openai-compatible", model=model,
-            estimate_usd=DRAFT_ESTIMATE_USD, fn=draft_call, billed_on=(APITimeoutError,),
+            estimate_usd=0.0 if recorder.has("commentator_draft", dkey) else DRAFT_ESTIMATE_USD, fn=draft_call, billed_on=(APITimeoutError,),
         )  # fmt: skip
         draft = got.get("draft") or {}
         cost += spent[-1]
