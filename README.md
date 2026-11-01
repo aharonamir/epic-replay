@@ -1,92 +1,183 @@
-# Epic Replay - Spec Kit
+# Epic Replay
 
-You film a moment worth replaying: a goal, a trick, a dog's catch, a pancake flip. It does not have to be sport. On one web page you upload the clip and choose who narrates: a football commentator, a news reporter or a nature-documentary narrator. The app watches the clip, shows its progress, asks you to confirm what happened, writes and voices the narration in that style, adds a slow-motion replay and graphics, and returns a short video. One more click tells the same moment in another style.
+Film it. We'll call it.
 
-The design is in `specs/` and the code in `src/`. Revision 7 (2026-10-15): one person, nine working days; the key moment is found with a signal scan and contact sheets; two narrators in the MVP; ReAct agents on openJiuwen agent-core, running on DeepSeek; the page has an approved visual design.
+Epic Replay turns a short clip into a narrated highlight video. Upload a moment worth replaying, such as a goal, a trick or a pancake flip, and choose who narrates it. The app finds the key moment, asks you to confirm what happened, writes the commentary, records the voice, builds a slow-motion replay, mixes the sound and hands you a finished video.
 
-## Read in this order
+The clip can be any moment, not only sport. Every video carries a visible "AI commentary" label.
 
-| File | What it answers |
-|------|-----------------|
-| [specs/001-epic-replay/spec.md](specs/001-epic-replay/spec.md) | What the product does, how success is measured, and (section 10) what the one-person build defers |
-| [specs/001-epic-replay/tasks.md](specs/001-epic-replay/tasks.md) | The tasks in day order, 43 hours from 15 October, a done-when line each; the deferred tasks; the cut list |
-| [specs/001-epic-replay/plan.md](specs/001-epic-replay/plan.md) | The stages, the narration styles, the schedule and gates, the risks |
-| [specs/001-epic-replay/research.md](specs/001-epic-replay/research.md) | Which providers fit each stage, what they cost, what is still unconfirmed |
-| [specs/001-epic-replay/contracts/ui.md](specs/001-epic-replay/contracts/ui.md) | The page: its four states, layout and wording |
-| [specs/001-epic-replay/contracts/design.md](specs/001-epic-replay/contracts/design.md) | How the page looks: colours, type, measurements, parts; the canvas files are in [design-canvas/](specs/001-epic-replay/contracts/design-canvas/README.md) |
-| [specs/001-epic-replay/data-model.md](specs/001-epic-replay/data-model.md) | The files a run produces |
-| [specs/001-epic-replay/contracts/](specs/001-epic-replay/contracts/) | JSON Schemas with examples (including the three style packs), stage contracts, adapter interfaces, HTTP API |
-| [specs/001-epic-replay/quickstart.md](specs/001-epic-replay/quickstart.md) | Target commands, and how to film clips that work |
-| [.specify/memory/constitution.md](.specify/memory/constitution.md) | Ten principles the build may not break |
-| [START-PROMPT.md](START-PROMPT.md) | Prompt for the first Claude Code session |
+## How a run works
 
-## The nine days
+1. **Upload** a clip of 3 to 30 seconds (MP4, MOV or WebM, up to 200 MB).
+2. **Choose a narrator** and a language, and tick the consent box.
+3. **Wait** while the app checks the clip, looks at it and finds the key moment.
+4. **Confirm the play card**: pick the moment, then keep or remove what the app says happened. This is the step that stops a wrong claim from reaching the script.
+5. **Wait** while it writes the call, builds the replay, records the voice and mixes.
+6. **Watch and download** the result. You can also read the script and see the time and cost of each step.
 
-| Day | Date | Built | Exists at the end |
-|-----|------|-------|-------------------|
-| 1 | Mon 12 Oct | Repo, schemas, fixture, adapters, guards, starter clips | A fixture run that validates |
-| 2 | Tue 13 Oct | agent-core check, voice choice | Framework and voices chosen |
-| 3-4 | Wed 14 and Thu 15 Oct | Key-moment spikes: numbered frames, then contact sheets | Gate 0 |
-| 5 | Sun 18 Oct | Signal scan, intake, Spotter on sheets, style loader | Clip to play sheet on the command line |
-| 6 | Mon 19 Oct | Validation, storyboard, Commentator, code checks, FFmpeg toolkit | Clip to checked script on the command line |
-| 7 | Tue 20 Oct | Slow motion, voice placed by key word, sound, mix, graphics | The parts of the video |
-| 8 | Wed 21 Oct | Compose, flow, play card, News reporter pack | Clip to video; a second narrator |
-| 9 | Thu 22 Oct | The page, end to end, privacy check, demo mode, presentation | Ready to present on Sat 24 Oct |
+### Narrators
 
-43 hours are planned from the afternoon of 15 October, with none spare. The order of work is the protection, and what is built last is cut first (tasks.md).
+| Narrator | Sounds like | Key line |
+|----------|-------------|----------|
+| Football commentator (default) | Excited play-by-play that treats any moment as the big match | Shouted at once |
+| News reporter | A calm bulletin read with a straight face | Stated as fact, a beat later |
+| Nature documentary | A hushed, fond observer | Almost whispered, later still |
 
-## The pipeline, as built in the MVP
+All three speak English or Mandarin (Simplified Chinese). The page itself stays in English.
 
-| Stage | What happens | Who does it | Provider |
-|-------|--------------|-------------|----------|
-| S0 Intake | Validate, probe, make a working copy | Code | FFmpeg |
-| S1 Signal scan | Candidate moments from motion (camera shake removed) and the clip's own sound; cuts ignored | Code | OpenCV, NumPy |
-| S2 Analysis | Contact sheets of nine frames over the clip and around each candidate; the model answers with a cell; then a second independent look | Spotter, a fixed sequence of tool calls in the MVP | DeepSeek `deepseek-flash` |
-| S3 Key moment | Narrower sheets until single frames, then snap to the sound onset | Spotter and code | DeepSeek `deepseek-flash` |
-| Checkpoint A | You confirm or correct what happened | Human | none |
-| S4 Storyboard | Lay out title, live, replay, end card | Code | none |
-| S5 Script | Write the lines to timed slots, in the narrator's persona, checking each draft | Code and Commentator, a ReAct agent with a `check_lines` tool | DeepSeek `deepseek-flash` through agent-core |
-| S6 Checks | Five code checks, run again on what the agent submitted | Code | none |
-| S7 Voice | One take per line in the narrator's voice, fitted, and placed so each key line's key word lands on the moment | Code and provider | ElevenLabs `eleven_v3` (DeepSeek has no speech model) |
-| S8 Sound | The narrator's sound set, mixed | Code | Library made once with ElevenLabs Sound Effects and Lyria 3 Clip |
-| S9 Visuals | Slow motion, and graphics in the narrator's skin | Code | Real frames or FFmpeg blending; HTML templates |
-| S10 Compose | Assemble and export | Code | FFmpeg |
+A narrator is a data file in `src/epic_replay/styles/`, not code. It sets the persona, writing rules, voice, pace, sounds and graphics.
 
-A plain Python runner moves a run from stage to stage. DeepSeek takes still images, not video or sound, so the model sees contact sheets; the clip's sound is used only on the machine, by the signal scan.
+## Set up
 
-Deferred from the full design: the Verifier agent, the Spotter's ReAct loop, the Nature documentary pack, re-telling from the page, half the code checks, fallback providers, frame interpolation, the score bug, captions, the 30-clip evaluation set (spec.md section 10).
+You need:
 
-## Narration styles
+- Python 3.11 to 3.13
+- FFmpeg 8 with ffprobe on the path
+- [uv](https://docs.astral.sh/uv/)
+- A local checkout of openJiuwen agent-core beside this repository, at `../agent-core`
+- A DeepSeek API key and an ElevenLabs API key (paid tiers)
 
-A style is a data file, not code. It sets the persona and writing rules, the voice, how each kind of line is delivered, the pace, the sounds and the graphics skin. It cannot change the facts, the picture or the checks. The MVP ships the first two; the Nature documentary pack is deferred (revision 7).
+`pip install -e ".[dev]"` does not resolve, because openjiuwen depends on a package by git URL. Install in this order instead:
 
-| | Football commentator | News reporter | Nature documentary |
-|---|---|---|---|
-| Sounds like | Excited play-by-play that treats any moment as the big match | A calm bulletin read with a straight face | A hushed, fond observer |
-| Key line | Shouted at once | Stated as fact, a beat later | Almost whispered, later still |
-| Around it | Crowd and roar | No crowd, bulletin stings | Outdoor ambience, quiet strings |
+```bash
+uv venv --python 3.12 && source .venv/bin/activate
+uv pip install -e ../agent-core --no-deps
+uv pip install openai fastapi "uvicorn[standard]" python-multipart jinja2 jsonschema \
+  "pydantic>=2" numpy scipy opencv-python-headless playwright httpx python-dotenv pytest ruff
+uv pip install -e ".[dev]" --no-deps
+playwright install chromium
+cp .env.example .env
+```
+
+Then fill in `.env`. Never commit it. These are the settings that matter most:
+
+| Setting | Meaning |
+|---------|---------|
+| `DEEPSEEK_API_KEY` | Used for the agents and for looking at frames, unless `EPIC_AGENT_API_KEY` or `EPIC_VISION_API_KEY` is set |
+| `ELEVENLABS_API_KEY` | The voices |
+| `EPIC_AGENT_MODEL`, `EPIC_VISION_MODEL` | `deepseek-flash` |
+| `EPIC_PROVIDER_MODE` | `live`, `record` or `replay`; see below |
+| `EPIC_CAP_RUN_USD` | Most one run may spend, default 1.00 |
+| `EPIC_CAP_DAY_USD` | Most one day may spend, default 20.00 |
+| `EPIC_CAP_PRE_CHECKPOINT_USD` | Most a run may spend before the play card, default 0.30 |
+
+`.env.example` lists the rest.
+
+## Run the app
+
+```bash
+source .venv/bin/activate
+EPIC_PROVIDER_MODE=record uvicorn epic_replay.web.app:app --port 8010
+```
+
+Open <http://localhost:8010>. Keep it on localhost: the app has no login, and the past replays list shows every video to anyone who can reach it.
+
+### Provider modes
+
+The mode decides whether a run spends money. Changing it means restarting the server. If it is not set, the app uses `replay`.
+
+| Mode | What it does | Use it for |
+|------|--------------|------------|
+| `record` | Reuses a saved provider reply when there is one, and pays for and saves the rest | Normal use and demos |
+| `live` | Always calls the providers and saves nothing | Checking the real path |
+| `replay` | Uses saved replies only and never pays | Tests and already recorded clips |
+
+In `replay`, a clip with no saved replies stops at "Writing the call" with "no recording for commentator".
+
+### Cost
+
+A new clip costs about 0.05 USD. The last fully live run cost 0.047 USD. A new narrator or language on a clip you have already run costs about 0.02 to 0.04 USD, and an exact repeat in `record` mode costs nothing.
+
+A paid call that would pass a cap is not made, and the run stops with a message.
+
+### Finding past videos
+
+Finished videos stay in `runs/` until you delete them. The **Past replays** link at the top of the home page lists them, newest first. Open one to play it, download it or press **Delete this clip now**, which removes the clip and everything made from it from this machine.
+
+### Cached demo runs
+
+`/demo/<name>` shows a stored run from the `demo/` folder, for example `/demo/flipping_pancakes_football`, marked as a cached run. It makes no provider call, so it is the fallback if a live run fails. `demo/` and `runs/` are not in git, so a fresh clone has neither.
+
+## Command line
+
+```bash
+python -m epic_replay.flow styles
+python -m epic_replay.flow run clip.mp4 --consent --style news_reporter --language zh --mode record
+python -m epic_replay.flow run --fixture tests/fixtures/sample_run --mode replay
+python -m epic_replay.flow rerun RUN_ID --from S5 --mode record
+python -m epic_replay.flow restyle RUN_ID --style nature_documentary --mode record
+```
+
+`run` asks you to pick the key moment at the prompt; `--pick proposed` answers without asking. `rerun` deletes the outputs of that stage and the ones after it, then runs them again. `restyle` tells the same play with another narrator.
+
+## How it works
+
+A plain Python runner moves each run through these stages. Each run is a folder in `runs/` holding every stage's output.
+
+| Stage | What happens | Done by |
+|-------|--------------|---------|
+| S0 Intake | Validate the clip and make a working copy | Code, FFmpeg |
+| S1 Signal scan | Find candidate moments from motion and the clip's sound | Code |
+| S2 Analysis | Look at contact sheets of frames; the model answers with a cell | Spotter, DeepSeek |
+| S3 Key moment | Narrow down to one frame and snap it to the sound | Spotter and code |
+| Checkpoint A | You confirm or correct what happened | You |
+| S4 Storyboard | Lay out title, live play, replay and end card | Code |
+| S9 Visuals | Build the slow motion | Code, FFmpeg |
+| S5 Script | Write timed lines in the narrator's persona | Commentator, a ReAct agent on agent-core with DeepSeek |
+| S6 Checks | Check references, names, numbers, word budget, banned terms and language | Code |
+| S7 Voice | Record each line and place key lines on the moment | ElevenLabs `eleven_v3` |
+| S8 Sound | Mix the voice, the clip's sound and the narrator's sound set | Code |
+| S10 Compose | Add the graphics and export the video | Code, FFmpeg, Chromium |
+
+Everything code can check or produce is done by code. Agents choose what to look at and what to write. If the Commentator fails, a coded fallback finishes the script and marks the stage `degraded`, so the run still gives you a video.
 
 ## People in the footage
 
-- Adults only, and in the MVP men only. The person uploading confirms this, and has read a disclaimer: frames go to DeepSeek, in China, and may be used for training.
-- Only still frames leave the machine, to one provider. Voice and script stages send text only. Slow motion is made on the machine.
-- No stage says or guesses anyone's age, or remarks on anyone's body or ability.
+- Adults only, and men only in this version. The person uploading confirms this at the consent box.
+- Do not send any clip with a child in it.
+- Only still frames leave the machine, and only to the vision endpoint in `.env`. That provider may use what it receives to train its models.
+- Scripts go to the text and voice providers as text. Video and sound stay on the machine.
+- No line states or guesses anyone's age or remarks on a body.
 - A clip showing someone hurt, upset, humiliated or undressed is not narrated.
-- A run can be deleted at once from the page.
 
-## Decided
+## Limits of this version
 
-- One person, nine working days; presentation on Saturday 24 October (revision 7).
-- Any short moment, not only sport.
-- Adults only (men only in the MVP); DeepSeek sees the frames, with a disclaimer (revision 6).
-- The one-tap confirmation of what happened stays.
-- The look of the page: dark, broadcast-style, coloured by the chosen narrator.
-- Two narration styles in the MVP: Football commentator and News reporter (revision 7).
-- The key moment: signal scan, contact sheets answered by cell, snap to the sound onset; the Spotter runs as a fixed sequence (revision 7).
-- Voices from ElevenLabs `eleven_v3`; key lines placed by their key word (revision 7).
-- ReAct agents on openJiuwen agent-core; a plain Python runner for the flow; no jiuwenswarm.
-- DeepSeek as the model provider, using `deepseek-flash` (the successor to the retired `deepseek-v4-flash-vision-exp`).
+- One run's narrator cannot be changed from the page. Use `restyle` on the command line.
+- The narrator cards have no voice samples, and there is no "Keep for the demo" option.
+- Local runs are not purged automatically; delete them yourself.
+- There is no automated reader check of the script, and only some of the planned code checks are built.
+- Slow motion uses frame blending, not frame interpolation.
+- The invented-name check cannot find an arbitrary name written in Chinese.
+- There is no second voice or text provider to fall back on.
 
-## Still open
+`specs/001-epic-replay/spec.md`, section 10, has the full list.
 
-Nothing; see spec.md section 8.
+## Develop
+
+```bash
+pytest                                    # replay mode, no keys or network needed
+pytest -m live                            # real provider calls, costs money
+ruff check . && ruff format --check .
+```
+
+| Path | Contents |
+|------|----------|
+| `src/epic_replay/flow/` | The runner and command line |
+| `src/epic_replay/stages/` | One module per stage |
+| `src/epic_replay/agents/` | The Spotter and Commentator |
+| `src/epic_replay/styles/` | Narrator packs and allowed voices |
+| `src/epic_replay/providers/` | Vision, speech and the record and replay layer |
+| `src/epic_replay/guards/` | Spending caps, consent and banned terms |
+| `src/epic_replay/web/` | The page: API, templates, style and script |
+| `specs/001-epic-replay/` | The design, the source of truth |
+| `docs/` | API, provider and evaluation notes, and the Mandarin plan |
+| `tests/` | Unit tests, fixtures and recorded provider replies |
+
+Start with these documents:
+
+- [spec.md](specs/001-epic-replay/spec.md): what the product does and what this build defers
+- [plan.md](specs/001-epic-replay/plan.md): the stages and how they fit together
+- [contracts/ui.md](specs/001-epic-replay/contracts/ui.md) and [contracts/design.md](specs/001-epic-replay/contracts/design.md): the page
+- [contracts/http-api.md](specs/001-epic-replay/contracts/http-api.md): the API
+- [docs/chinese-language.md](docs/chinese-language.md): Mandarin
+- [CLAUDE.md](CLAUDE.md): working rules for this repository
