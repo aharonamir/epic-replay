@@ -106,7 +106,7 @@ Owner's yes, cap 0.03 USD for the football re-record; the auditions (0.0099 USD)
 
 The reaction 漂亮！ ("Beautiful!") took 2.0 s and was dropped: 1.79 s at 12 percent faster does not fit its 1.60 s. One retry with a quicker delivery was stopped by the run cap before any call, because a delivery change calls the Commentator again, estimate 0.0198 USD; the change was reverted.
 
-Jerry (news) has been auditioned but not run through a whole Mandarin video. Earlier Mandarin command-line runs set the wrong cap variables, `EPIC_RUN_CAP_USD` and `EPIC_PER_RUN_CAP_USD`; the right one is `EPIC_CAP_RUN_USD`, so those runs were held by the 1.00 USD default, and each stayed inside the owner's cap by its own cost.
+Jerry (news) was then run through a whole Mandarin video on the page on 2026-11-01, `r_20261101_074816_2519e2`, record mode, 0.0176 USD. The owner checked the clips the same day and accepted DJ Allen, with the 5 of 6 line pancake standing, and Jerry. Earlier Mandarin command-line runs set the wrong cap variables, `EPIC_RUN_CAP_USD` and `EPIC_PER_RUN_CAP_USD`; the right one is `EPIC_CAP_RUN_USD`, so those runs were held by the 1.00 USD default, and each stayed inside the owner's cap by its own cost.
 
 ## S5 failure on the page, 2026-10-31
 
