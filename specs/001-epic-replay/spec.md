@@ -2,7 +2,7 @@
 
 **Feature branch**: `001-epic-replay`
 **Created**: 2026-10-11
-**Status**: Draft, revision 11
+**Status**: Draft, revision 12
 **Input**: "You film your own goal or trick. The agent watches the clip, writes and voices an excited broadcast-style call of what actually happened, then adds a slow-motion replay and a score graphic."
 **Added in revision 2**: "In the MVP it is a web page: upload the video, choose a narration style (football enthusiast, news reporter and so on), see the progress, see the result."
 **Added in revision 3**: one person builds it in two weeks; the clip does not have to be a sport event; children are likely to appear in the footage; the confirmation step and the three styles stay.
@@ -247,6 +247,10 @@ On the start page the user chooses English or 中文. In a Mandarin run the comm
 
 - **FR-048**: The start page MUST offer a link, shown once at least one finished video exists, to a view listing every finished video on this machine, newest first and grouped by day, each opening its result page. The start page itself MUST show no picture from a clip, unless the user opened it from a result to tell that clip again (FR-042). Deleting a clip removes it from the list.
 
+**The original clip (revision 12)**
+
+- **FR-049**: A finished result MUST let the user switch between the replay and the original clip, when the clip is still on this machine. The clip is shown as the working copy, so it plays in any browser, and it MUST NOT be fetched until the user opens it or start by itself. It carries no AI label and no download, which belong to the replay. The clip stays on this machine, and a delete removes it with the run.
+
 ### 4.2 Key entities
 
 - **Run**: one clip told in one style, and everything produced for it; has a manifest, a cost ledger and a status. A second style of the same play is a new run that starts from a copy of the first run's analysis, play sheet, storyboard and video segments.
@@ -428,4 +432,5 @@ Success criteria as measured in the one-person MVP:
 - Revision 9 (2026-10-30): a language toggle, English or Mandarin (US6, FR-044 to FR-047), on branch `zh`. FR-019 amended. Mandarin voices, budgets by character, its own guards and the stated limit of the name check. Section 8 records the decisions. Existing ids are unchanged, and nothing changes for English.
 - Revision 10 (2026-10-31): the past replays view (FR-048), asked for by the owner; the gallery was out of scope until now. No authentication is added: the list makes every run reachable by anyone who can reach the server, so the app stays local.
 - Revision 11 (2026-11-01): "Try another narrator" on the result, asked for by the owner: it returns to the start page with the same clip, a narrator and a language are chosen there, and the confirmed play is reused (FR-042). A language can change as well as a style. The first part of T040; version tabs and samples stay deferred. A delete removes every version of a clip, as ui.md and http-api.md already said.
+- Revision 12 (2026-11-01): the original clip on the result, behind a tab beside the replay (FR-049), asked for by the owner. No authentication is added: anyone who can reach the server can now also play the clip with its own sound, so revision 10's warning covers it.
 - Revision 8 (2026-10-20): Gate 0's key-moment line is no (T003 contact sheets). The play card always opens with the nudge active, offers the S1 candidates as other moments, and the user's pick is the climax. The Spotter is overview-only; refining passes and the second look are deferred (section 10). SC-1, SC-2 and SC-5 re-set from T003. US2, FR-007 and FR-010 amended. Existing ids are unchanged.

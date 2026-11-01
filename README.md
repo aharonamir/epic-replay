@@ -93,7 +93,7 @@ A paid call that would pass a cap is not made, and the run stops with a message.
 
 ### Finding past videos
 
-Finished videos stay in `runs/` until you delete them. The **Past replays** link at the top of the home page lists them, newest first. Open one to play it, download it or press **Delete this clip now**, which removes the clip and every version made from it, for all narrators, from this machine.
+Finished videos stay in `runs/` until you delete them. The **Past replays** link at the top of the home page lists them, newest first. Open one to play it, switch to the **Original clip** tab to see the clip before any commentary, download the replay or press **Delete this clip now**, which removes the clip and every version made from it, for all narrators, from this machine.
 
 ### Cached demo runs
 

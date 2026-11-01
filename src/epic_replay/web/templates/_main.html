@@ -110,14 +110,29 @@
 <div class="cols">
   <div class="result-main">
     <h1 class="result" id="state-heading" tabindex="-1" data-heading>{{ copy.RESULT.headline }}</h1>
-    {% if run.has_video %}
-    <video class="player" controls preload="metadata" playsinline src="{{ video_url }}#t=0.1"
-           aria-label="{{ headline }}"></video>
-    {% endif %}
-    <div class="download-row">
-      <a class="button primary" href="{{ video_url }}" download>{{ copy.RESULT.download }}</a>
-      <span class="label tag">{{ copy.RESULT.ai }}</span>
+    {% if clip_url %}
+    <div class="view-tabs" role="tablist" aria-label="{{ copy.RESULT.views }}">
+      <button type="button" role="tab" id="tab-replay" aria-controls="view-replay" aria-selected="true"><span class="dot" aria-hidden="true"></span>{{ copy.RESULT.view_replay }}</button>
+      <button type="button" role="tab" id="tab-clip" aria-controls="view-clip" aria-selected="false" tabindex="-1">{{ copy.RESULT.view_clip }}</button>
     </div>
+    {% endif %}
+    <div class="view" id="view-replay"{% if clip_url %} role="tabpanel" aria-labelledby="tab-replay"{% endif %}>
+      {% if run.has_video %}
+      <video class="player" controls preload="metadata" playsinline src="{{ video_url }}#t=0.1"
+             aria-label="{{ headline }}"></video>
+      {% endif %}
+      <div class="download-row">
+        <a class="button primary" href="{{ video_url }}" download>{{ copy.RESULT.download }}</a>
+        <span class="label tag">{{ copy.RESULT.ai }}</span>
+      </div>
+    </div>
+    {% if clip_url %}
+    <div class="view" id="view-clip" role="tabpanel" aria-labelledby="tab-clip" hidden>
+      <video class="player" controls preload="metadata" playsinline data-src="{{ clip_url }}#t=0.1"
+             aria-label="{{ copy.RESULT.view_clip }}"></video>
+      <p class="view-note muted">{{ copy.RESULT.clip_note }}</p>
+    </div>
+    {% endif %}
     <div class="panels">
       {% if play_sheet %}
       <details>

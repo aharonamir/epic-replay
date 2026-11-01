@@ -67,7 +67,9 @@ RESULT = {"headline": "Your replay", "download": "Download", "ai": "AI commentar
           "start_over": "Start over with a new clip", "delete": "Delete this clip now",
           "another": "Try another narrator", "same_clip": "Same moment, new voice.",
           "no_confirm": "No need to confirm again.", "new_clip": "Use a different clip",
-          "all_versions": "This removes all {n} versions of this clip."}  # fmt: skip
+          "all_versions": "This removes all {n} versions of this clip.",
+          "views": "What to watch", "view_replay": "Replay", "view_clip": "Original clip",
+          "clip_note": "Your clip, before any commentary."}  # fmt: skip
 
 # The result's panels (ui.md section 4). "Write it again" is add-back 10.
 PANELS = {"saw": "What we saw", "script": "The script", "time": "Time and cost",

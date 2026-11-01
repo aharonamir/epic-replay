@@ -298,6 +298,63 @@ def test_past_links_survive_a_command_line_run_id_with_a_hash(app):
     assert result.status_code == 200 and 'src="/runs/foo%23bar/final.mp4#t=0.1"' in result.text
 
 
+# -- the original clip on a result (FR-049)
+
+
+def test_a_result_shows_the_original_clip_behind_a_tab_and_fetches_nothing_until_opened(app):
+    client, s, _, _ = app
+    retellable(s)
+    page = client.get("/r/first").text
+    assert copy.RESULT["view_clip"] in page and 'id="view-clip" role="tabpanel"' in page
+    assert 'data-src="/runs/first/clip.mp4#t=0.1"' in page and 'src="/runs/first/clip.mp4' not in page.replace('data-src="/runs/first/clip.mp4', "")  # fmt: skip
+    # the replay's download and AI label are not said of the user's own footage
+    clip_view = page.split('id="view-clip"')[1].split('class="panels"')[0]
+    assert copy.RESULT["download"] not in clip_view and copy.RESULT["ai"] not in clip_view
+
+
+def test_the_original_clip_is_played_from_the_working_copy_with_ranges(app):
+    client, s, _, _ = app
+    (retellable(s) / "work.mp4").write_bytes(b"0123456789")
+    r = client.get("/runs/first/clip.mp4", headers={"Range": "bytes=2-5"})
+    assert r.status_code == 206 and r.content == b"2345"
+    assert r.headers["content-type"] == "video/mp4"
+    assert "attachment" not in r.headers.get("content-disposition", "")
+
+
+def test_a_retelling_shows_the_clip_it_shares_with_its_first_version(app):
+    client, s, _, _ = app
+    first = retellable(s)
+    d = finished(s, "second")
+    (d / "work.mp4").symlink_to((first / "work.mp4").resolve())
+    assert client.get("/runs/second/clip.mp4").content == b"video"
+    assert "/runs/second/clip.mp4" in client.get("/r/second").text
+
+
+def test_a_result_with_no_clip_left_has_no_tabs(app):
+    client, s, _, _ = app
+    finished(s, "gone")
+    page = client.get("/r/gone").text
+    assert copy.RESULT["view_clip"] not in page and 'role="tablist"' not in page
+    assert copy.RESULT["download"] in page
+    assert client.get("/runs/gone/clip.mp4").status_code == 404
+    assert client.get("/runs/nope/clip.mp4").status_code == 404
+
+
+def test_a_cached_run_offers_no_original_clip(app, tmp_path, monkeypatch):
+    client, s, _, _ = app
+    demo = tmp_path / "demo"
+    shutil.copytree(retellable(s), demo / "pancakes")
+    monkeypatch.setattr(web, "DEMO_DIR", demo)
+    assert copy.RESULT["view_clip"] not in client.get("/demo/pancakes").text
+
+
+def test_original_clip_links_survive_a_command_line_run_id_with_a_hash(app):
+    client, s, _, _ = app
+    retellable(s, "a#b")
+    assert "/runs/a%23b/clip.mp4" in client.get("/r/a%23b").text
+    assert client.get("/runs/a%23b/clip.mp4").status_code == 200
+
+
 # -- try another narrator (FR-042)
 
 

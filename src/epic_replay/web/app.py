@@ -562,6 +562,16 @@ def get_final(run_id: str):
     )
 
 
+@app.get("/runs/{run_id}/clip.mp4")
+def get_clip(run_id: str):
+    """The clip before any commentary (FR-049): the working copy, which every browser can play
+    and every version of the clip holds, where the upload may be a MOV that some cannot."""
+    d = run_dir(run_id)
+    if d is None or not (d / "work.mp4").exists():
+        return error(404, "not_found", "no clip")
+    return FileResponse(d / "work.mp4", media_type="video/mp4")
+
+
 def styles(packs: dict) -> list[dict]:
     """The packs that load, in picker order, with what the narrator card draws and the three
     page colours (contracts/http-api.md, design.md sections 2 and 5). The samples are T040."""
@@ -819,6 +829,8 @@ def render(
         ctx["costs"] = views.time_and_cost(st)
         ctx["can_retell"] = not demo and retell_source(run_id) is not None
         ctx["version_count"] = 1 if demo else len(runner.versions(d))
+        if not demo and (d / "work.mp4").exists():
+            ctx["clip_url"] = f"/runs/{quote(run_id, safe='')}/clip.mp4"
     return templates.TemplateResponse(request, "_part.html" if part else "page.html", ctx)
 
 

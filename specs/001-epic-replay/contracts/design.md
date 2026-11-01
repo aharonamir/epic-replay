@@ -139,6 +139,8 @@ With details open, one line in the data face (13 px, `--muted`) appears under ea
 
 **Version tabs.** Buttons, 44 px high, each with a 10 px dot in its own pack accent. Current: `--raised` with a 2 px border in its accent, weight 700. Others: transparent with a 2 px `--line` border. A version still being made carries the word "making" in the data face.
 
+**View tabs (revision 12).** On Result, "Replay" and "Original clip", in the shape of the version tabs: 44 px high, 2 px border. Current: `--raised`, weight 700, border `--accent` on Replay and `--text` on Original clip. Only Replay has the dot: on this page, colour means a narrator. Arrow keys move between them.
+
 **Player.** 16:9. Its poster is the first frame of the video, which is the title card. A round 88 px play button, `--text` fill with an `--ink` triangle, sits in the centre. The video does not start by itself.
 
 **Panels.** Three native disclosure elements under the player, separated by `--line` rules, summary in weight 700. "The script" is open when the result first appears; the other two are closed. A script line is a wrapping row: time and role in the data face (168 px wide, `--muted`, or the narrator's accent text for the two key lines), then the words. The climax line is weight 700.

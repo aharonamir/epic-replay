@@ -188,6 +188,7 @@ Order on a phone: headline, tabs, player, download, the three panels, "Try anoth
 - "What we saw" shows the play sheet as on the play card, read-only.
 - "Time and cost" shows the duration and cost of each step and the total.
 - "Delete this clip now" removes every version and the provider-side copy at once. With more than one version, the result says "This removes all N versions of this clip." "Keep for the demo", off by default, exempts the run from the seven-day purge.
+- As built (revision 12, owner, 2026-11-01, FR-049): with the working copy still on disk, two tabs sit between the headline and the player: "Replay", which is open, and "Original clip". Both views use the same 16:9 player, so a vertical clip stands between black bars. The clip is requested only when its tab is first pressed, and the view left is paused. Download and "AI commentary" belong to the Replay view; the Original clip view has "Your clip, before any commentary." in their place. With no working copy, or in demo mode, there are no tabs. These are not the version tabs above, which stay deferred.
 - In demo mode a band across the top reads "Cached run from <date>" (FR-038).
 
 ## Past replays
@@ -248,7 +249,7 @@ All text on the page lives in one file, `web/copy.py`, so wording can be reviewe
 | Progress | Making your replay / Step N of 8 / Working / Show details / Hide details |
 | Time left | A few seconds to go. / About half a minute to go. / About a minute to go. |
 | Confirm | Your turn. / Is this what happened? / 10 back / Earlier / Later / 10 on / Frame N · T s / Pick the moment / This one / Other moments / Check this / Keep / Remove / Yes, that's it / Fix something / Not at all / The rest will cost about $X. |
-| Result | Your replay / making / Download / AI commentary / Try another narrator / Same moment, new voice. No need to confirm again. / Use a different clip / This removes all N versions of this clip. |
+| Result | Your replay / making / Download / AI commentary / Try another narrator / Same moment, new voice. No need to confirm again. / Use a different clip / This removes all N versions of this clip. / Replay / Original clip / Your clip, before any commentary. |
 | Panels | What we saw / The script / Write it again / Every line passed its checks. / Time and cost |
 | End of page | Start over with a new clip / Past replays / Keep for the demo / Delete this clip now |
 | Past replays | Past replays (N) / N videos / 1 video / No replays yet. Make your first one. / Make a replay / Your replay (a video with no headline) |

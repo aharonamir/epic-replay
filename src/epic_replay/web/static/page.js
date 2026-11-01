@@ -281,6 +281,28 @@
         set(open);
       });
     }
+    // The result's two views (FR-049). The clip is fetched when first opened, and the view left
+    // stops, so two sounds never overlap; neither starts by itself.
+    const tabs = [...root.querySelectorAll('[role="tab"]')];
+    const open = (tab) => tabs.forEach((t) => {
+      const on = t === tab, view = $(t.getAttribute("aria-controls")), v = view.querySelector("video");
+      t.setAttribute("aria-selected", String(on));
+      t.tabIndex = on ? 0 : -1;
+      view.hidden = !on;
+      if (!v) return;
+      if (!on) v.pause();
+      else if (v.dataset.src && !v.getAttribute("src")) v.src = v.dataset.src;
+    });
+    tabs.forEach((t, i) => {
+      t.addEventListener("click", () => open(t));
+      t.addEventListener("keydown", (e) => {
+        if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+        e.preventDefault();
+        const next = tabs[(i + (e.key === "ArrowRight" ? 1 : -1) + tabs.length) % tabs.length];
+        open(next);
+        next.focus();
+      });
+    });
     initCard(root);
   }
 
