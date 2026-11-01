@@ -11,7 +11,7 @@
   <h2>{{ day.grouper }}</h2>
   <div class="replays">
     {% for v in day.list %}
-    <a class="replay" href="/r/{{ v.run_id }}" style="--card-accent:{{ v.accent }};--card-on-accent:{{ v.on_accent }}">
+    <a class="replay" href="/r/{{ v.run_id | urlencode }}" style="--card-accent:{{ v.accent }};--card-on-accent:{{ v.on_accent }}">
       <span class="thumb replay-frame">
         {% if v.frame_url %}<img src="{{ v.frame_url }}" alt="" loading="lazy">{% endif %}
         <span class="sample {{ v.layout }}">{% if v.layout == "ticker" %}<span class="kicker"{% if v.lang %} lang="{{ v.lang }}"{% endif %}>{{ v.kicker }}</span>{% endif %}<span class="line"{% if v.lang %} lang="{{ v.lang }}"{% endif %}>{{ v.headline }}</span></span>

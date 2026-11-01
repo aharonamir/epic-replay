@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from urllib.parse import quote
 
 from epic_replay.flow import runner
 from epic_replay.styles import loader
@@ -173,7 +174,7 @@ def _past_item(d: Path, m: dict, packs: dict, accents) -> dict:
         "date": m["created_at"][:10],
         "headline": (_read(d, "script.json") or {}).get("headline") or copy.PAST["untitled"],
         "lang": "zh-Hans" if zh else None,
-        "frame_url": f"/runs/{d.name}/frames/{frame}.jpg" if has_frames else None,
+        "frame_url": f"/runs/{quote(d.name, safe='')}/frames/{frame}.jpg" if has_frames else None,
         "duration": f"{duration:.0f} s" if duration is not None else "",
         "narrator": pack["name"],
         "layout": pack["graphics"]["lower_third_layout"],

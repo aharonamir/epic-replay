@@ -2,6 +2,7 @@
 `test_the_agent_writes_scripts_that_pass` (marked live: it costs money)."""
 
 import copy
+import dataclasses
 import json
 
 import pytest
@@ -134,12 +135,13 @@ def record(rec_dir, adapter, payload, *, ps=PS):
     p.write_text(json.dumps(payload))
 
 
-def run_s5(tmp_path, rec_dir):
+def run_s5(tmp_path, rec_dir, settings=None):
     for n in ("play_sheet.json", "storyboard.json", "user_context.json"):
         (tmp_path / n).write_text(open(f"{FIXTURE}/{n}").read())
     events = []
-    ctx = RunContext(run_dir=tmp_path, settings=config.load(), emit=events.append,
-                     ledger=Ledger(tmp_path, day_file=tmp_path / "day.json"),
+    s = settings or config.load()
+    ctx = RunContext(run_dir=tmp_path, settings=s, emit=events.append,
+                     ledger=Ledger(tmp_path, s, day_file=tmp_path / "day.json"),
                      adapters={"recorder": Recorder("replay", rec_dir)})  # fmt: skip
     return s5_script.run(ctx), events
 
@@ -191,7 +193,30 @@ def test_an_agent_that_raises_goes_to_the_fallback_and_the_run_goes_on(tmp_path,
     assert res.status == "degraded" and "the agent failed (ConnectionError)" in res.note
     assert [ln["text"] for ln in json.loads((run_dir / "script.json").read_text())["lines"]] == [ln["text"] for ln in SCRIPT["lines"]]  # fmt: skip
     cost = json.loads((run_dir / "cost.json").read_text())
-    assert [c["provider"] for c in cost["calls"]] == ["openai-compatible"]
+    agent, draft = cost["calls"]
+    assert (agent["provider"], draft["provider"]) == ("agent-core", "openai-compatible")
+    assert agent["actual_usd"] == cm.ESTIMATE_USD and agent["failed"] == "AgentFailed"
+    trace = json.loads((run_dir / "commentator_trace.json").read_text())
+    assert trace["cost_usd"] == cm.ESTIMATE_USD  # the draft is a recording, so free
+
+
+def test_the_estimate_of_an_agent_that_raises_counts_against_the_cap(tmp_path, monkeypatch):
+    rec = tmp_path / "rec"
+    record(rec, "commentator_draft", {"draft": fixture_draft(), "usage": {}})
+    replayed = Recorder.fetch
+
+    def fetch(self, adapter, key, fn):
+        if adapter == "commentator":
+            raise ConnectionError("Connection error.")
+        return replayed(self, adapter, key, fn)
+
+    monkeypatch.setattr(Recorder, "fetch", fetch)
+    run_dir = tmp_path / "run"
+    run_dir.mkdir()
+    cap = cm.ESTIMATE_USD + cm.DRAFT_ESTIMATE_USD / 2
+    res, _ = run_s5(run_dir, rec, dataclasses.replace(config.load(), cap_run_usd=cap))
+    assert res.status == "stopped" and "cap" in res.note
+    assert json.loads((run_dir / "cost.json").read_text())["blocked"][0]["provider"] == "openai-compatible"  # fmt: skip
 
 
 def test_s5_without_a_recording_fails_in_replay_mode(tmp_path):

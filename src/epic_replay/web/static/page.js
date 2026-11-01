@@ -246,7 +246,7 @@
     root.querySelectorAll("[data-delete]").forEach((b) => b.addEventListener("click", async () => {
       b.disabled = true;
       try {
-        const r = await fetch(`/runs/${b.dataset.delete}`, { method: "DELETE" });
+        const r = await fetch(`/runs/${encodeURIComponent(b.dataset.delete)}`, { method: "DELETE" });
         if (r.ok || r.status === 404) { live.stop(); location.href = after; return; }
         $("delete-error").textContent = await why(r, "The clip was not deleted. Try again.");
       } catch (err) {

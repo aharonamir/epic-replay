@@ -282,3 +282,14 @@ def test_a_deleted_run_leaves_past_and_a_result_links_back(app):
     assert 'href="/past"' in client.get("/r/gone").text
     assert client.delete("/runs/gone").status_code == 204
     assert 'href="/r/gone"' not in client.get("/past").text
+
+
+def test_past_links_survive_a_command_line_run_id_with_a_hash(app):
+    client, s, _, _ = app
+    d = finished(s, "foo#bar")
+    (d / "clip_meta.json").write_text("{}")
+    (d / "work.mp4").write_bytes(b"video")
+    page = client.get("/past").text
+    assert 'href="/r/foo%23bar"' in page and "/runs/foo%23bar/frames/0.jpg" in page
+    result = client.get("/r/foo%23bar")
+    assert result.status_code == 200 and 'src="/runs/foo%23bar/final.mp4#t=0.1"' in result.text

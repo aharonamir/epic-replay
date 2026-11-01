@@ -722,7 +722,7 @@ def render(
     ctx = {"copy": copy, "pack": pack, "accents": accents(pack), "run": st,
            "provider_line": copy.provider_line(s), "styles": styles(packs),
            "zh_styles": [i for i, p in packs.items() if "zh" in p.get("languages", {})],
-           "past": past, "past_count": past_count, "demo": demo, "video_url": f"/demo/{run_id}/final.mp4" if demo else f"/runs/{run_id}/final.mp4"}  # fmt: skip
+           "past": past, "past_count": past_count, "demo": demo, "video_url": f"/demo/{quote(run_id or '', safe='')}/final.mp4" if demo else f"/runs/{quote(run_id or '', safe='')}/final.mp4"}  # fmt: skip
     if st and st["status"] == "waiting_play_card":
         card = card_data(run_id, d)
         ctx["card"] = card

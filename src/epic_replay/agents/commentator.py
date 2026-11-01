@@ -528,6 +528,10 @@ def generic(*, slots: list[dict], ps: dict, uc: dict, sb: dict, pack: dict) -> O
     return Outcome(script, draft, "ok", "generic mode: no claim about what happened", calls, 0.0)
 
 
+class AgentFailed(Exception):
+    """The agent stopped, perhaps after paid model turns: billed_on counts it at its estimate."""
+
+
 def write(
     *,
     slots: list[dict],
@@ -549,23 +553,26 @@ def write(
     spent = []
 
     def agent_call() -> PaidResult:
-        payload, hit = recorder.fetch(
-            "commentator", key, lambda: asyncio.run(_run_agent(tools, system, query))
-        )
-        spent.append(0.0 if hit else cost_of(payload["usage"]))
+        try:
+            payload, hit = recorder.fetch(
+                "commentator", key, lambda: asyncio.run(_run_agent(tools, system, query))
+            )
+            spent.append(0.0 if hit else cost_of(payload["usage"]))
+        except ReplayMiss:
+            raise
+        except Exception as e:
+            raise AgentFailed(type(e).__name__) from e
         return PaidResult(payload, spent[-1], hit)
 
     note = "the agent submitted no script that passes"
     try:
         payload = paid_call(
             ledger, stage="S5", provider="agent-core", model=model,
-            estimate_usd=ESTIMATE_USD, fn=agent_call,
+            estimate_usd=ESTIMATE_USD, fn=agent_call, billed_on=(AgentFailed,),
         )  # fmt: skip
-    except (CapExceeded, ReplayMiss):
-        raise
-    except Exception as e:  # noqa: BLE001 - any other failure goes to the fallback
-        payload, note = {}, f"the agent failed ({type(e).__name__})"
-        spent.append(0.0)
+    except AgentFailed as e:  # the fallback goes on, with the estimate counted as spent
+        payload, note = {}, f"the agent failed ({e})"
+        spent.append(ESTIMATE_USD)
     calls = list(payload.get("calls", []))
     cost = spent[-1]
     draft = payload.get("draft")
