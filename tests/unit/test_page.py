@@ -7,6 +7,8 @@ import json
 import shutil
 import subprocess
 import threading
+from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import TimeoutError as FutureTimeout
 
 import pytest
 from fastapi.testclient import TestClient
@@ -402,3 +404,19 @@ def test_a_delete_waits_for_a_running_version(app):
     finally:
         web.LIVE.discard("second")
     assert r.status_code == 409 and (s.runs_dir / "first").exists()
+
+
+def test_a_delete_finds_the_versions_only_once_no_version_is_being_made(app):
+    client, s, _, _ = app
+    retellable(s)
+    web._VERSIONS.acquire()  # a re-telling is being made
+    with ThreadPoolExecutor(1) as pool:
+        delete = pool.submit(client.delete, "/runs/first")
+        try:
+            with pytest.raises(FutureTimeout):
+                delete.result(0.3)
+            retellable(s, "second", style="news_reporter", parent_run_id="first")
+        finally:
+            web._VERSIONS.release()
+        assert delete.result(5).status_code == 204
+    assert list(s.runs_dir.iterdir()) == []

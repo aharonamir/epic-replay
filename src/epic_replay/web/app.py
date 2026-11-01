@@ -88,6 +88,9 @@ app.state.resume = None  # tests replace the background resume
 # answers (reviews, 2026-10-29).
 _LOCKS: dict[str, threading.Lock] = {}
 _LOCKS_GUARD = threading.Lock()
+# Held while a version of a clip is made, and while a delete finds and removes all of them, so
+# no delete misses a version made as it starts and leaves it with links into removed folders.
+_VERSIONS = threading.Lock()
 # The runs this app has a live thread for. A run "running" with no live thread here, and
 # neither its manifest nor the runner's heartbeat (touched every 30 s by whichever process
 # runs it) changed for STALE_S, has lost its process: it is shown as stopped and can be
@@ -588,7 +591,7 @@ def make_retelling(run_id: str, style: str, language: str | None):
     packs = loader.load()
     if style not in packs:
         return error(400, "unknown_style", f"No narrator called {style}.")
-    with lock_for(d):  # a delete of this play waits, so nothing links into a folder being removed
+    with _VERSIONS:
         if retell_source(run_id) is None:
             return error(409, "not_ready", "This clip can't be told again: it isn't finished, or its clip is gone.")  # fmt: skip
         language = language or read(d, "user_context.json").get("language", loader.DEFAULT_LANGUAGE)
@@ -740,22 +743,23 @@ def delete_run(run_id: str):
     d = run_dir(run_id)
     if d is None:
         return error(404, "not_found", "no such run")
-    family = runner.versions(d)
-    locks = [lock_for(x) for x in family]  # in one order, so two deletes cannot wait on each other
-    for lock in locks:
-        lock.acquire()
-    try:
+    with _VERSIONS:
         if not (d / "manifest.json").exists():  # another delete got here first
             return error(404, "not_found", "no such run")
-        for x in family:
-            m = read(x, "manifest.json")
-            if m["status"] == "running" and not stale(x, m):
-                return error(409, "running", "Wait for this step to finish, then delete.")
-        # out of sight in one step, then removed; anything left is removed at the next start
-        gone = [x.rename(x.with_name(f".deleting-{x.name}")) for x in family]
-    finally:
+        family = runner.versions(d)
+        locks = [lock_for(x) for x in family]  # one at a time, so no frame is mid-write
         for lock in locks:
-            lock.release()
+            lock.acquire()
+        try:
+            for x in family:
+                m = read(x, "manifest.json")
+                if m["status"] == "running" and not stale(x, m):
+                    return error(409, "running", "Wait for this step to finish, then delete.")
+            # out of sight in one step, then removed; anything left is removed at the next start
+            gone = [x.rename(x.with_name(f".deleting-{x.name}")) for x in family]
+        finally:
+            for lock in locks:
+                lock.release()
     for x in gone:
         shutil.rmtree(x, ignore_errors=True)
     return Response(status_code=204)
