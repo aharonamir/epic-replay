@@ -204,14 +204,10 @@ def test_an_agent_that_raises_goes_to_the_fallback_and_the_run_goes_on(tmp_path,
 
 
 def test_the_estimate_of_an_agent_that_raises_counts_against_the_cap(tmp_path, monkeypatch):
-    rec = tmp_path / "rec"
-    record(rec, "commentator_draft", {"draft": fixture_draft(), "usage": {}})
-    replayed = Recorder.fetch
+    rec = tmp_path / "rec"  # no recording of the draft, so it would be a paid call
 
     def fetch(self, adapter, key, fn):
-        if adapter == "commentator":
-            raise ConnectionError("Connection error.")
-        return replayed(self, adapter, key, fn)
+        raise ConnectionError("Connection error.")
 
     monkeypatch.setattr(Recorder, "fetch", fetch)
     run_dir = tmp_path / "run"
