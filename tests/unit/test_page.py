@@ -14,6 +14,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from epic_replay import config
+from epic_replay.guards import consent
 from epic_replay.web import app as web
 from epic_replay.web import copy
 
@@ -303,7 +304,7 @@ def test_past_links_survive_a_command_line_run_id_with_a_hash(app):
 def retellable(s, run_id="first", style="football_commentator", language="en", **extra):
     d = finished(s, run_id, style=style, language=language, **extra)
     (d / "manifest.json").write_text(json.dumps({**json.loads((d / "manifest.json").read_text()), "style": style}))  # fmt: skip
-    (d / "user_context.json").write_text(json.dumps({"style": style, "language": language, "parent_run_id": extra.get("parent_run_id")}))  # fmt: skip
+    (d / "user_context.json").write_text(json.dumps({"style": style, "language": language, "parent_run_id": extra.get("parent_run_id"), "consent": consent.record(True)}))  # fmt: skip
     (d / "work.mp4").write_bytes(b"video")
     (d / "clip_meta.json").write_text(json.dumps({"duration_s": 10.0, "fps": 30}))
     (d / "play_sheet.json").write_text(json.dumps({"climax": {"frame": 42}}))
@@ -409,7 +410,8 @@ def test_a_delete_waits_for_a_running_version(app):
 def test_a_delete_finds_the_versions_only_once_no_version_is_being_made(app):
     client, s, _, _ = app
     retellable(s)
-    web._VERSIONS.acquire()  # a re-telling is being made
+    lock = web.versions_lock(s.runs_dir / "first")
+    lock.acquire()  # a re-telling is being made
     with ThreadPoolExecutor(1) as pool:
         delete = pool.submit(client.delete, "/runs/first")
         try:
@@ -417,6 +419,17 @@ def test_a_delete_finds_the_versions_only_once_no_version_is_being_made(app):
                 delete.result(0.3)
             retellable(s, "second", style="news_reporter", parent_run_id="first")
         finally:
-            web._VERSIONS.release()
+            lock.release()
         assert delete.result(5).status_code == 204
     assert list(s.runs_dir.iterdir()) == []
+
+
+def test_a_run_without_the_current_consent_is_not_told_again(app):
+    client, s, started, _ = app
+    d = retellable(s)
+    uc = json.loads((d / "user_context.json").read_text())
+    (d / "user_context.json").write_text(json.dumps(uc | {"consent": {"confirmed": True, "text_version": "old"}}))  # fmt: skip
+    assert "?from=" not in client.get("/r/first").text
+    assert "data-from" not in client.get("/?from=first").text
+    r = post_restyle(client, "first", style="news_reporter")
+    assert r.status_code == 409 and r.json()["error"]["code"] == "not_ready" and started == []

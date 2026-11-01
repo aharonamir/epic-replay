@@ -88,9 +88,6 @@ app.state.resume = None  # tests replace the background resume
 # answers (reviews, 2026-10-29).
 _LOCKS: dict[str, threading.Lock] = {}
 _LOCKS_GUARD = threading.Lock()
-# Held while a version of a clip is made, and while a delete finds and removes all of them, so
-# no delete misses a version made as it starts and leaves it with links into removed folders.
-_VERSIONS = threading.Lock()
 # The runs this app has a live thread for. A run "running" with no live thread here, and
 # neither its manifest nor the runner's heartbeat (touched every 30 s by whichever process
 # runs it) changed for STALE_S, has lost its process: it is shown as stopped and can be
@@ -111,6 +108,13 @@ def error(status: int, code: str, message: str) -> JSONResponse:
 def lock_for(d: Path) -> threading.Lock:
     with _LOCKS_GUARD:
         return _LOCKS.setdefault(d.name, threading.Lock())
+
+
+def versions_lock(d: Path) -> threading.Lock:
+    """Held while a version of a clip is made, and while a delete finds and removes all of them,
+    so no delete misses a version made as it starts and leaves it with links into removed
+    folders. One per clip: a delete waiting for a frame holds up no other clip."""
+    return lock_for(Path(f".versions-{runner.first_of(d)}"))
 
 
 def background(go, d: Path) -> None:
@@ -571,11 +575,18 @@ def styles(packs: dict) -> list[dict]:
 
 
 def retell_source(run_id: str | None) -> Path | None:
-    """The run's folder, if the run can be told again: finished, with its clip and its play."""
+    """The run's folder, if the run can be told again: finished, with its clip, its play and
+    the consent of the current wording, which S2 asked for and a re-telling does not reach."""
     d = run_dir(run_id) if run_id else None
     if d is None or read(d, "manifest.json")["status"] != "done":
         return None
-    return d if all((d / n).exists() for n in ("work.mp4", "clip_meta.json", "play_sheet.json")) else None  # fmt: skip
+    if not all((d / n).exists() for n in ("work.mp4", "clip_meta.json", "play_sheet.json", "user_context.json")):  # fmt: skip
+        return None
+    try:
+        consent.require(read(d, "user_context.json"))
+    except consent.ConsentRequired:
+        return None
+    return d
 
 
 def retold(d: Path) -> None:
@@ -591,9 +602,9 @@ def make_retelling(run_id: str, style: str, language: str | None):
     packs = loader.load()
     if style not in packs:
         return error(400, "unknown_style", f"No narrator called {style}.")
-    with _VERSIONS:
+    with versions_lock(d):
         if retell_source(run_id) is None:
-            return error(409, "not_ready", "This clip can't be told again: it isn't finished, or its clip is gone.")  # fmt: skip
+            return error(409, "not_ready", "This clip can't be told again: it isn't finished, its clip is gone, or its consent is out of date.")  # fmt: skip
         language = language or read(d, "user_context.json").get("language", loader.DEFAULT_LANGUAGE)
         if language != loader.DEFAULT_LANGUAGE and language not in packs[style].get("languages", {}):  # fmt: skip
             return error(400, "unknown_language", f"{packs[style]['name']} does not speak {language}.")  # fmt: skip
@@ -743,7 +754,7 @@ def delete_run(run_id: str):
     d = run_dir(run_id)
     if d is None:
         return error(404, "not_found", "no such run")
-    with _VERSIONS:
+    with versions_lock(d):
         if not (d / "manifest.json").exists():  # another delete got here first
             return error(404, "not_found", "no such run")
         family = runner.versions(d)

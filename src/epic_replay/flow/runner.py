@@ -440,18 +440,19 @@ def rerun(run_dir: Path, stage: str) -> None:
     write_json(mp, m)
 
 
+def first_of(d: Path) -> str:
+    """The id of the first run of the play `d` tells."""
+    try:
+        return json.loads((d / "user_context.json").read_text()).get("parent_run_id") or d.name
+    except (OSError, ValueError):
+        return d.name
+
+
 def versions(d: Path) -> list[Path]:
     """Every run of the play `d` tells, in a stable order: the first run and its re-tellings."""
-
-    def first(x: Path) -> str:
-        try:
-            return json.loads((x / "user_context.json").read_text()).get("parent_run_id") or x.name
-        except (OSError, ValueError):
-            return x.name
-
-    want = first(d)
+    want = first_of(d)
     runs = (x for x in d.parent.iterdir() if not x.name.startswith("."))
-    return sorted(x for x in runs if (x / MANIFEST).exists() and first(x) == want)
+    return sorted(x for x in runs if (x / MANIFEST).exists() and first_of(x) == want)
 
 
 def retell(source: Path, runs_dir: Path, style: str, run_id: str | None = None, language: str | None = None) -> tuple[Path, set[str]]:  # fmt: skip
