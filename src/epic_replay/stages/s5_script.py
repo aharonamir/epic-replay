@@ -32,6 +32,7 @@ def run(ctx: RunContext) -> StageResult:
     built = slots.build(sb, pack, climax_event_id=ps["climax"].get("event_id"))
     if ctx.ledger is None:
         ctx.ledger = Ledger(ctx.run_dir, ctx.settings)
+    spent_before = ctx.ledger.total_usd
     try:
         if ps.get("mode") == "generic":
             out = commentator.generic(slots=built, ps=ps, uc=uc, sb=sb, pack=pack)
@@ -48,9 +49,6 @@ def run(ctx: RunContext) -> StageResult:
     if errs:  # the tools check the schema, so this is a bug
         return StageResult("failed", "; ".join(errs)[:500])
     ctx.path(SCRIPT).write_text(json.dumps(out.script, indent=2, ensure_ascii=False) + "\n")
-    trace = {"calls": out.calls, "draft": out.draft, "status": out.status, "note": out.note,
-             "cost_usd": out.cost_usd}  # fmt: skip
-    ctx.path(TRACE).write_text(json.dumps(trace, indent=2, ensure_ascii=False) + "\n")
     language = out.script["language"]
     words = sum(slots.spoken_units(ln["text"], language) for ln in out.script["lines"])
     unit = "characters" if language == "zh" else "words"
@@ -64,5 +62,11 @@ def run(ctx: RunContext) -> StageResult:
             ctx.path(GLOSS).write_text(json.dumps(meaning, indent=2, ensure_ascii=False) + "\n")
         except Exception:  # noqa: BLE001 - review text: the run goes on without it
             log.warning("no English gloss for this run", exc_info=True)
-    ctx.emit({"stage": "S5", "status": out.status, "summary": summary, "cost_usd": out.cost_usd})
+    cost = round(
+        ctx.ledger.total_usd - spent_before, 6
+    )  # with the gloss and a failed call's estimate
+    trace = {"calls": out.calls, "draft": out.draft, "status": out.status, "note": out.note,
+             "cost_usd": cost}  # fmt: skip
+    ctx.path(TRACE).write_text(json.dumps(trace, indent=2, ensure_ascii=False) + "\n")
+    ctx.emit({"stage": "S5", "status": out.status, "summary": summary, "cost_usd": cost})
     return StageResult(out.status, out.note, outputs=[SCRIPT, TRACE])

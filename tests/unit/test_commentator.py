@@ -4,8 +4,11 @@
 import copy
 import dataclasses
 import json
+import types
 
+import httpx
 import pytest
+from openai import APITimeoutError
 
 from epic_replay import config, contracts
 from epic_replay.agents import commentator as cm
@@ -241,3 +244,47 @@ def test_the_agent_writes_scripts_that_pass(tmp_path, pack_id):
     assert contracts.validate("script", out.script) == []
     assert s6_checks.check(out.script, PS, UC, PACK) == []
     assert all("hit_word" in ln for ln in out.script["lines"] if ln["role"] in cm.KEY_ROLES)
+
+
+def test_a_timed_out_draft_is_counted_at_its_estimate_and_reported(tmp_path, monkeypatch):
+    rec = tmp_path / "rec"
+
+    def fetch(self, adapter, key, fn):
+        if adapter == "commentator":
+            return {"calls": [], "usage": {}}, True  # no script from the agent, at no cost
+        raise APITimeoutError(request=httpx.Request("POST", "http://test"))
+
+    monkeypatch.setattr(Recorder, "fetch", fetch)
+    run_dir = tmp_path / "run"
+    run_dir.mkdir()
+    res, events = run_s5(run_dir, rec)
+    assert res.status == "degraded"
+    calls = json.loads((run_dir / "cost.json").read_text())["calls"]
+    assert calls[-1]["actual_usd"] == cm.DRAFT_ESTIMATE_USD
+    assert calls[-1]["failed"] == "APITimeoutError"
+    trace = json.loads((run_dir / "commentator_trace.json").read_text())
+    assert trace["cost_usd"] == cm.DRAFT_ESTIMATE_USD
+    assert events[-1]["cost_usd"] == cm.DRAFT_ESTIMATE_USD
+
+
+def test_a_gloss_that_times_out_is_counted_at_its_estimate(tmp_path, monkeypatch):
+    def fetch(self, adapter, key, fn):
+        raise APITimeoutError(request=httpx.Request("POST", "http://test"))
+
+    monkeypatch.setattr(Recorder, "fetch", fetch)
+    ledger = Ledger(tmp_path, day_file=tmp_path / "day.json")
+    script = {"lines": [{"id": "l1", "text": "进球了"}], "headline": "进球", "lower_third": "进球"}
+    with pytest.raises(APITimeoutError):
+        cm.gloss(script, ledger, Recorder("replay", tmp_path))
+    assert ledger.total_usd == cm.GLOSS_ESTIMATE_USD
+
+
+def test_a_gloss_reply_that_is_not_json_is_still_billed(tmp_path, monkeypatch):
+    message = types.SimpleNamespace(content="not json")
+    reply = types.SimpleNamespace(choices=[types.SimpleNamespace(message=message)],
+                                  usage=types.SimpleNamespace(prompt_tokens=1000, completion_tokens=100))  # fmt: skip
+    create = types.SimpleNamespace(create=lambda **_: reply)
+    client = types.SimpleNamespace(chat=types.SimpleNamespace(completions=create))
+    monkeypatch.setattr("openai.OpenAI", lambda **_: client)
+    got = cm._gloss_call({"l1": "进球了"})
+    assert got["gloss"] == {} and got["usage"]["input_tokens"] == 1000

@@ -36,6 +36,8 @@ import re
 import time
 from dataclasses import dataclass, field
 
+from openai import APITimeoutError
+
 from epic_replay import contracts
 from epic_replay.guards.budget import CapExceeded, Ledger, PaidResult, paid_call
 from epic_replay.providers import llm
@@ -493,7 +495,11 @@ def _gloss_call(lines: dict) -> dict:
     )  # fmt: skip
     u = r.usage
     usage = {"input_tokens": u.prompt_tokens, "output_tokens": u.completion_tokens} if u else {}
-    return {"gloss": json.loads(r.choices[0].message.content or "{}"), "usage": usage}
+    try:  # a reply that is not JSON was still billed: it must reach the ledger
+        meaning = json.loads(r.choices[0].message.content or "{}")
+    except ValueError:
+        meaning = {}
+    return {"gloss": meaning, "usage": usage}
 
 
 def gloss(script: dict, ledger: Ledger, recorder: Recorder) -> tuple[dict, float]:
@@ -512,7 +518,7 @@ def gloss(script: dict, ledger: Ledger, recorder: Recorder) -> tuple[dict, float
 
     got = paid_call(
         ledger, stage="S5", provider="openai-compatible", model=model,
-        estimate_usd=GLOSS_ESTIMATE_USD, fn=call,
+        estimate_usd=GLOSS_ESTIMATE_USD, fn=call, billed_on=(APITimeoutError,),
     )  # fmt: skip
     return got["gloss"], spent[-1]
 
@@ -590,7 +596,7 @@ def write(
 
         got = paid_call(
             ledger, stage="S5", provider="openai-compatible", model=model,
-            estimate_usd=DRAFT_ESTIMATE_USD, fn=draft_call,
+            estimate_usd=DRAFT_ESTIMATE_USD, fn=draft_call, billed_on=(APITimeoutError,),
         )  # fmt: skip
         draft = got.get("draft") or {}
         cost += spent[-1]
