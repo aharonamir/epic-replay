@@ -225,6 +225,18 @@ def test_a_re_telling_starts_at_the_script_and_touches_the_first_run(tmp_path, m
     assert (third / "work.mp4").resolve() == (first / "work.mp4").resolve()
 
 
+def test_a_re_telling_can_change_the_language_and_versions_finds_the_whole_play(tmp_path, monkeypatch):  # fmt: skip
+    first = finished(tmp_path)
+    second, _ = runner.retell(first, tmp_path / "runs", "news_reporter", "second", "zh")
+    assert json.loads((second / "user_context.json").read_text())["language"] == "zh"
+    done = {"status": "done", "run_id": "second", "parent_run_id": "first"}
+    (second / "manifest.json").write_text(json.dumps(done))
+    third, _ = runner.retell(second, tmp_path / "runs", "nature_documentary", "third")
+    assert json.loads((third / "user_context.json").read_text())["language"] == "zh"
+    (third / "manifest.json").write_text(json.dumps(done | {"run_id": "third"}))
+    assert runner.versions(third) == sorted([first, second, third])
+
+
 def test_only_a_finished_run_is_re_told(tmp_path):
     first = finished(tmp_path)
     (first / "manifest.json").write_text(json.dumps({"status": "failed", "run_id": "first"}))

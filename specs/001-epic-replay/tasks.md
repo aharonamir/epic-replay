@@ -240,13 +240,15 @@ Full design, order and go/no-go in `docs/chinese-language.md`. Not merged into m
 
 - [x] P1 The past replays view: a link on Start, `GET /past`, a way back from Result (FR-048). Done when: every finished video in the runs folder is listed newest first and opens its result, a delete removes it, and Start shows no picture from a clip.
   As built (2026-10-31, no paid call; designed with the `frontend-design` skill within design.md, as the `impeccable` skill the owner named is not on this machine): `views.past` reads the run folders and leaves out what is unfinished or unreadable; `GET /past` renders through the page's templates, each headline in its narrator's lower third. After a delete, a clip opened from the list returns to the list. Tests are in `tests/unit/test_page.py`; the look was checked by screenshot at 1280 and 390 px on made-up runs only, and the real runs folder was counted as text (42 items), with no picture opened.
+- [x] P2 Try another narrator from the result, the first part of T040 (FR-042, revision 11). Done when: from a finished result, the start page opens with the same clip, a narrator and language are chosen, and a new run starts at the script with no vision call and no card; a delete removes every version.
+  As built (2026-11-01, no paid call; after the code freeze, by the owner's decision): `POST /runs/{id}/restyle` over `runner.retell`, which also takes a language; `GET /?from={id}`; `runner.versions` for finding a version already made and for the delete. Tests are in `tests/unit/test_page.py` and `test_flow.py`; checked in a browser at 1280 and 390 px on made-up runs. Not yet run with a real paid voice. Version tabs, the short progress list and samples stay in T040.
 
 ## Deferred from the full design (not in the total)
 
 Listed in the order to add them back when there is time (plan.md section 6). Hours are the full-design hours.
 
 - [ ] T026 S6 Verifier: prompt, per-line verdicts with quoted phrase, rewrite loop of at most two rounds, generic replacement, the five planted errors only a reader can catch (deferred; full design 3h) - FR-020, SC-3
-- [ ] T040 Another narrator from the result page, and samples: `POST /runs/{id}/restyle`; version tabs; the short progress list for a re-telling; a five-second sample clip per pack and a play button on each style card (deferred; full design 3h) - US5, FR-039, FR-042
+- [ ] T040 The rest of another narrator from the result page (P2 above built the button and `POST /runs/{id}/restyle`), and samples: version tabs; the short progress list for a re-telling; a five-second sample clip per pack and a play button on each style card (deferred; full design 3h) - US5, FR-039, FR-042
 - [ ] T030 Fallback paths: a second voice provider with a voice per style, a second text model, a template script, each with a test that forces it (deferred; full design 3h) - US4, FR-035
 - [ ] T005 Slow-motion comparison: RIFE on the machine against blending, ball inspected frame by frame; then RIFE in T019 (deferred; full design 2h) - FR-028
 - [ ] T028 Evaluation run: a script that runs S0 to S3 on the starter clips and prints, per clip, the outcome for a yes or no and the key-moment error; the T003 spike report stands in for it (deferred; full design 3h) - SC-2

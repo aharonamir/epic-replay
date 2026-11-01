@@ -567,6 +567,65 @@ def styles(packs: dict) -> list[dict]:
     ]  # fmt: skip
 
 
+def retell_source(run_id: str | None) -> Path | None:
+    """The run's folder, if the run can be told again: finished, with its clip and its play."""
+    d = run_dir(run_id) if run_id else None
+    if d is None or read(d, "manifest.json")["status"] != "done":
+        return None
+    return d if all((d / n).exists() for n in ("work.mp4", "clip_meta.json", "play_sheet.json")) else None  # fmt: skip
+
+
+def retold(d: Path) -> None:
+    """Go on from the script in the app's provider mode: the play is already confirmed."""
+    runner.Run(d, settings(), ask=None).run(runner.held(d))
+
+
+def make_retelling(run_id: str, style: str, language: str | None):
+    """The version of this play in this style and language, a new one if it was never made."""
+    d = run_dir(run_id)
+    if d is None:
+        return error(404, "not_found", "no such run")
+    packs = loader.load()
+    if style not in packs:
+        return error(400, "unknown_style", f"No narrator called {style}.")
+    with lock_for(d):  # a delete of this play waits, so nothing links into a folder being removed
+        if retell_source(run_id) is None:
+            return error(409, "not_ready", "This clip can't be told again: it isn't finished, or its clip is gone.")  # fmt: skip
+        language = language or read(d, "user_context.json").get("language", loader.DEFAULT_LANGUAGE)
+        if language != loader.DEFAULT_LANGUAGE and language not in packs[style].get("languages", {}):  # fmt: skip
+            return error(400, "unknown_language", f"{packs[style]['name']} does not speak {language}.")  # fmt: skip
+        for x in runner.versions(d):
+            m = read(x, "manifest.json")
+            if (m.get("style"), m.get("language", "en")) == (style, language) and m["status"] not in ("failed", "stopped"):  # fmt: skip
+                return JSONResponse({"run_id": x.name}, status_code=200)
+        s = settings()
+        new, _ = runner.retell(d, s.runs_dir, style, language=language)
+        made = runner.Run(new, s, ask=None)
+        made.manifest |= {"style": style, "language": language}
+        made.save()
+    return new
+
+
+@app.post("/runs/{run_id}/restyle", status_code=201)
+async def post_restyle(run_id: str, request: Request):
+    """The same play in another narrator or language (FR-042): the confirmed play is reused, so
+    no vision call and no second confirmation."""
+    try:
+        body = await request.json()
+    except ValueError:
+        return error(400, "invalid_request", "the body is not JSON")
+    if not isinstance(body, dict) or not isinstance(body.get("style"), str):
+        return error(400, "invalid_request", "the body must be an object with a style")
+    language = body.get("language")
+    if language is not None and not isinstance(language, str):
+        return error(400, "invalid_request", "language must be a language code")
+    made = await run_in_threadpool(make_retelling, run_id, body["style"], language)
+    if isinstance(made, JSONResponse):
+        return made
+    background(app.state.resume or retold, made)
+    return {"run_id": made.name}
+
+
 @app.get("/styles")
 def get_styles():
     return styles(loader.load())
@@ -673,24 +732,32 @@ async def get_events(run_id: str, request: Request, after: int = 0):
 
 @app.delete("/runs/{run_id}", status_code=204)
 def delete_run(run_id: str):
-    """Remove the run now (FR-037, T033): its folder, with the upload, the working copy, the
-    contact sheets, the card's frames and the outputs. Refused while a stage is running, so no
-    stage writes into a folder being removed. Restyled versions come with T040 (deferred), so
-    a run has one version. DeepSeek offers no deletion of what it received; the consent line
-    says so plainly."""
+    """Remove the run now (FR-037, T033), with every version of the same clip, which share its
+    footage: each folder, with the upload, the working copy, the contact sheets, the card's
+    frames and the outputs. Refused while a stage of any of them is running, so no stage writes
+    into a folder being removed. DeepSeek offers no deletion of what it received; the consent
+    line says so plainly."""
     d = run_dir(run_id)
     if d is None:
         return error(404, "not_found", "no such run")
-    with lock_for(d):
+    family = runner.versions(d)
+    locks = [lock_for(x) for x in family]  # in one order, so two deletes cannot wait on each other
+    for lock in locks:
+        lock.acquire()
+    try:
         if not (d / "manifest.json").exists():  # another delete got here first
             return error(404, "not_found", "no such run")
-        m = read(d, "manifest.json")
-        if m["status"] == "running" and not stale(d, m):
-            return error(409, "running", "Wait for this step to finish, then delete.")
+        for x in family:
+            m = read(x, "manifest.json")
+            if m["status"] == "running" and not stale(x, m):
+                return error(409, "running", "Wait for this step to finish, then delete.")
         # out of sight in one step, then removed; anything left is removed at the next start
-        gone = d.with_name(f".deleting-{d.name}")
-        d.rename(gone)
-    shutil.rmtree(gone, ignore_errors=True)
+        gone = [x.rename(x.with_name(f".deleting-{x.name}")) for x in family]
+    finally:
+        for lock in locks:
+            lock.release()
+    for x in gone:
+        shutil.rmtree(x, ignore_errors=True)
     return Response(status_code=204)
 
 
@@ -712,6 +779,7 @@ def render(
     part: bool = False,
     past: list[dict] | None = None,
     past_count: int = 0,
+    retell: dict | None = None,
 ):
     """The whole page, or with `part` only what changes as the run goes on (the inside of
     `<main>` and the header's right side), which the page swaps in place."""
@@ -722,7 +790,7 @@ def render(
     ctx = {"copy": copy, "pack": pack, "accents": accents(pack), "run": st,
            "provider_line": copy.provider_line(s), "styles": styles(packs),
            "zh_styles": [i for i, p in packs.items() if "zh" in p.get("languages", {})],
-           "past": past, "past_count": past_count, "demo": demo, "video_url": f"/demo/{quote(run_id or '', safe='')}/final.mp4" if demo else f"/runs/{quote(run_id or '', safe='')}/final.mp4"}  # fmt: skip
+           "past": past, "past_count": past_count, "retell": retell, "demo": demo, "video_url": f"/demo/{quote(run_id or '', safe='')}/final.mp4" if demo else f"/runs/{quote(run_id or '', safe='')}/final.mp4"}  # fmt: skip
     if st and st["status"] == "waiting_play_card":
         card = card_data(run_id, d)
         ctx["card"] = card
@@ -734,12 +802,31 @@ def render(
         ctx["script"] = views.script_panel(d)
         ctx["play_sheet"] = read(d, "play_sheet.json") if (d / "play_sheet.json").exists() else None
         ctx["costs"] = views.time_and_cost(st)
+        ctx["can_retell"] = not demo and retell_source(run_id) is not None
+        ctx["version_count"] = 1 if demo else len(runner.versions(d))
     return templates.TemplateResponse(request, "_part.html" if part else "page.html", ctx)
+
+
+def retell_view(run_id: str | None) -> dict | None:
+    """What the start page needs to tell a finished run's clip again, or None for a new clip."""
+    d = retell_source(run_id)
+    if d is None:
+        return None
+    packs = loader.load()
+    uc, ps = read(d, "user_context.json"), read(d, "play_sheet.json")
+    others = [i for i in packs if i != uc.get("style")]
+    style = others[0] if others else uc.get("style")
+    cost = 0.0
+    if settings().provider_mode != "replay":
+        cost = runner.rest_cost_usd(read(d, "clip_meta.json"), packs[style])
+    return {"run_id": d.name, "style": style, "language": uc.get("language", loader.DEFAULT_LANGUAGE),
+            "picture": frame_url(quote(d.name, safe=""), ps["climax"]["frame"]), "cost_usd": cost}  # fmt: skip
 
 
 @app.get("/", response_class=HTMLResponse)
 def home(request: Request):
-    return render(request, None, None, past_count=len(past_videos()))
+    retell = retell_view(request.query_params.get("from"))
+    return render(request, None, None, past_count=len(past_videos()), retell=retell)
 
 
 def past_videos() -> list[dict]:

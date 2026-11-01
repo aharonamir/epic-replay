@@ -30,9 +30,17 @@
 
 {% elif not run %}
 {# ---------------------------------------------------------------- 1. Start #}
-<form id="start" class="cols" novalidate>
+<form id="start" class="cols" novalidate{% if retell %} data-from="{{ retell.run_id }}" data-language="{{ retell.language }}"{% endif %}>
   <div class="left">
     <h1 class="start">{{ copy.HEADLINE[0] }}<span>{{ copy.HEADLINE[1] }}</span></h1>
+    {% if retell %}
+    <div class="drop same-clip vf"><span class="vf2"></span>
+      <img class="frame" src="{{ retell.picture }}" alt="Your clip">
+      <p class="lead">{{ copy.RESULT.same_clip }}</p>
+      <p class="muted">{{ copy.RESULT.no_confirm }}</p>
+    </div>
+    <p><a class="button" href="/">{{ copy.RESULT.new_clip }}</a></p>
+    {% else %}
     <div class="drop vf" id="drop"><span class="vf2"></span>
       <div id="drop-empty">
         <p class="lead">{{ copy.DROP.lead }}</p>
@@ -50,6 +58,7 @@
       <p class="error" id="file-error" role="alert"></p>
     </div>
     <p class="muted">{{ copy.TIP }}</p>
+    {% endif %}
   </div>
   <div class="right">
     <fieldset class="narrators">
@@ -57,7 +66,7 @@
       {% for st in styles %}
       <label class="narrator" data-accent="{{ st.accent }}" data-on-accent="{{ st.on_accent }}" data-accent-text="{{ st.accent_text }}"{% if st.id in zh_styles %} data-zh="true"{% endif %}
              style="--card-accent:{{ st.accent }};--card-on-accent:{{ st.on_accent }}">
-        <input type="radio" name="style" value="{{ st.id }}"{% if st.id == pack.id %} checked{% endif %}>
+        <input type="radio" name="style" value="{{ st.id }}"{% if st.id == (retell.style if retell else pack.id) %} checked{% endif %}>
         <span class="text">
           <span class="name">{{ st.name }}</span>
           <span class="muted desc">{{ st.description }}</span>
@@ -77,17 +86,20 @@
       </div>
     </fieldset>
     {% endif %}
+    {% if not retell %}
     <div class="label muted">{{ copy.OPTIONAL.label }}</div>
     <label class="field">{{ copy.OPTIONAL.star }}<input type="text" name="player_name" maxlength="40" autocomplete="off"></label>
     <label class="check-row"><input type="checkbox" id="mute">{{ copy.OPTIONAL.mute }}</label>
+    {% endif %}
   </div>
   <div class="go-row" style="flex-basis:100%">
     <div class="consent">
-      <label class="check-row"><input type="checkbox" id="consent">{{ copy.CONSENT }}</label>
-      <p class="provider">{{ provider_line }}</p>
+      {% if retell %}{% if retell.cost_usd %}<p class="muted">{{ copy.CARD.cost.format(cost="%.2f" | format(retell.cost_usd)) }}</p>{% endif %}
+      {% else %}<label class="check-row"><input type="checkbox" id="consent">{{ copy.CONSENT }}</label>
+      <p class="provider">{{ provider_line }}</p>{% endif %}
     </div>
     <div class="go">
-      <button type="submit" class="primary" id="go" disabled>{{ copy.GO }}</button>
+      <button type="submit" class="primary" id="go"{% if not retell %} disabled{% endif %}>{{ copy.GO }}</button>
       <p class="error" id="go-error" role="alert"></p>
     </div>
   </div>
@@ -146,9 +158,11 @@
     </div>
   </div>
   <div class="result-side">
+    {% if can_retell %}<a class="button strong" href="/?from={{ run.run_id | urlencode }}">{{ copy.RESULT.another }}</a>{% endif %}
     <a class="button strong" href="/">{{ copy.RESULT.start_over }}</a>
     {% if not demo %}<a class="button" href="/past">{{ copy.PAST.link }}</a>
     <button type="button" class="delete" data-delete="{{ run.run_id }}">{{ copy.RESULT.delete }}</button>
+    {% if version_count and version_count > 1 %}<p class="muted">{{ copy.RESULT.all_versions.format(n=version_count) }}</p>{% endif %}
     <p class="error" id="delete-error" role="alert"></p>{% endif %}
   </div>
 </div>

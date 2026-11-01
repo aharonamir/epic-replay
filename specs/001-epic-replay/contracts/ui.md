@@ -181,12 +181,13 @@ Order on a phone: frame, frame number, nudge buttons, other moments, activity, e
 Order on a phone: headline, tabs, player, download, the three panels, "Try another narrator", start over, keep, delete.
 
 - The video does not play by itself, because it needs sound. The player shows a large play button over the first frame, which is the title card.
+- As built (revision 11, owner, 2026-11-01): "Try another narrator" is a button above "Start over". It opens Start at `/?from=<run_id>`: the drop area holds the clip's key-moment frame with "Same moment, new voice. No need to confirm again.", the optional fields and the consent are gone (the run's own stand), a different narrator and the run's language are preselected, and "Use a different clip" returns to the plain Start. "Make my replay" calls `POST /runs/{id}/restyle` and opens the new run with steps 1 to 4 done. A style and language already made open that version. It is offered only for a finished run that still has its clip, and not in demo mode. The rest of this bullet, the tabs and the short progress list stay deferred (T040).
 - "Try another narrator" lists the styles not yet made for this clip. Choosing one calls `POST /runs/{id}/restyle`, adds a tab marked "making", and shows a short progress list from step 5 on, in which step 6 only redraws the graphics. The current video keeps playing. There is no second confirmation (FR-042), and the line under the list says so.
 - Tabs switch between versions of the same play. Each tab carries a dot in its narrator's colour, and each version has its own download.
 - "The script" is open when the result first appears. It shows each line with the time it is spoken and its role, the two key lines marked. Under the lines, "Every line passed its checks.", or for a line that was replaced, the reason a check rejected the earlier draft. "Write it again" re-runs from S5 in the same style.
 - "What we saw" shows the play sheet as on the play card, read-only.
 - "Time and cost" shows the duration and cost of each step and the total.
-- "Delete this clip now" removes every version and the provider-side copy at once. "Keep for the demo", off by default, exempts the run from the seven-day purge.
+- "Delete this clip now" removes every version and the provider-side copy at once. With more than one version, the result says "This removes all N versions of this clip." "Keep for the demo", off by default, exempts the run from the seven-day purge.
 - In demo mode a band across the top reads "Cached run from <date>" (FR-038).
 
 ## Past replays
@@ -211,7 +212,7 @@ Revision 10 (2026-10-31, FR-048).
 
 Order on a phone: one column, newest first.
 
-- The link "Past replays (N)" is at the right of the header on Start, and only when N is at least 1. No picture from a clip is on Start, so nothing from a clip shows on a projector until the link is pressed.
+- The link "Past replays (N)" is at the right of the header on Start, and only when N is at least 1. No picture from a clip is on the plain Start, so nothing from a clip shows on a projector until the link is pressed.
 - The list holds every run in the runs folder with status `done` and a `final.mp4`, whether it was made through the page or from the command line. A cached run in `demo/` is not listed.
 - Each item is one link to `/r/<run_id>`, which shows the Result state with its player, download and delete. It shows the key-moment frame, the headline in its narrator's lower third, the narrator, the length, and 中文 on a Mandarin run. A run with no working copy shows the placeholder stripes.
 - Result has a "Past replays" button. After a delete, a clip opened from the list returns to the list; any other returns to Start.
@@ -247,7 +248,7 @@ All text on the page lives in one file, `web/copy.py`, so wording can be reviewe
 | Progress | Making your replay / Step N of 8 / Working / Show details / Hide details |
 | Time left | A few seconds to go. / About half a minute to go. / About a minute to go. |
 | Confirm | Your turn. / Is this what happened? / 10 back / Earlier / Later / 10 on / Frame N · T s / Pick the moment / This one / Other moments / Check this / Keep / Remove / Yes, that's it / Fix something / Not at all / The rest will cost about $X. |
-| Result | Your replay / making / Download / AI commentary / Try another narrator / Same moment, new voice. No need to confirm again. |
+| Result | Your replay / making / Download / AI commentary / Try another narrator / Same moment, new voice. No need to confirm again. / Use a different clip / This removes all N versions of this clip. |
 | Panels | What we saw / The script / Write it again / Every line passed its checks. / Time and cost |
 | End of page | Start over with a new clip / Past replays / Keep for the demo / Delete this clip now |
 | Past replays | Past replays (N) / N videos / 1 video / No replays yet. Make your first one. / Make a replay / Your replay (a video with no headline) |

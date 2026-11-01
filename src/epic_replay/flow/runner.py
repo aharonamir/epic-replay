@@ -26,8 +26,8 @@ before it in ORDER and do not depend on the script.
 of S0 to S4 and S9, the segments linked one by one because S10 writes `joined.mp4` beside them,
 and the user context with the new style and the first run as parent, for the manifest. It
 goes straight to S5, at no vision cost. Links rather than copies, so no second copy of the
-footage exists: once the parent is deleted a re-telling keeps its video but cannot be re-run
-before S10's inputs that were linked.
+footage exists. A delete on the page removes every version together (`versions`), so a clip
+leaves no copy behind and no re-telling is left with broken links.
 """
 
 from __future__ import annotations
@@ -440,9 +440,24 @@ def rerun(run_dir: Path, stage: str) -> None:
     write_json(mp, m)
 
 
-def retell(source: Path, runs_dir: Path, style: str, run_id: str | None = None) -> tuple[Path, set[str]]:  # fmt: skip
-    """A new run of a finished run's play in `style`; returns its folder and the stages it
-    holds. Its user context names its parent, the first run of the play."""
+def versions(d: Path) -> list[Path]:
+    """Every run of the play `d` tells, in a stable order: the first run and its re-tellings."""
+
+    def first(x: Path) -> str:
+        try:
+            return json.loads((x / "user_context.json").read_text()).get("parent_run_id") or x.name
+        except (OSError, ValueError):
+            return x.name
+
+    want = first(d)
+    runs = (x for x in d.parent.iterdir() if not x.name.startswith("."))
+    return sorted(x for x in runs if (x / MANIFEST).exists() and first(x) == want)
+
+
+def retell(source: Path, runs_dir: Path, style: str, run_id: str | None = None, language: str | None = None) -> tuple[Path, set[str]]:  # fmt: skip
+    """A new run of a finished run's play in `style`, and `language` if given; returns its
+    folder and the stages it holds. Its user context names its parent, the first run of the
+    play."""
     m = json.loads((source / MANIFEST).read_text())
     if m["status"] != "done":
         raise ValueError(f"the run is {m['status']}; only a finished run can be re-told")
@@ -458,5 +473,6 @@ def retell(source: Path, runs_dir: Path, style: str, run_id: str | None = None) 
             (d / "segments" / clip.name).symlink_to(clip.resolve())
     uc = json.loads((source / "user_context.json").read_text())
     uc |= {"style": style, "parent_run_id": m.get("parent_run_id") or m["run_id"]}
+    uc |= {"language": language} if language else {}
     (d / "user_context.json").write_text(json.dumps(uc, indent=2) + "\n")
     return d, held(d)

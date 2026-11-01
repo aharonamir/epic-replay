@@ -23,7 +23,9 @@
   if (form) {
     const TYPES = [".mp4", ".mov", ".webm"], MAX_BYTES = 200 * 1024 * 1024, MIN_S = 3, MAX_S = 30;
     let file = null, fileOk = false;
-    const ready = () => { $("go").disabled = !(fileOk && $("consent").checked); };
+    // Try another narrator (FR-042): the clip, its confirmed play and its consent are the run's
+    const from = form.dataset.from;
+    const ready = () => { $("go").disabled = !(from || (fileOk && $("consent").checked)); };
 
     function choose(f) {
       file = f; fileOk = false;
@@ -48,16 +50,18 @@
     }
     function fail(msg) { fileOk = false; $("file-error").textContent = msg; ready(); }
 
-    $("file").addEventListener("change", (e) => e.target.files[0] && choose(e.target.files[0]));
-    $("change").addEventListener("click", () => $("file").click());
-    $("consent").addEventListener("change", ready);
-    const drop = $("drop");
-    drop.addEventListener("dragover", (e) => { e.preventDefault(); drop.classList.add("over"); });
-    drop.addEventListener("dragleave", () => drop.classList.remove("over"));
-    drop.addEventListener("drop", (e) => {
-      e.preventDefault(); drop.classList.remove("over");
-      if (e.dataTransfer.files[0]) choose(e.dataTransfer.files[0]);
-    });
+    if (!from) {
+      $("file").addEventListener("change", (e) => e.target.files[0] && choose(e.target.files[0]));
+      $("change").addEventListener("click", () => $("file").click());
+      $("consent").addEventListener("change", ready);
+      const drop = $("drop");
+      drop.addEventListener("dragover", (e) => { e.preventDefault(); drop.classList.add("over"); });
+      drop.addEventListener("dragleave", () => drop.classList.remove("over"));
+      drop.addEventListener("drop", (e) => {
+        e.preventDefault(); drop.classList.remove("over");
+        if (e.dataTransfer.files[0]) choose(e.dataTransfer.files[0]);
+      });
+    }
 
     // the narrator cards: a radio group; choosing one recolours the page at once (design.md 6)
     const recolour = () => {
@@ -77,7 +81,7 @@
       if (!zh) return;
       const speaks = form.querySelector('input[name="style"]:checked')?.closest(".narrator").dataset.zh === "true";
       zh.hidden = !speaks;
-      const want = speaks && recall() === "zh" ? "zh" : "en";
+      const want = speaks && (from ? form.dataset.language : recall()) === "zh" ? "zh" : "en";
       form.querySelector(`input[name="language"][value="${want}"]`).checked = true;
     };
     form.querySelectorAll('input[name="language"]').forEach((r) =>
@@ -92,11 +96,19 @@
       $("go").disabled = true;
       $("go-error").textContent = "";
       const data = new FormData(form);
-      data.set("file", file);
-      data.set("consent", "true");
-      data.set("keep_original_audio", $("mute").checked ? "false" : "true");
       try {
-        const r = await fetch("/runs", { method: "POST", body: data });
+        let r;
+        if (from) {
+          r = await fetch(`/runs/${encodeURIComponent(from)}/restyle`, {
+            method: "POST", headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ style: data.get("style"), language: data.get("language") || "en" }),
+          });
+        } else {
+          data.set("file", file);
+          data.set("consent", "true");
+          data.set("keep_original_audio", $("mute").checked ? "false" : "true");
+          r = await fetch("/runs", { method: "POST", body: data });
+        }
         if (r.ok) { location.href = `/r/${(await r.json()).run_id}`; return; }
         $("go-error").textContent = await why(r, "Something went wrong on the server. Try again.");
       } catch (err) {

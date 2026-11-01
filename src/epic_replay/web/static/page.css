@@ -253,3 +253,8 @@ table.costs tr.total td { color: var(--text); border-top: 1px solid var(--line);
 .replay-meta .data { margin-left: auto; flex: none; }
 .past-empty { display: flex; flex-direction: column; align-items: flex-start; gap: 18px; }
 .past-empty p { margin: 0; }
+
+/* try another narrator: the start page with the run's clip in the drop area */
+.same-clip { justify-content: flex-start; }
+.same-clip .frame { border-radius: 2px; }
+.same-clip p { margin: 0; }

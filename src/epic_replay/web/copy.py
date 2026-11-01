@@ -64,7 +64,10 @@ CARD = {
 }  # fmt: skip
 
 RESULT = {"headline": "Your replay", "download": "Download", "ai": "AI commentary",
-          "start_over": "Start over with a new clip", "delete": "Delete this clip now"}  # fmt: skip
+          "start_over": "Start over with a new clip", "delete": "Delete this clip now",
+          "another": "Try another narrator", "same_clip": "Same moment, new voice.",
+          "no_confirm": "No need to confirm again.", "new_clip": "Use a different clip",
+          "all_versions": "This removes all {n} versions of this clip."}  # fmt: skip
 
 # The result's panels (ui.md section 4). "Write it again" is add-back 10.
 PANELS = {"saw": "What we saw", "script": "The script", "time": "Time and cost",

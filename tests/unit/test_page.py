@@ -293,3 +293,112 @@ def test_past_links_survive_a_command_line_run_id_with_a_hash(app):
     assert 'href="/r/foo%23bar"' in page and "/runs/foo%23bar/frames/0.jpg" in page
     result = client.get("/r/foo%23bar")
     assert result.status_code == 200 and 'src="/runs/foo%23bar/final.mp4#t=0.1"' in result.text
+
+
+# -- try another narrator (FR-042)
+
+
+def retellable(s, run_id="first", style="football_commentator", language="en", **extra):
+    d = finished(s, run_id, style=style, language=language, **extra)
+    (d / "manifest.json").write_text(json.dumps({**json.loads((d / "manifest.json").read_text()), "style": style}))  # fmt: skip
+    (d / "user_context.json").write_text(json.dumps({"style": style, "language": language, "parent_run_id": extra.get("parent_run_id")}))  # fmt: skip
+    (d / "work.mp4").write_bytes(b"video")
+    (d / "clip_meta.json").write_text(json.dumps({"duration_s": 10.0, "fps": 30}))
+    (d / "play_sheet.json").write_text(json.dumps({"climax": {"frame": 42}}))
+    return d
+
+
+def post_restyle(client, run_id, **body):
+    return client.post(f"/runs/{run_id}/restyle", json=body)
+
+
+def test_a_result_offers_another_narrator_and_home_keeps_the_clip(app):
+    client, s, _, _ = app
+    retellable(s)
+    assert 'href="/?from=first"' in client.get("/r/first").text
+    page = html.unescape(client.get("/?from=first").text)
+    assert 'data-from="first"' in page and "/runs/first/frames/42.jpg" in page
+    assert copy.RESULT["same_clip"] in page and copy.CONSENT not in page and 'id="file"' not in page
+    assert 'value="news_reporter" checked' in page  # a different narrator from the first
+    assert copy.GO in page and 'id="go" disabled' not in page
+
+
+def test_home_ignores_a_run_it_cannot_tell_again(app):
+    client, s, _, _ = app
+    finished(s, "no_clip")
+    retellable(s, "failed_run", status="failed")
+    for name in ("no_clip", "failed_run", "missing", "../etc"):
+        page = client.get("/", params={"from": name}).text
+        assert "data-from" not in page and 'id="file"' in page
+    assert "?from=" not in client.get("/r/no_clip").text
+
+
+def test_a_restyle_starts_a_new_run_of_the_same_play_with_its_own_voice(app):
+    client, s, started, done = app
+    d = retellable(s)
+    r = post_restyle(client, "first", style="news_reporter", language="zh")
+    assert r.status_code == 201 and done.wait(5)
+    new = s.runs_dir / r.json()["run_id"]
+    assert started == [new] and (new / "work.mp4").resolve() == (d / "work.mp4").resolve()
+    uc = json.loads((new / "user_context.json").read_text())
+    assert (uc["style"], uc["language"], uc["parent_run_id"]) == ("news_reporter", "zh", "first")
+    m = json.loads((new / "manifest.json").read_text())
+    assert (m["style"], m["language"]) == ("news_reporter", "zh")
+    assert client.get(f"/r/{new.name}").status_code == 200
+
+
+def test_a_restyle_keeps_the_language_unless_told_and_finds_a_version_already_made(app):
+    client, s, started, _ = app
+    retellable(s, language="zh")
+    first = post_restyle(client, "first", style="news_reporter")
+    assert first.status_code == 201
+    again = post_restyle(client, "first", style="news_reporter", language="zh")
+    assert again.status_code == 200 and again.json() == first.json()
+    same = post_restyle(client, "first", style="football_commentator", language="zh")
+    assert same.status_code == 200 and same.json() == {"run_id": "first"}
+    assert len(started) == 1
+
+
+def test_a_restyle_is_refused_for_what_cannot_be_told(app):
+    client, s, started, _ = app
+    retellable(s)
+    finished(s, "no_clip")
+    assert post_restyle(client, "missing", style="news_reporter").status_code == 404
+    assert post_restyle(client, "first", style="nobody").json()["error"]["code"] == "unknown_style"
+    r = post_restyle(client, "first", style="news_reporter", language="fr")
+    assert r.json()["error"]["code"] == "unknown_language"
+    r = post_restyle(client, "no_clip", style="news_reporter")
+    assert r.status_code == 409 and r.json()["error"]["code"] == "not_ready"
+    assert client.post("/runs/first/restyle", content="not json").status_code == 400
+    assert client.post("/runs/first/restyle", json=["x"]).status_code == 400
+    assert started == []
+
+
+def test_a_failed_version_can_be_made_again(app):
+    client, s, _, _ = app
+    retellable(s)
+    retellable(s, "broke", style="news_reporter", status="failed", parent_run_id="first")
+    r = post_restyle(client, "first", style="news_reporter")
+    assert r.status_code == 201 and r.json()["run_id"] != "broke"
+
+
+def test_a_delete_removes_every_version_and_a_result_says_so(app):
+    client, s, _, _ = app
+    retellable(s)
+    retellable(s, "second", style="news_reporter", parent_run_id="first")
+    retellable(s, "other")
+    assert copy.RESULT["all_versions"].format(n=2) in client.get("/r/second").text
+    assert client.delete("/runs/second").status_code == 204
+    assert sorted(p.name for p in s.runs_dir.iterdir()) == ["other"]
+
+
+def test_a_delete_waits_for_a_running_version(app):
+    client, s, _, _ = app
+    retellable(s)
+    retellable(s, "second", style="news_reporter", parent_run_id="first", status="running")
+    web.LIVE.add("second")
+    try:
+        r = client.delete("/runs/first")
+    finally:
+        web.LIVE.discard("second")
+    assert r.status_code == 409 and (s.runs_dir / "first").exists()

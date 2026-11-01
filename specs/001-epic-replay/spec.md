@@ -2,7 +2,7 @@
 
 **Feature branch**: `001-epic-replay`
 **Created**: 2026-10-11
-**Status**: Draft, revision 10
+**Status**: Draft, revision 11
 **Input**: "You film your own goal or trick. The agent watches the clip, writes and voices an excited broadcast-style call of what actually happened, then adds a slow-motion replay and a score graphic."
 **Added in revision 2**: "In the MVP it is a web page: upload the video, choose a narration style (football enthusiast, news reporter and so on), see the progress, see the result."
 **Added in revision 3**: one person builds it in two weeks; the clip does not have to be a sport event; children are likely to appear in the footage; the confirmation step and the three styles stay.
@@ -245,7 +245,7 @@ On the start page the user chooses English or 中文. In a Mandarin run the comm
 
 **Past replays (revision 10)**
 
-- **FR-048**: The start page MUST offer a link, shown once at least one finished video exists, to a view listing every finished video on this machine, newest first and grouped by day, each opening its result page. The start page itself MUST show no picture from a clip. Deleting a clip removes it from the list.
+- **FR-048**: The start page MUST offer a link, shown once at least one finished video exists, to a view listing every finished video on this machine, newest first and grouped by day, each opening its result page. The start page itself MUST show no picture from a clip, unless the user opened it from a result to tell that clip again (FR-042). Deleting a clip removes it from the list.
 
 ### 4.2 Key entities
 
@@ -396,7 +396,7 @@ Sections 3 to 5 describe the full design. One person in ten working days builds 
 | 30-clip evaluation set | 8 to 12 clips, across sport, tricks, pets, family and everyday moments | SC-2 |
 | Viewer test with five people | Not run; SC-6 and SC-9 are not measured | SC-6, SC-9 |
 | The Nature documentary pack (revision 7) | Two styles: Football commentator and News reporter | FR-039 (two of three styles) |
-| Re-telling from the result page, and the sample player (revision 7) | Re-telling from the command line; the cached demo run shows both versions; style cards without audio | FR-042 (part), FR-039 (sample), US5 scenarios 1, 2 and 5 |
+| Version tabs on the result, and the sample player (revision 7; re-telling from the page was added in revision 11) | Each version is its own result, listed in Past replays; style cards without audio | FR-042 (part), FR-039 (sample), US5 scenarios 1, 2 and 5 |
 | The Spotter's ReAct loop (revision 7) | A fixed sequence of the same tools | none; plan.md section 4.3 |
 | The second look (revision 8) | One overview look; every field can be corrected on the play card, and the key moment is always the user's pick | FR-006, US2 scenario 1 |
 | Refining passes on the key moment (revision 8) | The overview's cell, snapped to a sound onset, is the proposed frame; the user picks and nudges | none; FR-007 is met by the user's pick |
@@ -427,4 +427,5 @@ Success criteria as measured in the one-person MVP:
 - Revision 7 (2026-10-15): nine working days. The signal scan (S1) is built; the Spotter looks at contact sheets and answers with a cell, code refines and snaps to a sound onset; the Spotter runs as a fixed sequence (plan.md sections 4.2 to 4.4). Key lines are placed by their key word (`hit_word`, plan.md section 4.8). FR-007 and FR-024 extended. The MVP ships two styles; section 10 lists the other cuts. Section 8 records the decisions. Existing ids are unchanged.
 - Revision 9 (2026-10-30): a language toggle, English or Mandarin (US6, FR-044 to FR-047), on branch `zh`. FR-019 amended. Mandarin voices, budgets by character, its own guards and the stated limit of the name check. Section 8 records the decisions. Existing ids are unchanged, and nothing changes for English.
 - Revision 10 (2026-10-31): the past replays view (FR-048), asked for by the owner; the gallery was out of scope until now. No authentication is added: the list makes every run reachable by anyone who can reach the server, so the app stays local.
+- Revision 11 (2026-11-01): "Try another narrator" on the result, asked for by the owner: it returns to the start page with the same clip, a narrator and a language are chosen there, and the confirmed play is reused (FR-042). A language can change as well as a style. The first part of T040; version tabs and samples stay deferred. A delete removes every version of a clip, as ui.md and http-api.md already said.
 - Revision 8 (2026-10-20): Gate 0's key-moment line is no (T003 contact sheets). The play card always opens with the nudge active, offers the S1 candidates as other moments, and the user's pick is the climax. The Spotter is overview-only; refining passes and the second look are deferred (section 10). SC-1, SC-2 and SC-5 re-set from T003. US2, FR-007 and FR-010 amended. Existing ids are unchanged.

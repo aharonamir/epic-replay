@@ -164,6 +164,7 @@ With details open, one line in the data face (13 px, `--muted`) appears under ea
 | "Fix something" | The play card, with the activity and the outcome sentence as text fields. On the card the fields take a 1 px `--muted` border, because `--control-line` is too faint there |
 | "Not at all" | The play card's facts replaced by a text field for one line (bordered as above) and two buttons: a primary "Try again" and a secondary for a narration with no specific claims |
 | Re-telling | On Result, under the tabs, step rows 5 to 8 only, without the bar. The current video stays in the player |
+| Try another narrator | Start. The drop area, with its viewfinder marks, holds the key-moment frame and the two lines of copy; a secondary button "Use a different clip" sits under it where the tip was; the go row holds the cost line and the button |
 | Past replays, empty | The result headline, one line of body text, one primary button |
 | Demo band | A full-width strip above the header: `--raised`, small label style, "Cached run from <date>" |
 

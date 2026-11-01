@@ -14,6 +14,7 @@ The clip can be any moment, not only sport. Every video carries a visible "AI co
 4. **Confirm the play card**: pick the moment, then keep or remove what the app says happened. This is the step that stops a wrong claim from reaching the script.
 5. **Wait** while it writes the call, builds the replay, records the voice and mixes.
 6. **Watch and download** the result. You can also read the script and see the time and cost of each step.
+7. **Try another narrator** if you like. It returns to the start page with the same clip, so you only choose a narrator and language. There is no upload and no second confirmation, and it costs only the new script and voice.
 
 ### Narrators
 
@@ -92,7 +93,7 @@ A paid call that would pass a cap is not made, and the run stops with a message.
 
 ### Finding past videos
 
-Finished videos stay in `runs/` until you delete them. The **Past replays** link at the top of the home page lists them, newest first. Open one to play it, download it or press **Delete this clip now**, which removes the clip and everything made from it from this machine.
+Finished videos stay in `runs/` until you delete them. The **Past replays** link at the top of the home page lists them, newest first. Open one to play it, download it or press **Delete this clip now**, which removes the clip and every version made from it, for all narrators, from this machine.
 
 ### Cached demo runs
 
@@ -142,7 +143,7 @@ Everything code can check or produce is done by code. Agents choose what to look
 
 ## Limits of this version
 
-- One run's narrator cannot be changed from the page. Use `restyle` on the command line.
+- Versions of a clip are separate results, with no tabs between them.
 - The narrator cards have no voice samples, and there is no "Keep for the demo" option.
 - Local runs are not purged automatically; delete them yourself.
 - There is no automated reader check of the script, and only some of the planned code checks are built.
