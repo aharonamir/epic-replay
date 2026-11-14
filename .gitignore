@@ -10,10 +10,10 @@ eval/clips/
 eval/originals/
 node_modules/
 *.egg-info/
-eval/spike/voices/
-eval/spike/zh_voices/
-eval/spike/frames/
-eval/spike/work/
+pc/eval/spike/voices/
+pc/eval/spike/zh_voices/
+pc/eval/spike/frames/
+pc/eval/spike/work/
 logs/
 demo/
 pc/tests/fixtures/recordings/

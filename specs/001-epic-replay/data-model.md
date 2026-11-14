@@ -95,7 +95,7 @@ Schema: [shared/contracts/script.schema.json](../../shared/contracts/script.sche
 
 Rules beyond the schema are the ten code checks in [contracts/stage-contracts.md](contracts/stage-contracts.md); the MVP builds five of them, and checks that a key line's `hit_word` occurs in its text.
 
-### Style pack - `src/epic_replay/styles/<id>.json`
+### Style pack - `shared/styles/<id>.json`
 
 Schema: [shared/contracts/style_pack.schema.json](../../shared/contracts/style_pack.schema.json). Examples: the live packs, [football_commentator](../../shared/styles/football_commentator.json), [news_reporter](../../shared/styles/news_reporter.json), [nature_documentary](../../shared/styles/nature_documentary.json).
 
@@ -144,7 +144,7 @@ Rules beyond the schema: exactly one pack has `default: true`; ids and `order` v
 
 ### Signal scan - `signals.json`
 
-Revision 7, as written by the S1 stage (`src/epic_replay/stages/s1_signals.py`):
+Revision 7, as written by the S1 stage (`pc/src/epic_replay/stages/s1_signals.py`):
 
 | Field | Meaning |
 |-------|---------|

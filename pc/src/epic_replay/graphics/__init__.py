@@ -10,5 +10,5 @@ vertical layout are deferred (tasks.md, "Deferred").
 
 `render(...)` starts Chromium once (Playwright, as the page tests do) in a child process limited
 to `TIMEOUT_S`, writes one HTML file and one PNG per overlay under `overlays/`, and returns the
-PNGs by type, or raises. No network: fonts are the files in `assets/fonts/`.
+PNGs by type, or raises. No network: fonts are the files in `shared/assets/fonts/`.
 """

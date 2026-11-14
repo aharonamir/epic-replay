@@ -45,7 +45,7 @@ Time budgets are targets for a 20 second clip and are replaced by measured value
 9. In generic mode every line has `generic: true` and no references.
 10. No line repeats a sample line from the style pack (compared without case or punctuation).
 
-In a `zh` run, rule 4 reads Chinese numerals as well as digits, refuses digits and any Latin-script word outside the sources, and bans a list of famous names; rule 5 counts characters; rule 8 adds the `zh` lists, matched as substrings after allowed phrases are masked out (FR-046). The rules are the same for every narration style. The same ten rules are the test list for `tests/unit/test_checks.py`. The MVP builds rules 1, 4, 5 and 8 (revision 7; as built, rule 6 is deferred with 2, 3, 7, 9 and 10), which catch all five kinds of planted error code can see. `submit_script` also checks that each key line's `hit_word` occurs in its text.
+In a `zh` run, rule 4 reads Chinese numerals as well as digits, refuses digits and any Latin-script word outside the sources, and bans a list of famous names; rule 5 counts characters; rule 8 adds the `zh` lists, matched as substrings after allowed phrases are masked out (FR-046). The rules are the same for every narration style. The same ten rules are the test list for `pc/tests/unit/test_checks.py`. The MVP builds rules 1, 4, 5 and 8 (revision 7; as built, rule 6 is deferred with 2, 3, 7, 9 and 10), which catch all five kinds of planted error code can see. `submit_script` also checks that each key line's `hit_word` occurs in its text.
 
 ## Stage events
 

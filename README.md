@@ -26,7 +26,7 @@ The clip can be any moment, not only sport. Every video carries a visible "AI co
 
 All three speak English or Mandarin (Simplified Chinese). The page itself stays in English.
 
-A narrator is a data file in `src/epic_replay/styles/`, not code. It sets the persona, writing rules, voice, pace, sounds and graphics.
+A narrator is a data file in `shared/styles/`, not code. It sets the persona, writing rules, voice, pace, sounds and graphics.
 
 ## Set up
 
@@ -35,14 +35,15 @@ You need:
 - Python 3.11 to 3.13
 - FFmpeg 8 with ffprobe on the path
 - [uv](https://docs.astral.sh/uv/)
-- A local checkout of openJiuwen agent-core beside this repository, at `../agent-core`
+- A local checkout of openJiuwen agent-core beside this repository (`../agent-core` from the repository root)
 - A DeepSeek API key and an ElevenLabs API key (paid tiers)
 
-`pip install -e ".[dev]"` does not resolve, because openjiuwen depends on a package by git URL. Install in this order instead:
+The Python app lives in `pc/`; every command below runs there. `pip install -e ".[dev]"` does not resolve, because openjiuwen depends on a package by git URL. Install in this order instead:
 
 ```bash
+cd pc
 uv venv --python 3.12 && source .venv/bin/activate
-uv pip install -e ../agent-core --no-deps
+uv pip install -e ../../agent-core --no-deps
 uv pip install openai fastapi "uvicorn[standard]" python-multipart jinja2 jsonschema \
   "pydantic>=2" numpy scipy opencv-python-headless playwright httpx python-dotenv pytest ruff
 uv pip install -e ".[dev]" --no-deps
@@ -50,7 +51,7 @@ playwright install chromium
 cp .env.example .env
 ```
 
-Then fill in `.env`. Never commit it. These are the settings that matter most:
+Then fill in `pc/.env`. Never commit it. These are the settings that matter most:
 
 | Setting | Meaning |
 |---------|---------|
@@ -67,7 +68,7 @@ Then fill in `.env`. Never commit it. These are the settings that matter most:
 ## Run the app
 
 ```bash
-source .venv/bin/activate
+cd pc && source .venv/bin/activate
 EPIC_PROVIDER_MODE=record uvicorn epic_replay.web.app:app --port 8010
 ```
 
@@ -93,18 +94,18 @@ A paid call that would pass a cap is not made, and the run stops with a message.
 
 ### Finding past videos
 
-Finished videos stay in `runs/` until you delete them. The **Past replays** link at the top of the home page lists them, newest first. Open one to play it, switch to the **Original clip** tab to see the clip before any commentary, download the replay or press **Delete this clip now**, which removes the clip and every version made from it, for all narrators, from this machine.
+Finished videos stay in `pc/runs/` until you delete them. The **Past replays** link at the top of the home page lists them, newest first. Open one to play it, switch to the **Original clip** tab to see the clip before any commentary, download the replay or press **Delete this clip now**, which removes the clip and every version made from it, for all narrators, from this machine.
 
 ### Cached demo runs
 
-`/demo/<name>` shows a stored run from the `demo/` folder, for example `/demo/flipping_pancakes_football`, marked as a cached run. It makes no provider call, so it is the fallback if a live run fails. `demo/` and `runs/` are not in git, so a fresh clone has neither.
+`/demo/<name>` shows a stored run from the `pc/demo/` folder (`EPIC_DEMO_DIR` moves it), for example `/demo/flipping_pancakes_football`, marked as a cached run. It makes no provider call, so it is the fallback if a live run fails. `pc/demo/` and `pc/runs/` are not in git, so a fresh clone has neither.
 
 ## Command line
 
 ```bash
 python -m epic_replay.flow styles
 python -m epic_replay.flow run clip.mp4 --consent --style news_reporter --language zh --mode record
-python -m epic_replay.flow run --fixture tests/fixtures/sample_run --mode replay
+python -m epic_replay.flow run --fixture ../shared/fixtures/sample_run --mode replay
 python -m epic_replay.flow rerun RUN_ID --from S5 --mode record
 python -m epic_replay.flow restyle RUN_ID --style nature_documentary --mode record
 ```
@@ -113,7 +114,7 @@ python -m epic_replay.flow restyle RUN_ID --style nature_documentary --mode reco
 
 ## How it works
 
-A plain Python runner moves each run through these stages. Each run is a folder in `runs/` holding every stage's output.
+A plain Python runner moves each run through these stages. Each run is a folder in `pc/runs/` holding every stage's output.
 
 | Stage | What happens | Done by |
 |-------|--------------|---------|
@@ -155,6 +156,19 @@ Everything code can check or produce is done by code. Agents choose what to look
 
 ## Develop
 
+The repository holds two apps that read one set of data:
+
+| Folder | Contents |
+|--------|----------|
+| `shared/` | Data both apps read, never code: JSON schemas, narrator packs and voices, banned-word lists, sounds and fonts, reference fixtures, and the conformance cases a port must pass. [shared/README.md](shared/README.md) |
+| `pc/` | The Python app described here. [pc/CLAUDE.md](pc/CLAUDE.md) |
+| `android/` | The Android app, not started; specified in `specs/004-…` |
+| `specs/` | The designs, the source of truth: `001-epic-replay` (the app), `002-platform-split` (this layout), `003-model-backends` |
+| `eval/labels/` | Labels of the evaluation clips, for both apps; the clips stay local |
+| `docs/` | API, provider and evaluation notes, the Mandarin plan; `docs/archive/` holds superseded notes |
+
+From `pc/`:
+
 ```bash
 pytest                                    # replay mode, no keys or network needed
 pytest -m live                            # real provider calls, costs money
@@ -163,16 +177,17 @@ ruff check . && ruff format --check .
 
 | Path | Contents |
 |------|----------|
-| `src/epic_replay/flow/` | The runner and command line |
-| `src/epic_replay/stages/` | One module per stage |
-| `src/epic_replay/agents/` | The Spotter and Commentator |
-| `src/epic_replay/styles/` | Narrator packs and allowed voices |
-| `src/epic_replay/providers/` | Vision, speech and the record and replay layer |
-| `src/epic_replay/guards/` | Spending caps, consent and banned terms |
-| `src/epic_replay/web/` | The page: API, templates, style and script |
-| `specs/001-epic-replay/` | The design, the source of truth |
-| `docs/` | API, provider and evaluation notes, and the Mandarin plan |
-| `tests/` | Unit tests, fixtures and recorded provider replies |
+| `pc/src/epic_replay/paths.py` | Where every folder is; the one module that finds the repository |
+| `pc/src/epic_replay/flow/` | The runner and command line |
+| `pc/src/epic_replay/stages/` | One module per stage |
+| `pc/src/epic_replay/agents/` | The Spotter and Commentator |
+| `pc/src/epic_replay/styles/` | The pack loader and the slot builder |
+| `pc/src/epic_replay/providers/` | Vision, speech and the record and replay layer |
+| `pc/src/epic_replay/guards/` | Spending caps, consent and banned terms |
+| `pc/src/epic_replay/web/` | The page: API, templates, style and script |
+| `pc/tests/` | Unit tests, recorded provider replies and the English golden file |
+| `shared/styles/`, `shared/lexicons/` | Narrator packs and voices; banned-word lists |
+| `shared/conformance/` | Cases every platform must pass; `pc/tests/unit/test_conformance.py` runs them |
 
 Start with these documents:
 
@@ -181,4 +196,4 @@ Start with these documents:
 - [contracts/ui.md](specs/001-epic-replay/contracts/ui.md) and [contracts/design.md](specs/001-epic-replay/contracts/design.md): the page
 - [contracts/http-api.md](specs/001-epic-replay/contracts/http-api.md): the API
 - [docs/chinese-language.md](docs/chinese-language.md): Mandarin
-- [CLAUDE.md](CLAUDE.md): working rules for this repository
+- [CLAUDE.md](CLAUDE.md) and [pc/CLAUDE.md](pc/CLAUDE.md): working rules for this repository and for the Python app

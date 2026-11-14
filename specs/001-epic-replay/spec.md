@@ -166,7 +166,7 @@ On the start page the user chooses English or 中文. In a Mandarin run the comm
 
 **Understanding the play**
 
-- **FR-005**: The system MUST produce a play sheet containing: the activity (whatever is going on; it need not be a sport), setting, actors, ordered events with start and end time, action, outcome and confidence, the climax time, an outcome summary, a focus box and a sensitivity flag (contracts/play_sheet.schema.json).
+- **FR-005**: The system MUST produce a play sheet containing: the activity (whatever is going on; it need not be a sport), setting, actors, ordered events with start and end time, action, outcome and confidence, the climax time, an outcome summary, a focus box and a sensitivity flag (shared/contracts/play_sheet.schema.json).
 - **FR-006**: The system MUST analyse the clip in two independent passes and MUST mark any field on which they disagree as low confidence.
 - **FR-007**: The system MUST locate the climax to within one frame of a specific frame of the working copy, and MUST record the method used and its confidence. Candidate moments are proposed by code from motion and sound; the vision model chooses only among frames shown to it, by their position on a contact sheet; every time is taken from a frame or a sound onset, never from the model's text (revision 7). In the MVP the model's frame is a proposal: the climax is the frame the user picks at the play card (revision 8).
 - **FR-008**: The system MUST refer to people only by a user-given name or a neutral visible descriptor, and MUST NOT infer or state identity, age, ethnicity, body characteristics or ability. Because the MVP scope is declared by the user as adult men, "he", "him" and "his" may be used for a person; female terms and any word that marks someone's age are in the banned lexicon. Words the user typed may be used as typed.
@@ -180,13 +180,13 @@ On the start page the user chooses English or 中文. In a Mandarin run the comm
 
 **Storyboard**
 
-- **FR-013**: The system MUST build a storyboard from a template: ordered segments each with source in and out points, speed, zoom, overlays and timeline start and end (contracts/storyboard.schema.json). The picture timeline is fixed once the storyboard is written.
+- **FR-013**: The system MUST build a storyboard from a template: ordered segments each with source in and out points, speed, zoom, overlays and timeline start and end (shared/contracts/storyboard.schema.json). The picture timeline is fixed once the storyboard is written.
 - **FR-014**: The output MUST be between the configured minimum (`EPIC_MIN_OUTPUT_S`, default 20) and 60 seconds. When the clip is longer than 20 seconds, the live segment MUST be trimmed to at most 10 seconds before and 3 seconds after the climax.
 - **FR-015**: The replay segment MUST cover a window around the climax at a speed between 0.25x and 0.5x.
 
 **Commentary**
 
-- **FR-016**: The script MUST be a list of lines, each tied to a segment, an anchor time, a maximum duration and the event ids it relies on (contracts/script.schema.json). The climax call MUST be its own line, anchored to the climax time.
+- **FR-016**: The script MUST be a list of lines, each tied to a segment, an anchor time, a maximum duration and the event ids it relies on (shared/contracts/script.schema.json). The climax call MUST be its own line, anchored to the climax time.
 - **FR-017**: Lines MUST use only facts in the confirmed play sheet and the user's context. Names, numbers, scores, distances, history and statistics that are not in those sources MUST NOT appear.
 - **FR-018**: The script MUST NOT contain the name or signature phrases of a real commentator, news presenter or narrator, and the product MUST NOT imitate such a person's voice, or the graphics of a real league, broadcaster or news outlet.
 - **FR-019**: Before any model-based check, code MUST check every line for: valid event references, names and numbers present in the play sheet or user context, word budget, banned lexicon, and language. A Mandarin line is checked as in FR-046.
@@ -231,7 +231,7 @@ On the start page the user chooses English or 中文. In a Mandarin run the comm
 **Narration styles and the page**
 
 - **FR-039**: The system MUST offer a narration style picker with at least three styles in the MVP: Football commentator (the default), News reporter and Nature documentary. Each style MUST show a name, a one-line description and a short audio sample.
-- **FR-040**: A style MUST be defined entirely by a style pack, a data file (contracts/style_pack.schema.json) holding: the persona and writing rules, the voice on the primary and fallback provider, the delivery for each line role, the speaking rate, the reaction delay, the sound set, the graphics skin and extra banned terms. Adding a style MUST NOT require a change to code.
+- **FR-040**: A style MUST be defined entirely by a style pack, a data file (shared/contracts/style_pack.schema.json) holding: the persona and writing rules, the voice on the primary and fallback provider, the delivery for each line role, the speaking rate, the reaction delay, the sound set, the graphics skin and extra banned terms. Adding a style MUST NOT require a change to code.
 - **FR-041**: The chosen style MUST determine wording, voice, delivery, sound and graphics skin, and MUST NOT change the facts used, the picture timeline, or the checks applied.
 - **FR-042**: From a finished result the user MUST be able to produce the same play in another style. The new version MUST reuse the confirmed play sheet, the storyboard and the video segments, MUST NOT call the video-analysis provider, and MUST NOT ask for confirmation again. Versions of one play MUST be shown together.
 - **FR-043**: The whole flow (upload, style choice, progress, confirmation, result) MUST take place on one page without navigation, MUST be usable in a phone browser, and MUST survive a reload at any point.

@@ -13,7 +13,7 @@ The commands below are the targets that T001 and later tasks create. None of the
 ## 2. Set up (T001)
 
 ```bash
-git clone <your repo> epic-replay && cd epic-replay
+git clone <your repo> epic-replay && cd epic-replay/pc    # the Python app lives in pc/ (spec 002)
 python -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev]"       # brings in openjiuwen (agent-core)
 playwright install chromium
@@ -21,11 +21,14 @@ cp .env.example .env        # then add keys
 pytest                      # everything runs in replay mode, no keys needed
 ```
 
-**The install that works (checked 2026-10-15).** `pip install -e ".[dev]"` does not resolve: openjiuwen 0.1.19 depends on `intelli-router` by a git URL (gitcode.com), which uv and pip refuse to take from another package's dependency list. agent-core runs without it (T002). Install agent-core from a local checkout with `--no-deps`, add the project's own dependencies, then the project with `--no-deps`:
+Every command in this file runs from `pc/` with its virtual environment active. The data both apps read (schemas, style packs, word lists, assets, fixtures) is in `shared/` at the repository root; the paths module (`epic_replay.paths`) finds it.
+
+**The install that works (checked 2026-10-15; from `pc/` since 2026-11-14).** `pip install -e ".[dev]"` does not resolve: openjiuwen 0.1.19 depends on `intelli-router` by a git URL (gitcode.com), which uv and pip refuse to take from another package's dependency list. agent-core runs without it (T002). Install agent-core from a local checkout with `--no-deps`, add the project's own dependencies, then the project with `--no-deps`:
 
 ```bash
+cd pc
 uv venv --python 3.12 && source .venv/bin/activate
-uv pip install -e ../agent-core --no-deps              # openjiuwen, local checkout
+uv pip install -e ../../agent-core --no-deps           # openjiuwen, local checkout beside the repository
 uv pip install openai fastapi "uvicorn[standard]" python-multipart jinja2 jsonschema \
   "pydantic>=2" numpy scipy opencv-python-headless playwright httpx python-dotenv pytest ruff
 uv pip install -e ".[dev]" --no-deps
@@ -34,7 +37,7 @@ playwright install chromium
 
 When `pyproject.toml` gains a dependency, install that one package by name and re-run the last `--no-deps` line. agent-core's own imports that are missing on a fresh machine (it lists about 40 packages) show up as `ModuleNotFoundError` on the first agent run; install them by name, and leave out `intelli-router` and the `opentelemetry-instrumentation-*` packages, which are not needed. If PyPI downloads stall, fetch the wheel with `curl -C -` and use `uv pip install --find-links <dir>`.
 
-`.env`:
+`pc/.env`:
 
 ```
 EPIC_AGENT_PROVIDER=openai
@@ -58,8 +61,8 @@ EPIC_MIN_OUTPUT_S=20
 ## 3. Run the fixture with no keys (T007, T027)
 
 ```bash
-python -m epic_replay.flow run --fixture tests/fixtures/sample_run --mode replay
-# writes runs/fixture-freekick/final.mp4, 28.9 s
+python -m epic_replay.flow run --fixture ../shared/fixtures/sample_run --mode replay
+# writes pc/runs/fixture/final.mp4, 28.9 s
 ```
 
 This is the first thing to make work. It proves the storyboard, voice placement, mix and compose stages without spending anything.
@@ -88,17 +91,17 @@ Everything happens on that one page: upload, choose the narrator, watch progress
 
 ### Add a narration style (T038)
 
-1. Copy a pack in `src/epic_replay/styles/` and give it a new `id`, `name` and `order`.
-2. Edit the persona, rules and sample lines; choose a voice on both providers and add both ids to `src/epic_replay/styles/voices.json`; measure its speaking rate with `python -m epic_replay.flow measure-voice <style_id>`.
-3. Set the accent colour, and a lighter `accent_text` if the accent is too dark to read as small text on the page (contracts/design.md section 2). Name the sounds and the skin, adding files under `assets/` and `graphics/skins/` if they are new, with a line in `assets/LICENCES.md`.
+1. Copy a pack in `shared/styles/` and give it a new `id`, `name` and `order`.
+2. Edit the persona, rules and sample lines; choose a voice on both providers and add both ids to `shared/styles/voices.json`; measure its speaking rate with `python -m epic_replay.flow measure-voice <style_id>`.
+3. Set the accent colour, and a lighter `accent_text` if the accent is too dark to read as small text on the page (contracts/design.md section 2). Name the sounds and the skin, adding files under `shared/assets/` and `pc/src/epic_replay/graphics/skins/` if they are new, with a line in `shared/assets/LICENCES.md`.
 4. Make the sample: `python tools/make_sound_library.py --sample <style_id>`.
 5. Restart. The style appears in the picker if the pack validates; if not, the log says why.
 
 ## 6. Measure (T028, T036)
 
 ```bash
-python eval/run_eval.py --set eval/labels --stages S0-S3      # SC-2, on the starter clips
-pytest tests/planted_errors -q                                 # SC-3, the five kinds code can see
+python ../eval/run_eval.py --set ../eval/labels --stages S0-S3   # SC-2, on the starter clips (not built)
+pytest tests/unit/test_checks.py -q                            # SC-3: shared/fixtures/planted_errors/
 python -m epic_replay.media.timing_check runs/*/render.json    # SC-4
 python -m epic_replay.guards.cost_report runs/                 # SC-5
 pytest tests/unit/test_styles.py -q                            # every pack: valid, slots fit, no overlap

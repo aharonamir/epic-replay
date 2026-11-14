@@ -107,7 +107,7 @@ The owner sets `EPIC_TEXT_PROFILE` to a local profile. The Commentator, the stru
 
 ### 4.4 Measurement
 
-- **FR-017** `tools/spotter_check.py` gains `--profile`. For each starter clip it records schema fit, retries, the proposal's error against the labels (strict and any valid moment), candidate recall, latency per call and in total, and cost, and writes `eval/spike/<profile>.md`.
+- **FR-017** `pc/tools/spotter_check.py` gains `--profile`. For each starter clip it records schema fit, retries, the proposal's error against the labels (strict and any valid moment), candidate recall, latency per call and in total, and cost, and writes `pc/eval/spike/<profile>.md`.
 - **FR-018** A local profile becomes `measured` only after its numbers are in `docs/provider-notes.md` next to DeepSeek's T003 numbers, and the owner has marked the outcome descriptions right or wrong for at least the 4 single-shot demo clips.
 - **FR-019** The Commentator is measured per text profile on the sample fixture and 2 starter clips: scripts accepted within the agent's iteration limit, lines rejected by the code checks, latency. Listening is the owner's.
 

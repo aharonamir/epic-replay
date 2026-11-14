@@ -2,7 +2,7 @@
 
     python -m epic_replay.flow styles
     python -m epic_replay.flow run CLIP --consent [--style ID] [--name NAME] [--mode MODE]
-    python -m epic_replay.flow run --fixture tests/fixtures/sample_run --mode replay
+    python -m epic_replay.flow run --fixture ../shared/fixtures/sample_run --mode replay
     python -m epic_replay.flow rerun RUN_ID --from S5 [--mode MODE] [--pick PICK]
     python -m epic_replay.flow restyle RUN_ID --style ID [--run-id ID] [--mode MODE]
 

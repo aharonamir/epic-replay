@@ -1,4 +1,4 @@
-"""The sound library under assets/ (T021): generated here, so every sound is our own work (CC0).
+"""The sound library under shared/assets/ (T021): generated here, so every sound is our own work (CC0).
 
     python tools/make_sound_library.py            # the football crowd bed and roar
     python tools/make_sound_library.py --sport    # the football swell, whoosh and two stings

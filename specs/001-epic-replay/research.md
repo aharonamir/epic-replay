@@ -153,7 +153,7 @@ The MVP uses a small library made once and checked by a person (FR-027). This ke
 - **Lyria 3 Clip** (`lyria-3-clip-preview`): 30 second clips, 44.1 kHz stereo, instrumental when asked in the prompt, about 0.04 USD per clip according to a third-party price listing dated 2026-09-11. Output carries an inaudible SynthID watermark. Use it for intro and outro stings.
 - **ElevenLabs Music**: about 0.75 USD per minute through one reseller, with an instrumental-only switch.
 - **Stable Audio 2.5** and **MMAudio V2** are listed by resellers; MMAudio generates sound from video, which could later produce a ball-hit effect in sync with the picture. Not evaluated.
-- **Stock sounds** under a clear licence are an acceptable fallback. Record the licence of every asset in `assets/LICENCES.md` either way.
+- **Stock sounds** under a clear licence are an acceptable fallback. Record the licence of every asset in `shared/assets/LICENCES.md` either way.
 
 What each style's set contains:
 
