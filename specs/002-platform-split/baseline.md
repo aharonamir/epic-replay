@@ -24,19 +24,19 @@ Two runs of the replay flow were compared before choosing the hashes: `cost.json
 
 ## Results
 
-| Measure | Before (T101) | After T106 | After (T112) |
+| Measure | Before (T101) | After T106 | After (T112, 2026-11-14) |
 |---|---|---|---|
-| `pytest` | 972 passed, 1 deselected (live), 0 failed | 987 passed (972 + 15 in `test_paths.py`), 1 deselected, 0 failed | |
-| `ruff check`, `ruff format --check` | clean (229 files) | clean (233 files, from `pc/`) | |
-| `storyboard.json` | `a1d115c86118cd14c9884cf3c22de53daa6b43c4294886613ab2c6599379cbda` | same | |
-| `script.json` | `a7e7978554cb0624f8c341fac012f4542b3e4ce4e287665509988ddfe8744bbe` | same | |
-| `checks.json` | `935be0010f4e7ffc3f24d88048bb42fe2efe2b7cd302103980278cda2221b646` | same | |
-| `mix.json` | `d6bef54f9f7c2c98fc5b76ae9acd21b0b5e211f6bb42a93b91735b23dd3b0799` | same | |
-| `visuals.json` | `b71da496ddff326ab6db60b1d30eca371a10caef9fe20365b40059ac72ba0f06` | same | |
-| `voice.json` | `5b8f1e6b46d3746d0350992465ff707a6ecabc61e46d6b55dad7045a5846f164` | same | |
-| `test_english_golden` | 2 passed | 2 passed | |
-| `english_golden.json` | `14c3562201444e055c506bfb8fd5388cb02ae61023d51a8ae3ed7e4f2645f7ce` | same, not rewritten | |
-| `spotter_check.py --count` | 54 calls, 5 new (1 each: SlowMotion-skater, basket_ball_shot, fk_1, fk_miss, fk_save) | the same, clip by clip | |
+| `pytest` | 972 passed, 1 deselected (live), 0 failed | 987 passed (972 + 15 in `test_paths.py`), 1 deselected, 0 failed | 1102 passed, 1 deselected, 0 failed: the 972 tests of the baseline, every id unchanged, plus 130 new (`test_conformance.py` 99, `test_shared.py` 17, `test_paths.py` 14) |
+| `ruff check`, `ruff format --check` | clean (229 files) | clean (233 files, from `pc/`) | clean (from `pc/`) |
+| `storyboard.json` | `a1d115c86118cd14c9884cf3c22de53daa6b43c4294886613ab2c6599379cbda` | same | same |
+| `script.json` | `a7e7978554cb0624f8c341fac012f4542b3e4ce4e287665509988ddfe8744bbe` | same | same |
+| `checks.json` | `935be0010f4e7ffc3f24d88048bb42fe2efe2b7cd302103980278cda2221b646` | same | same |
+| `mix.json` | `d6bef54f9f7c2c98fc5b76ae9acd21b0b5e211f6bb42a93b91735b23dd3b0799` | same | same |
+| `visuals.json` | `b71da496ddff326ab6db60b1d30eca371a10caef9fe20365b40059ac72ba0f06` | same | same |
+| `voice.json` | `5b8f1e6b46d3746d0350992465ff707a6ecabc61e46d6b55dad7045a5846f164` | same | same |
+| `test_english_golden` | 2 passed | 2 passed | 2 passed |
+| `english_golden.json` | `14c3562201444e055c506bfb8fd5388cb02ae61023d51a8ae3ed7e4f2645f7ce` | same, not rewritten | same, not rewritten |
+| `spotter_check.py --count` | 54 calls, 5 new (1 each: SlowMotion-skater, basket_ball_shot, fk_1, fk_miss, fk_save) | the same, clip by clip | the same: 54 calls, 5 new |
 
 ### Note on the Spotter count
 
@@ -54,12 +54,12 @@ GitHub Actions run 43583946895 on `e817d5b` (2026-11-14): `changes`, `pc` and `a
 
 | SC | Yes/no | Evidence |
 |---|---|---|
-| SC-1 same number of tests pass | | |
-| SC-2 golden file unchanged, test passes | | |
-| SC-3 replay outputs byte-identical | | |
-| SC-4 Spotter count unchanged | | |
-| SC-5 each shared file exactly once | | |
-| SC-6 no path arithmetic outside `paths.py` | | |
-| SC-7 at least 30 conformance cases, all pass | | |
-| SC-8 fresh clone passes with the README's steps | | |
-| SC-9 owner's migration under 10 minutes | | |
+| SC-1 same number of tests pass | yes | All 972 baseline test ids collected and passing after the move (compared id by id with `main` at `96b7761`); none deleted or skipped; 130 added. CI: 1102 passed. |
+| SC-2 golden file unchanged, test passes | yes | SHA-256 `14c35622…5f7ce` before and after; `test_english_golden` 2 passed. |
+| SC-3 replay outputs byte-identical | yes | `storyboard.json` and `script.json`, and `checks`, `mix`, `visuals`, `voice`, identical to the baseline after T105, T106 and T112. |
+| SC-4 Spotter count unchanged | yes | 54 calls, 5 new, clip by clip as before (spec revision 4). |
+| SC-5 each shared file exactly once | yes | `test_shared.py::test_every_shared_file_exists_once` passes; a planted copy and a same-named file each make it fail. The three silent sample placeholders are identical by design (listed in the test). |
+| SC-6 no path arithmetic outside `paths.py` | yes | `test_paths.py::test_no_path_arithmetic_outside_the_paths_module` over `pc/src` and `pc/tests`; only the archived spikes in `pc/tools/archive/` keep `REPO`. |
+| SC-7 at least 30 conformance cases, all pass | yes | 48 cases in the six areas (storyboard 5, slots 7, checks 7, lexicon 21, units 3, cells 5); all pass; a hand-edited expected file fails. |
+| SC-8 fresh clone passes with the README's steps | yes | The CI job is a fresh clone on a clean Ubuntu runner installed as `pc/` says (agent-core `--no-deps`, then the dependencies, then the project): run 43583946895, 1102 passed. |
+| SC-9 owner's migration under 10 minutes | yes | About 5 minutes (owner, 2026-11-14). The page started from `pc/` with `pc/.venv`, and `/demo/flipping_pancakes_football_refreshed` plays. |

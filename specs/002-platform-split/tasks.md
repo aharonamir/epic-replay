@@ -41,7 +41,7 @@ Rules: do the tasks in order; the full test suite passes after every task; one c
 - [x] **T111 CI** (1 h). Add `.github/workflows/ci.yml` (plan section 7) with the `pc` and placeholder `android` jobs and path filters. Mark the browser tests; list any CI skip in `pc/CLAUDE.md`.
   *Done when*: the `pc` job passes on the branch on GitHub, and a change only under `docs/` starts no job.
 
-- [ ] **T112 Migration and the after column** (0.75 h). Write `docs/migration-002.md` (plan section 8). The owner follows it on his machine. Fill in the after column of `baseline.md` and answer SC-1 to SC-9 there. Open `/demo/flipping_pancakes_football_refreshed` through the page.
+- [x] **T112 Migration and the after column** (0.75 h). Write `docs/migration-002.md` (plan section 8). The owner follows it on his machine. Fill in the after column of `baseline.md` and answer SC-1 to SC-9 there. Open `/demo/flipping_pancakes_football_refreshed` through the page.
   *Done when*: every SC line in `baseline.md` says yes, with its evidence; the cached demo plays.
 
 - [ ] **T113 Review and merge** (0.5 h). A fresh reviewer that has not seen the work reads the diff of `002-platform-split` against `ac0c716` for missed paths, content changed in a move, and duplicates. Fix what it finds, then merge into `main` with the owner's yes.
