@@ -118,11 +118,14 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("profile")
     ap.add_argument("--out")
+    ap.add_argument("--extra", help="JSON object to use as the profile's extra_body for this run")
     ap.add_argument("--only", help="run only the probes whose name contains this text")
     ap.add_argument("--parallel", type=int, help="send this many sheet calls at once and time them")
     ap.add_argument("--repeat", type=int, default=1, help="run each chosen probe this many times")
     a = ap.parse_args()
     base = models.get(a.profile)
+    if a.extra:
+        base = dataclasses.replace(base, extra_body=json.loads(a.extra))
     if base.location != "local":
         sys.exit(
             f"{base.id} is a cloud profile: every probe would be a paid call; ask the owner first"

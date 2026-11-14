@@ -78,3 +78,30 @@ EPIC_TEXT_PROFILE=gemma-4-e2b-local
 ```
 
 The roles are independent (`EPIC_VISION_PROFILE=qwen3-vl-2b-local` with `EPIC_TEXT_PROFILE` unset keeps the script on DeepSeek). A run with a local profile checks that the server answers before the clip is stored; if it does not, it stops with "the vision model server for profile … is not reachable at …". The first call after Ollama has unloaded a model is slow (the load times above).
+
+## Qwen3.5 4B (added the same day, after the owner pulled `qwen3.5:4b`)
+
+The owner pulled `qwen3.5:4b` into the same Ollama (3.3 GB; `ollama show`: architecture qwen35, 4.2B parameters, Q4_K_M; capabilities completion, vision, tools, **thinking**). Profile `shared/models/qwen3-5-4b-local.json`. Commands that ran, from `pc/`:
+
+```bash
+ollama show qwen3.5:4b
+python tools/probe_model.py qwen3-5-4b-local                                  # twice: a draft profile, then with reasoning off
+python tools/probe_model.py qwen3-5-4b-local --extra '{"reasoning_effort": "low"}' --only 'as the profile is' --repeat 3
+python tools/probe_model.py qwen3-5-4b-local --extra '{"reasoning_effort": "medium"}' --only 'as the profile is' --repeat 3
+python tools/probe_model.py qwen3-5-4b-local --only 'as the profile is' --repeat 8
+python tools/probe_model.py qwen3-5-4b-local --only 'chat tools' --repeat 8
+python tools/probe_model.py qwen3-5-4b-local --parallel 6
+python tools/probe_model.py qwen3-5-4b-local --out eval/spike/probe_qwen3-5-4b-local.json    # the profile as written
+python tools/spotter_check.py --profile qwen3-5-4b-local --skip fk_save.mp4
+python tools/commentator_check.py qwen3-5-4b-local     # twice: with supports_tools true, then false
+```
+
+| Check | Qwen3.5 4B |
+|---|---|
+| Image, the 1344 px sheet, `detail` field | accepted (`detail` ignored, not sent) |
+| Reasoning on (the default) | **a sheet call spends about 3,000 tokens and returns an empty reply**, 15 to 40 s; `reasoning_effort` `low` and `medium` change nothing; `think: false` changes nothing |
+| `extra_body: {"reasoning_effort": "none"}` | the only switch that works: 0.4 to 3 s, an answer every time |
+| JSON with reasoning off | the constraint is not applied in any mode: replies come in code fences. The overview schema fitted 7 of 8 calls, the events schema 0 of 8 (fields missing); in the structured draft, 2 of 3 replies were broken JSON and the third had 5 lines with invented words |
+| Tool calls (`chat` with a tool) | 8 of 8 returned one, with sloppy arguments (empty or stray list items, once a string for the list) |
+| Six calls at once, against six in a row | 1.4 s against 2.5 s |
+| ReAct agent (agent-core) | 0 of 9 scripts accepted: agent-core's `configure_model_client` takes no `extra_body`, so the agent cannot switch the reasoning off. The profile therefore says `supports_tools: false` and the Commentator asks for the structured draft, which does carry the switch. The agent-path run is kept in `eval/spike/commentator_qwen3-5-4b-local_agent.md`. Carrying `extra_body` into agent-core (its `LLMExtensionsConfig.request_extra_body` exists) was not tried |

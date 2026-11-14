@@ -1,0 +1,306 @@
+[
+  {
+    "probe": "models",
+    "ok": true,
+    "models_listed": 8,
+    "latency_s": 0.01
+  },
+  {
+    "probe": "as the profile is: overview",
+    "ok": true,
+    "latency_s": 1.38,
+    "text": "{\n\"activity\": \"a black dot moves across the grid while a red square appears and disappears in frame 6.\",\n\"outcome\": \"the sequence shows motion progression with ",
+    "usage": {
+      "input_tokens": 1267,
+      "output_tokens": 81
+    },
+    "tool_calls": [],
+    "data": {
+      "activity": "a black dot moves across the grid while a red square appears and disappears in frame 6.",
+      "outcome": "the sequence shows motion progression with an isolated visual highlight at its center point before continuity breaks",
+      "actor": "black dot, later joined by red square object",
+      "high_point_cell": 5,
+      "sure": 9
+    },
+    "fits_schema": true
+  },
+  {
+    "probe": "as the profile is: events",
+    "ok": true,
+    "latency_s": 2.94,
+    "text": "```json\n{\n\"events\": [\n    {\n        \"first_grid\": 1,\n        \"first_cell\": 6,\n        \"last_grid\": 2,\n        \"last_cell\": 6,\n        \"actor\": \"black dot\",\n    ",
+    "usage": {
+      "input_tokens": 2522,
+      "output_tokens": 266
+    },
+    "tool_calls": [],
+    "data": {
+      "events": [
+        {
+          "first_grid": 1,
+          "first_cell": 6,
+          "last_grid": 2,
+          "last_cell": 6,
+          "actor": "black dot",
+          "action": "appearing behind a red rectangular block and remains still",
+          "outcome": ""
+        },
+        {
+          "first_grid": 1,
+          "first_cell": 3,
+          "last_grid": 2,
+          "last_cell": 6,
+          "actor": "black dot",
+          "action": "moving downwards across the grid while facing rightward horizontally",
+          "outcome": ""
+        },
+        {
+          "first_grid": 1,
+          "first_cell": [
+            4
+          ],
+          "last_grid": 2,
+          "last_cell": 7,
+          "actor": "black dot",
+          "action": "moving downwards and then to the right across the lower cells of the grid at a consistent pace.",
+          "outcome": ""
+        }
+      ],
+      "sure": 10,
+      "sensitive": false,
+      "sensitive_reason": ""
+    },
+    "fits_schema": false
+  },
+  {
+    "probe": "look json_object",
+    "ok": true,
+    "latency_s": 0.84,
+    "text": "```json\n{\n\"cell\": \"6\"\n}\n```",
+    "usage": {
+      "input_tokens": 1095,
+      "output_tokens": 16
+    },
+    "tool_calls": [],
+    "data": {
+      "cell": "6"
+    },
+    "fits_schema": false
+  },
+  {
+    "probe": "look json_schema",
+    "ok": true,
+    "latency_s": 0.43,
+    "text": "```json\n{\n\"cell\": 6\n}\n```",
+    "usage": {
+      "input_tokens": 1095,
+      "output_tokens": 15
+    },
+    "tool_calls": [],
+    "data": {
+      "cell": 6
+    },
+    "fits_schema": true
+  },
+  {
+    "probe": "look prompt only",
+    "ok": true,
+    "latency_s": 0.37,
+    "text": "```json\n{\n\"cell\": 6\n}\n```",
+    "usage": {
+      "input_tokens": 1095,
+      "output_tokens": 15
+    },
+    "tool_calls": [],
+    "data": {
+      "cell": 6
+    },
+    "fits_schema": true
+  },
+  {
+    "probe": "look no detail field",
+    "ok": true,
+    "latency_s": 1.22,
+    "text": "```json\n{\n\"version\": \"v2.0\",\n\"title\": \"Locate the Red Square in Grid Cells\",\n\"description\": \"Identify which grid cell contains a red square among nine numbered ",
+    "usage": {
+      "input_tokens": 1095,
+      "output_tokens": 97
+    },
+    "tool_calls": []
+  },
+  {
+    "probe": "look no schema",
+    "ok": true,
+    "latency_s": 1.72,
+    "text": "The red square is located in **cell 6**.\n\nLooking at the grid:\n\n- The top row contains cells 1, 2, and 3 — all have black dots, no Red Square.\n- The middle row ",
+    "usage": {
+      "input_tokens": 1048,
+      "output_tokens": 120
+    },
+    "tool_calls": []
+  },
+  {
+    "probe": "look again (warm)",
+    "ok": true,
+    "latency_s": 0.73,
+    "text": "```json\n{\n\"cell\": 6.\n}\n```",
+    "usage": {
+      "input_tokens": 1095,
+      "output_tokens": 16
+    },
+    "tool_calls": []
+  },
+  {
+    "probe": "overview json_object",
+    "ok": true,
+    "latency_s": 1.34,
+    "text": "```json\n{\n    \"activity\": \"A person is dribbling a basketball down the court.\",\n    \"outcome\": \"There are no players in the frame and therefore there isn't anyt",
+    "usage": {
+      "input_tokens": 1267,
+      "output_tokens": 75
+    },
+    "tool_calls": [],
+    "data": {
+      "activity": "A person is dribbling a basketball down the court.",
+      "outcome": "There are no players in the frame and therefore there isn't anything that has happened yet.",
+      "actor": null,
+      "high_point_cell": 0,
+      "sure": 10
+    },
+    "fits_schema": false
+  },
+  {
+    "probe": "overview json_schema",
+    "ok": true,
+    "latency_s": 1.04,
+    "text": "```json\n{\n    \"activity\": \"A man is riding a bicycle.\",\n    \"outcome\": \"The video ends with the man still on his bike, but not enough information can be inferre",
+    "usage": {
+      "input_tokens": 1267,
+      "output_tokens": 80
+    },
+    "tool_calls": [],
+    "data": {
+      "activity": "A man is riding a bicycle.",
+      "outcome": "The video ends with the man still on his bike, but not enough information can be inferred to provide further context or outcome.",
+      "actor": "Red Shirt",
+      "high_point_cell": 6,
+      "sure": 10
+    },
+    "fits_schema": true
+  },
+  {
+    "probe": "events json_object",
+    "ok": true,
+    "latency_s": 1.57,
+    "text": "```json\n{\n  \"events\": [\n    {\n      \"first_grid\": 2,\n      \"first_cell\": 6,\n      \"last_gold\": 3002.7458984375/13:\n        \"actor\": \"unknown\", \n        \"action\"",
+    "usage": {
+      "input_tokens": 2522,
+      "output_tokens": 124
+    },
+    "tool_calls": []
+  },
+  {
+    "probe": "events json_schema",
+    "ok": true,
+    "latency_s": 2.65,
+    "text": "```json\n{\n\"events\": [\n    {\n        \"first_grid\": 2,\n        \"first_cell\": 6,\n        \"last_grid\": 3,\n        \"last_cell\": 9,\n        \"actor\": \"\",\n        \"acti",
+    "usage": {
+      "input_tokens": 2522,
+      "output_tokens": 245
+    },
+    "tool_calls": [],
+    "data": {
+      "events": [
+        {
+          "first_grid": 2,
+          "first_cell": 6,
+          "last_grid": 3,
+          "last_cell": 9,
+          "actor": "",
+          "action": "a red square appears on the screen",
+          "outcome": ""
+        },
+        {
+          "first_grid": 2,
+          "first_cell": 6,
+          "last_grid": 3,
+          "last_cell": 9,
+          "actor": "",
+          "action": "the bottom right corner of the square moves",
+          "outcome": ""
+        },
+        {
+          "first_grid": 2,
+          "first_cell": 6,
+          "last_grid": 3,
+          "last_cell": 9,
+          "actor": "",
+          "action": "a black circle moves underneath the corner of moving red square",
+          "outcome": ""
+        }
+      ],
+      "sure": -10,
+      "sensitive": false,
+      "sensitive_reason": ""
+    },
+    "fits_schema": false
+  },
+  {
+    "probe": "look prompt only, reasoning_effort none",
+    "ok": true,
+    "latency_s": 0.79,
+    "text": "```json\n{\n    \"cell\": 6\n}\n```",
+    "usage": {
+      "input_tokens": 1095,
+      "output_tokens": 16
+    },
+    "tool_calls": [],
+    "data": {
+      "cell": 6
+    },
+    "fits_schema": true
+  },
+  {
+    "probe": "look prompt only, think false",
+    "ok": true,
+    "latency_s": 29.2,
+    "text": "",
+    "usage": {
+      "input_tokens": 1093,
+      "output_tokens": 3003
+    },
+    "tool_calls": []
+  },
+  {
+    "probe": "chat json_object",
+    "ok": true,
+    "latency_s": 0.43,
+    "text": "{\"ok\": true}",
+    "usage": {
+      "input_tokens": 22,
+      "output_tokens": 6
+    },
+    "tool_calls": [],
+    "data": {
+      "ok": true
+    },
+    "fits_schema": false
+  },
+  {
+    "probe": "chat tools",
+    "ok": true,
+    "latency_s": 0.58,
+    "text": "",
+    "usage": {
+      "input_tokens": 296,
+      "output_tokens": 32
+    },
+    "tool_calls": [
+      {
+        "id": "call_11bqvr1h",
+        "name": "check_lines",
+        "arguments": "{\"lines\":[\"Here we go!\"]}"
+      }
+    ]
+  }
+]
