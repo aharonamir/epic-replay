@@ -1,0 +1,42 @@
+{
+  "area": "storyboard",
+  "function": "storyboard.build",
+  "language": null,
+  "description": "A 3 s clip: the replay widens, then the end card holds to reach 20 s.",
+  "tolerance_s": 0.001,
+  "inputs": {
+    "play_sheet": {
+      "fixture": "sample_run/play_sheet.json",
+      "merge_patch": {
+        "climax": {
+          "t": 1.5
+        },
+        "events": [
+          {
+            "id": "e6",
+            "t_start": 1.5,
+            "t_end": 1.5,
+            "actor": null,
+            "action": "ball enters the goal in the top-left corner, under the crossbar",
+            "object": "ball",
+            "outcome": "goal",
+            "confidence": 0.8,
+            "source": "model"
+          }
+        ]
+      }
+    },
+    "clip_meta": {
+      "fixture": "sample_run/clip_meta.json",
+      "merge_patch": {
+        "duration_s": 3.0
+      }
+    },
+    "min_output_s": {
+      "value": 20.0
+    }
+  },
+  "expected": {
+    "file": "expected/output.json"
+  }
+}

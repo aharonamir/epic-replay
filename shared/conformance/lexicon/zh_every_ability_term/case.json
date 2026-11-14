@@ -1,0 +1,33 @@
+{
+  "area": "lexicon",
+  "function": "lexicon.scan",
+  "language": "zh",
+  "description": "Every Mandarin ability term is caught inside a sentence.",
+  "inputs": {
+    "language": {
+      "value": "zh"
+    },
+    "texts": {
+      "value": [
+        "看，残疾来了",
+        "看，残废来了",
+        "看，瘸子来了",
+        "看，瘫痪来了",
+        "看，弱智来了",
+        "看，智障来了",
+        "看，傻子来了",
+        "看，白痴来了",
+        "看，脑残来了",
+        "看，聋子来了",
+        "看，瞎子来了",
+        "看，哑巴来了"
+      ]
+    },
+    "extra": {
+      "value": []
+    }
+  },
+  "expected": {
+    "file": "expected/output.json"
+  }
+}

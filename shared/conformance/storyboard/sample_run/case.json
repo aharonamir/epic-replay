@@ -1,0 +1,21 @@
+{
+  "area": "storyboard",
+  "function": "storyboard.build",
+  "language": null,
+  "description": "The sample run's play sheet gives exactly the sample run's storyboard.",
+  "tolerance_s": 0.001,
+  "inputs": {
+    "play_sheet": {
+      "fixture": "sample_run/play_sheet.json"
+    },
+    "clip_meta": {
+      "fixture": "sample_run/clip_meta.json"
+    },
+    "min_output_s": {
+      "value": 20.0
+    }
+  },
+  "expected": {
+    "fixture": "sample_run/storyboard.json"
+  }
+}

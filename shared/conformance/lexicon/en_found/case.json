@@ -1,0 +1,32 @@
+{
+  "area": "lexicon",
+  "function": "lexicon.scan",
+  "language": "en",
+  "description": "English terms are found case-insensitively, across any whitespace, longest first.",
+  "inputs": {
+    "language": {
+      "value": "en"
+    },
+    "texts": {
+      "value": [
+        "She shapes to shoot",
+        "what a young talent",
+        "Peter Drury would approve",
+        "live on the BBC",
+        "the little boy scores",
+        "that fat keeper",
+        "BREAKING NEWS tonight",
+        "breaking\n  news",
+        "she's there",
+        "Match of the Day, the kid, the kids",
+        "Old-fashioned? No: oldest trick, older than the wall."
+      ]
+    },
+    "extra": {
+      "value": []
+    }
+  },
+  "expected": {
+    "file": "expected/output.json"
+  }
+}

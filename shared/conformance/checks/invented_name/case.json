@@ -1,0 +1,31 @@
+{
+  "area": "checks",
+  "function": "checks.check",
+  "language": "en",
+  "description": "Planted error: invented_name, caught on its line.",
+  "inputs": {
+    "script": {
+      "fixture": "planted_errors/invented_name.json"
+    },
+    "play_sheet": {
+      "fixture": "sample_run/play_sheet.json"
+    },
+    "user_context": {
+      "fixture": "sample_run/user_context.json"
+    },
+    "pack": {
+      "style": "football_commentator",
+      "language": "en"
+    }
+  },
+  "expected": {
+    "value": [
+      {
+        "where": "l5",
+        "rule": 4,
+        "kind": "invented_name",
+        "detail": "'Rossi' is not in the play sheet or the user context"
+      }
+    ]
+  }
+}

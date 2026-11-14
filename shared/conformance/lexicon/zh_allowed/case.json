@@ -1,0 +1,38 @@
+{
+  "area": "lexicon",
+  "function": "lexicon.scan",
+  "language": "zh",
+  "description": "Ordinary words that hold a banned term pass; a masked phrase does not hide a term beside it.",
+  "inputs": {
+    "language": {
+      "value": "zh"
+    },
+    "texts": {
+      "value": [
+        "多少年了",
+        "空中超过对手",
+        "今年",
+        "年度最佳",
+        "小心",
+        "老师",
+        "老板",
+        "不难看出",
+        "太太太棒了",
+        "他在仓库里",
+        "紧张路段",
+        "我靠近球门",
+        "他的太太来了",
+        "多少年了，孩子",
+        "太太棒了",
+        "防线瘫痪了",
+        "肌肉记忆"
+      ]
+    },
+    "extra": {
+      "value": []
+    }
+  },
+  "expected": {
+    "file": "expected/output.json"
+  }
+}

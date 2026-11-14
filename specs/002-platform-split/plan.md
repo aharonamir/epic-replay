@@ -131,12 +131,15 @@ Tests: 20 test files read fixtures through relative strings such as `"tests/fixt
 **Format.** `shared/conformance/<area>/<case>/case.json`:
 
 ```json
-{"area": "slots", "function": "slots.build", "language": "zh",
- "inputs": {"storyboard": "input/storyboard.json", "pack": "styles:football_commentator"},
- "expected": "expected/slots.json", "tolerance_s": 0.001}
+{"area": "slots", "function": "slots.build", "language": "zh", "description": "…",
+ "tolerance_s": 0.001,
+ "inputs": {"storyboard": {"fixture": "sample_run/storyboard.json"},
+            "pack": {"style": "football_commentator", "language": "zh"},
+            "climax_event_id": {"value": "e6"}},
+ "expected": {"file": "expected/output.json"}}
 ```
 
-A `styles:<id>` input means the shared pack, so cases follow pack changes only through a spec change. `shared/contracts/conformance.schema.json` validates `case.json`.
+Each input and the expected output is a reference: an inline `value`, a `file` in the case folder (or another case's expected output), a shared `fixture`, or a `style` pack as a language sees it. A `fixture` or `file` may carry `slice`, `field` and a JSON `merge_patch` (RFC 7386), so a variant of the sample run (the climax moved, a shorter clip) is a few lines in `case.json`, not a near copy of a fixture. Small expected outputs are inline; large ones are `expected/output.json`; one that equals a fixture points at it. That keeps every file once (SC-5): the sample storyboard is not copied, and two cases never hold the same `[]` file. (Revision 6, T109: the plan first had `input/` and `expected/` files only and `styles:<id>` strings.) A `style` input means the shared pack, so cases follow pack changes only through a spec change. `shared/contracts/conformance.schema.json` validates `case.json`; `shared/conformance/README.md` describes the format and the functions for a port. The dispatch from a function name to the Python code is `epic_replay.conformance`, used by both the generator and the runner.
 
 **Areas and the Python functions behind them**
 
@@ -151,9 +154,9 @@ A `styles:<id>` input means the shared pack, so cases follow pack changes only t
 
 That is over 30 cases. Signal-scan numbers (optical flow, onsets) are not frozen here: they differ by small amounts between OpenCV builds; spec 004 decides their tolerance.
 
-**Generation.** `pc/tools/make_conformance.py` writes the cases once, from the moved code, after T106 shows the sample run byte-identical to the baseline. It refuses to overwrite an existing `expected/` file, as the golden test does.
+**Generation.** `pc/tools/make_conformance.py` writes the cases once, from the moved code, after T106 shows the sample run byte-identical to the baseline. It never rewrites a case whose folder exists, as the golden test never rewrites its file; a case whose expected output is a fixture is checked against it instead of written.
 
-**Runner.** `pc/tests/unit/test_conformance.py` loads every `case.json`, calls the named function, and compares with the expected file (numbers within the tolerance, everything else exactly). A deliberately broken expected file must fail it (checked once by hand, not committed).
+**Runner.** `pc/tests/unit/test_conformance.py` loads every `case.json`, calls the named function, and compares with the expected file (numbers within the tolerance, everything else exactly). A deliberately broken expected file must fail it (checked once by hand, not committed; `test_a_changed_expected_output_fails` also does it on a copy in a temporary folder).
 
 ## 7. CI
 

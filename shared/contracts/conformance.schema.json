@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "conformance.schema.json",
+  "title": "One conformance case: shared/conformance/<area>/<case>/case.json (shared/conformance/README.md)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["area", "function", "language", "description", "inputs", "expected"],
+  "properties": {
+    "area": {"enum": ["storyboard", "slots", "checks", "lexicon", "units", "cells"]},
+    "function": {
+      "enum": [
+        "storyboard.build", "slots.build", "checks.check", "checks.text",
+        "lexicon.scan", "units.spoken_units", "cells.narrow"
+      ]
+    },
+    "language": {"enum": ["en", "zh", null]},
+    "description": {"type": "string", "minLength": 1},
+    "tolerance_s": {"type": "number", "minimum": 0},
+    "inputs": {
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": {"pattern": "^[a-z_]+$"},
+      "additionalProperties": {"$ref": "#/$defs/ref"}
+    },
+    "expected": {"$ref": "#/$defs/ref"}
+  },
+  "$defs": {
+    "ref": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["value"],
+          "properties": {"value": true}
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["file"],
+          "properties": {
+            "file": {"type": "string", "pattern": "^[A-Za-z0-9_./-]+\\.json$"},
+            "slice": {"$ref": "#/$defs/slice"},
+            "field": {"type": "string"},
+            "merge_patch": true
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["fixture"],
+          "properties": {
+            "fixture": {"type": "string", "pattern": "^[A-Za-z0-9_/-]+\\.json$"},
+            "slice": {"$ref": "#/$defs/slice"},
+            "field": {"type": "string"},
+            "merge_patch": true
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["style", "language"],
+          "properties": {
+            "style": {"type": "string", "pattern": "^[a-z_]+$"},
+            "language": {"enum": ["en", "zh"]}
+          }
+        }
+      ]
+    },
+    "slice": {
+      "type": "array",
+      "items": {"type": "integer", "minimum": 0},
+      "minItems": 2,
+      "maxItems": 2
+    }
+  }
+}

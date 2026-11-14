@@ -1,0 +1,39 @@
+{
+  "area": "storyboard",
+  "function": "storyboard.build",
+  "language": null,
+  "description": "The climax on the clip's first frame.",
+  "tolerance_s": 0.001,
+  "inputs": {
+    "play_sheet": {
+      "fixture": "sample_run/play_sheet.json",
+      "merge_patch": {
+        "climax": {
+          "t": 0.0
+        },
+        "events": [
+          {
+            "id": "e6",
+            "t_start": 0.0,
+            "t_end": 0.0,
+            "actor": null,
+            "action": "ball enters the goal in the top-left corner, under the crossbar",
+            "object": "ball",
+            "outcome": "goal",
+            "confidence": 0.8,
+            "source": "model"
+          }
+        ]
+      }
+    },
+    "clip_meta": {
+      "fixture": "sample_run/clip_meta.json"
+    },
+    "min_output_s": {
+      "value": 20.0
+    }
+  },
+  "expected": {
+    "file": "expected/output.json"
+  }
+}

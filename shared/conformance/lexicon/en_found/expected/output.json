@@ -1,0 +1,89 @@
+[
+  {
+    "banned": [
+      "she"
+    ],
+    "descriptor": [
+      "she"
+    ]
+  },
+  {
+    "banned": [
+      "young"
+    ],
+    "descriptor": [
+      "young"
+    ]
+  },
+  {
+    "banned": [
+      "peter drury"
+    ],
+    "descriptor": []
+  },
+  {
+    "banned": [
+      "bbc"
+    ],
+    "descriptor": []
+  },
+  {
+    "banned": [
+      "boy"
+    ],
+    "descriptor": [
+      "boy"
+    ]
+  },
+  {
+    "banned": [
+      "fat"
+    ],
+    "descriptor": [
+      "fat"
+    ]
+  },
+  {
+    "banned": [
+      "breaking news"
+    ],
+    "descriptor": []
+  },
+  {
+    "banned": [
+      "breaking\n  news"
+    ],
+    "descriptor": []
+  },
+  {
+    "banned": [
+      "she"
+    ],
+    "descriptor": [
+      "she"
+    ]
+  },
+  {
+    "banned": [
+      "match of the day",
+      "kid",
+      "kids"
+    ],
+    "descriptor": [
+      "kid",
+      "kids"
+    ]
+  },
+  {
+    "banned": [
+      "old",
+      "oldest",
+      "older"
+    ],
+    "descriptor": [
+      "old",
+      "oldest",
+      "older"
+    ]
+  }
+]

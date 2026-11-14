@@ -1,0 +1,46 @@
+{
+  "area": "lexicon",
+  "function": "lexicon.scan",
+  "language": "zh",
+  "description": "Every Mandarin appearance term is caught inside a sentence.",
+  "inputs": {
+    "language": {
+      "value": "zh"
+    },
+    "texts": {
+      "value": [
+        "看，胖子来了",
+        "看，肥胖来了",
+        "看，很胖来了",
+        "看，胖乎乎来了",
+        "看，小胖来了",
+        "看，大块头来了",
+        "看，瘦子来了",
+        "看，瘦弱来了",
+        "看，消瘦来了",
+        "看，苗条来了",
+        "看，矮子来了",
+        "看，个子来了",
+        "看，身材来了",
+        "看，肌肉来了",
+        "看，丑陋来了",
+        "看，难看来了",
+        "看，美丽来了",
+        "看，英俊来了",
+        "看，帅气来了",
+        "看，帅哥来了",
+        "看，颜值来了",
+        "看，长相来了",
+        "看，性感来了",
+        "看，秃头来了",
+        "看，光头来了"
+      ]
+    },
+    "extra": {
+      "value": []
+    }
+  },
+  "expected": {
+    "file": "expected/output.json"
+  }
+}

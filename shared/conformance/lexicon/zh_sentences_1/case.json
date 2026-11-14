@@ -1,0 +1,54 @@
+{
+  "area": "lexicon",
+  "function": "checks.text",
+  "language": "zh",
+  "description": "Ordinary Mandarin sentences 1 to 25 of the reviewed set pass every text check.",
+  "inputs": {
+    "language": {
+      "value": "zh"
+    },
+    "texts": {
+      "fixture": "zh/zh_sentences.json",
+      "slice": [
+        0,
+        25
+      ],
+      "field": "zh"
+    },
+    "known": {
+      "value": ""
+    },
+    "extra": {
+      "value": []
+    }
+  },
+  "expected": {
+    "value": [
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      []
+    ]
+  }
+}

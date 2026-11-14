@@ -1,0 +1,62 @@
+{
+  "area": "lexicon",
+  "function": "lexicon.scan",
+  "language": "zh",
+  "description": "Every Mandarin newsroom term is caught inside a sentence.",
+  "inputs": {
+    "language": {
+      "value": "zh"
+    },
+    "texts": {
+      "value": [
+        "看，突发新闻来了",
+        "看，现场直播来了",
+        "看，本台记者来了",
+        "看，本台消息来了",
+        "看，新闻直播间来了"
+      ]
+    },
+    "extra": {
+      "value": []
+    }
+  },
+  "expected": {
+    "value": [
+      {
+        "banned": [
+          "突发新闻"
+        ],
+        "famous_names": [],
+        "numbers": []
+      },
+      {
+        "banned": [
+          "现场直播"
+        ],
+        "famous_names": [],
+        "numbers": []
+      },
+      {
+        "banned": [
+          "本台记者"
+        ],
+        "famous_names": [],
+        "numbers": []
+      },
+      {
+        "banned": [
+          "本台消息"
+        ],
+        "famous_names": [],
+        "numbers": []
+      },
+      {
+        "banned": [
+          "新闻直播间"
+        ],
+        "famous_names": [],
+        "numbers": []
+      }
+    ]
+  }
+}

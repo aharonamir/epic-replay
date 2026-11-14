@@ -1,0 +1,31 @@
+{
+  "area": "checks",
+  "function": "checks.check",
+  "language": "en",
+  "description": "Planted error: missing_reference, caught on its line.",
+  "inputs": {
+    "script": {
+      "fixture": "planted_errors/missing_reference.json"
+    },
+    "play_sheet": {
+      "fixture": "sample_run/play_sheet.json"
+    },
+    "user_context": {
+      "fixture": "sample_run/user_context.json"
+    },
+    "pack": {
+      "style": "football_commentator",
+      "language": "en"
+    }
+  },
+  "expected": {
+    "value": [
+      {
+        "where": "l5",
+        "rule": 1,
+        "kind": "missing_reference",
+        "detail": "event e44 is not in the play sheet"
+      }
+    ]
+  }
+}

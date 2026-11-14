@@ -1,0 +1,22 @@
+{
+  "area": "slots",
+  "function": "slots.build",
+  "language": "en",
+  "description": "A climax on the last frame still leaves a full replay-climax slot.",
+  "tolerance_s": 0.001,
+  "inputs": {
+    "storyboard": {
+      "file": "../../storyboard/climax_on_last_frame/expected/output.json"
+    },
+    "pack": {
+      "style": "football_commentator",
+      "language": "en"
+    },
+    "climax_event_id": {
+      "value": "e6"
+    }
+  },
+  "expected": {
+    "file": "expected/output.json"
+  }
+}

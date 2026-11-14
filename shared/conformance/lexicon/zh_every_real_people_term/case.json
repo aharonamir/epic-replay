@@ -1,0 +1,47 @@
+{
+  "area": "lexicon",
+  "function": "lexicon.scan",
+  "language": "zh",
+  "description": "Every Mandarin real_people term is caught inside a sentence.",
+  "inputs": {
+    "language": {
+      "value": "zh"
+    },
+    "texts": {
+      "value": [
+        "看，黄健翔来了",
+        "看，宋世雄来了",
+        "看，詹俊来了",
+        "看，韩乔生来了",
+        "看，刘建宏来了",
+        "看，贺炜来了",
+        "看，段暄来了",
+        "看，张路来了",
+        "看，孙正平来了",
+        "看，于嘉来了",
+        "看，杨健来了",
+        "看，苏群来了",
+        "看，赵忠祥来了",
+        "看，白岩松来了",
+        "看，康辉来了",
+        "看，罗京来了",
+        "看，海霞来了",
+        "看，李瑞英来了",
+        "看，崔永元来了",
+        "看，爱登堡来了",
+        "看，艾登堡来了",
+        "看，阿滕伯勒来了",
+        "看，摩根·弗里曼来了",
+        "看，弗里曼来了",
+        "看，灵魂附体来了",
+        "看，伟大的左后卫来了"
+      ]
+    },
+    "extra": {
+      "value": []
+    }
+  },
+  "expected": {
+    "file": "expected/output.json"
+  }
+}

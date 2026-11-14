@@ -1,0 +1,23 @@
+{
+  "area": "units",
+  "function": "units.spoken_units",
+  "language": "en",
+  "description": "Text read with the English rule counts tokens, whatever the script.",
+  "inputs": {
+    "language": {
+      "value": "en"
+    },
+    "texts": {
+      "value": [
+        "好球！ 漂亮",
+        "他在 2026 年进球。"
+      ]
+    }
+  },
+  "expected": {
+    "value": [
+      2,
+      3
+    ]
+  }
+}

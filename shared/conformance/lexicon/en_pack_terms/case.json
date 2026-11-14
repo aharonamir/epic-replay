@@ -1,0 +1,46 @@
+{
+  "area": "lexicon",
+  "function": "lexicon.scan",
+  "language": "en",
+  "description": "A pack's own banned terms are found after the global ones.",
+  "inputs": {
+    "language": {
+      "value": "en"
+    },
+    "texts": {
+      "value": [
+        "a rare specimen",
+        "the old specimen",
+        "Specimens"
+      ]
+    },
+    "extra": {
+      "value": [
+        "specimen"
+      ]
+    }
+  },
+  "expected": {
+    "value": [
+      {
+        "banned": [
+          "specimen"
+        ],
+        "descriptor": []
+      },
+      {
+        "banned": [
+          "old",
+          "specimen"
+        ],
+        "descriptor": [
+          "old"
+        ]
+      },
+      {
+        "banned": [],
+        "descriptor": []
+      }
+    ]
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "area": "lexicon",
+  "function": "lexicon.scan",
+  "language": "zh",
+  "description": "A famous name or place is reported unless masked; it is not banned as such.",
+  "inputs": {
+    "language": {
+      "value": "zh"
+    },
+    "texts": {
+      "value": [
+        "梅西进了",
+        "皇马",
+        "北京见",
+        "温布利球场",
+        "他进了"
+      ]
+    },
+    "extra": {
+      "value": []
+    }
+  },
+  "expected": {
+    "value": [
+      {
+        "banned": [],
+        "famous_names": [
+          "梅西"
+        ],
+        "numbers": []
+      },
+      {
+        "banned": [],
+        "famous_names": [
+          "皇马"
+        ],
+        "numbers": []
+      },
+      {
+        "banned": [],
+        "famous_names": [
+          "北京"
+        ],
+        "numbers": []
+      },
+      {
+        "banned": [],
+        "famous_names": [
+          "温布利"
+        ],
+        "numbers": []
+      },
+      {
+        "banned": [],
+        "famous_names": [],
+        "numbers": []
+      }
+    ]
+  }
+}

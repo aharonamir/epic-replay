@@ -1,0 +1,31 @@
+{
+  "area": "units",
+  "function": "units.spoken_units",
+  "language": "en",
+  "description": "English: one unit per whitespace token, punctuation included.",
+  "inputs": {
+    "language": {
+      "value": "en"
+    },
+    "texts": {
+      "value": [
+        "Here we go!",
+        "  spaced   out  ",
+        "",
+        "3-2 up, 90 minutes",
+        "TOP CORNER!",
+        "one\ttwo\nthree"
+      ]
+    }
+  },
+  "expected": {
+    "value": [
+      3,
+      2,
+      0,
+      4,
+      2,
+      3
+    ]
+  }
+}

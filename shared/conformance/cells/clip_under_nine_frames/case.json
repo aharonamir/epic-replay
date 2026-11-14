@@ -1,0 +1,45 @@
+{
+  "area": "cells",
+  "function": "cells.narrow",
+  "language": null,
+  "description": "A clip of six frames gives every frame once.",
+  "inputs": {
+    "start_s": {
+      "value": 0.0
+    },
+    "end_s": {
+      "value": 1.0
+    },
+    "fps": {
+      "value": 30
+    },
+    "n_frames": {
+      "value": 6
+    },
+    "picks": {
+      "value": [
+        1
+      ]
+    }
+  },
+  "expected": {
+    "value": [
+      [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
+    ]
+  }
+}

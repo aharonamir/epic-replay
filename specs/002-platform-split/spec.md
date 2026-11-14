@@ -2,7 +2,7 @@
 
 **Feature branch**: `002-platform-split`
 **Created**: 2026-11-13
-**Status**: Approved, revision 5 (the owner accepted every recommendation in section 8 on 2026-11-13; corrections agreed on 2026-11-14, section 11)
+**Status**: Approved, revision 6 (the owner accepted every recommendation in section 8 on 2026-11-13; corrections agreed on 2026-11-14, section 11)
 **Input**: "I am thinking of converting this app to an Android app ... do you think both deployments can live on the same repo: android and pc? ... let's start with the first spec, read the repository current status and create a spec for the restructuring."
 **Depends on**: `specs/001-epic-replay` as built at `ac0c716` (2026-11-01). This spec changes where files live and how code finds them. It changes no behaviour of the PC app.
 
@@ -140,7 +140,7 @@ A new Claude Code session can begin the Android spec with `shared/`, `specs/` an
 
 **Conformance suite**
 
-- **FR-020** `shared/conformance/` holds cases, one folder per case: `input/` files, `expected/` files and a `case.json` naming the function under test, the language and any tolerance.
+- **FR-020** `shared/conformance/` holds cases, one folder per case: a `case.json` naming the function under test, the language, any tolerance, its inputs and its expected output, with larger outputs in `expected/` files. Inputs are references to shared fixtures (with a JSON merge patch for a variant), style packs, other cases' outputs or inline values, so no data is kept twice (revision 6).
 - **FR-021** Cases cover at least: the storyboard (play sheet, clip facts and pack in, storyboard out, including the climax on the clip's last frame and the held last frame); the slot builder (storyboard, pack and language in, slots out, English and Mandarin); the code checks (each planted error, one script that passes, and one Mandarin banned term); the word lists (every Mandarin sentence that must pass, every list term that must be caught, and the English whole-word false positives); spoken units for English and Mandarin; and the contact-sheet cell-to-frame mapping.
 - **FR-022** Expected outputs are produced once from the Python code at the start of this work and are never rewritten to make a test pass. A case may change only together with a spec change, as the English golden file does today.
 - **FR-023** A Python runner, `pc/tests/test_conformance.py`, runs every case. Each future platform adds its own runner over the same folder.
@@ -218,3 +218,4 @@ Not part of this feature; recorded so they are not lost.
 - Revision 3 (2026-11-13): the Android spec is now 004, because 003 is the switchable model backends; the owner keeps the ElevenLabs API key (section 10).
 - Revision 4 (2026-11-14, agreed with the owner during T107): the portable regex subset allows negative lookbehind over one character class, which two stored Mandarin patterns use (edge cases, plan section 5); SC-4 and US1 scenario 3 compare the Spotter count with the baseline, which is 5 new calls before any change, not 0.
 - Revision 5 (2026-11-14, agreed with the owner during T108): the three contract examples were byte-identical to the sample run's `play_sheet.json`, `storyboard.json` and `script.json`, against SC-5; they are removed and the sample run is the example (FR-002, plan sections 2 and 3).
+- Revision 6 (2026-11-14, T109): the case format. Inputs and expected outputs are references (inline values, case files, shared fixtures with an optional JSON merge patch, style packs) instead of `input/` and `expected/` files only, because copies of the sample run as inputs, and identical small expected files, would break SC-5 (FR-020, plan section 6). To be confirmed by the owner at the T113 review.
