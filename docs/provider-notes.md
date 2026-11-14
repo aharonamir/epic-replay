@@ -306,3 +306,13 @@ No local model got a script past the code checks on its own: the coded fallback 
 - The outcome sentences are the better signal: Qwen3.5 4B was judged right in 8 of 14 marked sentences (DeepSeek: 13 of 16). A small model's JSON is not reliable even in the constrained mode: Qwen3-VL 2B flagged one clip as sensitive while its own reason said it was not, which stops the run.
 - A thinking model needs its reasoning switched off by the request (`reasoning_effort: "none"` on Ollama), or it answers with nothing after 3,000 tokens.
 - SC-6 (no request to any host but the local server during S2) and SC-4 (0 USD for both roles in one run) are checked in T208.
+
+### One run with both roles local (T208, 2026-11-14)
+
+`pc/tools/local_run_check.py FlippingPancakes.mp4 --vision qwen3-5-4b-local --text qwen3-5-4b-local`, with the owner's yes (the voice is a paid ElevenLabs call, about 0.03 USD expected; mode `record`). It starts the page on a local port, does what the page does through its API (upload with consent, play card, result) and logs every address the process connects to. The key moment on the play card is the label's (2.0 s, frame 60), taken by code; the run's own play card had no events to check, and the vision model could not be asked about sensitivity (its events call was left out), so the confirm carried `clip_ok`, covered by the owner's yes for his own clip. Run `r_20261114_191210_cd6e3b`, result in `eval/spike/local_run_FlippingPancakes.json`.
+
+- **The run finished** (`done`, 28 s in all, a 30.6 s video). S5 was `degraded`: the structured draft was used and the coded fallback wrote lines l1 to l6, so the commentary is generic, as the T207 numbers predicted.
+- **SC-4: 0 USD for the models.** `cost.json`: seven S2 calls and one S5 call, every estimate and actual 0.0; the only charge is S7, six ElevenLabs takes of which two were new, 0.0059 USD in all (the estimate for the whole voice was 0.03). The run's total is 0.0059 USD against caps of 0.30 before the card, 1.00 a run, 20 a day.
+- **SC-6: no request to any host but the local server during S2.** The log of `socket.connect` in the page's process shows, inside S2's time (the events' timestamps, a second either side), seven connections, all to `127.0.0.1:11434`, the local Ollama. Over the whole run the only host outside this computer is `api.elevenlabs.io:443`, at S7. This is a log of the Python process's connections, not a packet capture; Ollama itself runs on this machine from local files.
+- **Recorded on the result:** `render.json` and the manifest name both profiles (`qwen3-5-4b-local`, location `local`); the result page's "Time and cost" panel shows them.
+

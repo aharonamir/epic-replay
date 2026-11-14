@@ -1,6 +1,6 @@
 # Tasks: Switchable model backends
 
-**Spec**: `spec.md` (revision 7) · **Plan**: `plan.md` · **Branch**: `003-model-backends`, from `main` after spec 002 is merged
+**Spec**: `spec.md` (revision 8) · **Plan**: `plan.md` · **Branch**: `003-model-backends`, from `main` after spec 002 is merged
 
 Rules: in order; the full suite green after every task; one commit per task; the default profile changes nothing (golden hashes); no guessed server or model names (CLAUDE.md rule 2); local calls are free, but any DeepSeek or ElevenLabs call that costs money needs the owner's yes first (rule 3).
 
@@ -25,7 +25,7 @@ Rules: in order; the full suite green after every task; one commit per task; the
 - [x] **T207 Measure** (2 h). `spotter_check.py --profile` (spec FR-017). Run it for both local profiles on the 8 starter clips, 2 repeats, and the Commentator check (FR-019) on the sample fixture and 2 clips. The owner marks the outcome descriptions. Write the "Model profiles" section of `docs/provider-notes.md`; set `status: measured` where FR-018 is met.
   *Done when*: both tables are filled, next to DeepSeek's T003 row.
 
-- [ ] **T208 One end-to-end local run** (0.5 h). Both roles local, one single-shot demo clip through the page. Check SC-4 (0 USD for models) and SC-6 (no request to any other host during S2), and record both.
+- [x] **T208 One end-to-end local run** (0.5 h). Both roles local, one single-shot demo clip through the page. Check SC-4 (0 USD for models) and SC-6 (no request to any other host during S2), and record both.
   *Done when*: the run's `cost.json` and the check are recorded in `provider-notes.md`.
 
 - [ ] **T209 Review and merge** (0.5 h). A fresh reviewer reads the diff for anything that changed the DeepSeek path, a price or URL outside the client, and a key that could be logged. Merge with the owner's yes.
