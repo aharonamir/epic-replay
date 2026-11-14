@@ -121,7 +121,7 @@ def run(args: argparse.Namespace) -> int:
             print(e, file=sys.stderr)
             return 2
         uc = {
-            "consent": consent.record(True),
+            "consent": consent.record(True, settings=s),
             "keep_for_demo": False,
             "style": pack["id"],
             "language": args.language,

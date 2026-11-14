@@ -136,7 +136,7 @@ Everything code can check or produce is done by code. Agents choose what to look
 
 - Adults only, and men only in this version. The person uploading confirms this at the consent box.
 - Do not send any clip with a child in it.
-- Only still frames leave the machine, and only to the vision endpoint in `.env`. That provider may use what it receives to train its models.
+- Only still frames leave the machine, and only to the server of the vision model profile you chose (DeepSeek by default). That provider may use what it receives to train its models. With a local profile the frames are looked at on this computer and go nowhere (`docs/local-models.md`).
 - Scripts go to the text and voice providers as text. Video and sound stay on the machine.
 - No line states or guesses anyone's age or remarks on a body.
 - A clip showing someone hurt, upset, humiliated or undressed is not narrated.

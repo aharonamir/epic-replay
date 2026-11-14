@@ -23,7 +23,7 @@ EPIC_SPEECH_PROVIDER=openai       # openai | gemini; T004 chooses
 GEMINI_API_KEY=
 ```
 
-Pointing `EPIC_VISION_*` at another OpenAI-compatible vision endpoint moves the frames to that provider and changes the consent line with it. Nothing else changes.
+Choosing another vision profile (`EPIC_VISION_PROFILE`, `shared/models/`, spec 003), or pointing `EPIC_VISION_*` at another OpenAI-compatible vision endpoint, moves the frames to that server and changes the consent line with it: for a `local` profile the line says the frames are looked at on this computer and go to no provider (`guards/consent.py`), and a consent given for a local model does not cover a cloud one. Nothing else changes. Every request goes through `providers/client.py` (`shared/contracts/model-backend.md`).
 
 ## Agents
 

@@ -43,6 +43,12 @@ def test_the_seeded_fixture_runs_to_a_video(tmp_path):
     assert all(e["run_id"] == "fx" and e["at"] for e in events)
     render = json.loads((d / "render.json").read_text())
     assert abs(render["duration_s"] - 28.9) <= 1 / 30
+    # spec 003, FR-016: both profiles are recorded with the model names, in the render record
+    # and in the manifest the page reads
+    want = {"profile": "deepseek-flash", "label": "DeepSeek (cloud)", "location": "cloud",
+            "model": "deepseek-flash"}  # fmt: skip
+    assert render["models"] == {"vision": want, "text": want}
+    assert manifest["stack"]["models"] == render["models"]
 
 
 def card_run(tmp_path, answers):

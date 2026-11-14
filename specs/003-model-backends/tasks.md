@@ -1,6 +1,6 @@
 # Tasks: Switchable model backends
 
-**Spec**: `spec.md` (revision 5) · **Plan**: `plan.md` · **Branch**: `003-model-backends`, from `main` after spec 002 is merged
+**Spec**: `spec.md` (revision 6) · **Plan**: `plan.md` · **Branch**: `003-model-backends`, from `main` after spec 002 is merged
 
 Rules: in order; the full suite green after every task; one commit per task; the default profile changes nothing (golden hashes); no guessed server or model names (CLAUDE.md rule 2); local calls are free, but any DeepSeek or ElevenLabs call that costs money needs the owner's yes first (rule 3).
 
@@ -19,7 +19,7 @@ Rules: in order; the full suite green after every task; one commit per task; the
 - [x] **T205 Serve the local models** (2 h). On the owner's machine (or the GPU server), start Gemma 4 E2B and Qwen3-VL-2B Instruct behind an OpenAI-compatible server (plan section 5). For each, check: images, a 1344-pixel sheet, the JSON mode that works, tool calls. Write `gemma-4-e2b-local.json` and `qwen3-vl-2b-local.json` from what ran, and `docs/local-models.md` with the exact commands.
   *Done when*: both profiles validate; one sheet call to each returns JSON that fits the schema; `docs/local-models.md` holds the commands that were run.
 
-- [ ] **T206 Consent and run records** (1 h). The consent line and the details view use the vision profile's `label` and `location` (spec FR-015). `render.json` and the result page record both profiles. Reword root CLAUDE.md rule 4 and `provider-adapters.md` as FR-015 says.
+- [x] **T206 Consent and run records** (1 h). The consent line and the details view use the vision profile's `label` and `location` (spec FR-015). `render.json` and the result page record both profiles. Reword root CLAUDE.md rule 4 and `provider-adapters.md` as FR-015 says.
   *Done when*: a page test shows the local wording with a local profile and today's wording with DeepSeek; the English golden test still passes.
 
 - [ ] **T207 Measure** (2 h). `spotter_check.py --profile` (spec FR-017). Run it for both local profiles on the 8 starter clips, 2 repeats, and the Commentator check (FR-019) on the sample fixture and 2 clips. The owner marks the outcome descriptions. Write the "Model profiles" section of `docs/provider-notes.md`; set `status: measured` where FR-018 is met.

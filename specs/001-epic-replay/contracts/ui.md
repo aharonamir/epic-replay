@@ -244,7 +244,7 @@ All text on the page lives in one file, `web/copy.py`, so wording can be reviewe
 | Language | Commentary language / English / 中文 |
 | Optional | Optional / Who's the star? / Remove the clip's own sound |
 | Consent | I filmed this or have permission to use it. Everyone in it is an adult man who is happy to be filmed. I have read the note below. |
-| Provider line | Still frames from the clip are sent to the vision model provider to be looked at. Nothing else leaves this machine. The provider may use what it receives to train its models. |
+| Provider line | Still frames from the clip are sent to the vision model provider to be looked at. Nothing else leaves this machine. The provider may use what it receives to train its models. With a `local` vision profile (spec 003): "Still frames from the clip are looked at on this computer by {label}. They are sent to no model provider." |
 | Go | Make my replay |
 | Progress | Making your replay / Step N of 8 / Working / Show details / Hide details |
 | Time left | A few seconds to go. / About half a minute to go. / About a minute to go. |

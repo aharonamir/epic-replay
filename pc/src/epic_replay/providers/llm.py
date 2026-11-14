@@ -11,6 +11,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from epic_replay import config
+from epic_replay.providers import models
 
 
 @dataclass(frozen=True)
@@ -45,3 +46,17 @@ def vision_endpoint(s: config.Settings | None = None) -> ModelEndpoint:
     return ModelEndpoint(
         "openai-compatible", s.vision_model, s.vision_api_base, s.vision_api_key, s.vision_profile
     )
+
+
+def models_used(s: config.Settings | None = None) -> dict:
+    """Which model each role ran on, for the run's records (FR-016): the profile's id, label and
+    location, and the model name sent (an EPIC_*_MODEL override included)."""
+    s = s or config.load()
+    out = {}
+    for role, profile_id, model in (
+        ("vision", s.vision_profile, s.vision_model),
+        ("text", s.text_profile, s.agent_model),
+    ):
+        p = models.get(profile_id, role)
+        out[role] = {"profile": p.id, "label": p.label, "location": p.location, "model": model}
+    return out

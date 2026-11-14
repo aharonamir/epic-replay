@@ -28,6 +28,7 @@ from scipy.signal import correlate
 
 from epic_replay.graphics import render as html
 from epic_replay.media import audio, ffmpeg
+from epic_replay.providers import llm
 from epic_replay.stages.base import RunContext, StageResult
 from epic_replay.styles import loader
 
@@ -258,6 +259,7 @@ def run(ctx: RunContext) -> StageResult:
         "climax_onsets": hits,
         "ai_label": pack["script"]["labels"].get("ai_label", AI_LABEL),
         "graphics": "html" if pngs else "text",
+        "models": llm.models_used(ctx.settings),  # which model each role ran on (spec 003, FR-016)
     }  # fmt: skip
     ctx.path(RENDER).write_text(json.dumps(render, indent=2) + "\n")
     worst = max((abs(h["error_ms"]) for h in hits), default=0)

@@ -96,6 +96,33 @@ def calls(run_id: str, d: Path, stage: str) -> tuple[list[str], list[dict]]:
     return lines, sheets
 
 
+ROLE_OF_STAGE = {"S2": "vision", "S5": "text"}  # the stages that call a model
+
+
+def _model_value(used: dict) -> str:
+    where = D["where_local"] if used["location"] == "local" else D["where_cloud"]
+    return D["model_value"].format(label=used["label"], model=used["model"], where=where)
+
+
+def model_line(m: dict, stage: str) -> str | None:
+    """Which model the stage ran on, from the run's manifest (spec 003, FR-016): the profile's
+    label, the model name, and whether it ran on this computer or at a cloud provider."""
+    role = ROLE_OF_STAGE.get(stage)
+    used = ((m.get("stack") or {}).get("models") or {}).get(role or "")
+    return D["model"].format(value=_model_value(used)) if used else None
+
+
+def model_rows(m: dict) -> list[dict]:
+    """The result page's list of models: what each role ran on. Empty for a run from before
+    spec 003, which did not record them."""
+    used = (m.get("stack") or {}).get("models") or {}
+    return [
+        {"name": D["role_" + role], "value": _model_value(used[role])}
+        for role in ("vision", "text")
+        if role in used
+    ]
+
+
 def details(run_id: str, d: Path, m: dict) -> dict[int, list[dict]]:
     """For each of the eight steps, a line per stage that has finished or stopped: stage, who
     ran it, duration, cost and summary, then the agents' calls and the sheets."""
@@ -117,6 +144,8 @@ def details(run_id: str, d: Path, m: dict) -> dict[int, list[dict]]:
             done = st["status"] in runner.DONE
             text = summary(d, stage) if done else ""
             more, sheets = calls(run_id, d, stage) if done else ([], [])
+            if line := model_line(m, stage):
+                more = [line, *more]
             out.setdefault(n, []).append({"head": head, "summary": text, "calls": more, "sheets": sheets})  # fmt: skip
     return out
 

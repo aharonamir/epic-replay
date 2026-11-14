@@ -46,7 +46,7 @@ from epic_replay import config
 from epic_replay.agents import commentator
 from epic_replay.guards import consent
 from epic_replay.guards.budget import Ledger
-from epic_replay.providers import speech
+from epic_replay.providers import llm, speech
 from epic_replay.stages import (
     s0_intake,
     s1_signals,
@@ -239,7 +239,8 @@ class Run:
             "run_id": self.dir.name, "created_at": now(), "status": "running",
             "style": None, "parent_run_id": None, "demo": False,
             "stack": {"mode": self.s.provider_mode, "agent": self.s.agent_model,
-                      "vision": self.s.vision_model, "speech": self.s.speech_provider},
+                      "vision": self.s.vision_model, "speech": self.s.speech_provider,
+                      "models": llm.models_used(self.s)},
             "stages": [],
         }  # fmt: skip
 
@@ -303,7 +304,7 @@ class Run:
                 continue
             if stage == "S2":
                 try:
-                    consent.require(uc)
+                    consent.require(uc, self.s)
                 except consent.ConsentRequired:
                     return self.finish("stopped", stage, t0, "consent is required before S2")
             spent = self.ctx.ledger.total_usd

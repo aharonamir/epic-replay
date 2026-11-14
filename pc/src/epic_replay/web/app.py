@@ -449,7 +449,7 @@ def make_run(s: config.Settings, upload: Path, form: dict):
         return error(400, "invalid_upload", why)
     name = " ".join(str(form.get("player_name") or "").split())[:MAX_NAME] or None
     uc = {
-        "consent": consent.record(True),
+        "consent": consent.record(True, settings=s),
         "keep_for_demo": False,
         "style": style,
         "language": language,
@@ -607,7 +607,7 @@ def retell_source(run_id: str | None) -> Path | None:
     if not all((d / n).exists() for n in ("work.mp4", "clip_meta.json", "play_sheet.json", "user_context.json")):  # fmt: skip
         return None
     try:
-        consent.require(read(d, "user_context.json"))
+        consent.require(read(d, "user_context.json"), settings())
     except consent.ConsentRequired:
         return None
     return d
@@ -838,6 +838,7 @@ def render(
     if st and st["status"] == "done":
         script = read(d, "script.json") if (d / "script.json").exists() else {}
         ctx["headline"] = script.get("headline", "")
+        ctx["models"] = views.model_rows(read(d, "manifest.json"))
         ctx["script"] = views.script_panel(d)
         ctx["play_sheet"] = read(d, "play_sheet.json") if (d / "play_sheet.json").exists() else None
         ctx["costs"] = views.time_and_cost(st)
