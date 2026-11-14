@@ -16,7 +16,7 @@ from epic_replay import paths
 OUTSIDE = re.compile(r"parents\[|\.parent\.parent|\bREPO\b")
 ALLOWED = {"paths.py", "test_paths.py"}
 
-FOLDERS = ("CONTRACTS", "EXAMPLES", "STYLES", "ASSETS", "FONTS", "FIXTURES", "SAMPLE_RUN")
+FOLDERS = ("CONTRACTS", "STYLES", "ASSETS", "FONTS", "FIXTURES", "SAMPLE_RUN")
 FOLDERS += ("PLANTED", "ZH_FIXTURES", "RECORDINGS", "LABELS")
 
 

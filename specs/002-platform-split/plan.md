@@ -1,6 +1,6 @@
 # Implementation Plan: One repository for the PC app and an Android app
 
-**Spec**: `specs/002-platform-split/spec.md` (revision 4, approved 2026-11-13, corrected 2026-11-14)
+**Spec**: `specs/002-platform-split/spec.md` (revision 5, approved 2026-11-13, corrected 2026-11-14)
 **Base**: `main` at `ac0c716`
 **Estimate**: about 14 hours, two working days, one person (tasks.md)
 
@@ -26,7 +26,7 @@ epic-replay/
   shared/
     README.md               what each folder holds; who reads it
     contracts/              4 *.schema.json, lexicon.schema.json, conformance.schema.json
-      examples/             play_sheet, storyboard, script examples
+                            (their example is fixtures/sample_run; revision 5)
     styles/                 football_commentator.json, news_reporter.json,
                             nature_documentary.json, voices.json
     lexicons/               en.json, zh.json, README.md (matching rules, regex subset)
@@ -67,7 +67,7 @@ epic-replay/
 | `assets/**` | `shared/assets/**` | T106 |
 | `src/epic_replay/styles/*.json` (4 files) | `shared/styles/` | T106 |
 | `specs/001-epic-replay/contracts/*.schema.json` (4) | `shared/contracts/` | T106 |
-| `specs/001-epic-replay/contracts/examples/*.example.json` (3) | `shared/contracts/examples/` | T106 |
+| `specs/001-epic-replay/contracts/examples/*.example.json` (3) | `shared/contracts/examples/` (T106), then removed as twins of the sample run (T108, revision 5) | T106, T108 |
 | `specs/001-epic-replay/contracts/examples/styles/` (3 drifted packs) | deleted; `examples/README.md` points to `shared/styles/` | T106 |
 | `tests/fixtures/sample_run/` | `shared/fixtures/sample_run/` | T106 |
 | `tests/planted_errors/` | `shared/fixtures/planted_errors/` | T106 |

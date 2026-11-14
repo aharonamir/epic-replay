@@ -1,6 +1,6 @@
 # Tasks: One repository for the PC app and an Android app
 
-**Spec**: `spec.md` revision 4 · **Plan**: `plan.md` · **Branch**: `002-platform-split` from `main` at `ac0c716`
+**Spec**: `spec.md` revision 5 · **Plan**: `plan.md` · **Branch**: `002-platform-split` from `main` at `ac0c716`
 
 Rules: do the tasks in order; the full test suite passes after every task; one commit per task with the task id in the message; moves use `git mv` and change no content in the same commit; no behaviour change anywhere. If a task runs half again over its hours, stop and tell the owner.
 

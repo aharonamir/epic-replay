@@ -26,7 +26,6 @@ load_dotenv(ENV_FILE, override=False)
 # Shared data: both apps read it (FR-002).
 SHARED = Path(os.environ.get("EPIC_SHARED_DIR") or ROOT / "shared")
 CONTRACTS = SHARED / "contracts"
-EXAMPLES = CONTRACTS / "examples"
 STYLES = SHARED / "styles"
 LEXICONS = SHARED / "lexicons"
 ASSETS = SHARED / "assets"

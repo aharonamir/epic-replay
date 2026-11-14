@@ -1,6 +1,6 @@
 # Data model: Epic Replay
 
-There is no database. A run is a folder, and each entity is a JSON file in it. A run is one clip told in one narration style. Four entities have JSON Schemas and examples in [contracts/](contracts/); the rest are described here and get their schemas in T007.
+There is no database. A run is a folder, and each entity is a JSON file in it. A run is one clip told in one narration style. Four entities have JSON Schemas in [shared/contracts/](../../shared/contracts/) and examples in [shared/fixtures/sample_run/](../../shared/fixtures/sample_run/); the rest are described here and get their schemas in T007.
 
 ## 1. Run folder
 
@@ -46,7 +46,7 @@ runs/<run_id>/
 
 ### Play sheet - `play_sheet.json`
 
-Schema: [contracts/play_sheet.schema.json](contracts/play_sheet.schema.json). Example: [contracts/examples/play_sheet.example.json](contracts/examples/play_sheet.example.json).
+Schema: [shared/contracts/play_sheet.schema.json](../../shared/contracts/play_sheet.schema.json). Example: the sample run, [shared/fixtures/sample_run/play_sheet.json](../../shared/fixtures/sample_run/play_sheet.json).
 
 | Field | Meaning |
 |-------|---------|
@@ -64,7 +64,7 @@ Rules beyond the schema: event times lie within the clip; the climax event exist
 
 ### Storyboard - `storyboard.json`
 
-Schema: [contracts/storyboard.schema.json](contracts/storyboard.schema.json). Example: [contracts/examples/storyboard.example.json](contracts/examples/storyboard.example.json).
+Schema: [shared/contracts/storyboard.schema.json](../../shared/contracts/storyboard.schema.json). Example: the sample run, [shared/fixtures/sample_run/storyboard.json](../../shared/fixtures/sample_run/storyboard.json).
 
 | Field | Meaning |
 |-------|---------|
@@ -80,7 +80,7 @@ In the example: a 15 s clip with the climax at 10.433 s gives a 28.9 s video. Ti
 
 ### Script - `script.json`
 
-Schema: [contracts/script.schema.json](contracts/script.schema.json). Example: [contracts/examples/script.example.json](contracts/examples/script.example.json).
+Schema: [shared/contracts/script.schema.json](../../shared/contracts/script.schema.json). Example: the sample run, [shared/fixtures/sample_run/script.json](../../shared/fixtures/sample_run/script.json).
 
 | Field | Meaning |
 |-------|---------|
@@ -97,7 +97,7 @@ Rules beyond the schema are the ten code checks in [contracts/stage-contracts.md
 
 ### Style pack - `src/epic_replay/styles/<id>.json`
 
-Schema: [contracts/style_pack.schema.json](contracts/style_pack.schema.json). Examples: [football_commentator](contracts/examples/styles/football_commentator.json), [news_reporter](contracts/examples/styles/news_reporter.json), [nature_documentary](contracts/examples/styles/nature_documentary.json).
+Schema: [shared/contracts/style_pack.schema.json](../../shared/contracts/style_pack.schema.json). Examples: the live packs, [football_commentator](../../shared/styles/football_commentator.json), [news_reporter](../../shared/styles/news_reporter.json), [nature_documentary](../../shared/styles/nature_documentary.json).
 
 Not part of a run: packs live in the repository and are loaded at start-up (`styles/loader.py`, T038). A pack is refused, with the reason logged, if it fails the schema, names a voice missing from `styles/voices.json` (the voice ids the T004 results allow, so the check needs no network), or names an asset that is missing or resolves outside `assets/` (the schema forbids a leading "/" and ".." parts; keys starting with "_" in `voices.json` are notes); exactly one loaded pack is the default. The Football commentator pack in the build uses the ElevenLabs voice chosen in T004; its fallback is the OpenAI voice `shimmer` (loudest shout in T004, not chosen by ear, unused until T030), and its sounds are the crowd bed and the roar only (the other layers are null since add-back 3 was dropped on 2026-10-22), as silent placeholders until T021.
 
