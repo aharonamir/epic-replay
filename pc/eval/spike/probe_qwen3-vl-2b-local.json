@@ -1,0 +1,434 @@
+[
+  {
+    "probe": "models",
+    "ok": true,
+    "models_listed": 7,
+    "latency_s": 0.01
+  },
+  {
+    "probe": "as the profile is: overview",
+    "ok": true,
+    "latency_s": 0.54,
+    "text": "{\"activity\": \"a person is sitting in a room with a red square and some dots on the ground\", \"outcome\": \"the person finishes the task by placing a red square and",
+    "usage": {
+      "input_tokens": 1328,
+      "output_tokens": 68
+    },
+    "tool_calls": [],
+    "data": {
+      "activity": "a person is sitting in a room with a red square and some dots on the ground",
+      "outcome": "the person finishes the task by placing a red square and drawing a black dot on the ground",
+      "actor": "an unknown person",
+      "high_point_cell": 6,
+      "sure": 8
+    },
+    "fits_schema": true
+  },
+  {
+    "probe": "as the profile is: events",
+    "ok": true,
+    "latency_s": 2.02,
+    "text": "{\n  \"sensitive\": false,\n  \"sensitive_reason\": \"No instances of people being hurt, fighting, distressed or humiliated are visible in the provided image.\",\n  \"eve",
+    "usage": {
+      "input_tokens": 2650,
+      "output_tokens": 331
+    },
+    "tool_calls": [],
+    "data": {
+      "sensitive": false,
+      "sensitive_reason": "No instances of people being hurt, fighting, distressed or humiliated are visible in the provided image.",
+      "events": [
+        {
+          "first_grid": 1,
+          "first_cell": 1,
+          "last_grid": 1,
+          "last_cell": 1,
+          "actor": "",
+          "action": "a black dot appears",
+          "outcome": ""
+        },
+        {
+          "first_grid": 2,
+          "first_cell": 2,
+          "last_grid": 2,
+          "last_cell": 2,
+          "actor": "",
+          "action": "a black dot appears",
+          "outcome": ""
+        },
+        {
+          "first_grid": 1,
+          "first_cell": 3,
+          "last_grid": 1,
+          "last_cell": 3,
+          "actor": "",
+          "action": "a black dot appears",
+          "outcome": ""
+        },
+        {
+          "first_grid": 2,
+          "first_cell": 5,
+          "last_grid": 2,
+          "last_cell": 8,
+          "actor": "",
+          "action": "a black dot appears",
+          "outcome": ""
+        },
+        {
+          "first_grid": 1,
+          "first_cell": 7,
+          "last_grid": 2,
+          "last_cell": 9,
+          "actor": "",
+          "action": "a black dot appears",
+          "outcome": ""
+        }
+      ],
+      "sure": 8
+    },
+    "fits_schema": true
+  },
+  {
+    "probe": "look json_object",
+    "ok": true,
+    "latency_s": 0.38,
+    "text": "{\"cell\": 6}",
+    "usage": {
+      "input_tokens": 1156,
+      "output_tokens": 7
+    },
+    "tool_calls": [],
+    "data": {
+      "cell": 6
+    },
+    "fits_schema": true
+  },
+  {
+    "probe": "look json_schema",
+    "ok": true,
+    "latency_s": 0.23,
+    "text": "{\"cell\": 6}",
+    "usage": {
+      "input_tokens": 1156,
+      "output_tokens": 7
+    },
+    "tool_calls": [],
+    "data": {
+      "cell": 6
+    },
+    "fits_schema": true
+  },
+  {
+    "probe": "look prompt only",
+    "ok": true,
+    "latency_s": 0.22,
+    "text": "```json\n{\n  \"cell\": 6\n}\n```",
+    "usage": {
+      "input_tokens": 1156,
+      "output_tokens": 14
+    },
+    "tool_calls": [],
+    "data": {
+      "cell": 6
+    },
+    "fits_schema": true
+  },
+  {
+    "probe": "look no detail field",
+    "ok": true,
+    "latency_s": 0.23,
+    "text": "{\"cell\": 6}",
+    "usage": {
+      "input_tokens": 1156,
+      "output_tokens": 7
+    },
+    "tool_calls": [],
+    "data": {
+      "cell": 6
+    },
+    "fits_schema": true
+  },
+  {
+    "probe": "look no schema",
+    "ok": true,
+    "latency_s": 1.13,
+    "text": "Based on the visual evidence in the image, we can determine which cell contains the red square by following these observations:\n\n- The grid is divided into 9 ce",
+    "usage": {
+      "input_tokens": 1111,
+      "output_tokens": 209
+    },
+    "tool_calls": []
+  },
+  {
+    "probe": "look again (warm)",
+    "ok": true,
+    "latency_s": 0.24,
+    "text": "{\"cell\": 6}",
+    "usage": {
+      "input_tokens": 1156,
+      "output_tokens": 7
+    },
+    "tool_calls": [],
+    "data": {
+      "cell": 6
+    },
+    "fits_schema": true
+  },
+  {
+    "probe": "overview json_object",
+    "ok": true,
+    "latency_s": 0.82,
+    "text": "{\"type\": \"object\", \"required\": [\"activity\", \"outcome\", \"actor\", \"high_point_cell\", \"sure\"], \"properties\": {\"activity\": \"a sequence of frames in a video showing ",
+    "usage": {
+      "input_tokens": 1328,
+      "output_tokens": 127
+    },
+    "tool_calls": [],
+    "data": {
+      "type": "object",
+      "required": [
+        "activity",
+        "outcome",
+        "actor",
+        "high_point_cell",
+        "sure"
+      ],
+      "properties": {
+        "activity": "a sequence of frames in a video showing the progression of an event.",
+        "outcome": "the final state or conclusion of the video, which is a single frame after all other frames have been processed. In this case, the result indicates that the action has reached its end.",
+        "actor": "the person whose clothing color is revealed during a specific movement in the video.",
+        "high_point_cell": 6,
+        "sure": 5
+      },
+      "description": ""
+    },
+    "fits_schema": false
+  },
+  {
+    "probe": "overview json_schema",
+    "ok": true,
+    "latency_s": 0.54,
+    "text": "{\"activity\": \"A person is standing in a room with a red square on the wall.\", \"outcome\": \"The red square appears to have been placed on the wall by someone who ",
+    "usage": {
+      "input_tokens": 1328,
+      "output_tokens": 67
+    },
+    "tool_calls": [],
+    "data": {
+      "activity": "A person is standing in a room with a red square on the wall.",
+      "outcome": "The red square appears to have been placed on the wall by someone who was previously in the same room.",
+      "actor": "a person",
+      "high_point_cell": 6,
+      "sure": 10
+    },
+    "fits_schema": true
+  },
+  {
+    "probe": "events json_object",
+    "ok": true,
+    "latency_s": 2.53,
+    "text": "{\n  \"events\": [\n    {\n      \"first_grid\": 1,\n      \"first_cell\": 1,\n      \"last_grid\": 1,\n      \"last_cell\": 1,\n      \"actor\": \"person\",\n      \"action\": \"is sta",
+    "usage": {
+      "input_tokens": 2650,
+      "output_tokens": 435
+    },
+    "tool_calls": [],
+    "data": {
+      "events": [
+        {
+          "first_grid": 1,
+          "first_cell": 1,
+          "last_grid": 1,
+          "last_cell": 1,
+          "actor": "person",
+          "action": "is standing with a black dot",
+          "outcome": "still"
+        },
+        {
+          "first_grid": 2,
+          "first_cell": 1,
+          "last_grid": 2,
+          "last_cell": 3,
+          "actor": "person",
+          "action": "has a black dot on their head",
+          "outcome": "still"
+        },
+        {
+          "first_grid": 3,
+          "first_cell": 1,
+          "last_grid": 3,
+          "last_cell": 4,
+          "actor": "person",
+          "action": "is standing with a black dot on their face",
+          "outcome": "still"
+        },
+        {
+          "first_grid": 1,
+          "first_cell": 2,
+          "last_grid": 2,
+          "last_cell": 5,
+          "actor": "animal",
+          "action": "has a black dot on its body",
+          "outcome": "still"
+        },
+        {
+          "first_grid": 4,
+          "first_cell": 6,
+          "last_grid": 4,
+          "last_cell": 5,
+          "actor": "object",
+          "action": "is placed next to the black dot on the floor",
+          "outcome": "still"
+        },
+        {
+          "first_grid": 6,
+          "first_cell": 2,
+          "last_grid": 7,
+          "last_cell": 9,
+          "actor": "person",
+          "action": "has a red square and a black dot next to them",
+          "outcome": "still"
+        }
+      ],
+      "sure": 10,
+      "sensitive": false,
+      "sensitive_reason": "There is no visible injury, fight, distress or humiliation in any of the frames."
+    },
+    "fits_schema": false
+  },
+  {
+    "probe": "events json_schema",
+    "ok": true,
+    "latency_s": 2.59,
+    "text": "{\n  \"sensitive\": false,\n  \"sensitive_reason\": \"The video does not show anyone in distress or being humiliated. There is no mention of injury or violence.\",\n  \"e",
+    "usage": {
+      "input_tokens": 2650,
+      "output_tokens": 467
+    },
+    "tool_calls": [],
+    "data": {
+      "sensitive": false,
+      "sensitive_reason": "The video does not show anyone in distress or being humiliated. There is no mention of injury or violence.",
+      "events": [
+        {
+          "first_grid": 1,
+          "first_cell": 1,
+          "last_grid": 1,
+          "last_cell": 1,
+          "actor": "black dot",
+          "action": "appears in box 1, cell 1",
+          "outcome": "no change"
+        },
+        {
+          "first_grid": 1,
+          "first_cell": 2,
+          "last_grid": 1,
+          "last_cell": 2,
+          "actor": "black dot",
+          "action": "appears in box 1, cell 2",
+          "outcome": "no change"
+        },
+        {
+          "first_grid": 1,
+          "first_cell": 3,
+          "last_grid": 1,
+          "last_cell": 3,
+          "actor": "black dot",
+          "action": "appears in box 1, cell 3",
+          "outcome": "no change"
+        },
+        {
+          "first_grid": 2,
+          "first_cell": 4,
+          "last_grid": 2,
+          "last_cell": 4,
+          "actor": "black dot",
+          "action": "appears in box 2, cell 4",
+          "outcome": "no change"
+        },
+        {
+          "first_grid": 2,
+          "first_cell": 5,
+          "last_grid": 2,
+          "last_cell": 5,
+          "actor": "black dot",
+          "action": "appears in box 2, cell 5",
+          "outcome": "no change"
+        },
+        {
+          "first_grid": 2,
+          "first_cell": 6,
+          "last_grid": 2,
+          "last_cell": 6,
+          "actor": "red square and circle",
+          "action": "the red square is placed in box 2, cell 6.",
+          "outcome": "no change"
+        }
+      ],
+      "sure": 10
+    },
+    "fits_schema": true
+  },
+  {
+    "probe": "look prompt only, reasoning_effort none",
+    "ok": true,
+    "latency_s": 0.38,
+    "text": "```json\n{\"cell\": 6}\n```",
+    "usage": {
+      "input_tokens": 1156,
+      "output_tokens": 11
+    },
+    "tool_calls": [],
+    "data": {
+      "cell": 6
+    },
+    "fits_schema": true
+  },
+  {
+    "probe": "look prompt only, think false",
+    "ok": true,
+    "latency_s": 0.22,
+    "text": "```json\n{\"cell\": 6}\n```",
+    "usage": {
+      "input_tokens": 1156,
+      "output_tokens": 11
+    },
+    "tool_calls": [],
+    "data": {
+      "cell": 6
+    },
+    "fits_schema": true
+  },
+  {
+    "probe": "chat json_object",
+    "ok": true,
+    "latency_s": 0.27,
+    "text": "{\"ok\": true}",
+    "usage": {
+      "input_tokens": 18,
+      "output_tokens": 6
+    },
+    "tool_calls": [],
+    "data": {
+      "ok": true
+    },
+    "fits_schema": false
+  },
+  {
+    "probe": "chat tools",
+    "ok": true,
+    "latency_s": 2.15,
+    "text": "",
+    "usage": {
+      "input_tokens": 172,
+      "output_tokens": 24
+    },
+    "tool_calls": [
+      {
+        "id": "call_3k6eg3gg",
+        "name": "check_lines",
+        "arguments": "{\"lines\":[\"Here we go!\"]}"
+      }
+    ]
+  }
+]

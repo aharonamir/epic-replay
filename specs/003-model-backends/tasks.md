@@ -1,6 +1,6 @@
 # Tasks: Switchable model backends
 
-**Spec**: `spec.md` (revision 4) · **Plan**: `plan.md` · **Branch**: `003-model-backends`, from `main` after spec 002 is merged
+**Spec**: `spec.md` (revision 5) · **Plan**: `plan.md` · **Branch**: `003-model-backends`, from `main` after spec 002 is merged
 
 Rules: in order; the full suite green after every task; one commit per task; the default profile changes nothing (golden hashes); no guessed server or model names (CLAUDE.md rule 2); local calls are free, but any DeepSeek or ElevenLabs call that costs money needs the owner's yes first (rule 3).
 
@@ -16,7 +16,7 @@ Rules: in order; the full suite green after every task; one commit per task; the
 - [x] **T204 Costs, parallel limit, reachability** (1 h). The budget guard and the play card's estimate use the profile; local profiles cost 0. S2 respects `max_parallel`. `check_reachable` runs before a run's first call for local profiles and fails with the message in spec US1 scenario 3.
   *Done when*: unit tests cover a zero-cost profile, a parallel limit of 1, and an unreachable server.
 
-- [ ] **T205 Serve the local models** (2 h). On the owner's machine (or the GPU server), start Gemma 4 E2B and Qwen3-VL-2B Instruct behind an OpenAI-compatible server (plan section 5). For each, check: images, a 1344-pixel sheet, the JSON mode that works, tool calls. Write `gemma-4-e2b-local.json` and `qwen3-vl-2b-local.json` from what ran, and `docs/local-models.md` with the exact commands.
+- [x] **T205 Serve the local models** (2 h). On the owner's machine (or the GPU server), start Gemma 4 E2B and Qwen3-VL-2B Instruct behind an OpenAI-compatible server (plan section 5). For each, check: images, a 1344-pixel sheet, the JSON mode that works, tool calls. Write `gemma-4-e2b-local.json` and `qwen3-vl-2b-local.json` from what ran, and `docs/local-models.md` with the exact commands.
   *Done when*: both profiles validate; one sheet call to each returns JSON that fits the schema; `docs/local-models.md` holds the commands that were run.
 
 - [ ] **T206 Consent and run records** (1 h). The consent line and the details view use the vision profile's `label` and `location` (spec FR-015). `render.json` and the result page record both profiles. Reword root CLAUDE.md rule 4 and `provider-adapters.md` as FR-015 says.

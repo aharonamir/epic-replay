@@ -1,0 +1,369 @@
+[
+  {
+    "probe": "models",
+    "ok": true,
+    "models_listed": 7,
+    "latency_s": 0.01
+  },
+  {
+    "probe": "as the profile is: overview",
+    "ok": true,
+    "latency_s": 0.98,
+    "text": "{\"activity\": \"A sequence of events or moments is being shown in a grid format.\", \"outcome\": \"The final state of the sequence is not fully discernible without co",
+    "usage": {
+      "input_tokens": 524,
+      "output_tokens": 71
+    },
+    "tool_calls": [],
+    "data": {
+      "activity": "A sequence of events or moments is being shown in a grid format.",
+      "outcome": "The final state of the sequence is not fully discernible without context.",
+      "actor": "Black circles on a gray background and one red square in frame 6.",
+      "high_point_cell": 6,
+      "sure": 3
+    },
+    "fits_schema": true
+  },
+  {
+    "probe": "as the profile is: events",
+    "ok": true,
+    "latency_s": 2.91,
+    "text": "{\"sensitive\": false, \"sensitive_reason\": \"\", \"events\": [{\"first_grid\": 1, \"first_cell\": 6, \"last_grid\": 2, \"last_cell\": 6, \"actor\": \"person\", \"action\": \"is in a",
+    "usage": {
+      "input_tokens": 1037,
+      "output_tokens": 225
+    },
+    "tool_calls": [],
+    "data": {
+      "sensitive": false,
+      "sensitive_reason": "",
+      "events": [
+        {
+          "first_grid": 1,
+          "first_cell": 6,
+          "last_grid": 2,
+          "last_cell": 6,
+          "actor": "person",
+          "action": "is in a red square area",
+          "outcome": ""
+        },
+        {
+          "first_grid": 1,
+          "first_cell": 5,
+          "last_grid": 2,
+          "last_cell": 5,
+          "actor": "person",
+          "action": "is present",
+          "outcome": ""
+        },
+        {
+          "first_grid": 1,
+          "first_cell": 1,
+          "last_grid": 2,
+          "last_cell": 1,
+          "actor": "person",
+          "action": "is present",
+          "outcome": ""
+        },
+        {
+          "first_grid": 1,
+          "first_cell": 3,
+          "last_grid": 2,
+          "last_cell": 3,
+          "actor": "person",
+          "action": "is present",
+          "outcome": ""
+        }
+      ],
+      "sure": 5
+    },
+    "fits_schema": true
+  },
+  {
+    "probe": "look json_object",
+    "ok": true,
+    "latency_s": 0.51,
+    "text": "{\"cell\": 6}",
+    "usage": {
+      "input_tokens": 348,
+      "output_tokens": 7
+    },
+    "tool_calls": [],
+    "data": {
+      "cell": 6
+    },
+    "fits_schema": true
+  },
+  {
+    "probe": "look json_schema",
+    "ok": true,
+    "latency_s": 0.36,
+    "text": "{\"cell\": 6}",
+    "usage": {
+      "input_tokens": 348,
+      "output_tokens": 7
+    },
+    "tool_calls": [],
+    "data": {
+      "cell": 6
+    },
+    "fits_schema": true
+  },
+  {
+    "probe": "look prompt only",
+    "ok": true,
+    "latency_s": 0.35,
+    "text": "```json\n{\n\"cell\": 6\n}\n```",
+    "usage": {
+      "input_tokens": 348,
+      "output_tokens": 15
+    },
+    "tool_calls": [],
+    "data": {
+      "cell": 6
+    },
+    "fits_schema": true
+  },
+  {
+    "probe": "look no detail field",
+    "ok": true,
+    "latency_s": 0.36,
+    "text": "{\"cell\": 6}",
+    "usage": {
+      "input_tokens": 348,
+      "output_tokens": 7
+    },
+    "tool_calls": [],
+    "data": {
+      "cell": 6
+    },
+    "fits_schema": true
+  },
+  {
+    "probe": "look no schema",
+    "ok": true,
+    "latency_s": 0.52,
+    "text": "Based on the image provided, the red square is in the cell labeled **6**.",
+    "usage": {
+      "input_tokens": 301,
+      "output_tokens": 18
+    },
+    "tool_calls": []
+  },
+  {
+    "probe": "look again (warm)",
+    "ok": true,
+    "latency_s": 0.36,
+    "text": "{\"cell\": 6}",
+    "usage": {
+      "input_tokens": 348,
+      "output_tokens": 7
+    },
+    "tool_calls": [],
+    "data": {
+      "cell": 6
+    },
+    "fits_schema": true
+  },
+  {
+    "probe": "overview json_object",
+    "ok": true,
+    "latency_s": 0.88,
+    "text": "{\"activity\": \"A sequence of actions involving marking or placing objects on a grid, likely part of a game or challenge.\", \"outcome\": \"The final state shows a re",
+    "usage": {
+      "input_tokens": 524,
+      "output_tokens": 78
+    },
+    "tool_calls": [],
+    "data": {
+      "activity": "A sequence of actions involving marking or placing objects on a grid, likely part of a game or challenge.",
+      "outcome": "The final state shows a red square in frame 6.",
+      "actor": "No specific actor is clearly defined, appears to be an abstract setup/game.",
+      "high_point_cell": 6,
+      "sure": 9
+    },
+    "fits_schema": true
+  },
+  {
+    "probe": "overview json_schema",
+    "ok": true,
+    "latency_s": 0.62,
+    "text": "{\"activity\": \"A sequence of events involving a red rectangular shape appearing and then moving to a specific position.\", \"outcome\": \"The red rectangle is positi",
+    "usage": {
+      "input_tokens": 524,
+      "output_tokens": 61
+    },
+    "tool_calls": [],
+    "data": {
+      "activity": "A sequence of events involving a red rectangular shape appearing and then moving to a specific position.",
+      "outcome": "The red rectangle is positioned in cell 6.",
+      "actor": "Red rectangle",
+      "high_point_cell": 6,
+      "sure": 10
+    },
+    "fits_schema": true
+  },
+  {
+    "probe": "events json_object",
+    "ok": true,
+    "latency_s": 0.99,
+    "text": "{\"events\": [{\"first_grid\": 1, \"first_cell\": 6, \"last_grid\": 2, \"last_cell\": 6, \"actor\": \"Person\", \"action\": \"Moving/Positioning\", \"outcome\": \"\"}, {\"first_grid\":",
+    "usage": {
+      "input_tokens": 1037,
+      "output_tokens": 177
+    },
+    "tool_calls": [],
+    "data": {
+      "events": [
+        {
+          "first_grid": 1,
+          "first_cell": 6,
+          "last_grid": 2,
+          "last_cell": 6,
+          "actor": "Person",
+          "action": "Moving/Positioning",
+          "outcome": ""
+        },
+        {
+          "first_grid": 1,
+          "first_cell": 3,
+          "last_grid": 2,
+          "last_cell": 3,
+          "actor": "Person",
+          "action": "Moving/Positioning",
+          "outcome": ""
+        },
+        {
+          "first_grid": 1,
+          "first_cell": 9,
+          "last_grid": 2,
+          "last_cell": 9,
+          "actor": "Person",
+          "action": "Moving/Positioning",
+          "outcome": ""
+        }
+      ],
+      "sure": 6,
+      "sensitive": false,
+      "sensitive_reason": ""
+    },
+    "fits_schema": true
+  },
+  {
+    "probe": "events json_schema",
+    "ok": true,
+    "latency_s": 1.2,
+    "text": "{\"sensitive\": false, \"sensitive_reason\": \"\", \"events\": [{\"first_grid\": 1, \"first_cell\": 6, \"last_grid\": 1, \"last_cell\": 6, \"actor\": \"person\", \"action\": \"standin",
+    "usage": {
+      "input_tokens": 1037,
+      "output_tokens": 217
+    },
+    "tool_calls": [],
+    "data": {
+      "sensitive": false,
+      "sensitive_reason": "",
+      "events": [
+        {
+          "first_grid": 1,
+          "first_cell": 6,
+          "last_grid": 1,
+          "last_cell": 6,
+          "actor": "person",
+          "action": "standing",
+          "outcome": ""
+        },
+        {
+          "first_grid": 1,
+          "first_cell": 3,
+          "last_grid": 2,
+          "last_cell": 6,
+          "actor": "person",
+          "action": "moving",
+          "outcome": ""
+        },
+        {
+          "first_grid": 2,
+          "first_cell": 6,
+          "last_grid": 2,
+          "last_cell": 6,
+          "actor": "person",
+          "action": "standing",
+          "outcome": ""
+        },
+        {
+          "first_grid": 2,
+          "first_cell": 8,
+          "last_grid": 2,
+          "last_cell": 8,
+          "actor": "person",
+          "action": "moving",
+          "outcome": ""
+        }
+      ],
+      "sure": 6
+    },
+    "fits_schema": true
+  },
+  {
+    "probe": "look prompt only, reasoning_effort none",
+    "ok": true,
+    "latency_s": 0.53,
+    "text": "```json\n{\n\"cell\": 6\n}\n```",
+    "usage": {
+      "input_tokens": 348,
+      "output_tokens": 15
+    },
+    "tool_calls": [],
+    "data": {
+      "cell": 6
+    },
+    "fits_schema": true
+  },
+  {
+    "probe": "look prompt only, think false",
+    "ok": true,
+    "latency_s": 1.53,
+    "text": "```json\n{\n  \"cell\": 6\n}\n```",
+    "usage": {
+      "input_tokens": 355,
+      "output_tokens": 302
+    },
+    "tool_calls": [],
+    "data": {
+      "cell": 6
+    },
+    "fits_schema": true
+  },
+  {
+    "probe": "chat json_object",
+    "ok": true,
+    "latency_s": 0.43,
+    "text": "{\"ok\": true}",
+    "usage": {
+      "input_tokens": 19,
+      "output_tokens": 6
+    },
+    "tool_calls": [],
+    "data": {
+      "ok": true
+    },
+    "fits_schema": false
+  },
+  {
+    "probe": "chat tools",
+    "ok": true,
+    "latency_s": 0.38,
+    "text": "",
+    "usage": {
+      "input_tokens": 83,
+      "output_tokens": 18
+    },
+    "tool_calls": [
+      {
+        "id": "call_mvsuat5f",
+        "name": "check_lines",
+        "arguments": "{\"lines\":[\"Here we go!\"]}"
+      }
+    ]
+  }
+]

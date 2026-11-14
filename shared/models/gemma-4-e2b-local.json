@@ -1,0 +1,23 @@
+{
+  "id": "gemma-4-e2b-local",
+  "label": "Gemma 4 E2B (local)",
+  "kind": "openai_compatible",
+  "location": "local",
+  "roles": ["vision", "text"],
+  "api_base": "http://127.0.0.1:11434/v1",
+  "model": "gemma4:e2b",
+  "api_key_env": null,
+  "price_in_per_m": 0,
+  "price_out_per_m": 0,
+  "call_ceiling_usd": 0,
+  "call_mean_usd": 0,
+  "timeout_s": {"vision": 120, "text": 120},
+  "max_parallel": 1,
+  "json_mode": "json_schema",
+  "image": {"max_side_px": null, "detail": null},
+  "supports_tools": true,
+  "extra_body": {"reasoning_effort": "none"},
+  "status": "experimental",
+  "serve": "Ollama (0.31.1): `ollama pull gemma4:e2b` (4.6 GB, Q4_K_M, vision and tools), then the Ollama server answers /v1/chat/completions on its own port. See docs/local-models.md.",
+  "notes": "Probed 2026-11-14 with pc/tools/probe_model.py: takes the 1344 px sheet; json_object, json_schema and prompt-only all fit the overview and events schemas; tool calls 9 of 9; the first call loads the model (62 s), later ones take 1 to 7 s; six calls at once take as long as six in a row, so max_parallel is 1; reasoning_effort none removes the reasoning tokens of unconstrained replies (390 down to 15); think: false does nothing. detail is accepted and ignored, so it is not sent."
+}

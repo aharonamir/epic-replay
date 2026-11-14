@@ -1,6 +1,6 @@
 # Implementation Plan: Switchable model backends
 
-**Spec**: `specs/003-model-backends/spec.md` (revision 4) · **After**: spec 002 is merged · **Estimate**: about 12 hours
+**Spec**: `specs/003-model-backends/spec.md` (revision 5) · **After**: spec 002 is merged · **Estimate**: about 12 hours
 
 ## 1. Approach
 
