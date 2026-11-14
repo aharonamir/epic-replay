@@ -112,6 +112,14 @@ def agent_config(ep: llm.ModelEndpoint) -> dict:
     }
 
 
+def agent_extra_body(ep: llm.ModelEndpoint) -> dict:
+    """The profile's `extra_body`, for the ReAct agent. agent-core's `configure_model_client`
+    takes no extra body, but a field set on the agent's request config that it does not know is
+    passed to the model call as `extra_body` (tried against Ollama, 2026-11-14): that is how a
+    thinking model's reasoning is switched off for the agent. Empty for DeepSeek."""
+    return dict(models.get(ep.profile, "text").extra_body)
+
+
 def _check_key(ep: llm.ModelEndpoint, profile: models.Profile, role: str) -> None:
     if profile.api_key_env is not None and not ep.api_key:
         raise RuntimeError(f"{models.KEY_ENV[role]} (or {profile.api_key_env}) is not set")

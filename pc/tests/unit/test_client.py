@@ -292,3 +292,39 @@ def test_first_json_takes_the_first_object_and_strips_a_code_fence():
     assert client.first_json('{"a": 1} {"b": 2}') == {"a": 1}
     with pytest.raises(ValueError):
         client.first_json("no json here")
+
+
+# -- the profile's extra_body for the ReAct agent
+
+
+def agent_cfg(monkeypatch):
+    """The ReActAgentConfig that build_agent hands to the agent."""
+    from openjiuwen.core.single_agent.agents.react_agent import ReActAgent
+
+    from epic_replay.agents import commentator
+
+    seen = []
+    original = ReActAgent.configure
+
+    def note(self, config):
+        seen.append(config)
+        return original(self, config)
+
+    monkeypatch.setattr(ReActAgent, "configure", note)
+    commentator.build_agent(commentator.Tools([], {"run_id": "r"}, {}, {}, {}), "system")
+    return seen[0]
+
+
+def test_the_agent_gets_the_profiles_extra_body(endpoint, monkeypatch):
+    ep = endpoint(extra_body={"reasoning_effort": "none"})
+    assert client.agent_extra_body(ep) == {"reasoning_effort": "none"}
+    agent_ep = llm.ModelEndpoint("openai", ep.model, ep.api_base, ep.api_key, ep.profile)
+    monkeypatch.setattr(llm, "agent_endpoint", lambda s=None: agent_ep)
+    cfg = agent_cfg(monkeypatch)
+    assert cfg.model_config_obj.extra_body == {"reasoning_effort": "none"}  # agent-core sends it
+
+
+def test_the_default_profile_adds_nothing_to_the_agents_request(monkeypatch):
+    assert client.agent_extra_body(llm.agent_endpoint()) == {}
+    cfg = agent_cfg(monkeypatch)
+    assert "extra_body" not in cfg.model_config_obj.model_dump(exclude_none=True)

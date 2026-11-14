@@ -432,11 +432,13 @@ def build_agent(tools: Tools, system: str):
 
     ep = llm.agent_endpoint()
     agent = ReActAgent(card=AgentCard(name="commentator", description="writes the script"))
+    cfg = ReActAgentConfig().configure_model_client(**client.agent_config(ep))
+    if extra := client.agent_extra_body(ep):  # e.g. reasoning_effort none for a thinking model
+        cfg.model_config_obj.extra_body = extra
     agent.configure(
-        ReActAgentConfig()
-        .configure_model_client(**client.agent_config(ep))
-        .configure_prompt_template([{"role": "system", "content": system}])
-        .configure_max_iterations(MAX_ITERATIONS)
+        cfg.configure_prompt_template(
+            [{"role": "system", "content": system}]
+        ).configure_max_iterations(MAX_ITERATIONS)
     )
     params = {"type": "object", "properties": DRAFT_SCHEMA["properties"], "required": ["lines"]}
     for name, fn, desc in (

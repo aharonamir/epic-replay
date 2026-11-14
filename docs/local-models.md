@@ -93,7 +93,9 @@ python tools/probe_model.py qwen3-5-4b-local --only 'chat tools' --repeat 8
 python tools/probe_model.py qwen3-5-4b-local --parallel 6
 python tools/probe_model.py qwen3-5-4b-local --out eval/spike/probe_qwen3-5-4b-local.json    # the profile as written
 python tools/spotter_check.py --profile qwen3-5-4b-local --skip fk_save.mp4
-python tools/commentator_check.py qwen3-5-4b-local     # twice: with supports_tools true, then false
+python tools/probe_model.py qwen3-5-4b-local --extra '{"enable_thinking": false}' --only 'look json_object' --repeat 3
+python tools/probe_model.py qwen3-5-4b-local --extra '{"chat_template_kwargs": {"enable_thinking": false}}' --only 'look json_object' --repeat 3
+python tools/commentator_check.py qwen3-5-4b-local     # three times: agent with the reasoning on, agent with it off, structured draft
 ```
 
 | Check | Qwen3.5 4B |
@@ -104,4 +106,4 @@ python tools/commentator_check.py qwen3-5-4b-local     # twice: with supports_to
 | JSON with reasoning off | the constraint is not applied in any mode: replies come in code fences. The overview schema fitted 7 of 8 calls, the events schema 0 of 8 (fields missing); in the structured draft, 2 of 3 replies were broken JSON and the third had 5 lines with invented words |
 | Tool calls (`chat` with a tool) | 8 of 8 returned one, with sloppy arguments (empty or stray list items, once a string for the list) |
 | Six calls at once, against six in a row | 1.4 s against 2.5 s |
-| ReAct agent (agent-core) | 0 of 9 scripts accepted: agent-core's `configure_model_client` takes no `extra_body`, so the agent cannot switch the reasoning off. The profile therefore says `supports_tools: false` and the Commentator asks for the structured draft, which does carry the switch. The agent-path run is kept in `eval/spike/commentator_qwen3-5-4b-local_agent.md`. Carrying `extra_body` into agent-core (its `LLMExtensionsConfig.request_extra_body` exists) was not tried |
+| ReAct agent (agent-core) | 0 of 9 scripts accepted with the reasoning on: the agent cannot switch it off through `configure_model_client`, so the model thinks and returns empty replies (`eval/spike/commentator_qwen3-5-4b-local_agent_reasoning_on.md`). agent-core's own reasoning setting (`ModelRequestConfig.reasoning`, mode disabled) is sent as `enable_thinking: false`, which Ollama does not reliably honour (2 of 3 calls still thought for 3,000 tokens). A field set on the agent's request config that agent-core does not know is passed to the model call as `extra_body`, so the profile's `extra_body` (`reasoning_effort: "none"`) now reaches the agent (`client.agent_extra_body`, tried 2026-11-14). The agent then makes real tool calls at 13 s a run, but still 0 of 9 scripts are accepted (`..._agent_reasoning_off.md`). The structured draft gets the same outcome in 3 s, so the profile says `supports_tools: false` |
