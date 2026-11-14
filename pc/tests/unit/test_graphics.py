@@ -12,6 +12,8 @@ from PIL import Image
 from epic_replay.graphics import render
 from epic_replay.styles import loader
 
+pytestmark = pytest.mark.browser  # renders in Chromium (spec 002, FR-024)
+
 TEXTS = {"headline": "SLOW MOTION REPLAY OF THE TOP-CORNER FREE KICK",
          "replay_bug": "SLOW MOTION", "kicker": "TONIGHT'S TOP STORY"}  # fmt: skip
 

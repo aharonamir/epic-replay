@@ -1,0 +1,77 @@
+# Spec 002, FR-024 and FR-025: the PC checks on a change under pc/ or shared/, and a placeholder
+# Android job on a change under android/ or shared/. A change elsewhere (docs/, specs/) runs
+# nothing. Replay mode only: no network calls to providers and no keys.
+name: CI
+
+on:
+  push:
+    paths: ["pc/**", "shared/**", "android/**", ".github/workflows/ci.yml"]
+  pull_request:
+    paths: ["pc/**", "shared/**", "android/**", ".github/workflows/ci.yml"]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  changes:
+    runs-on: ubuntu-24.04
+    outputs:
+      pc: ${{ steps.filter.outputs.pc }}
+      android: ${{ steps.filter.outputs.android }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            pc: ["pc/**", "shared/**", ".github/workflows/ci.yml"]
+            android: ["android/**", "shared/**"]
+
+  pc:
+    needs: changes
+    if: needs.changes.outputs.pc == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      EPIC_PROVIDER_MODE: replay
+    defaults:
+      run:
+        working-directory: epic-replay/pc
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: epic-replay
+      # openjiuwen is installed from a checkout with --no-deps: its intelli-router dependency is
+      # a git URL that pip and uv refuse (001 quickstart.md section 2). This is the commit the
+      # owner's machine runs (0.1.19).
+      - uses: actions/checkout@v4
+        with:
+          repository: openJiuwen-ai/agent-core
+          ref: ab825d17a2e729b9067c5057cce5c27bd792aa82
+          path: agent-core
+      - uses: astral-sh/setup-uv@v6
+      - name: FFmpeg and fonts
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends ffmpeg fonts-dejavu-core fonts-noto-cjk
+      - name: Install
+        run: |
+          uv venv --python 3.12
+          uv pip install -r requirements-ci.txt
+          uv pip install -e ../../agent-core --no-deps
+          uv pip install -e ".[dev]" --no-deps
+          .venv/bin/playwright install --with-deps chromium
+      - name: Ruff
+        run: |
+          .venv/bin/ruff check .
+          .venv/bin/ruff format --check .
+      - name: Tests
+        run: .venv/bin/pytest -q
+
+  android:
+    needs: changes
+    if: needs.changes.outputs.android == 'true'
+    runs-on: ubuntu-24.04
+    steps:
+      - run: echo "no Android build yet (spec 004)"

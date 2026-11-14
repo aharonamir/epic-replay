@@ -33,7 +33,10 @@ where = ["src"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-m 'not live'"
-markers = ["live: calls real providers or agents; costs money; skipped by default"]
+markers = [
+  "live: calls real providers or agents; costs money; skipped by default",
+  "browser: renders in Chromium through Playwright; CI installs it (spec 002, FR-024)",
+]
 
 [tool.ruff]
 line-length = 100

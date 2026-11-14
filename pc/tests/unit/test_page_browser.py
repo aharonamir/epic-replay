@@ -24,6 +24,8 @@ from epic_replay.web import app as web
 from .test_live_page import traces
 from .test_page import ALL, FIXTURE, UP_TO_CARD, clip
 
+pytestmark = pytest.mark.browser  # renders in Chromium (spec 002, FR-024)
+
 sync_api = pytest.importorskip("playwright.sync_api")
 uvicorn = pytest.importorskip("uvicorn")
 

@@ -13,6 +13,8 @@ from epic_replay.stages.base import RunContext
 
 from .test_voice import FakeSpeech
 
+pytestmark = pytest.mark.browser  # renders in Chromium (spec 002, FR-024)
+
 FIXTURE = paths.SAMPLE_RUN
 W, H = 320, 180
 

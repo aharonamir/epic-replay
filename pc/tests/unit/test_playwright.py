@@ -1,5 +1,9 @@
 from pathlib import Path
 
+import pytest
+
+pytestmark = pytest.mark.browser  # renders in Chromium (spec 002, FR-024)
+
 
 def test_playwright_screenshot(tmp_path: Path):
     from playwright.sync_api import sync_playwright

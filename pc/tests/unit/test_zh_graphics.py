@@ -12,6 +12,8 @@ from epic_replay.graphics import render
 from epic_replay.stages import s10_compose as s10
 from epic_replay.styles import loader
 
+pytestmark = pytest.mark.browser  # renders in Chromium (spec 002, FR-024)
+
 PACKS = ("football_commentator", "news_reporter", "nature_documentary")
 HEADLINE = "他助跑起脚皮球越过人墙飞向球门右上角"[:16]
 
