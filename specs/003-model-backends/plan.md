@@ -51,12 +51,12 @@ docs/local-models.md                       how to serve each local model (what w
   "supports_tools": true,
   "extra_body": {},
   "status": "measured",
-  "serve": "Cloud API; key in .env",
+  "serve": "Cloud API; key in pc/.env",
   "notes": "Values as in vision.py and commentator.py at ac0c716; T003 measurements in docs/provider-notes.md"
 }
 ```
 
-The text role reads its key from `EPIC_AGENT_API_KEY` today, so the loader maps `api_key_env` per role: vision `EPIC_VISION_API_KEY`, text `EPIC_AGENT_API_KEY`, both falling back to `DEEPSEEK_API_KEY` for this profile (rule 6). T202 decides whether that is a per-role field in the profile or a rule in the loader, and records it in the contract.
+The text role reads its key from `EPIC_AGENT_API_KEY` today, so the loader maps `api_key_env` per role: vision `EPIC_VISION_API_KEY`, text `EPIC_AGENT_API_KEY`, both falling back to `DEEPSEEK_API_KEY` for this profile (CLAUDE.md rule 5). T202 decides whether that is a per-role field in the profile or a rule in the loader, and records it in the contract.
 
 ## 4. The client
 
