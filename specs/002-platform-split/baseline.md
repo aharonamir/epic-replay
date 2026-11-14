@@ -26,17 +26,17 @@ Two runs of the replay flow were compared before choosing the hashes: `cost.json
 
 | Measure | Before (T101) | After T106 | After (T112) |
 |---|---|---|---|
-| `pytest` | 972 passed, 1 deselected (live), 0 failed | | |
-| `ruff check`, `ruff format --check` | clean (229 files) | | |
-| `storyboard.json` | `a1d115c86118cd14c9884cf3c22de53daa6b43c4294886613ab2c6599379cbda` | | |
-| `script.json` | `a7e7978554cb0624f8c341fac012f4542b3e4ce4e287665509988ddfe8744bbe` | | |
-| `checks.json` | `935be0010f4e7ffc3f24d88048bb42fe2efe2b7cd302103980278cda2221b646` | | |
-| `mix.json` | `d6bef54f9f7c2c98fc5b76ae9acd21b0b5e211f6bb42a93b91735b23dd3b0799` | | |
-| `visuals.json` | `b71da496ddff326ab6db60b1d30eca371a10caef9fe20365b40059ac72ba0f06` | | |
-| `voice.json` | `5b8f1e6b46d3746d0350992465ff707a6ecabc61e46d6b55dad7045a5846f164` | | |
-| `test_english_golden` | 2 passed | | |
-| `english_golden.json` | `14c3562201444e055c506bfb8fd5388cb02ae61023d51a8ae3ed7e4f2645f7ce` | | |
-| `spotter_check.py --count` | 54 calls, 5 new (1 each: SlowMotion-skater, basket_ball_shot, fk_1, fk_miss, fk_save) | | |
+| `pytest` | 972 passed, 1 deselected (live), 0 failed | 987 passed (972 + 15 in `test_paths.py`), 1 deselected, 0 failed | |
+| `ruff check`, `ruff format --check` | clean (229 files) | clean (233 files, from `pc/`) | |
+| `storyboard.json` | `a1d115c86118cd14c9884cf3c22de53daa6b43c4294886613ab2c6599379cbda` | same | |
+| `script.json` | `a7e7978554cb0624f8c341fac012f4542b3e4ce4e287665509988ddfe8744bbe` | same | |
+| `checks.json` | `935be0010f4e7ffc3f24d88048bb42fe2efe2b7cd302103980278cda2221b646` | same | |
+| `mix.json` | `d6bef54f9f7c2c98fc5b76ae9acd21b0b5e211f6bb42a93b91735b23dd3b0799` | same | |
+| `visuals.json` | `b71da496ddff326ab6db60b1d30eca371a10caef9fe20365b40059ac72ba0f06` | same | |
+| `voice.json` | `5b8f1e6b46d3746d0350992465ff707a6ecabc61e46d6b55dad7045a5846f164` | same | |
+| `test_english_golden` | 2 passed | 2 passed | |
+| `english_golden.json` | `14c3562201444e055c506bfb8fd5388cb02ae61023d51a8ae3ed7e4f2645f7ce` | same, not rewritten | |
+| `spotter_check.py --count` | 54 calls, 5 new (1 each: SlowMotion-skater, basket_ball_shot, fk_1, fk_miss, fk_save) | the same, clip by clip | |
 
 ### Note on the Spotter count
 

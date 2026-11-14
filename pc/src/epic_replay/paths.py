@@ -25,16 +25,16 @@ load_dotenv(ENV_FILE, override=False)
 
 # Shared data: both apps read it (FR-002).
 SHARED = Path(os.environ.get("EPIC_SHARED_DIR") or ROOT / "shared")
-CONTRACTS = ROOT / "specs" / "001-epic-replay" / "contracts"
+CONTRACTS = SHARED / "contracts"
 EXAMPLES = CONTRACTS / "examples"
-STYLES = PC / "src" / "epic_replay" / "styles"
+STYLES = SHARED / "styles"
 LEXICONS = SHARED / "lexicons"
-ASSETS = ROOT / "assets"
+ASSETS = SHARED / "assets"
 FONTS = ASSETS / "fonts"
-FIXTURES = PC / "tests" / "fixtures"
+FIXTURES = SHARED / "fixtures"
 SAMPLE_RUN = FIXTURES / "sample_run"
-PLANTED = PC / "tests" / "planted_errors"
-ZH_FIXTURES = FIXTURES
+PLANTED = FIXTURES / "planted_errors"
+ZH_FIXTURES = FIXTURES / "zh"
 CONFORMANCE = SHARED / "conformance"
 
 # The PC app's own files (FR-003).

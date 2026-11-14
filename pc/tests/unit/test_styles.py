@@ -10,8 +10,10 @@ from epic_replay.stages import s4_storyboard as s4
 from epic_replay.styles import loader, slots
 
 FIXTURE = paths.SAMPLE_RUN
-EXAMPLES = paths.EXAMPLES / "styles"
-EXAMPLE_PACKS = sorted(EXAMPLES.glob("*.json"))
+# The example packs in the contracts folder had drifted from the live ones and are gone
+# (spec 002, FR-007): the live packs are the examples.
+EXAMPLES = paths.STYLES
+EXAMPLE_PACKS = sorted(p for p in EXAMPLES.glob("*.json") if p.name != "voices.json")
 SLOT_KEYS = ("id", "segment_id", "role", "anchor", "max_duration_s", "max_words")
 
 
