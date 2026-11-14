@@ -4,7 +4,7 @@
 
 Rules: in order; the full suite green after every task; one commit per task; the default profile changes nothing (golden hashes); no guessed server or model names (CLAUDE.md rule 2); local calls are free, but any DeepSeek or ElevenLabs call that costs money needs the owner's yes first (rule 3).
 
-- [ ] **T201 Pin today** (1 h). Add `test_backend_golden.py` with SHA-256 hashes of the DeepSeek vision request for one sheet and one events call, and of the Commentator's structured-draft and gloss requests, built from the sample fixture with no network.
+- [x] **T201 Pin today** (1 h). Add `test_backend_golden.py` with SHA-256 hashes of the DeepSeek vision request for one sheet and one events call, and of the Commentator's structured-draft and gloss requests, built from the sample fixture with no network.
   *Done when*: the hashes are committed and pass.
 
 - [ ] **T202 Profiles and the contract** (1.5 h). Write `shared/contracts/model-backend.md` and `model_profile.schema.json`. Add `shared/models/deepseek-flash.json` with today's values (plan section 3) and `providers/models.py`: load, validate, unique `model` names, choose by role from `EPIC_VISION_PROFILE` and `EPIC_TEXT_PROFILE`, apply the old `EPIC_VISION_*` and `EPIC_AGENT_*` overrides, the key fallback. `llm.vision_endpoint()` and `agent_endpoint()` return endpoints built from profiles.
