@@ -572,11 +572,21 @@ def write(
         return PaidResult(payload, spent[-1], hit)
 
     note = "the agent submitted no script that passes"
+    profile = models.get(llm.agent_endpoint().profile, "text")
     try:
-        payload = paid_call(
-            ledger, stage="S5", provider="agent-core", model=model,
-            estimate_usd=0.0 if recorder.has("commentator", key) else agent_estimate_usd(), fn=agent_call, billed_on=(AgentFailed,),
-        )  # fmt: skip
+        if (
+            not profile.supports_tools
+        ):  # FR-014: no tool calls, so no agent; the draft is asked directly
+            payload, note = (
+                {},
+                f"{profile.label} does not take tool calls: the structured draft was used",
+            )
+            spent.append(0.0)
+        else:
+            payload = paid_call(
+                ledger, stage="S5", provider="agent-core", model=model,
+                estimate_usd=0.0 if recorder.has("commentator", key) else agent_estimate_usd(), fn=agent_call, billed_on=(AgentFailed,),
+            )  # fmt: skip
     except AgentFailed as e:  # the fallback goes on, with the estimate counted as spent
         payload, note = {}, f"the agent failed ({e})"
         spent.append(agent_estimate_usd())

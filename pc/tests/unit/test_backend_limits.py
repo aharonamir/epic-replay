@@ -23,6 +23,8 @@ from epic_replay.providers.vision import VisionAdapter
 from epic_replay.styles import loader
 from epic_replay.web import app as web
 
+from . import test_commentator as tc
+
 DEFAULT = json.loads((paths.MODELS / "deepseek-flash.json").read_text())
 BASE = "http://127.0.0.1:8080/v1"
 
@@ -275,3 +277,28 @@ def test_the_command_line_stops_with_the_same_message(local, monkeypatch, tmp_pa
     assert cli.run(args) == 2
     assert "is not reachable at " + BASE in capsys.readouterr().err
     assert not (s.runs_dir.exists() and any(s.runs_dir.iterdir()))
+
+
+# -- a text profile without tool calls (FR-014, US2 scenario 2)
+
+
+def test_a_text_profile_without_tool_calls_goes_straight_to_the_structured_draft(
+    local, monkeypatch, tmp_path
+):
+    s = local(supports_tools=False)
+    s = dataclasses.replace(s, vision_profile="deepseek-flash", vision_model="deepseek-flash")
+    monkeypatch.setattr(config, "load", lambda: s)
+    monkeypatch.setattr(commentator, "_run_agent", lambda *a, **k: pytest.fail("the agent ran"))
+    monkeypatch.setattr(
+        commentator, "_structured_draft",
+        lambda system, query: {"draft": tc.fixture_draft(), "usage": {}, "latency_s": 0.1},
+    )  # fmt: skip
+    ledger = Ledger(tmp_path / "run", s, day_file=tmp_path / "day.json")
+    built = tc.slots.build(tc.SB, tc.PACK, climax_event_id="e6")
+    out = commentator.write(
+        slots=built, ps=tc.PS, uc=tc.UC, sb=tc.SB, pack=tc.PACK, ledger=ledger,
+        recorder=Recorder("record", tmp_path / "rec"),
+    )  # fmt: skip
+    assert "Tiny (local) does not take tool calls: the structured draft was used" in out.note
+    assert [c["tool"] for c in out.calls] == ["structured_draft"]
+    assert out.cost_usd == 0.0
