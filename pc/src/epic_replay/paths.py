@@ -16,28 +16,28 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-ROOT = Path(__file__).resolve().parents[2]
+ROOT = Path(__file__).resolve().parents[3]
+PC = ROOT / "pc"
 
 # The PC app's settings file, read before any override below (FR-009).
-ENV_FILE = ROOT / ".env"
+ENV_FILE = PC / ".env"
 load_dotenv(ENV_FILE, override=False)
 
 # Shared data: both apps read it (FR-002).
 SHARED = Path(os.environ.get("EPIC_SHARED_DIR") or ROOT / "shared")
 CONTRACTS = ROOT / "specs" / "001-epic-replay" / "contracts"
 EXAMPLES = CONTRACTS / "examples"
-STYLES = ROOT / "src" / "epic_replay" / "styles"
+STYLES = PC / "src" / "epic_replay" / "styles"
 LEXICONS = SHARED / "lexicons"
 ASSETS = ROOT / "assets"
 FONTS = ASSETS / "fonts"
-FIXTURES = ROOT / "tests" / "fixtures"
+FIXTURES = PC / "tests" / "fixtures"
 SAMPLE_RUN = FIXTURES / "sample_run"
-PLANTED = ROOT / "tests" / "planted_errors"
+PLANTED = PC / "tests" / "planted_errors"
 ZH_FIXTURES = FIXTURES
 CONFORMANCE = SHARED / "conformance"
 
 # The PC app's own files (FR-003).
-PC = ROOT
 RECORDINGS = PC / "tests" / "fixtures" / "recordings"
 GOLDEN = PC / "tests" / "fixtures" / "english_golden.json"
 TOOLS = PC / "tools"
