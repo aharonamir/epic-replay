@@ -35,7 +35,7 @@ import json
 import re
 from dataclasses import dataclass, field
 
-from epic_replay import contracts
+from epic_replay import config, contracts
 from epic_replay.guards.budget import CapExceeded, Ledger, PaidResult, paid_call
 from epic_replay.providers import client, llm, models
 from epic_replay.providers.replay import Recorder, ReplayMiss, cache_key
@@ -45,21 +45,29 @@ from epic_replay.styles.slots import CJK, spoken_units
 MAX_ITERATIONS = 6
 
 
-def prices() -> tuple[float, float]:
-    """USD per million tokens in and out, from the text profile (T204 makes the estimates
-    below follow the chosen profile too; until then they are the default profile's)."""
-    p = models.get(llm.agent_endpoint().profile, "text")
+def prices(s: config.Settings | None = None) -> tuple[float, float]:
+    """USD per million tokens in and out, from the text profile."""
+    p = models.get(llm.agent_endpoint(s).profile, "text")
     return p.price_in_per_m, p.price_out_per_m
 
 
-_DEFAULT = models.get(models.DEFAULT_PROFILE)
-# Ceiling: six model turns of about 5,000 tokens in and 1,500 out (reasoning included).
-ESTIMATE_USD = round(
-    MAX_ITERATIONS * (5000 * _DEFAULT.price_in_per_m + 1500 * _DEFAULT.price_out_per_m) / 1e6, 6
-)
-DRAFT_ESTIMATE_USD = round(
-    (5000 * _DEFAULT.price_in_per_m + 3000 * _DEFAULT.price_out_per_m) / 1e6, 6
-)
+def agent_estimate_usd(s: config.Settings | None = None) -> float:
+    """Ceiling for the agent: six model turns of about 5,000 tokens in and 1,500 out
+    (reasoning included). 0 for a profile that costs nothing."""
+    price_in, price_out = prices(s)
+    return round(MAX_ITERATIONS * (5000 * price_in + 1500 * price_out) / 1e6, 6)
+
+
+def draft_estimate_usd(s: config.Settings | None = None) -> float:
+    price_in, price_out = prices(s)
+    return round((5000 * price_in + 3000 * price_out) / 1e6, 6)
+
+
+def gloss_estimate_usd(s: config.Settings | None = None) -> float:
+    price_in, price_out = prices(s)
+    return round((1000 * price_in + 1500 * price_out) / 1e6, 6)
+
+
 KEY_ROLES = ("climax", "replay_climax")
 CAPTION = re.compile(
     r"\b(caption|captions|subtitle|subtitles|text|texts|title|titles|on-screen|logo|watermark|"
@@ -476,11 +484,6 @@ def _structured_draft(system: str, query: str) -> dict:
     return {"draft": draft, "usage": usage, "latency_s": round(r.latency_s, 2)}
 
 
-GLOSS_ESTIMATE_USD = round(
-    (1000 * _DEFAULT.price_in_per_m + 1500 * _DEFAULT.price_out_per_m) / 1e6, 6
-)
-
-
 def _gloss_call(lines: dict) -> dict:
     """One plain JSON call: each line's English meaning."""
     r = client.chat(
@@ -516,7 +519,7 @@ def gloss(script: dict, ledger: Ledger, recorder: Recorder) -> tuple[dict, float
 
     got = paid_call(
         ledger, stage="S5", provider="openai-compatible", model=model,
-        estimate_usd=0.0 if recorder.has("commentator_gloss", key) else GLOSS_ESTIMATE_USD, fn=call, billed_on=client.TIMEOUT_ERRORS,
+        estimate_usd=0.0 if recorder.has("commentator_gloss", key) else gloss_estimate_usd(), fn=call, billed_on=client.TIMEOUT_ERRORS,
     )  # fmt: skip
     return got["gloss"], spent[-1]
 
@@ -572,11 +575,11 @@ def write(
     try:
         payload = paid_call(
             ledger, stage="S5", provider="agent-core", model=model,
-            estimate_usd=0.0 if recorder.has("commentator", key) else ESTIMATE_USD, fn=agent_call, billed_on=(AgentFailed,),
+            estimate_usd=0.0 if recorder.has("commentator", key) else agent_estimate_usd(), fn=agent_call, billed_on=(AgentFailed,),
         )  # fmt: skip
     except AgentFailed as e:  # the fallback goes on, with the estimate counted as spent
         payload, note = {}, f"the agent failed ({e})"
-        spent.append(ESTIMATE_USD)
+        spent.append(agent_estimate_usd())
     calls = list(payload.get("calls", []))
     cost = spent[-1]
     draft = payload.get("draft")
@@ -594,7 +597,7 @@ def write(
 
         got = paid_call(
             ledger, stage="S5", provider="openai-compatible", model=model,
-            estimate_usd=0.0 if recorder.has("commentator_draft", dkey) else DRAFT_ESTIMATE_USD, fn=draft_call, billed_on=client.TIMEOUT_ERRORS,
+            estimate_usd=0.0 if recorder.has("commentator_draft", dkey) else draft_estimate_usd(), fn=draft_call, billed_on=client.TIMEOUT_ERRORS,
         )  # fmt: skip
         draft = got.get("draft") or {}
         cost += spent[-1]

@@ -140,12 +140,14 @@ TEXT_MAX = {"activity": 80, "outcome_summary": 160}
 CHARS_PER_WORD = 6.5  # a word and its space, for the voice's price by character
 
 
-def rest_cost_usd(meta: dict, pack: dict) -> float:
+def rest_cost_usd(meta: dict, pack: dict, settings: config.Settings | None = None) -> float:
     """What the run costs after the card (add-back 8): the Commentator's ceiling plus the voice
     for as many words as the clip's length holds at the pack's rate. Later steps are free."""
     words = meta["duration_s"] * pack["voice"]["words_per_second"]
     per_word = 1.0 if pack.get("language") == "zh" else CHARS_PER_WORD  # a unit is a character
-    return round(commentator.ESTIMATE_USD + words * per_word * speech.USD_PER_CHAR, 2)
+    return round(
+        commentator.agent_estimate_usd(settings) + words * per_word * speech.USD_PER_CHAR, 2
+    )
 
 
 def to_check(ps: dict) -> list[str]:

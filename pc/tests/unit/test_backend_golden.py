@@ -159,9 +159,9 @@ def text_requests(tmp: Path, monkeypatch) -> dict:
         "gloss_result": sha(gloss),
         "cost_of": commentator.cost_of({"input_tokens": 1000, "output_tokens": 500}),
         "estimates": {
-            "agent": commentator.ESTIMATE_USD,
-            "draft": commentator.DRAFT_ESTIMATE_USD,
-            "gloss": commentator.GLOSS_ESTIMATE_USD,
+            "agent": commentator.agent_estimate_usd(),
+            "draft": commentator.draft_estimate_usd(),
+            "gloss": commentator.gloss_estimate_usd(),
         },
     }
 

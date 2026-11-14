@@ -13,7 +13,7 @@ Rules: in order; the full suite green after every task; one commit per task; the
 - [x] **T203 One client** (2.5 h). Add `providers/client.py` (plan section 4). Route `vision._post`, `commentator._structured_draft`, `_gloss_call` and `build_agent` through it. Move every price, timeout and JSON mode into the profile; delete the constants from `vision.py` and `commentator.py`. Add the SC-3 grep test.
   *Done when*: the suite, T201's hashes and `spotter_check.py --count` (54 calls, 5 new, as in the 002 baseline) pass; the grep test passes.
 
-- [ ] **T204 Costs, parallel limit, reachability** (1 h). The budget guard and the play card's estimate use the profile; local profiles cost 0. S2 respects `max_parallel`. `check_reachable` runs before a run's first call for local profiles and fails with the message in spec US1 scenario 3.
+- [x] **T204 Costs, parallel limit, reachability** (1 h). The budget guard and the play card's estimate use the profile; local profiles cost 0. S2 respects `max_parallel`. `check_reachable` runs before a run's first call for local profiles and fails with the message in spec US1 scenario 3.
   *Done when*: unit tests cover a zero-cost profile, a parallel limit of 1, and an unreachable server.
 
 - [ ] **T205 Serve the local models** (2 h). On the owner's machine (or the GPU server), start Gemma 4 E2B and Qwen3-VL-2B Instruct behind an OpenAI-compatible server (plan section 5). For each, check: images, a 1344-pixel sheet, the JSON mode that works, tool calls. Write `gemma-4-e2b-local.json` and `qwen3-vl-2b-local.json` from what ran, and `docs/local-models.md` with the exact commands.

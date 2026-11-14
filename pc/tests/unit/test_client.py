@@ -33,6 +33,8 @@ def endpoint(tmp_path, monkeypatch):
     d.mkdir()
     (d / "deepseek-flash.json").write_text(json.dumps(DEFAULT))
 
+    monkeypatch.setattr(client, "check_reachable", lambda ep, role: None)  # see test_backend_limits
+
     def make(key: str = "", **changes) -> llm.ModelEndpoint:
         (d / "tiny-local.json").write_text(json.dumps(profile_data(**changes)))
         monkeypatch.setattr(models, "profiles", lambda: models.load(d))

@@ -252,7 +252,7 @@ def test_the_card_says_what_the_rest_of_the_run_will_cost(tmp_path, monkeypatch)
     meta = read(d, "clip_meta.json")
     want = runner.rest_cost_usd(meta, loader.default(loader.load()))
     # the Commentator's ceiling plus the voice for the words the clip holds: a few cents
-    assert commentator.ESTIMATE_USD < want < 0.10
+    assert commentator.agent_estimate_usd() < want < 0.10
     assert client.get("/runs/r1/play-card").json()["cost_estimate_usd"] == want
     assert f"The rest will cost about ${want:.2f}." in client.get("/r/r1").text
     # a run whose context is missing or names an unknown style still gets the default pack's figure

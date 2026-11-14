@@ -13,7 +13,9 @@ Recording, the budget and the one schema retry stay with the adapters that call 
 from __future__ import annotations
 
 import base64
+import contextlib
 import json
+import threading
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -21,6 +23,7 @@ from pathlib import Path
 import httpx
 from openai import APITimeoutError
 
+from epic_replay import config
 from epic_replay.providers import llm, models
 
 # What a call that took too long raises. It may still have been billed (see paid_call).
@@ -29,8 +32,53 @@ TIMEOUT_ERRORS = (httpx.TimeoutException, APITimeoutError)
 SCHEMA_LINE = "\nAnswer with JSON only, matching this schema:\n"
 
 
+REACHABLE_TIMEOUT_S = 5.0
+
+
 class SchemaMisfit(Exception):
     """Neither the reply nor the one retry fitted the schema; the caller leaves it out."""
+
+
+class Unreachable(Exception):
+    """A local profile's server does not answer, found before any model request was made."""
+
+
+_gates: dict[tuple[str, int], threading.BoundedSemaphore] = {}
+_gates_lock = threading.Lock()
+_reachable: set[tuple[str, str]] = set()
+
+
+def gate(profile: models.Profile) -> contextlib.AbstractContextManager:
+    """At most `max_parallel` requests of a profile at once; the rest wait their turn. The wait
+    comes before the request, so it does not count against the call's timeout."""
+    with _gates_lock:
+        sem = _gates.setdefault(
+            (profile.id, profile.max_parallel), threading.BoundedSemaphore(profile.max_parallel)
+        )
+    return sem
+
+
+def check_reachable(ep: llm.ModelEndpoint, role: str) -> None:
+    """Once per process, for a `local` profile: its server answers `GET {api_base}/models`.
+    Any HTTP answer, an error status included, means a server is there; no answer raises
+    Unreachable naming the profile and the URL. Cloud profiles are not checked."""
+    profile = models.get(ep.profile, role)
+    if profile.location != "local" or (profile.id, ep.api_base) in _reachable:
+        return
+    try:
+        httpx.get(ep.api_base.rstrip("/") + "/models", timeout=REACHABLE_TIMEOUT_S)
+    except httpx.HTTPError as e:
+        raise Unreachable(
+            f"the {role} model server for profile {profile.id} is not reachable at {ep.api_base}"
+        ) from e
+    _reachable.add((profile.id, ep.api_base))
+
+
+def check_run_models(s: config.Settings) -> None:
+    """Before a run starts: the server of each role's local profile answers (US1 scenario 3).
+    Raises Unreachable for the first that does not."""
+    for role, ep in (("vision", llm.vision_endpoint(s)), ("text", llm.agent_endpoint(s))):
+        check_reachable(ep, role)
 
 
 @dataclass
@@ -115,6 +163,7 @@ def look(
     """Each image, preceded by its text label when it has one, then the question."""
     profile = models.get(ep.profile, "vision")
     _check_key(ep, profile, "vision")
+    check_reachable(ep, "vision")
     content: list[dict] = []
     for label, path in images:
         if label:
@@ -135,15 +184,16 @@ def look(
         body["response_format"] = fmt
     body.update(profile.extra_body)
     headers = {"Authorization": f"Bearer {ep.api_key}"} if ep.api_key else {}
-    t0 = time.monotonic()
-    r = httpx.post(
-        ep.api_base.rstrip("/") + "/chat/completions",
-        json=body,
-        timeout=float(profile.timeout("vision")),
-        headers=headers,
-    )
-    r.raise_for_status()
-    j = r.json()
+    with gate(profile):
+        t0 = time.monotonic()
+        r = httpx.post(
+            ep.api_base.rstrip("/") + "/chat/completions",
+            json=body,
+            timeout=float(profile.timeout("vision")),
+            headers=headers,
+        )
+        r.raise_for_status()
+        j = r.json()
     text = j["choices"][0]["message"]["content"]
     u = j.get("usage", {})
     usd = (
@@ -179,6 +229,7 @@ def chat(
 
     profile = models.get(ep.profile, "text")
     _check_key(ep, profile, "text")
+    check_reachable(ep, "text")
     if tools and not profile.supports_tools:
         raise RuntimeError(f"model profile {profile.id} does not support tool calls")
     kwargs: dict = {"model": ep.model, "messages": messages}
@@ -198,9 +249,10 @@ def chat(
         base_url=ep.api_base,
         timeout=_seconds(profile.timeout("text")),
     )
-    t0 = time.monotonic()
-    r = sdk.chat.completions.create(**kwargs)
-    latency = time.monotonic() - t0
+    with gate(profile):
+        t0 = time.monotonic()
+        r = sdk.chat.completions.create(**kwargs)
+        latency = time.monotonic() - t0
     msg = r.choices[0].message
     text = msg.content or ""
     u = r.usage

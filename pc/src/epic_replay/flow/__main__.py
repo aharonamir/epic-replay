@@ -107,6 +107,13 @@ def run(args: argparse.Namespace) -> int:
         if not args.consent:
             print("Add --consent to confirm the wording above.", file=sys.stderr)
             return 2
+        from epic_replay.providers import client
+
+        try:
+            client.check_run_models(s)
+        except client.Unreachable as e:
+            print(e, file=sys.stderr)
+            return 2
         pack = loader.load()[args.style] if args.style else loader.default(loader.load())
         try:
             loader.resolved(pack, args.language)
