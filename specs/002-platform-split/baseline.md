@@ -42,6 +42,14 @@ Two runs of the replay flow were compared before choosing the hashes: `cost.json
 
 The spec (US1 scenario 3, SC-4, T106) expects `--count` to report 0 new calls. On `main` before any change it reports 5, both with a fresh runs folder and with the owner's cached `runs/t012-*` folders. That is how the code behaves today, so the comparison used here is "the same 54 calls and the same 5 new calls, clip by clip". Raised with the owner on 2026-11-14, who agreed to this reading: spec revision 4 says so (SC-4, US1 scenario 3, T106).
 
+### CI (T111)
+
+GitHub Actions run 43583946895 on `e817d5b` (2026-11-14): `changes`, `pc` and `android` all succeeded; the `pc` job: ruff clean, 1102 passed, 1 deselected, nothing skipped.
+
+### A flaky test, before and after
+
+`test_zh_graphics.py::test_every_mandarin_overlay_stays_inside_the_frame` (rendered in Chromium) fails now and then: twice in the full suite on this branch (T107, T111), and once in 12 runs of the file on `main` at `96b7761`. A second run passes. It is not caused by the move.
+
 ## Success criteria (filled in by T112)
 
 | SC | Yes/no | Evidence |
