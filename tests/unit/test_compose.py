@@ -7,13 +7,13 @@ import subprocess
 import numpy as np
 import pytest
 
-from epic_replay import config
+from epic_replay import config, paths
 from epic_replay.stages import s7_voice, s8_mix, s9_visuals, s10_compose
 from epic_replay.stages.base import RunContext
 
 from .test_voice import FakeSpeech
 
-FIXTURE = "tests/fixtures/sample_run"
+FIXTURE = paths.SAMPLE_RUN
 W, H = 320, 180
 
 

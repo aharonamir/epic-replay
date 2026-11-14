@@ -13,12 +13,12 @@ from concurrent.futures import TimeoutError as FutureTimeout
 import pytest
 from fastapi.testclient import TestClient
 
-from epic_replay import config
+from epic_replay import config, paths
 from epic_replay.guards import consent
 from epic_replay.web import app as web
 from epic_replay.web import copy
 
-FIXTURE = "tests/fixtures/sample_run"
+FIXTURE = paths.SAMPLE_RUN
 
 
 def clip(path, seconds):

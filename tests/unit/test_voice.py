@@ -6,14 +6,14 @@ import json
 import numpy as np
 import pytest
 
-from epic_replay import config
+from epic_replay import config, paths
 from epic_replay.media import audio
 from epic_replay.providers.base import AudioResult, CallInfo
 from epic_replay.providers.speech import tagged
 from epic_replay.stages import s7_voice as s7
 from epic_replay.stages.base import RunContext
 
-FIXTURE = "tests/fixtures/sample_run"
+FIXTURE = paths.SAMPLE_RUN
 SR = 24000
 
 

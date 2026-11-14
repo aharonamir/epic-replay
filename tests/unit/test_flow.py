@@ -8,13 +8,13 @@ from pathlib import Path
 
 import pytest
 
-from epic_replay import config
+from epic_replay import config, paths
 from epic_replay.flow import runner
 from epic_replay.stages.base import StageResult
 
 from .test_voice import FakeSpeech
 
-FIXTURE = "tests/fixtures/sample_run"
+FIXTURE = paths.SAMPLE_RUN
 FIXTURE_DIR = Path(FIXTURE)
 
 

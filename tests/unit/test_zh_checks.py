@@ -5,14 +5,14 @@ import json
 
 import pytest
 
-from epic_replay import contracts
+from epic_replay import contracts, paths
 from epic_replay.guards import lexicon_zh as zh
 from epic_replay.stages import s6_checks as s6
 from epic_replay.styles import loader
 
-SENTENCES = json.loads(open("tests/fixtures/zh_sentences.json").read())
-PS = json.loads(open("tests/fixtures/sample_run/play_sheet.json").read())
-UC = json.loads(open("tests/fixtures/sample_run/user_context.json").read())
+SENTENCES = json.loads(open(paths.ZH_FIXTURES / "zh_sentences.json").read())
+PS = json.loads(open(paths.SAMPLE_RUN / "play_sheet.json").read())
+UC = json.loads(open(paths.SAMPLE_RUN / "user_context.json").read())
 
 
 def kinds(text, known="", extra=()):
@@ -122,7 +122,7 @@ def test_english_banned_terms_still_apply_to_latin_in_a_mandarin_line():
 
 
 def test_the_planted_mandarin_error_is_caught_on_its_line():
-    script = json.loads(open("tests/planted_errors/zh_banned_term.json").read())
+    script = json.loads(open(paths.PLANTED / "zh_banned_term.json").read())
     assert contracts.validate("script", script) == []
     pack = loader.for_run({"style": "football_commentator", "language": "zh"})
     assert [(f["where"], f["kind"]) for f in s6.check(script, PS, UC, pack)] == [("l5", "banned_term")]  # fmt: skip

@@ -12,13 +12,13 @@ import subprocess
 import numpy as np
 import pytest
 
-from epic_replay import config
+from epic_replay import config, paths
 from epic_replay.media import ffmpeg
 from epic_replay.stages import s4_storyboard as s4
 from epic_replay.stages import s9_visuals as s9
 from epic_replay.stages.base import RunContext
 
-FIXTURE = "tests/fixtures/sample_run"
+FIXTURE = paths.SAMPLE_RUN
 FPS, W, H = 30, 320, 180
 BAR0, BAR = 20, 8
 

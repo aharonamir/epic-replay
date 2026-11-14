@@ -4,11 +4,11 @@ import json
 
 import pytest
 
-from epic_replay import config, contracts
+from epic_replay import config, contracts, paths
 from epic_replay.stages import s6_checks as s6
 from epic_replay.stages.base import RunContext
 
-FIXTURE = "tests/fixtures/sample_run"
+FIXTURE = paths.SAMPLE_RUN
 
 
 def read(path):
@@ -16,7 +16,7 @@ def read(path):
 
 
 PS, UC = read(f"{FIXTURE}/play_sheet.json"), read(f"{FIXTURE}/user_context.json")
-PACK = read("src/epic_replay/styles/football_commentator.json")
+PACK = read(paths.STYLES / "football_commentator.json")
 KNOWN = s6.corpus(PS, UC)
 
 
@@ -35,7 +35,7 @@ def test_the_fixture_script_passes():
      ("over_budget", "l5", "over_budget")],
 )  # fmt: skip
 def test_each_planted_error_is_caught_on_its_line(name, line, kind):
-    script = read(f"tests/planted_errors/{name}.json")
+    script = read(paths.PLANTED / f"{name}.json")
     assert contracts.validate("script", script) == []
     fails = s6.check(script, PS, UC, PACK)
     assert [(f["where"], f["kind"]) for f in fails] == [(line, kind)]
@@ -99,7 +99,7 @@ def test_the_stage_writes_checks_and_fails_on_a_planted_error(tmp_path):
     (tmp_path / "script.json").write_text(open(f"{FIXTURE}/script.json").read())
     assert s6.run(ctx).status == "ok"
     assert read(tmp_path / "checks.json")["passed"] is True
-    (tmp_path / "script.json").write_text(open("tests/planted_errors/invented_name.json").read())
+    (tmp_path / "script.json").write_text(open(paths.PLANTED / "invented_name.json").read())
     res = s6.run(ctx)
     assert res.status == "failed" and "Rossi" in res.note
 

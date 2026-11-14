@@ -10,7 +10,7 @@ import httpx
 import pytest
 from openai import APITimeoutError
 
-from epic_replay import config, contracts
+from epic_replay import config, contracts, paths
 from epic_replay.agents import commentator as cm
 from epic_replay.guards.budget import Ledger
 from epic_replay.providers.replay import Recorder, cache_key
@@ -18,7 +18,7 @@ from epic_replay.stages import s5_script, s6_checks
 from epic_replay.stages.base import RunContext
 from epic_replay.styles import loader, slots
 
-FIXTURE = "tests/fixtures/sample_run"
+FIXTURE = paths.SAMPLE_RUN
 
 
 def read(name):

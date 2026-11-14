@@ -12,7 +12,7 @@ from concurrent.futures import ThreadPoolExecutor
 import pytest
 from fastapi.testclient import TestClient
 
-from epic_replay import config
+from epic_replay import config, paths
 from epic_replay.flow import runner
 from epic_replay.stages import s0_intake
 from epic_replay.web import app as web
@@ -208,7 +208,7 @@ def test_no_on_the_clip_question_stops_the_run(app):
 def test_the_prompt_asks_too_and_stops_without_a_yes(tmp_path):
     s = dataclasses.replace(config.load(), runs_dir=tmp_path, provider_mode="replay")
     d = tmp_path / "c"
-    shutil.copytree("tests/fixtures/sample_run", d)
+    shutil.copytree(paths.SAMPLE_RUN, d)
     ps = json.loads((d / "play_sheet.json").read_text())
     ps["confirmed_by_user"] = False
     ps["sensitive"] = {"flag": False, "reason": None, "checked": False}
@@ -272,7 +272,7 @@ def test_nothing_is_written_for_a_flagged_or_unchecked_clip_whatever_the_path(
     """A play sheet already confirmed (seeded, or resumed) still stops before S4."""
     s = dataclasses.replace(config.load(), runs_dir=tmp_path, provider_mode="replay")
     d = tmp_path / "c"
-    shutil.copytree("tests/fixtures/sample_run", d)
+    shutil.copytree(paths.SAMPLE_RUN, d)
     for n in ("storyboard.json", "script.json"):
         (d / n).unlink()
     ps = json.loads((d / "play_sheet.json").read_text())
@@ -305,7 +305,7 @@ def test_a_heartbeat_from_another_process_keeps_a_run_alive(app):
 def test_the_runner_beats_while_it_runs(tmp_path, monkeypatch):
     s = dataclasses.replace(config.load(), runs_dir=tmp_path, provider_mode="replay")
     d = tmp_path / "c"
-    shutil.copytree("tests/fixtures/sample_run", d)
+    shutil.copytree(paths.SAMPLE_RUN, d)
     monkeypatch.setattr(runner, "HEARTBEAT_S", 0.05)
     seen = []
     monkeypatch.setattr(runner.Run, "_run", lambda self, seeded: (time.sleep(0.3), seen.append((d / runner.HEARTBEAT).exists()))[1] or "done")  # fmt: skip

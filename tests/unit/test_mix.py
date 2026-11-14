@@ -5,7 +5,7 @@ import subprocess
 
 import pytest
 
-from epic_replay import config
+from epic_replay import config, paths
 from epic_replay.media import audio
 from epic_replay.stages import s7_voice, s8_mix
 from epic_replay.stages.base import RunContext
@@ -13,7 +13,7 @@ from epic_replay.styles import loader
 
 from .test_voice import FakeSpeech
 
-FIXTURE = "tests/fixtures/sample_run"
+FIXTURE = paths.SAMPLE_RUN
 BURSTS = "aevalsrc=sin(2*PI*2000*t)*(0.04+0.9*lt(mod(t\\,1)\\,0.03)):d=10:s=48000"  # quiet, with loud hits
 
 

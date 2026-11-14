@@ -3,11 +3,12 @@ import json
 
 import pytest
 
+from epic_replay import paths
 from epic_replay.agents.spotter import clear_breaches, submit_play_sheet
 
-FIX = "tests/fixtures/sample_run/"
-SHEET = json.loads(open(FIX + "play_sheet.json").read())
-META = json.loads(open(FIX + "clip_meta.json").read())
+FIX = paths.SAMPLE_RUN
+SHEET = json.loads(open(FIX / "play_sheet.json").read())
+META = json.loads(open(FIX / "clip_meta.json").read())
 
 
 def sheet(**changes):

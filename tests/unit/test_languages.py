@@ -6,9 +6,10 @@ import shutil
 
 import pytest
 
+from epic_replay import paths
 from epic_replay.styles import loader, slots
 
-FIXTURE = "tests/fixtures/sample_run"
+FIXTURE = paths.SAMPLE_RUN
 PACKS = ("football_commentator", "news_reporter", "nature_documentary")
 
 

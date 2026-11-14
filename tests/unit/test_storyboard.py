@@ -5,11 +5,11 @@ import shutil
 
 import pytest
 
-from epic_replay import config, contracts
+from epic_replay import config, contracts, paths
 from epic_replay.stages import s4_storyboard as s4
 from epic_replay.stages.base import RunContext
 
-FIXTURE = "tests/fixtures/sample_run"
+FIXTURE = paths.SAMPLE_RUN
 
 
 def read(name):

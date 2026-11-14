@@ -5,12 +5,12 @@ import shutil
 
 import pytest
 
-from epic_replay import contracts
+from epic_replay import paths
 from epic_replay.stages import s4_storyboard as s4
 from epic_replay.styles import loader, slots
 
-FIXTURE = "tests/fixtures/sample_run"
-EXAMPLES = contracts.CONTRACTS / "examples" / "styles"
+FIXTURE = paths.SAMPLE_RUN
+EXAMPLES = paths.EXAMPLES / "styles"
 EXAMPLE_PACKS = sorted(EXAMPLES.glob("*.json"))
 SLOT_KEYS = ("id", "segment_id", "role", "anchor", "max_duration_s", "max_words")
 

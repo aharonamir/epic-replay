@@ -9,7 +9,7 @@ import httpx
 import jsonschema
 import pytest
 
-from epic_replay import config
+from epic_replay import config, paths
 from epic_replay.agents import spotter
 from epic_replay.guards.budget import Ledger
 from epic_replay.providers import vision as vision_mod
@@ -18,14 +18,16 @@ from epic_replay.providers.vision import VisionAdapter
 from epic_replay.stages import s0_intake, s1_signals, s2_analysis, s3_key_moment
 from epic_replay.stages.base import RunContext
 
-SCHEMA = json.loads(open("specs/001-epic-replay/contracts/play_sheet.schema.json").read())
+SCHEMA = json.loads(open(paths.CONTRACTS / "play_sheet.schema.json").read())
 
 
 @pytest.fixture(scope="module")
 def prepared(tmp_path_factory):
     """A run folder after S0 and S1 on the clip from tools/make_test_clip.py."""
     d = tmp_path_factory.mktemp("strike")
-    subprocess.run([sys.executable, "tools/make_test_clip.py", str(d / "upload.mp4")], check=True)
+    subprocess.run(
+        [sys.executable, str(paths.TOOLS / "make_test_clip.py"), str(d / "upload.mp4")], check=True
+    )
     ctx = RunContext(run_dir=d, settings=config.load())
     assert s0_intake.run(ctx).status == "ok"
     assert s1_signals.run(ctx).status == "ok"

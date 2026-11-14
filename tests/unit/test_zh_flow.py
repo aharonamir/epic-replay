@@ -2,12 +2,11 @@
 
 import dataclasses
 import json
-from pathlib import Path
 
 import httpx
 import pytest
 
-from epic_replay import config
+from epic_replay import config, paths
 from epic_replay.agents import commentator as cm
 from epic_replay.flow import runner
 from epic_replay.guards.budget import Ledger
@@ -23,7 +22,7 @@ from epic_replay.web import app as web
 from .test_card_edits import at_card, post, read
 from .test_voice import FakeSpeech
 
-FIXTURE = "tests/fixtures/sample_run"
+FIXTURE = paths.SAMPLE_RUN
 SHOUT = "进了！太漂亮了！"
 ZH = {"style": "football_commentator", "language": "zh"}
 
@@ -84,7 +83,7 @@ def test_budget_counts_characters_in_a_mandarin_script():
 
 
 def test_a_mandarin_hit_word_is_found_in_the_recorded_timings():
-    a = json.loads(Path("tests/fixtures/zh_alignment_shout.json").read_text())
+    a = json.loads((paths.ZH_FIXTURES / "zh_alignment_shout.json").read_text())
     alignment = {"chars": "".join(a["characters"]), "starts": a["character_start_times_seconds"]}
     delivery = "excited, shouts"
     assert s7.word_start(alignment, delivery, SHOUT, "太漂亮", "zh") == 1.6

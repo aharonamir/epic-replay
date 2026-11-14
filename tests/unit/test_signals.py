@@ -4,7 +4,7 @@ import sys
 
 import pytest
 
-from epic_replay import config
+from epic_replay import config, paths
 from epic_replay.stages import s1_signals
 from epic_replay.stages.base import RunContext
 
@@ -14,7 +14,7 @@ def strike(tmp_path_factory):
     """The clip from tools/make_test_clip.py: a strike with a thud at frame 90, a cut at 135."""
     d = tmp_path_factory.mktemp("strike")
     clip = d / "strike.mp4"
-    subprocess.run([sys.executable, "tools/make_test_clip.py", str(clip)], check=True)
+    subprocess.run([sys.executable, str(paths.TOOLS / "make_test_clip.py"), str(clip)], check=True)
     return clip
 
 

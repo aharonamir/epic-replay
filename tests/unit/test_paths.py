@@ -14,7 +14,7 @@ from epic_replay import paths
 # Reaching outside a package through its own location: `parents[...]`, `.parent.parent`, or a
 # `REPO` constant. Files next to their own module (`Path(__file__).parent`) are allowed.
 OUTSIDE = re.compile(r"parents\[|\.parent\.parent|\bREPO\b")
-ALLOWED = {"paths.py", "test_paths.py", "test_fixture.py"}  # test_fixture.py until T104
+ALLOWED = {"paths.py", "test_paths.py"}
 
 FOLDERS = ("CONTRACTS", "EXAMPLES", "STYLES", "ASSETS", "FONTS", "FIXTURES", "SAMPLE_RUN")
 FOLDERS += ("PLANTED", "ZH_FIXTURES", "RECORDINGS", "LABELS")

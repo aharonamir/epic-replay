@@ -1,12 +1,12 @@
 import copy
 import json
-from pathlib import Path
 
 import pytest
 
 from epic_replay import contracts as c
+from epic_replay import paths
 
-FIX = Path(__file__).resolve().parents[1] / "fixtures" / "sample_run"
+FIX = paths.SAMPLE_RUN
 
 
 def load(name):

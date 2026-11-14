@@ -9,13 +9,13 @@ import shutil
 
 from fastapi.testclient import TestClient
 
-from epic_replay import config
+from epic_replay import config, paths
 from epic_replay.flow import runner
 from epic_replay.stages import s3_key_moment as s3
 from epic_replay.web import app as web
 from epic_replay.web import copy
 
-FIXTURE = "tests/fixtures/sample_run"
+FIXTURE = paths.SAMPLE_RUN
 REASON = "someone may be hurt"
 
 

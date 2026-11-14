@@ -13,13 +13,13 @@ import threading
 import pytest
 from fastapi.testclient import TestClient
 
-from epic_replay import config
+from epic_replay import config, paths
 from epic_replay.flow import runner
 from epic_replay.stages import s4_storyboard
 from epic_replay.stages.base import RunContext
 from epic_replay.web import app as web
 
-FIXTURE = "tests/fixtures/sample_run"
+FIXTURE = paths.SAMPLE_RUN
 
 
 @pytest.fixture

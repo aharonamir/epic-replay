@@ -3,11 +3,11 @@ import subprocess
 
 import pytest
 
-from epic_replay import config
+from epic_replay import config, paths
 from epic_replay.stages import s0_intake
 from epic_replay.stages.base import RunContext
 
-FIXTURE_META = "tests/fixtures/sample_run/clip_meta.json"
+FIXTURE_META = paths.SAMPLE_RUN / "clip_meta.json"
 
 
 def make(path, seconds, size="320x180", rate=25, audio=True):

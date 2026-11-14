@@ -12,7 +12,7 @@ from pathlib import Path
 
 import httpx
 
-from epic_replay import config
+from epic_replay import config, paths
 from epic_replay.agents import commentator
 from epic_replay.flow import runner
 from epic_replay.guards import lexicon
@@ -22,8 +22,8 @@ from epic_replay.providers.speech import SpeechAdapter
 from epic_replay.styles import loader, slots
 from epic_replay.web import app as web
 
-FIXTURE = Path("tests/fixtures/sample_run")
-GOLDEN = Path("tests/fixtures/english_golden.json")
+FIXTURE = paths.SAMPLE_RUN
+GOLDEN = paths.GOLDEN
 
 
 def sha(obj) -> str:
