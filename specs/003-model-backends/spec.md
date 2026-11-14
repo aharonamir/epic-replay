@@ -2,7 +2,7 @@
 
 **Feature branch**: `003-model-backends`
 **Created**: 2026-11-13
-**Status**: Draft, revision 3 (awaiting the owner's yes)
+**Status**: Draft, revision 4 (being built; the owner asked for T201 to T209 on 2026-11-14)
 **Input**: "Keep the usual API key I have now for ElevenLabs, and create an interface for the model serving (DeepSeek) so that I can switch between external OpenAI-compatible, like DeepSeek, or local, like Gemma 4 E2B or Qwen3-VL-2B."
 **Depends on**: spec 002 (the `shared/` folder). Read from the repository at `ac0c716`; re-checked at `e06bb95` after spec 002 was merged (the model code is unchanged, only moved to `pc/`).
 
@@ -87,10 +87,10 @@ The owner sets `EPIC_TEXT_PROFILE` to a local profile. The Commentator, the stru
 
 ### 4.2 Profiles
 
-- **FR-003** A model profile is a JSON file in `shared/models/<id>.json`, validated by `shared/contracts/model_profile.schema.json`, with: `id`, `label`, `kind` (`openai_compatible`; `on_device` reserved for spec 004), `location` (`cloud` | `local`), `roles` (`vision`, `text`), `api_base`, `model`, `api_key_env` (or null), `price_in_per_m`, `price_out_per_m`, `call_ceiling_usd`, `call_mean_usd`, `timeout_s`, `max_parallel`, `json_mode` (`json_object` | `json_schema` | `prompt`), `image` (`max_side_px`, `detail` or null), `supports_tools`, `extra_body` (provider switches as data), `status` (`experimental` | `measured`), `serve` (how to start it, text for people) and `notes`.
+- **FR-003** A model profile is a JSON file in `shared/models/<id>.json`, validated by `shared/contracts/model_profile.schema.json`, with: `id`, `label`, `kind` (`openai_compatible`; `on_device` reserved for spec 004), `location` (`cloud` | `local`), `roles` (`vision`, `text`), `api_base`, `model`, `api_key_env` (or null), `price_in_per_m`, `price_out_per_m`, `call_ceiling_usd`, `call_mean_usd`, `timeout_s` (seconds, one value for each role the profile lists), `max_parallel`, `json_mode` (`json_object` | `json_schema` | `prompt`), `image` (`max_side_px`, `detail` or null), `supports_tools`, `extra_body` (provider switches as data), `status` (`experimental` | `measured`), `serve` (how to start it, text for people) and `notes`.
 - **FR-004** Three profiles ship: `deepseek-flash` (today's values, exactly), `gemma-4-e2b-local` and `qwen3-vl-2b-local` (prices 0, `status: experimental`). Their `api_base` and model names are filled in by the task that runs each server (CLAUDE.md rule 2: nothing guessed).
 - **FR-005** `EPIC_VISION_PROFILE` and `EPIC_TEXT_PROFILE` choose the profiles (default `deepseek-flash`). A profile must list the role it is chosen for.
-- **FR-006** The existing `EPIC_VISION_*` and `EPIC_AGENT_*` variables override the chosen profile's fields when set. `DEEPSEEK_API_KEY` stays the fallback key for the DeepSeek profile (CLAUDE.md rule 5).
+- **FR-006** The existing `EPIC_VISION_*` and `EPIC_AGENT_*` variables override the chosen profile's fields when set. `DEEPSEEK_API_KEY` stays the fallback key for the DeepSeek profile (CLAUDE.md rule 5). The key variables apply only to a profile that takes a key (`api_key_env` not null): a profile that takes none sends none, so a cloud key is never sent to a local server.
 - **FR-007** Profile `model` names are unique across profiles.
 
 ### 4.3 Behaviour
@@ -155,3 +155,4 @@ The owner sets `EPIC_TEXT_PROFILE` to a local profile. The Commentator, the stru
 - Revision 1 (2026-11-13): first draft, from the repository at `ac0c716`.
 - Revision 2 (2026-11-13): FR-001a added. The Android backend (spec 004) will serve the vision and text models in-process through llama.cpp and JNI, as `voice-reps` does. The voice stays ElevenLabs on both platforms.
 - Revision 3 (2026-11-14): brought in line with the layout of spec 002 as merged (`e06bb95`): rule numbers follow the renumbered root `CLAUDE.md` (2 = no guessed APIs, 3 = paid calls, 4 = frames, 5 = keys); the key file is `pc/.env`; the Spotter count matches the 002 baseline (54 calls, 5 new) instead of 0 new.
+- Revision 4 (2026-11-14, T202): `timeout_s` is one value for each role the profile lists, because today's DeepSeek path uses 45 s for the vision call and 60 s for the Commentator's two plain calls and FR-009 keeps both (owner's decision). Two clarifications made while writing the loader: the key rule in FR-006 (a profile without `api_key_env` never gets a key), and `image.detail` takes `request` for "send what the caller asks", which is today's behaviour, where the plan example had a free-text string. `deepseek-flash` names `DEEPSEEK_API_KEY` as its `api_key_env`; the per-role variables `EPIC_VISION_API_KEY` and `EPIC_AGENT_API_KEY` stay the first choice. Written out in `shared/contracts/model-backend.md`.

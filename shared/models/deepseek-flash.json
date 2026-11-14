@@ -1,0 +1,23 @@
+{
+  "id": "deepseek-flash",
+  "label": "DeepSeek (cloud)",
+  "kind": "openai_compatible",
+  "location": "cloud",
+  "roles": ["vision", "text"],
+  "api_base": "https://api.deepseek.com",
+  "model": "deepseek-flash",
+  "api_key_env": "DEEPSEEK_API_KEY",
+  "price_in_per_m": 0.30,
+  "price_out_per_m": 1.20,
+  "call_ceiling_usd": 0.008,
+  "call_mean_usd": 0.0035,
+  "timeout_s": {"vision": 45, "text": 60},
+  "max_parallel": 6,
+  "json_mode": "json_object",
+  "image": {"max_side_px": null, "detail": "request"},
+  "supports_tools": true,
+  "extra_body": {},
+  "status": "measured",
+  "serve": "Cloud API; the key goes in pc/.env as DEEPSEEK_API_KEY (EPIC_VISION_API_KEY and EPIC_AGENT_API_KEY override it per role).",
+  "notes": "The values of vision.py and commentator.py before spec 003; the T003 measurements are in docs/provider-notes.md. The cloud model is the default profile for both roles."
+}

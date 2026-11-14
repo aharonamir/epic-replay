@@ -27,6 +27,7 @@ load_dotenv(ENV_FILE, override=False)
 SHARED = Path(os.environ.get("EPIC_SHARED_DIR") or ROOT / "shared")
 CONTRACTS = SHARED / "contracts"
 STYLES = SHARED / "styles"
+MODELS = SHARED / "models"
 LEXICONS = SHARED / "lexicons"
 ASSETS = SHARED / "assets"
 FONTS = ASSETS / "fonts"

@@ -1,6 +1,6 @@
 # Implementation Plan: Switchable model backends
 
-**Spec**: `specs/003-model-backends/spec.md` · **After**: spec 002 is merged · **Estimate**: about 12 hours
+**Spec**: `specs/003-model-backends/spec.md` (revision 4) · **After**: spec 002 is merged · **Estimate**: about 12 hours
 
 ## 1. Approach
 
@@ -39,15 +39,15 @@ docs/local-models.md                       how to serve each local model (what w
   "roles": ["vision", "text"],
   "api_base": "https://api.deepseek.com",
   "model": "deepseek-flash",
-  "api_key_env": "EPIC_VISION_API_KEY",
+  "api_key_env": "DEEPSEEK_API_KEY",
   "price_in_per_m": 0.30,
   "price_out_per_m": 1.20,
   "call_ceiling_usd": 0.008,
   "call_mean_usd": 0.0035,
-  "timeout_s": 45,
+  "timeout_s": {"vision": 45, "text": 60},
   "max_parallel": 6,
   "json_mode": "json_object",
-  "image": {"max_side_px": null, "detail": "from the request"},
+  "image": {"max_side_px": null, "detail": "request"},
   "supports_tools": true,
   "extra_body": {},
   "status": "measured",
@@ -56,7 +56,7 @@ docs/local-models.md                       how to serve each local model (what w
 }
 ```
 
-The text role reads its key from `EPIC_AGENT_API_KEY` today, so the loader maps `api_key_env` per role: vision `EPIC_VISION_API_KEY`, text `EPIC_AGENT_API_KEY`, both falling back to `DEEPSEEK_API_KEY` for this profile (CLAUDE.md rule 5). T202 decides whether that is a per-role field in the profile or a rule in the loader, and records it in the contract.
+The text role reads its key from `EPIC_AGENT_API_KEY` today and the vision role from `EPIC_VISION_API_KEY`, both falling back to `DEEPSEEK_API_KEY` (CLAUDE.md rule 5). T202 decided: a rule in the loader, not a field. The key of a role is its override variable, then the variable `api_key_env` names (here `DEEPSEEK_API_KEY`); a profile with `api_key_env: null` gets no key (`shared/contracts/model-backend.md`, "Choosing profiles").
 
 ## 4. The client
 
