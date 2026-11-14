@@ -2,7 +2,7 @@
 
 **Feature branch**: `002-platform-split`
 **Created**: 2026-11-13
-**Status**: Approved, revision 7 (the owner accepted every recommendation in section 8 on 2026-11-13; corrections agreed on 2026-11-14, section 11)
+**Status**: Approved and merged (PR #2, 2026-11-14), revision 7 (the owner accepted every recommendation in section 8 on 2026-11-13; corrections agreed on 2026-11-14, section 11)
 **Input**: "I am thinking of converting this app to an Android app ... do you think both deployments can live on the same repo: android and pc? ... let's start with the first spec, read the repository current status and create a spec for the restructuring."
 **Depends on**: `specs/001-epic-replay` as built at `ac0c716` (2026-11-01). This spec changes where files live and how code finds them. It changes no behaviour of the PC app.
 
