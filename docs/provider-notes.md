@@ -13,14 +13,14 @@ Written as the spikes run. Nothing measured yet (2026-10-12).
     can be `audio/l16`, `audio/mulaw`, `audio/alaw`, with `sample_rate`.
   - The text is a verbatim transcript; delivery goes in `style`; inline tags such as `<laugh>`,
     `<short pause>` only for momentary vocal events; custom voices come from Voice design (`voice_...` ids).
-  - Not run yet: `tools/spike_t004.py` is written from this.
+  - Not run yet: `pc/tools/archive/spike_t004.py` is written from this.
 
 ## Measurements
 
-T003 (vision, numbered frames): table goes here, from `eval/spike/t003.md`.
+T003 (vision, numbered frames): table goes here, from `pc/eval/spike/t003.md`.
 ### T004 voices, OpenAI `gpt-4o-mini-tts` (run 2026-10-12, 27 takes, about 0.02 USD)
 
-Measured, not yet listened to (the takes are in `eval/spike/voices/openai/<style>/`; Gemini not run: no key yet).
+Measured, not yet listened to (the takes are in `pc/eval/spike/voices/openai/<style>/`; Gemini not run: no key yet).
 Request: `POST /v1/audio/speech`, `voice`, `instructions` = the pack's delivery string, `response_format: wav`.
 The WAV header has no length (streamed), so duration must be counted from the samples, not read from the header.
 Seconds are speech with silence trimmed; "spread" is the difference between two takes of the same climax line.
@@ -45,7 +45,7 @@ What the numbers say, before any listening:
 
 ### T004 follow-up: louder football shout, OpenAI (24 takes, about 0.02 USD)
 
-Takes in `eval/spike/voices/openai/football_v2/<voice>__<variant>__<line>.wav`; measurements in `eval/spike/t004_football.json`.
+Takes in `pc/eval/spike/voices/openai/football_v2/<voice>__<variant>__<line>.wav`; measurements in `pc/eval/spike/t004_football.json`.
 Variants: `roar`, `joy`, `frenzy` (stronger `instructions`); lines: `full` "OFF THE POST AND IN! Unbelievable!", `short` "OFF THE POST AND IN!".
 Acoustic proxies only (RMS of the speech, median pitch); the owner's ear decides.
 Old baseline (ash, "shouting, full voice"): RMS 0.083, median pitch 137 Hz, 4.0 s.
@@ -56,7 +56,7 @@ The short line is about 2 s in most voices, which fits the 2.0 s climax slot; th
 
 ### T004 result: ElevenLabs (19 takes, 0.0705 USD by estimate at 0.10 USD per 1,000 characters; not checked against billing)
 
-Takes in `eval/spike/voices/elevenlabs/<style>/`; measurements in `eval/spike/t004_eleven.json`; script `tools/spike_t004_eleven.py --chosen`.
+Takes in `pc/eval/spike/voices/elevenlabs/<style>/`; measurements in `pc/eval/spike/t004_eleven.json`; script `pc/tools/archive/spike_t004_eleven.py --chosen`.
 Account: Starter, 40,000 characters. The key needs `voices_read` (to list), `models_read`, `user_read`; `voices_write` is missing and was not needed:
 a shared-library voice id synthesised without being added to the account. Request: POST `/v1/text-to-speech/{voice_id}?output_format=mp3_44100_128`, header `xi-api-key`, body `{text, model_id}`.
 The legacy ids for "Rachel" and "Josh" now point at other voices (Janet, Craig): always use the ids below.
@@ -113,7 +113,7 @@ Several clips got a high point at frame 240 to 262 whatever the clip length, whi
 
 ### T003 option 2 trial: code-chosen windows, one clip (basket_ball_shot, label 2.9 s), 2026-10-14
 
-`tools/spike_t003_motion.py`: motion curve gives five windows (1.1-4.1, 3.4-6.4, 5.5-8.5, 7.5-10.5, 13.0-16.0 s), 58 frames at 4 fps, high detail, then the 61-frame zoom. Three repeats, 0.040 USD.
+`pc/tools/archive/spike_t003_motion.py`: motion curve gives five windows (1.1-4.1, 3.4-6.4, 5.5-8.5, 7.5-10.5, 13.0-16.0 s), 58 frames at 4 fps, high detail, then the 61-frame zoom. Three repeats, 0.040 USD.
 Outcome was right in all three ("made basket"). Key-moment error: repeat 0 +161 frames, repeat 1 +154 (the model named frames 248 and 241, about 8.2 s), repeat 2 +14 overview and +2 zoom (within 0.5 s and 0.07 s).
 Two of three answers point at about 8.2 s, a second moment in the clip; the model earlier called it "the final shot". Label ambiguity (two baskets?) to be checked by the owner.
 Update: the owner confirms a second basket at about 8 s, so the clip has two valid high points (label now has `other_climax_t: [8.0]`). Scored against either, all three repeats were right: the zoom answers were 7.93 s, 7.90 s and 2.97 s, within 3 to 4 frames of a basket. The play sheet already has `climax.candidates`; the play card's nudge covers a choice between them.
@@ -136,9 +136,9 @@ One sheet call (one 3x3 image, high detail, `deepseek-flash`) costs more than th
 
 ### T003 contact sheets (2026-10-20): results and Gate 0
 
-`tools/spike_t003_sheets.py`, `deepseek-flash`, high detail, two repeats per clip. Per repeat: two overview sheets and one sheet of plus or minus 1.5 s around each of the top **5** signal candidates (spike only; the design uses 3), then refining passes on the surest sheet, then the sound snap. Working copies at 30 fps; tolerance `EPIC_KEYFRAME_TOL_S` 0.25 s = 8 frames. Eight of the nine clips were run: **fk_save was not run**; the 0.60 USD spend cap stopped the spike before it (12 of its calls are recorded, unused). Scores are from a replay rescore with no new calls (`EPIC_PROVIDER_MODE=replay`), after the FlippingPancakes label gained its second flip.
+`pc/tools/archive/spike_t003_sheets.py`, `deepseek-flash`, high detail, two repeats per clip. Per repeat: two overview sheets and one sheet of plus or minus 1.5 s around each of the top **5** signal candidates (spike only; the design uses 3), then refining passes on the surest sheet, then the sound snap. Working copies at 30 fps; tolerance `EPIC_KEYFRAME_TOL_S` 0.25 s = 8 frames. Eight of the nine clips were run: **fk_save was not run**; the 0.60 USD spend cap stopped the spike before it (12 of its calls are recorded, unused). Scores are from a replay rescore with no new calls (`EPIC_PROVIDER_MODE=replay`), after the FlippingPancakes label gained its second flip.
 
-Strict: `climax_t` only. Any: the nearest valid moment (`climax_t` or `other_climax_t`). Errors in frames, the model's frame minus the label. No-snap: before the sound snap. Outcome (owner): the owner's verdict on the model's outcome against the real video (`eval/spike/t003_outcomes.json`). The `s` column is the repeat's call time, the calls made one after another; basket_ball_shot repeat 0 shows 0.0 because its answers came from the recordings of a run that crashed before writing its results, so its latency was not kept.
+Strict: `climax_t` only. Any: the nearest valid moment (`climax_t` or `other_climax_t`). Errors in frames, the model's frame minus the label. No-snap: before the sound snap. Outcome (owner): the owner's verdict on the model's outcome against the real video (`pc/eval/spike/t003_outcomes.json`). The `s` column is the repeat's call time, the calls made one after another; basket_ball_shot repeat 0 shows 0.0 because its answers came from the recordings of a run that crashed before writing its results, so its latency was not kept.
 
 | clip | label (s) | near a candidate | repeat | outcome (model) | outcome (owner) | method | answer (s) | err strict | err any | no-snap strict | no-snap any | within tol strict | within tol any | agreed | retries | s | USD |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
@@ -231,7 +231,7 @@ The key-moment line is no, so plan.md section 6 applies: the play card opens wit
 
 ### Z1: Mandarin voices, 2026-10-30 (owner's yes, cap 0.06 USD; 0.0153 USD at the 0.10 per 1,000 rate)
 
-`tools/spike_z1_zh.py`, 12 takes, every one through `with-timestamps` with `language_code: zh`. Takes in `eval/spike/zh_voices/`, numbers in `eval/spike/z1_zh.json`.
+`pc/tools/archive/spike_z1_zh.py`, 12 takes, every one through `with-timestamps` with `language_code: zh`. Takes in `pc/eval/spike/zh_voices/`, numbers in `pc/eval/spike/z1_zh.json`.
 
 Heard by the owner (2026-10-30): `eleven_v3` with `[excited] [shouts]` shouts very well; `eleven_v4` with the same tags does not shout, it only speaks faster; the calm football take may be too calm for football; the News and Nature calm takes are fine. So v3 stays.
 

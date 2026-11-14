@@ -28,7 +28,7 @@ from openjiuwen.core.foundation.tool import ToolCard, LocalFunction
 
 ## The five questions (plan.md section 3) - RUN 2026-10-12, three small live calls (about 0.001 USD each)
 
-Decision: **agent-core `ReActAgent` is used** (no hand-written loop). Evidence: `tools/spike_t002.py`.
+Decision: **agent-core `ReActAgent` is used** (no hand-written loop). Evidence: `pc/tools/archive/spike_t002.py`.
 
 | # | Question | Answer |
 |---|----------|--------|
@@ -47,7 +47,7 @@ Other findings:
 
 The local agent-core checkout (`/home/amir/workspace/agent-core`, ahead of the PyPI 0.1.19 release,
 installed editable with `uv pip install -e ... --no-deps`) also offers `openjiuwen.harness.create_deep_agent`.
-`examples/deep_agent_vision.py` follows taketwo's `VisionBuilder`: `create_deep_agent(model=Model(...),
+`pc/tools/archive/deep_agent_vision.py` follows taketwo's `VisionBuilder`: `create_deep_agent(model=Model(...),
 tools=[], rails=[SysOperationRail(enable_read_image_multimodal=True)], enable_read_image_multimodal=True,
 workspace=...)`. It builds offline (RUN); the model call is not run yet (`--yes`, one small image call).
 Model is `Model(model_client_config=ModelClientConfig(client_provider="OpenAI", api_key, api_base, timeout,

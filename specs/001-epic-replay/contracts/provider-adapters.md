@@ -129,4 +129,4 @@ Rules for both adapters:
 
 A fallback for each interface (a second vision provider as escalation, a second speech provider with a voice per style), a `FrameInterpolator` adapter for RIFE, and a Verifier agent. See plan.md section 4.15.
 
-Sound effects and music have no runtime adapter: the library is built once by a script in `tools/make_sound_library.py` and checked in (FR-027). The same script makes the five-second sample clip for each style pack.
+Sound effects and music have no runtime adapter: the library is built once by a script in `pc/tools/make_sound_library.py` and checked in (FR-027). The same script makes the five-second sample clip for each style pack.

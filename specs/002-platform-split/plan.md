@@ -1,6 +1,6 @@
 # Implementation Plan: One repository for the PC app and an Android app
 
-**Spec**: `specs/002-platform-split/spec.md` (revision 2, approved 2026-11-13)
+**Spec**: `specs/002-platform-split/spec.md` (revision 7, approved 2026-11-13, corrected 2026-11-14)
 **Base**: `main` at `ac0c716`
 **Estimate**: about 14 hours, two working days, one person (tasks.md)
 
@@ -26,7 +26,7 @@ epic-replay/
   shared/
     README.md               what each folder holds; who reads it
     contracts/              4 *.schema.json, lexicon.schema.json, conformance.schema.json
-      examples/             play_sheet, storyboard, script examples
+                            (their example is fixtures/sample_run; revision 5)
     styles/                 football_commentator.json, news_reporter.json,
                             nature_documentary.json, voices.json
     lexicons/               en.json, zh.json, README.md (matching rules, regex subset)
@@ -35,7 +35,7 @@ epic-replay/
       sample_run/           clip_meta, play_sheet, script, storyboard, user_context
       planted_errors/       6 scripts
       zh/                   zh_sentences.json, zh_alignment_shout.json
-    conformance/            <area>/<case>/case.json, input/, expected/
+    conformance/            <area>/<case>/case.json, expected/ when the output is large
   pc/
     CLAUDE.md               commands, pc layout, pc-only rules
     pyproject.toml  .env.example  .env (local, gitignored)
@@ -67,7 +67,7 @@ epic-replay/
 | `assets/**` | `shared/assets/**` | T106 |
 | `src/epic_replay/styles/*.json` (4 files) | `shared/styles/` | T106 |
 | `specs/001-epic-replay/contracts/*.schema.json` (4) | `shared/contracts/` | T106 |
-| `specs/001-epic-replay/contracts/examples/*.example.json` (3) | `shared/contracts/examples/` | T106 |
+| `specs/001-epic-replay/contracts/examples/*.example.json` (3) | `shared/contracts/examples/` (T106), then removed as twins of the sample run (T108, revision 5) | T106, T108 |
 | `specs/001-epic-replay/contracts/examples/styles/` (3 drifted packs) | deleted; `examples/README.md` points to `shared/styles/` | T106 |
 | `tests/fixtures/sample_run/` | `shared/fixtures/sample_run/` | T106 |
 | `tests/planted_errors/` | `shared/fixtures/planted_errors/` | T106 |
@@ -124,19 +124,22 @@ Tests: 20 test files read fixtures through relative strings such as `"tests/fixt
 
 `shared/lexicons/zh.json` holds `age`, `female`, `female_pronoun`, `appearance`, `ability`, `profanity`, `real_people`, `outlets`, `newsroom`, `famous_names` (each term with its English gloss), `allowed` (phrases masked first), `allowed_when` (pattern → gloss), `not_numbers`, `not_numbers_when`, `numeral_run` (the pattern), `digits` and `units`. `lexicon_zh.py` keeps `find_banned`, `famous_names` and `numbers_in`.
 
-`shared/lexicons/README.md` states the matching each platform implements: English whole-word, case-insensitive, extra terms from the pack; Mandarin substring after masking `allowed` and `allowed_when`, single characters banned only where listed (`她`), numerals read through `numeral_run`, `digits` and `units`, ignoring `not_numbers` and `not_numbers_when`. It lists the allowed regex syntax: literals, character classes, `(?=…)` and `(?!…)` lookahead, `|`, `?`, `*`, `+`, `{m,n}`, non-capturing groups. No lookbehind, named groups, inline flags or Python-only escapes. `test_shared.py` checks every stored pattern against that list and that it compiles in Python.
+`shared/lexicons/README.md` states the matching each platform implements: English whole-word, case-insensitive, extra terms from the pack; Mandarin substring after masking `allowed` and `allowed_when`, single characters banned only where listed (`她`), numerals read through `numeral_run`, `digits` and `units`, ignoring `not_numbers` and `not_numbers_when`. It lists the allowed regex syntax: literals, character classes, `(?=…)` and `(?!…)` lookahead, negative lookbehind over one character class `(?<![…])` (used by `numeral_run` and one `not_numbers_when` pattern; agreed 2026-11-14), `|`, `?`, `*`, `+`, `{m,n}`, non-capturing groups. No other lookbehind, no named groups, inline flags or Python-only escapes. `test_shared.py` checks every stored pattern against that list and that it compiles in Python.
 
 ## 6. Conformance suite
 
 **Format.** `shared/conformance/<area>/<case>/case.json`:
 
 ```json
-{"area": "slots", "function": "slots.build", "language": "zh",
- "inputs": {"storyboard": "input/storyboard.json", "pack": "styles:football_commentator"},
- "expected": "expected/slots.json", "tolerance_s": 0.001}
+{"area": "slots", "function": "slots.build", "language": "zh", "description": "…",
+ "tolerance_s": 0.001,
+ "inputs": {"storyboard": {"fixture": "sample_run/storyboard.json"},
+            "pack": {"style": "football_commentator", "language": "zh"},
+            "climax_event_id": {"value": "e6"}},
+ "expected": {"file": "expected/output.json"}}
 ```
 
-A `styles:<id>` input means the shared pack, so cases follow pack changes only through a spec change. `shared/contracts/conformance.schema.json` validates `case.json`.
+Each input and the expected output is a reference: an inline `value`, a `file` in the case folder (or another case's expected output), a shared `fixture`, or a `style` pack as a language sees it. A `fixture` or `file` may carry `slice`, `field` and a JSON `merge_patch` (RFC 7386), so a variant of the sample run (the climax moved, a shorter clip) is a few lines in `case.json`, not a near copy of a fixture. Small expected outputs are inline; large ones are `expected/output.json`; one that equals a fixture points at it. That keeps every file once (SC-5): the sample storyboard is not copied, and two cases never hold the same `[]` file. (Revision 6, T109: the plan first had `input/` and `expected/` files only and `styles:<id>` strings.) A `style` input means the shared pack, so cases follow pack changes only through a spec change. `shared/contracts/conformance.schema.json` validates `case.json`; `shared/conformance/README.md` describes the format and the functions for a port. The dispatch from a function name to the Python code is `epic_replay.conformance`, used by both the generator and the runner.
 
 **Areas and the Python functions behind them**
 
@@ -151,9 +154,9 @@ A `styles:<id>` input means the shared pack, so cases follow pack changes only t
 
 That is over 30 cases. Signal-scan numbers (optical flow, onsets) are not frozen here: they differ by small amounts between OpenCV builds; spec 004 decides their tolerance.
 
-**Generation.** `pc/tools/make_conformance.py` writes the cases once, from the moved code, after T106 shows the sample run byte-identical to the baseline. It refuses to overwrite an existing `expected/` file, as the golden test does.
+**Generation.** `pc/tools/make_conformance.py` writes the cases once, from the moved code, after T106 shows the sample run byte-identical to the baseline. It never rewrites a case whose folder exists, as the golden test never rewrites its file; a case whose expected output is a fixture is checked against it instead of written.
 
-**Runner.** `pc/tests/unit/test_conformance.py` loads every `case.json`, calls the named function, and compares with the expected file (numbers within the tolerance, everything else exactly). A deliberately broken expected file must fail it (checked once by hand, not committed).
+**Runner.** `pc/tests/unit/test_conformance.py` loads every `case.json`, calls the named function, and compares with the expected file (numbers within the tolerance, everything else exactly). A deliberately broken expected file must fail it (checked once by hand, not committed; `test_a_changed_expected_output_fails` also does it on a copy in a temporary folder).
 
 ## 7. CI
 

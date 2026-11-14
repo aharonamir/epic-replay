@@ -1,0 +1,39 @@
+{
+  "area": "lexicon",
+  "function": "lexicon.scan",
+  "language": "zh",
+  "description": "Every Mandarin profanity term is caught inside a sentence.",
+  "inputs": {
+    "language": {
+      "value": "zh"
+    },
+    "texts": {
+      "value": [
+        "看，他妈的来了",
+        "看，妈的来了",
+        "看，操你来了",
+        "看，傻逼来了",
+        "看，牛逼来了",
+        "看，卧槽来了",
+        "看，我靠来了",
+        "看，草泥马来了",
+        "看，尼玛来了",
+        "看，混蛋来了",
+        "看，王八蛋来了",
+        "看，狗屎来了",
+        "看，婊子来了",
+        "看，贱人来了",
+        "看，黑鬼来了",
+        "看，支那来了",
+        "看，鬼子来了",
+        "看，阿三来了"
+      ]
+    },
+    "extra": {
+      "value": []
+    }
+  },
+  "expected": {
+    "file": "expected/output.json"
+  }
+}

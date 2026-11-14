@@ -79,7 +79,7 @@ To be confirmed by running, then written into `docs/local-models.md` and the pro
 
 ## 6. Measurement (T207)
 
-`spotter_check.py --profile <id>` replays nothing for a new profile: it records live calls (free for local profiles) on the 8 starter clips with 2 repeats, and writes `eval/spike/<id>.md` with the T003 columns plus latency per call. The owner marks the outcome descriptions in the HTML report as in T003. Results go into `docs/provider-notes.md`, "Model profiles", with DeepSeek's T003 row for comparison.
+`spotter_check.py --profile <id>` replays nothing for a new profile: it records live calls (free for local profiles) on the 8 starter clips with 2 repeats, and writes `pc/eval/spike/<id>.md` with the T003 columns plus latency per call. The owner marks the outcome descriptions in the HTML report as in T003. Results go into `docs/provider-notes.md`, "Model profiles", with DeepSeek's T003 row for comparison.
 
 ## 7. Risks
 

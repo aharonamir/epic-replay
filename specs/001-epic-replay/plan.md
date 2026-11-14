@@ -19,7 +19,7 @@ One person builds it in ten working days. That is 80 hours, and the full design 
 | Media | FFmpeg and ffprobe 8.x (8.0.1 installed). Slow motion from real frames or FFmpeg blending; RIFE is a stretch item |
 | Graphics | HTML and CSS templates rendered with Playwright (headless Chromium) |
 | Web | One page served by FastAPI: a server-rendered template, HTMX for partial updates, a little plain JavaScript, server-sent events for progress. No build step. Works in a phone browser (contracts/ui.md). Looks as in contracts/design.md |
-| Narration styles | Style packs: JSON files in `src/epic_replay/styles/`, validated at start-up. Three in the MVP |
+| Narration styles | Style packs: JSON files in `shared/styles/`, validated at start-up. Three in the MVP |
 | Storage | Files under `runs/<run_id>/`; no database |
 | Providers | DeepSeek `deepseek-flash` for both agents and for looking at frames, through agent-core's OpenAI-compatible client and our own vision adapter. Gemini 3.8 Flash TTS for the three voices. Model name, base URL and key are configuration, so either can be swapped without code changes |
 | Testing | pytest; recorded provider responses; one hand-written fixture run; 8 to 12 labelled clips across sport, tricks, pets, family and everyday moments |
@@ -119,7 +119,7 @@ Full input and output contracts are in contracts/stage-contracts.md.
 ### 4.2 S0 Intake and S1 Signal scan
 
 - S0 validates the upload (FR-001), reads metadata with ffprobe, fixes rotation, and writes a constant-frame-rate working copy at up to 1080p, with the sound kept because S1 needs it. It keeps the true capture rate when the container reports one, because S9 needs it.
-- S1 (revision 7) proposes candidate moments from cheap local signals, one value per frame; nothing leaves the machine. Code: `src/epic_replay/stages/s1_signals.py` (T011); test clip: `tools/make_test_clip.py`.
+- S1 (revision 7) proposes candidate moments from cheap local signals, one value per frame; nothing leaves the machine. Code: `pc/src/epic_replay/stages/s1_signals.py` (T011); test clip: `pc/tools/make_test_clip.py`.
   - **Camera movement** is estimated from dense optical flow (OpenCV DIS) as a similarity transform fitted with RANSAC, so a shaky phone does not count as action. The handoff's motion curve (mean frame difference) was dominated by camera movement and cuts; this is the fix.
   - **Motion** is the larger of two curves taken with the camera removed: the flow left over (bodies, larger objects), and the pixel change left over once the previous frame is moved the way the camera moved (small fast objects such as a ball, which flow misses).
   - **Cuts** are frames where more than a third of the picture changed even after the camera fit, and far more than usual for the clip. Motion within 3 frames of a cut is ignored.
@@ -131,7 +131,7 @@ Full input and output contracts are in contracts/stage-contracts.md.
 
 DeepSeek's API takes still images, not video or sound. Revision 7 changes how the frames are shown. The first spike sent up to 60 numbered frames per call and asked for the frame number of the high point: the median error was about 2.3 s, and two runs of the same input often disagreed (docs/provider-notes.md). The model is good at saying what happens and poor at reading a frame number off one image among sixty.
 
-- **Contact sheets.** Nine frames go into one 3x3 image, each cell marked 1 to 9 in its top-left corner (`src/epic_replay/media/contact_sheet.py`; the idea is HotClip's). The model answers with a cell; code knows which frame each cell is, so no time is ever read from the model's text. The same frames give the same JPEG bytes on every run, so recorded calls replay. One sheet is one image, so a call costs about what one frame did before.
+- **Contact sheets.** Nine frames go into one 3x3 image, each cell marked 1 to 9 in its top-left corner (`pc/src/epic_replay/media/contact_sheet.py`; the idea is HotClip's). The model answers with a cell; code knows which frame each cell is, so no time is ever read from the model's text. The same frames give the same JPEG bytes on every run, so recorded calls replay. One sheet is one image, so a call costs about what one frame did before.
 - **The Spotter runs as a fixed sequence** in the MVP (revision 7). Its tools are plain functions, so the agent-core ReAct loop over them can be added back later (section 4.15):
 
   | Tool | Arguments | Does | Returns |
@@ -251,7 +251,7 @@ FFmpeg concatenates the segments, overlays the graphics, muxes the mix and encod
 
 ### 4.13 Narration styles
 
-A style is one JSON file (contracts/style_pack.schema.json; three examples in contracts/examples/styles/).
+A style is one JSON file (shared/contracts/style_pack.schema.json; the three packs in shared/styles/).
 
 | Part of the pack | Used by | Effect |
 |------------------|---------|--------|
@@ -281,7 +281,7 @@ Rules that keep styles safe to add:
 - Packs are validated at start-up against the schema, and every voice id and asset path is checked to exist. A pack that fails is left out of the picker and logged.
 - A pack cannot reach the checks, the storyboard or the play sheet. It supplies text to a prompt, numbers to the slot builder and file names to the mix and graphics.
 - Sample lines in a pack are invented and are passed to the Commentator as register only, with an instruction not to reuse them. A code check rejects a line that repeats one.
-- Each pack has a sample clip of about five seconds for the picker, generated once with its own voice and stored in `assets/samples/`.
+- Each pack has a sample clip of about five seconds for the picker, generated once with its own voice and stored in `shared/assets/samples/`.
 
 ### 4.14 The page
 
@@ -309,7 +309,7 @@ The page address carries the run id, so a reload or a second device shows the sa
 | 30-clip evaluation set, five-person viewer test | evaluation | 8 to 12 clips; three viewers during rehearsal | 6 h |
 | Blind read to choose the writer model | S5 | DeepSeek Flash writes, as chosen by the owner | 1 h |
 | The Spotter's ReAct loop (revision 7) | S2, S3 | The fixed sequence of section 4.3 runs on every clip, with the same tools and validators. The Commentator is the only ReAct agent | 1 to 2 h |
-| Refining passes on the key moment (revision 8) | S3 | The overview's cell, snapped to a sound onset, is a proposal; the user picks the moment on the play card. `EPIC_SHEET_PASSES` and `tools/spike_t003_sheets.py` keep the procedure for when a model does better | 1 h |
+| Refining passes on the key moment (revision 8) | S3 | The overview's cell, snapped to a sound onset, is a proposal; the user picks the moment on the play card. `EPIC_SHEET_PASSES` and `pc/tools/archive/spike_t003_sheets.py` keep the procedure for when a model does better | 1 h |
 | The second look (revision 8) | S2 | One overview look; the play card is where fields are corrected. US2 scenario 1 is not met | 1 h |
 | Code-check rules 2, 3, 7, 9 and 10 (revision 7) | S6 | Rules 1, 4, 5, 6 and 8, which catch all five kinds of planted error code can see | 2 h |
 | The Nature documentary pack (revision 7) | styles | Two narrators: Football commentator and News reporter | 2 h |
@@ -347,7 +347,7 @@ epic-replay/
     api-notes.md          # T002 framework answers
     provider-notes.md     # T003 to T005 measurements and decisions
     eval-notes.md         # T028, T036 results
-  src/epic_replay/
+  pc/src/epic_replay/
     flow/                 # plain runner, stage events, re-run and seeding
     stages/               # s00_intake.py ... s10_compose.py, one file per stage
     agents/               # spotter and commentator: agent-core ReActAgent set-up, prompts, tools, coded fallbacks
@@ -357,21 +357,28 @@ epic-replay/
     graphics/             # HTML templates, renderer, skins/ with one CSS file per style
     guards/               # consent, budget, content rules, banned lexicon
     web/                  # FastAPI app, the one page template, copy.py, static
-  assets/
-    sfx/  music/  samples/  fonts/  brand/  LICENCES.md
-  tools/
+  pc/tools/
     make_sound_library.py # one-off generation of the sound library (T021)
+  pc/tests/
+    unit/
+    fixtures/             # recordings/ and english_golden.json (PC only)
+  pc/runs/                # not committed
+  pc/demo/                # cached runs and the backup video
+  shared/
+    contracts/            # the JSON schemas
+    styles/               # the style packs and voices.json
+    lexicons/             # the banned-word lists
+    assets/               # sfx/  music/  samples/  fonts/  brand/  LICENCES.md
+    fixtures/
+      sample_run/         # hand-written run: every stage's output
+      planted_errors/     # seeded scripts for SC-3
   eval/
     clips/                # not committed
     labels/               # one JSON per clip
     run_eval.py
-  runs/                   # not committed
-  demo/                   # cached runs and the backup video
-  tests/
-    fixtures/sample_run/  # hand-written run: every stage's output
-    planted_errors/       # ten seeded scripts for SC-3
-    unit/
 ```
+
+Since spec 002 (platform split) the Python app lives in `pc/` and the data both apps read in `shared/`; `specs/002-platform-split/plan.md` section 2 has the whole tree.
 
 ## 6. Schedule and gates
 

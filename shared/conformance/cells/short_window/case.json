@@ -1,0 +1,38 @@
+{
+  "area": "cells",
+  "function": "cells.narrow",
+  "language": null,
+  "description": "A window shorter than nine frames gives nine consecutive frames.",
+  "inputs": {
+    "start_s": {
+      "value": 5.0
+    },
+    "end_s": {
+      "value": 5.1
+    },
+    "fps": {
+      "value": 30
+    },
+    "n_frames": {
+      "value": 450
+    },
+    "picks": {
+      "value": []
+    }
+  },
+  "expected": {
+    "value": [
+      [
+        150,
+        151,
+        152,
+        153,
+        154,
+        155,
+        156,
+        157,
+        158
+      ]
+    ]
+  }
+}

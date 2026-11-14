@@ -1,0 +1,63 @@
+{
+  "area": "cells",
+  "function": "cells.narrow",
+  "language": null,
+  "description": "Cells 1 and 9 refine from the first and last cells.",
+  "inputs": {
+    "start_s": {
+      "value": 0.0
+    },
+    "end_s": {
+      "value": 10.0
+    },
+    "fps": {
+      "value": 25
+    },
+    "n_frames": {
+      "value": 300
+    },
+    "picks": {
+      "value": [
+        1,
+        9
+      ]
+    }
+  },
+  "expected": {
+    "value": [
+      [
+        0,
+        31,
+        62,
+        94,
+        125,
+        156,
+        188,
+        219,
+        250
+      ],
+      [
+        0,
+        4,
+        8,
+        12,
+        16,
+        19,
+        23,
+        27,
+        31
+      ],
+      [
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35
+      ]
+    ]
+  }
+}

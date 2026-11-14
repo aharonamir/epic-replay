@@ -1,0 +1,31 @@
+{
+  "area": "checks",
+  "function": "checks.check",
+  "language": "zh",
+  "description": "Planted error in Mandarin: a banned term, caught on its line.",
+  "inputs": {
+    "script": {
+      "fixture": "planted_errors/zh_banned_term.json"
+    },
+    "play_sheet": {
+      "fixture": "sample_run/play_sheet.json"
+    },
+    "user_context": {
+      "fixture": "sample_run/user_context.json"
+    },
+    "pack": {
+      "style": "football_commentator",
+      "language": "zh"
+    }
+  },
+  "expected": {
+    "value": [
+      {
+        "where": "l5",
+        "rule": 8,
+        "kind": "banned_term",
+        "detail": "'老人' is a banned term"
+      }
+    ]
+  }
+}

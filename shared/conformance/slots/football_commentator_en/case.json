@@ -1,0 +1,22 @@
+{
+  "area": "slots",
+  "function": "slots.build",
+  "language": "en",
+  "description": "The sample storyboard's slots in football_commentator, en.",
+  "tolerance_s": 0.001,
+  "inputs": {
+    "storyboard": {
+      "fixture": "sample_run/storyboard.json"
+    },
+    "pack": {
+      "style": "football_commentator",
+      "language": "en"
+    },
+    "climax_event_id": {
+      "value": "e6"
+    }
+  },
+  "expected": {
+    "file": "expected/output.json"
+  }
+}

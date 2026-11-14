@@ -1,0 +1,51 @@
+{
+  "area": "cells",
+  "function": "cells.narrow",
+  "language": null,
+  "description": "A window past the clip's end keeps nine frames inside the clip; picking cell 9 narrows at the end.",
+  "inputs": {
+    "start_s": {
+      "value": 14.9
+    },
+    "end_s": {
+      "value": 15.5
+    },
+    "fps": {
+      "value": 30
+    },
+    "n_frames": {
+      "value": 450
+    },
+    "picks": {
+      "value": [
+        9
+      ]
+    }
+  },
+  "expected": {
+    "value": [
+      [
+        441,
+        442,
+        443,
+        444,
+        445,
+        446,
+        447,
+        448,
+        449
+      ],
+      [
+        441,
+        442,
+        443,
+        444,
+        445,
+        446,
+        447,
+        448,
+        449
+      ]
+    ]
+  }
+}

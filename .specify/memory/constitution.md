@@ -1,6 +1,6 @@
 # Epic Replay Constitution
 
-Version 1.4 (2026-10-12). These principles override convenience. A change to any of them is a spec change: update this file, then spec.md, plan.md and tasks.md in the same commit.
+Version 1.5 (2026-11-14; 1.4 was 2026-10-12). These principles override convenience. A change to any of them is a spec change: update this file, then spec.md, plan.md and tasks.md in the same commit.
 
 ## I. The play is the source of truth
 
@@ -41,6 +41,10 @@ Each paid stage has a free or cheaper fallback, down to a version with frame-ble
 ## X. A style changes the telling, never the facts
 
 A narration style is data: persona, voice, delivery, pace, sound and skin. It cannot add facts, move the picture, or switch off a check. Two styles of one play must agree on what happened.
+
+## XI. One contract, every platform
+
+Data both apps use lives once, in `shared/`. Each platform proves its behaviour against the shared conformance cases. (Added in 1.5 by `specs/002-platform-split`, decision D4.)
 
 ## Governance
 

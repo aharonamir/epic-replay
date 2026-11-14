@@ -1,0 +1,44 @@
+{
+  "area": "lexicon",
+  "function": "lexicon.scan",
+  "language": "zh",
+  "description": "她 is the one single character banned; 她们 holds it.",
+  "inputs": {
+    "language": {
+      "value": "zh"
+    },
+    "texts": {
+      "value": [
+        "她来了",
+        "她们来了",
+        "他来了"
+      ]
+    },
+    "extra": {
+      "value": []
+    }
+  },
+  "expected": {
+    "value": [
+      {
+        "banned": [
+          "她"
+        ],
+        "famous_names": [],
+        "numbers": []
+      },
+      {
+        "banned": [
+          "她"
+        ],
+        "famous_names": [],
+        "numbers": []
+      },
+      {
+        "banned": [],
+        "famous_names": [],
+        "numbers": []
+      }
+    ]
+  }
+}

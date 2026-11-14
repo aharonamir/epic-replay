@@ -1,0 +1,42 @@
+{
+  "area": "storyboard",
+  "function": "storyboard.build",
+  "language": null,
+  "description": "A 30 s clip: trimmed around the climax at 18 s.",
+  "tolerance_s": 0.001,
+  "inputs": {
+    "play_sheet": {
+      "fixture": "sample_run/play_sheet.json",
+      "merge_patch": {
+        "climax": {
+          "t": 18.0
+        },
+        "events": [
+          {
+            "id": "e6",
+            "t_start": 18.0,
+            "t_end": 18.0,
+            "actor": null,
+            "action": "ball enters the goal in the top-left corner, under the crossbar",
+            "object": "ball",
+            "outcome": "goal",
+            "confidence": 0.8,
+            "source": "model"
+          }
+        ]
+      }
+    },
+    "clip_meta": {
+      "fixture": "sample_run/clip_meta.json",
+      "merge_patch": {
+        "duration_s": 30.0
+      }
+    },
+    "min_output_s": {
+      "value": 20.0
+    }
+  },
+  "expected": {
+    "file": "expected/output.json"
+  }
+}

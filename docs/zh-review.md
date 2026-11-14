@@ -1,6 +1,6 @@
 # Chinese review (Z5, not committed until the owner agrees)
 
-Every Chinese term and line the build uses, with its English meaning. Terms come from `src/epic_replay/guards/lexicon_zh.py`.
+Every Chinese term and line the build uses, with its English meaning. Terms come from `shared/lexicons/zh.json`.
 
 ## Age words (41)
 

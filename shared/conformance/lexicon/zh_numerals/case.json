@@ -1,0 +1,36 @@
+{
+  "area": "lexicon",
+  "function": "lexicon.scan",
+  "language": "zh",
+  "description": "Chinese numerals are read as numbers; 一 alone, ordinals and fixed phrases are not.",
+  "inputs": {
+    "language": {
+      "value": "zh"
+    },
+    "texts": {
+      "value": [
+        "十五分钟",
+        "二〇二六年",
+        "一千万",
+        "两百零三",
+        "十分精彩",
+        "十分钟",
+        "千万小心",
+        "一千万人",
+        "第三次",
+        "一脚",
+        "十足的把握",
+        "三五个人",
+        "他用了二十秒",
+        "九十九",
+        "一万零五百"
+      ]
+    },
+    "extra": {
+      "value": []
+    }
+  },
+  "expected": {
+    "file": "expected/output.json"
+  }
+}

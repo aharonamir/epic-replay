@@ -2,7 +2,7 @@
 
 **Feature branch**: `002-platform-split`
 **Created**: 2026-11-13
-**Status**: Approved, revision 3 (the owner accepted every recommendation in section 8 on 2026-11-13)
+**Status**: Approved, revision 7 (the owner accepted every recommendation in section 8 on 2026-11-13; corrections agreed on 2026-11-14, section 11)
 **Input**: "I am thinking of converting this app to an Android app ... do you think both deployments can live on the same repo: android and pc? ... let's start with the first spec, read the repository current status and create a spec for the restructuring."
 **Depends on**: `specs/001-epic-replay` as built at `ac0c716` (2026-11-01). This spec changes where files live and how code finds them. It changes no behaviour of the PC app.
 
@@ -49,7 +49,7 @@ After the move, the owner installs and runs the PC app with the updated commands
 
 1. **Given** the repository before the move with all tests passing, **when** the restructure is complete, **then** the same number of tests pass, none fail, and `ruff check` and `ruff format --check` are clean.
 2. **Given** `tests/fixtures/english_golden.json`, **when** the golden test runs after the move, **then** it passes and the file is not rewritten.
-3. **Given** the recorded provider replies, **when** the Spotter check runs in count mode on the starter clips, **then** it reports 0 new calls.
+3. **Given** the recorded provider replies, **when** the Spotter check runs in count mode on the starter clips, **then** it reports the same calls and the same new calls as before the move (the baseline: 54 calls, 5 new).
 4. **Given** the owner's cached demo runs moved as the migration note says, **when** the page opens `/demo/flipping_pancakes_football_refreshed`, **then** it plays as before.
 
 ### US2 - One place to change shared data (Priority: P1)
@@ -98,7 +98,7 @@ A new Claude Code session can begin the Android spec with `shared/`, `specs/` an
 - **The editable install points at the old path.** After the move the virtual environment must be reinstalled from `pc/`; the setup steps say so.
 - **Recordings are gitignored but tracked.** They move with `git mv` and stay tracked; the `.gitignore` entry moves with them.
 - **The historical `tools/` spikes** hard-code repository paths. They are either updated to the new paths or moved to `pc/tools/archive/` and marked as not maintained.
-- **Word-list patterns.** The Mandarin lists hold regular expressions (`ALLOWED_WHEN`, `NOT_NUMBERS_WHEN`, `NUMERAL_RUN`). Patterns stored as data must use only syntax that behaves the same in Python `re` and in Java/Kotlin regex (lookahead yes; no Python-only constructs).
+- **Word-list patterns.** The Mandarin lists hold regular expressions (`ALLOWED_WHEN`, `NOT_NUMBERS_WHEN`, `NUMERAL_RUN`). Patterns stored as data must use only syntax that behaves the same in Python `re` and in Java/Kotlin regex (lookahead yes; negative lookbehind only over one character class, `(?<![…])`; no Python-only constructs). `NUMERAL_RUN` and one `NOT_NUMBERS_WHEN` pattern use that lookbehind today.
 - **Symlinks.** Not used: they break on Windows and complicate Android builds.
 - **Git history.** Every move uses `git mv` so file history follows.
 
@@ -109,7 +109,7 @@ A new Claude Code session can begin the Android spec with `shared/`, `specs/` an
 **Layout**
 
 - **FR-001** The repository root holds `shared/`, `pc/`, `android/`, `specs/`, `docs/`, `eval/`, `.specify/`, `README.md` and `CLAUDE.md`. Nothing else is tracked at the root except dotfiles.
-- **FR-002** `shared/` holds data only, no executable code: `contracts/` (the four JSON schemas and their examples), `styles/` (the three packs and `voices.json`), `lexicons/` (`en.json`, `zh.json`), `assets/` (today's `assets/` with `LICENCES.md`), `fixtures/` (the sample run, the planted errors and the Mandarin test data) and `conformance/` (FR-020 to FR-023).
+- **FR-002** `shared/` holds data only, no executable code: `contracts/` (the JSON schemas; the sample run in `fixtures/` is their example), `styles/` (the three packs and `voices.json`), `lexicons/` (`en.json`, `zh.json`), `assets/` (today's `assets/` with `LICENCES.md`), `fixtures/` (the sample run, the planted errors and the Mandarin test data) and `conformance/` (FR-020 to FR-023).
 - **FR-003** `pc/` holds the Python app: `src/`, `tests/`, `tools/`, `pyproject.toml`, `.env.example`, its own `CLAUDE.md`, and the PC-only fixtures (recordings and `english_golden.json`).
 - **FR-004** `android/` holds only a `README.md` that says the Android app is specified in `specs/004-…`. No build files.
 - **FR-005** `specs/001-epic-replay/contracts/` keeps the design documents (`stage-contracts.md`, `provider-adapters.md`, `http-api.md`, `ui.md`, `design.md`, `design-canvas/`). Its machine-readable files move to `shared/contracts/`, and the documents link to them.
@@ -140,7 +140,7 @@ A new Claude Code session can begin the Android spec with `shared/`, `specs/` an
 
 **Conformance suite**
 
-- **FR-020** `shared/conformance/` holds cases, one folder per case: `input/` files, `expected/` files and a `case.json` naming the function under test, the language and any tolerance.
+- **FR-020** `shared/conformance/` holds cases, one folder per case: a `case.json` naming the function under test, the language, any tolerance, its inputs and its expected output, with larger outputs in `expected/` files. Inputs are references to shared fixtures (with a JSON merge patch for a variant), style packs, other cases' outputs or inline values, so no data is kept twice (revision 6).
 - **FR-021** Cases cover at least: the storyboard (play sheet, clip facts and pack in, storyboard out, including the climax on the clip's last frame and the held last frame); the slot builder (storyboard, pack and language in, slots out, English and Mandarin); the code checks (each planted error, one script that passes, and one Mandarin banned term); the word lists (every Mandarin sentence that must pass, every list term that must be caught, and the English whole-word false positives); spoken units for English and Mandarin; and the contact-sheet cell-to-frame mapping.
 - **FR-022** Expected outputs are produced once from the Python code at the start of this work and are never rewritten to make a test pass. A case may change only together with a spec change, as the English golden file does today.
 - **FR-023** A Python runner, `pc/tests/test_conformance.py`, runs every case. Each future platform adds its own runner over the same folder.
@@ -162,7 +162,7 @@ A new Claude Code session can begin the Android spec with `shared/`, `specs/` an
 - **SC-1** The number of passing tests after the move equals the number before, measured at the start of the work; no test is deleted or skipped to get there, except those FR-024 lists for CI.
 - **SC-2** `english_golden.json` is unchanged and its test passes.
 - **SC-3** The replay run of `shared/fixtures/sample_run` produces byte-identical `storyboard.json` and `script.json` before and after the move.
-- **SC-4** `tools/spotter_check.py --count` (moved to `pc/tools/`) reports 0 new calls on the starter clips.
+- **SC-4** `tools/spotter_check.py --count` (moved to `pc/tools/`) reports the same calls and new calls on the starter clips as the baseline measured in T101 (54 calls, 5 new: the code at `ac0c716` already has 5 calls with no recording).
 - **SC-5** The duplicate check finds each shared file exactly once in the repository.
 - **SC-6** No Python file outside `epic_replay.paths` uses a `parents[...]` index or a `REPO` constant to reach outside its package (a test greps for it), except archived spikes.
 - **SC-7** The conformance suite holds at least 30 cases across the six areas of FR-021, and the Python runner passes all of them.
@@ -216,3 +216,7 @@ Not part of this feature; recorded so they are not lost.
 - Revision 1 (2026-11-13): first draft, from the repository at `ac0c716`.
 - Revision 2 (2026-11-13): the owner accepted all six decisions; FR-019a (constitution 1.5); section 10, notes for the Android spec, including ElevenLabs sign-in.
 - Revision 3 (2026-11-13): the Android spec is now 004, because 003 is the switchable model backends; the owner keeps the ElevenLabs API key (section 10).
+- Revision 4 (2026-11-14, agreed with the owner during T107): the portable regex subset allows negative lookbehind over one character class, which two stored Mandarin patterns use (edge cases, plan section 5); SC-4 and US1 scenario 3 compare the Spotter count with the baseline, which is 5 new calls before any change, not 0.
+- Revision 5 (2026-11-14, agreed with the owner during T108): the three contract examples were byte-identical to the sample run's `play_sheet.json`, `storyboard.json` and `script.json`, against SC-5; they are removed and the sample run is the example (FR-002, plan sections 2 and 3).
+- Revision 6 (2026-11-14, T109): the case format. Inputs and expected outputs are references (inline values, case files, shared fixtures with an optional JSON merge patch, style packs) instead of `input/` and `expected/` files only, because copies of the sample run as inputs, and identical small expected files, would break SC-5 (FR-020, plan section 6). To be confirmed by the owner at the T113 review.
+- Revision 7 (2026-11-14, T113 review): SC-5 has one recorded exception, the three narrator samples in `shared/assets/samples/`, which are the same silent placeholder until 001 T040 (listed in `test_shared.py`). FR-015: `shared/assets/LICENCES.md` names the tools at their new path (`pc/tools/`); no sound, font or other asset changed. The install steps in `README.md` and `pc/CLAUDE.md` use `pc/requirements-ci.txt`, the pinned set CI installs, so SC-8's evidence (the CI run) follows the README.

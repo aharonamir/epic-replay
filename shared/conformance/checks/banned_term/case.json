@@ -1,0 +1,31 @@
+{
+  "area": "checks",
+  "function": "checks.check",
+  "language": "en",
+  "description": "Planted error: banned_term, caught on its line.",
+  "inputs": {
+    "script": {
+      "fixture": "planted_errors/banned_term.json"
+    },
+    "play_sheet": {
+      "fixture": "sample_run/play_sheet.json"
+    },
+    "user_context": {
+      "fixture": "sample_run/user_context.json"
+    },
+    "pack": {
+      "style": "football_commentator",
+      "language": "en"
+    }
+  },
+  "expected": {
+    "value": [
+      {
+        "where": "l6",
+        "rule": 8,
+        "kind": "banned_term",
+        "detail": "'young' is a banned term"
+      }
+    ]
+  }
+}

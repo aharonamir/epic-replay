@@ -1,0 +1,63 @@
+{
+  "area": "cells",
+  "function": "cells.narrow",
+  "language": null,
+  "description": "Three sheets: the whole clip, then around cell 5, then around cell 6 (cells are 1 to 9).",
+  "inputs": {
+    "start_s": {
+      "value": 0.3
+    },
+    "end_s": {
+      "value": 14.7
+    },
+    "fps": {
+      "value": 30
+    },
+    "n_frames": {
+      "value": 450
+    },
+    "picks": {
+      "value": [
+        5,
+        6
+      ]
+    }
+  },
+  "expected": {
+    "value": [
+      [
+        9,
+        63,
+        117,
+        171,
+        225,
+        279,
+        333,
+        387,
+        441
+      ],
+      [
+        171,
+        184,
+        198,
+        212,
+        225,
+        238,
+        252,
+        266,
+        279
+      ],
+      [
+        225,
+        228,
+        232,
+        235,
+        238,
+        242,
+        245,
+        249,
+        252
+      ]
+    ]
+  }
+}

@@ -59,7 +59,7 @@ No gradients except the placeholder stripes and the ruler. No shadows.
 | Text | Sofia Sans | `system-ui, sans-serif` | 400, 500, 600, 700, 400 italic |
 | Data | JetBrains Mono | `ui-monospace, monospace` | 400, 500 |
 
-All three are under the SIL Open Font License. Keep the font files in `assets/fonts/`, with their licence lines in `assets/LICENCES.md`, and serve them from the app so the page makes no outside request and works at a venue without a network.
+All three are under the SIL Open Font License. Keep the font files in `shared/assets/fonts/`, with their licence lines in `shared/assets/LICENCES.md`, and serve them from the app so the page makes no outside request and works at a venue without a network.
 
 | Use | Family | Size | Weight | Other |
 |-----|--------|------|--------|-------|

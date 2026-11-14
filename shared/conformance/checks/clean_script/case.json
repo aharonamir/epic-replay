@@ -1,0 +1,24 @@
+{
+  "area": "checks",
+  "function": "checks.check",
+  "language": "en",
+  "description": "The sample run's script passes every check.",
+  "inputs": {
+    "script": {
+      "fixture": "sample_run/script.json"
+    },
+    "play_sheet": {
+      "fixture": "sample_run/play_sheet.json"
+    },
+    "user_context": {
+      "fixture": "sample_run/user_context.json"
+    },
+    "pack": {
+      "style": "football_commentator",
+      "language": "en"
+    }
+  },
+  "expected": {
+    "value": []
+  }
+}

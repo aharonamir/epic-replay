@@ -19,7 +19,7 @@ Written 2026-10-30 (revised against the repo at 38ff345; corrected against `bd97
 | News reporter | Jerry (chosen 2026-10-31, replaced Lao Dao) | `pz7hOfW7kgI9kF818eDS` | LiuPing (Beijing) | `pTOe8BQRdydOEIgv0wFL` |
 | Nature documentary | Haoran | `pU9NaAwkoR3v0Mrg3uKz` | Jason Chen (Beijing) | `DowyQ68vDpgFYdWVGjc3` |
 
-- All six are male, looked up with `/v1/shared-voices` (free). The Starter plan can use them; a shared voice synthesises without being added to the account. New ids go into `src/epic_replay/styles/voices.json` (the loader checks voices there with no network).
+- All six are male, looked up with `/v1/shared-voices` (free). The Starter plan can use them; a shared voice synthesises without being added to the account. New ids go into `shared/styles/voices.json` (the loader checks voices there with no network).
 - Fallback voices are checked by the loader only. Nothing uses them at runtime: T030 is deferred, and a failed take gets one retry on the same voice.
 - The library lists these voices as verified on `eleven_v4`, not `eleven_v3`, but the owner heard Karo Yang shout on v3 with `[excited] [shouts]` and not on v4. So v3 stays and no `zh` model field is needed.
 - The owner found the calm football take perhaps too calm for football, so the `zh` football delivery is set livelier, and heard by ear in Z8.
@@ -28,7 +28,7 @@ Written 2026-10-30 (revised against the repo at 38ff345; corrected against `bd97
 
 ## Rules for this session
 
-1. Read `CLAUDE.md`, `docs/handoff.md`, `docs/provider-notes.md`, this file, and in `specs/001-epic-replay/` the spec, plan and tasks. Tell the owner what you found that differs from this file.
+1. Read `CLAUDE.md`, `docs/archive/handoff.md`, `docs/provider-notes.md`, this file, and in `specs/001-epic-replay/` the spec, plan and tasks. Tell the owner what you found that differs from this file.
 2. **Rule 1: the spec first.** Z2 writes revision 9 as a diff; the owner says yes before any code.
 3. **Rule 4: any paid call** (Z1 audition, Z8 runs) gets its expected cost first and waits for the owner's yes.
 4. **Rule 5 holds** (adults, men only, no age words, only frames to the vision endpoint). **Rule 9 holds**: a style is data and code never branches on a style id. Language is not a style, but keep language-specific code in as few places as possible (below).
@@ -46,7 +46,7 @@ Written 2026-10-30 (revised against the repo at 38ff345; corrected against `bd97
    - Seed terms for the owner to review (Claude Code completes the lists in the same categories as the English ones, with glosses): age: 孩子 child, 小孩 kid, 儿童 children, 少年 youth, 青少年 teenager, 年轻人 young person, 年幼 very young, 婴儿 baby, 宝宝 baby, 幼儿 toddler, 未成年 minor, 老人 old person, 老年 elderly, 年长 older; female: 女人 woman, 女孩 girl, 女士 lady, 女子 woman, 少女 young girl, 姑娘 young woman, 妈妈 mum, 母亲 mother, 她 she; real people, outlets, leagues (FR-018): 黄健翔, 宋世雄, 詹俊, 韩乔生, 刘建宏 (commentators), 赵忠祥 (narrator), 央视 / CCTV, 新闻联播, 新华社, 凤凰卫视, 英超 Premier League, 欧冠 Champions League, 中超, 世界杯 World Cup, 大卫·爱登堡 (Attenborough), 摩根·弗里曼 (Morgan Freeman).
    - The invented-name check cannot find arbitrary Chinese names. For `zh` it flags Latin-script words not in the corpus, and a short list of famous names (梅西, 罗纳尔多, C罗, 姆巴佩 ...); the Commentator prompt forbids names not given by the user. **State this limit plainly** (provider-notes, and the owner decides whether the deck mentions it).
    - The invented-number check reads Chinese numerals (二, 三 ... 十, 百, 千, 万, 两) as well as digits; digits in a `zh` line are a finding (item 4). 一 and 半 are not counted, as English does not count "one", and ordinary words are masked first: 一下 (a moment), 十分 (very), 千万 (must), 半空 (mid-air), 万一 (in case).
-6. **Video text.** FFmpeg `drawtext` uses DejaVu Sans Bold (`s10_compose.py:36`), which has no Chinese glyphs, and the HTML overlays use Latin-only web fonts (`assets/fonts`). For `zh`: Noto Sans CJK SC Regular and Bold are installed, so no font is added. Index 0 of the `.ttc` files is Japanese, so the overlay needs `lang="zh-Hans"` and an SC font family, and the FFmpeg path (`FONT`, `fitted`) needs the SC face. The skins' italics and capitals are turned off for Chinese. Pack labels for `zh`: confirmed by the owner 2026-10-30: `ai_label` AI 解说; Football 回放 and 今日最佳; News 慢镜头 and 今晚头条; Nature 再慢慢看一次 and 在野外. The file's metadata tag stays as it is.
+6. **Video text.** FFmpeg `drawtext` uses DejaVu Sans Bold (`s10_compose.py:36`), which has no Chinese glyphs, and the HTML overlays use Latin-only web fonts (`shared/assets/fonts`). For `zh`: Noto Sans CJK SC Regular and Bold are installed, so no font is added. Index 0 of the `.ttc` files is Japanese, so the overlay needs `lang="zh-Hans"` and an SC font family, and the FFmpeg path (`FONT`, `fitted`) needs the SC face. The skins' italics and capitals are turned off for Chinese. Pack labels for `zh`: confirmed by the owner 2026-10-30: `ai_label` AI 解说; Football 回放 and 今日最佳; News 慢镜头 and 今晚头条; Nature 再慢慢看一次 and 在野外. The file's metadata tag stays as it is.
 7. **Home page.** In `web/templates/_main.html`, inside the form, a two-option segmented control ("English | 中文", radio group named `language`, keyboard reachable, default English) beside the style cards; hide `中文` for a pack that has no `zh` block; `GET /styles` does not change, because a test holds its exact fields, and the template marks those packs. The choice is remembered per viewer in `localStorage` (try/catch; a convenience only). Follow `contracts/ui.md` and `design.md` (dark ground, wrapping flex rows, no media queries); update both, and `http-api.md`, in the same commit. The page stays `lang="en"`.
 8. **English gloss, as a sidecar.** After S5 in a `zh` run, one cheap text call writes `gloss_en.json` (each line's English meaning) in the run folder, and the details view shows it if the details view can; it is review text only, never voiced, and it does not touch `script.json` or its schema. Cut this first if time is short.
 
@@ -54,7 +54,7 @@ Written 2026-10-30 (revised against the repo at 38ff345; corrected against `bd97
 
 | Step | Work | Est. | Paid |
 |---|---|---|---|
-| Z1 | Done 2026-10-30: voice IDs, 12 takes in `eval/spike/zh_voices/`, results below. **Go/no-go 1 passed by the owner's ear: the football voice shouts on v3 with tags.** | 1 h | 0.0153 USD |
+| Z1 | Done 2026-10-30: voice IDs, 12 takes in `pc/eval/spike/zh_voices/`, results below. **Go/no-go 1 passed by the owner's ear: the football voice shouts on v3 with tags.** | 1 h | 0.0153 USD |
 | Z2 | Revision 9 as a diff (spec, plan, tasks, data-model, `style_pack.schema.json`, ui, design, http-api). Show it, wait for the yes. | 0.5 h | no |
 | Z3 | First the golden-hash test, on unchanged code. Then the resolver, `languages.zh` blocks for the three packs, loader checks (voice in `voices.json`, labels present, `ai_label` required), `spoken_units`. English unchanged: run the full suite. | 1.5 h | no |
 | Z4 | `language` end to end: form field, run record, runner, Commentator prompt, `zh` generic lines and `hit_word`, the S7 `zh` path with its test, speech call with `language_code`, the call sites in item 2, the sidecar gloss. | 2 h | no |
@@ -80,7 +80,7 @@ The rehearsals of 2026-10-30 were run at `880a73c`, so after a merge they descri
 
 ## Z1 results (2026-10-30)
 
-12 takes, all through `with-timestamps` with `language_code: zh`. Measured on the trimmed take. Script `tools/spike_z1_zh.py`, numbers `eval/spike/z1_zh.json`, notes in `docs/provider-notes.md`.
+12 takes, all through `with-timestamps` with `language_code: zh`. Measured on the trimmed take. Script `pc/tools/archive/spike_z1_zh.py`, numbers `pc/eval/spike/z1_zh.json`, notes in `docs/provider-notes.md`.
 
 - Billing: 153 credits for 383 characters sent, 0.40 a character on both models, tags and punctuation counted (`character-cost` header and the account's count agree).
 - Characters per second, punctuation excluded (calm line / long line): Karo Yang 2.78 / 2.62, Lao Dao 2.38 / 2.22, Haoran 4.29 / 3.04.
@@ -89,7 +89,7 @@ The rehearsals of 2026-10-30 were run at `880a73c`, so after a merge they descri
 
 ## Voice change (2026-10-31)
 
-The owner found that Karo Yang sounded a bit like a woman and auditioned DJ Allen and Xiaoming for football, then Jerry for news. Eight takes, 0.0117 USD, on `eleven_v3`. DJ Allen and Jerry replace Karo Yang and Lao Dao; the Z1 notes above describe the voices as they were. Pack rates are the slowest of the three lines, rounded down: football 2.8, news 3.1. Start-up values are unchanged and were not re-measured. Numbers in `docs/provider-notes.md` and `eval/spike/z1b_zh.json`.
+The owner found that Karo Yang sounded a bit like a woman and auditioned DJ Allen and Xiaoming for football, then Jerry for news. Eight takes, 0.0117 USD, on `eleven_v3`. DJ Allen and Jerry replace Karo Yang and Lao Dao; the Z1 notes above describe the voices as they were. Pack rates are the slowest of the three lines, rounded down: football 2.8, news 3.1. Start-up values are unchanged and were not re-measured. Numbers in `docs/provider-notes.md` and `pc/eval/spike/z1b_zh.json`.
 
 ## Open choices (ask the owner, do not decide alone)
 

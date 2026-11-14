@@ -1,0 +1,138 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "lexicon.schema.json",
+  "title": "Banned-word list for one language (shared/lexicons/README.md)",
+  "oneOf": [{"$ref": "#/$defs/en"}, {"$ref": "#/$defs/zh"}],
+  "$defs": {
+    "note": {"type": "string", "minLength": 1},
+    "term": {"type": "string", "minLength": 1},
+    "gloss": {"type": "string", "minLength": 1},
+    "pattern": {"type": "string", "minLength": 1},
+    "glossed_terms": {
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": {"$ref": "#/$defs/term"},
+      "additionalProperties": {"$ref": "#/$defs/gloss"}
+    },
+    "glossed_patterns": {
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": {"$ref": "#/$defs/pattern"},
+      "additionalProperties": {"$ref": "#/$defs/gloss"}
+    },
+    "category_names": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"type": "string", "pattern": "^[a-z_]+$"}
+    },
+    "en": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["language", "match", "categories", "global_banned", "descriptor_banned"],
+      "properties": {
+        "language": {"const": "en"},
+        "match": {"const": "whole_word_case_insensitive"},
+        "categories": {
+          "type": "object",
+          "minProperties": 1,
+          "propertyNames": {"pattern": "^[a-z_]+$"},
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["terms"],
+            "properties": {
+              "note": {"$ref": "#/$defs/note"},
+              "terms": {
+                "type": "array",
+                "minItems": 1,
+                "items": {"type": "string", "pattern": "^[a-z0-9' ]+$"}
+              }
+            }
+          }
+        },
+        "global_banned": {"$ref": "#/$defs/category_names"},
+        "descriptor_banned": {"$ref": "#/$defs/category_names"}
+      }
+    },
+    "zh": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "language", "match", "categories", "banned", "female_pronoun", "famous_names",
+        "allowed", "allowed_when", "not_numbers", "not_numbers_when", "numeral_run",
+        "digits", "units", "traditional_in_gb2312"
+      ],
+      "properties": {
+        "language": {"const": "zh"},
+        "match": {"const": "substring_after_masking"},
+        "categories": {
+          "type": "object",
+          "minProperties": 1,
+          "propertyNames": {"pattern": "^[a-z_]+$"},
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["terms"],
+            "properties": {
+              "note": {"$ref": "#/$defs/note"},
+              "terms": {"$ref": "#/$defs/glossed_terms"}
+            }
+          }
+        },
+        "banned": {"$ref": "#/$defs/category_names"},
+        "female_pronoun": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["term", "gloss"],
+          "properties": {
+            "term": {"type": "string", "minLength": 1, "maxLength": 1},
+            "gloss": {"$ref": "#/$defs/gloss"}
+          }
+        },
+        "famous_names": {"$ref": "#/$defs/noted_terms"},
+        "allowed": {"$ref": "#/$defs/noted_terms"},
+        "allowed_when": {"$ref": "#/$defs/noted_patterns"},
+        "not_numbers": {"$ref": "#/$defs/noted_terms"},
+        "not_numbers_when": {"$ref": "#/$defs/noted_patterns"},
+        "numeral_run": {"$ref": "#/$defs/pattern"},
+        "digits": {
+          "type": "object",
+          "minProperties": 1,
+          "propertyNames": {"minLength": 1, "maxLength": 1},
+          "additionalProperties": {"type": "integer", "minimum": 0, "maximum": 9}
+        },
+        "units": {
+          "type": "object",
+          "minProperties": 1,
+          "propertyNames": {"minLength": 1, "maxLength": 1},
+          "additionalProperties": {"type": "integer", "minimum": 10}
+        },
+        "traditional_in_gb2312": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["characters"],
+          "properties": {
+            "note": {"$ref": "#/$defs/note"},
+            "characters": {"type": "string", "minLength": 1}
+          }
+        }
+      }
+    },
+    "noted_terms": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["terms"],
+      "properties": {"note": {"$ref": "#/$defs/note"}, "terms": {"$ref": "#/$defs/glossed_terms"}}
+    },
+    "noted_patterns": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["patterns"],
+      "properties": {
+        "note": {"$ref": "#/$defs/note"},
+        "patterns": {"$ref": "#/$defs/glossed_patterns"}
+      }
+    }
+  }
+}

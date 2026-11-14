@@ -1,0 +1,72 @@
+{
+  "area": "lexicon",
+  "function": "lexicon.scan",
+  "language": "en",
+  "description": "English terms match whole words only: none of these holds a banned word.",
+  "inputs": {
+    "language": {
+      "value": "en"
+    },
+    "texts": {
+      "value": [
+        "Bold move, shifted the ball.",
+        "He holds the line.",
+        "The shepherds watch.",
+        "A herald of the second half.",
+        "Gold for the keeper.",
+        "A kidney-shaped pitch.",
+        "He shapes to shoot",
+        "Short run-up, clean strike.",
+        "TOP CORNER! What a strike!",
+        "Shelter from the rain."
+      ]
+    },
+    "extra": {
+      "value": []
+    }
+  },
+  "expected": {
+    "value": [
+      {
+        "banned": [],
+        "descriptor": []
+      },
+      {
+        "banned": [],
+        "descriptor": []
+      },
+      {
+        "banned": [],
+        "descriptor": []
+      },
+      {
+        "banned": [],
+        "descriptor": []
+      },
+      {
+        "banned": [],
+        "descriptor": []
+      },
+      {
+        "banned": [],
+        "descriptor": []
+      },
+      {
+        "banned": [],
+        "descriptor": []
+      },
+      {
+        "banned": [],
+        "descriptor": []
+      },
+      {
+        "banned": [],
+        "descriptor": []
+      },
+      {
+        "banned": [],
+        "descriptor": []
+      }
+    ]
+  }
+}

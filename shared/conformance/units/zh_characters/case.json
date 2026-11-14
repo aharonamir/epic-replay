@@ -1,0 +1,31 @@
+{
+  "area": "units",
+  "function": "units.spoken_units",
+  "language": "zh",
+  "description": "Mandarin: one unit per CJK character; punctuation, spaces, Latin letters and digits count nothing.",
+  "inputs": {
+    "language": {
+      "value": "zh"
+    },
+    "texts": {
+      "value": [
+        "好球！",
+        "他在 2026 年进球。",
+        "Ａ队，好！",
+        "“漂亮”——绝了",
+        "",
+        "看，这一脚！"
+      ]
+    }
+  },
+  "expected": {
+    "value": [
+      2,
+      5,
+      2,
+      4,
+      0,
+      4
+    ]
+  }
+}
