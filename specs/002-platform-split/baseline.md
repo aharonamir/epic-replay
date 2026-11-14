@@ -40,7 +40,7 @@ Two runs of the replay flow were compared before choosing the hashes: `cost.json
 
 ### Note on the Spotter count
 
-The spec (US1 scenario 3, SC-4, T106) expects `--count` to report 0 new calls. On `main` before any change it reports 5, both with a fresh runs folder and with the owner's cached `runs/t012-*` folders. That is how the code behaves today, so the comparison used here is "the same 54 calls and the same 5 new calls, clip by clip". Raised with the owner on 2026-11-14; the spec wording is left as it is until the owner decides.
+The spec (US1 scenario 3, SC-4, T106) expects `--count` to report 0 new calls. On `main` before any change it reports 5, both with a fresh runs folder and with the owner's cached `runs/t012-*` folders. That is how the code behaves today, so the comparison used here is "the same 54 calls and the same 5 new calls, clip by clip". Raised with the owner on 2026-11-14, who agreed to this reading: spec revision 4 says so (SC-4, US1 scenario 3, T106).
 
 ## Success criteria (filled in by T112)
 

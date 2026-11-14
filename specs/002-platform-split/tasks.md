@@ -1,6 +1,6 @@
 # Tasks: One repository for the PC app and an Android app
 
-**Spec**: `spec.md` revision 3 · **Plan**: `plan.md` · **Branch**: `002-platform-split` from `main` at `ac0c716`
+**Spec**: `spec.md` revision 4 · **Plan**: `plan.md` · **Branch**: `002-platform-split` from `main` at `ac0c716`
 
 Rules: do the tasks in order; the full test suite passes after every task; one commit per task with the task id in the message; moves use `git mv` and change no content in the same commit; no behaviour change anywhere. If a task runs half again over its hours, stop and tell the owner.
 
@@ -22,7 +22,7 @@ Rules: do the tasks in order; the full test suite passes after every task; one c
   *Done when*: the suite passes from `pc/`; the replay run's outputs match the baseline hashes.
 
 - [ ] **T106 Move the shared data into `shared/`** (1 h). `git mv` the assets, the 4 style files, the 4 schemas and 3 examples, `sample_run/`, `planted_errors/` and the 2 Mandarin fixtures, as in plan section 3. Delete the 3 drifted example packs and add `specs/001-epic-replay/contracts/examples/README.md` pointing to `shared/styles/`. Update `paths.py` only.
-  *Done when*: the suite passes; the replay run's outputs match the baseline hashes; `spotter_check.py --count` reports 0 new calls.
+  *Done when*: the suite passes; the replay run's outputs match the baseline hashes; `spotter_check.py --count` reports the same calls and new calls as the baseline (54 and 5).
 
 - [ ] **T107 Word lists as JSON** (2 h). Write `shared/lexicons/en.json` and `zh.json` from the two modules (plan section 5), every term, gloss and pattern, in today's order. Make `lexicon.py` and `lexicon_zh.py` read them and keep their public names. Add `shared/contracts/lexicon.schema.json` and `shared/lexicons/README.md` (matching rules, regex subset).
   *Done when*: the suite passes, `test_english_golden` passes without touching its file, and no term list remains in the Python modules.

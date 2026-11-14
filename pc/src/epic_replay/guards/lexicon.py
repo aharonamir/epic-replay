@@ -1,153 +1,30 @@
-"""Global banned lexicon (FR-008, FR-018, stage-contracts rule 8). Whole-word, case-insensitive."""
+"""Global banned lexicon (FR-008, FR-018, stage-contracts rule 8). Whole-word, case-insensitive.
+
+The terms are data, in `shared/lexicons/en.json` (spec 002, FR-011); the matching rules every
+platform implements are in `shared/lexicons/README.md`.
+"""
 
 from __future__ import annotations
 
+import json
 import re
 
-# Real commentators, presenters, narrators and their signature phrases (FR-018).
-REAL_PEOPLE = [
-    "martin tyler",
-    "peter drury",
-    "clive tyldesley",
-    "john motson",
-    "motty",
-    "andy gray",
-    "jim beglin",
-    "gary neville",
-    "andres cantor",
-    "david attenborough",
-    "attenborough",
-    "morgan freeman",
-    "walter cronkite",
-    "anderson cooper",
-    "tom brokaw",
-    "ron burgundy",
-    "ruud gullit",
-    "ian darke",
-    "jonathan pearce",
-    "kenneth wolstenholme",
-]
-CATCHPHRASES = [
-    "they think it's all over",
-    "goooal",
-    "goaaal",
-    "good evening and welcome",
-    "and that's the way it is",
-    "here we go again",
-]
-# Real outlets, leagues and programmes (FR-018, Principle VI).
-OUTLETS = [
-    "bbc",
-    "cnn",
-    "fox news",
-    "msnbc",
-    "sky sports",
-    "sky news",
-    "espn",
-    "nbc",
-    "cbs",
-    "abc news",
-    "itv",
-    "bt sport",
-    "al jazeera",
-    "reuters",
-    "premier league",
-    "champions league",
-    "la liga",
-    "bundesliga",
-    "nfl",
-    "nba",
-    "fifa",
-    "uefa",
-    "match of the day",
-    "planet earth",
-]
-# Newsroom claims (the news style must not pose as a real bulletin).
-NEWSROOM = ["breaking news", "live from the studio"]
-# FR-008: age words, female terms, appearance, ability.
-AGE = [
-    "child",
-    "children",
-    "kid",
-    "kids",
-    "boy",
-    "boys",
-    "baby",
-    "toddler",
-    "teen",
-    "teens",
-    "teenager",
-    "youngster",
-    "young",
-    "old",
-    "elderly",
-    "senior",
-    "minor",
-    "juvenile",
-    "little one",
-    "grandpa",
-    "grandfather",
-    "grandma",
-    # inflections and further age words (review fixes, 2026-10-22)
-    "kiddo", "kiddos", "teenagers", "youngsters", "younger", "youngest", "older", "oldest",
-    "aged", "youth", "youths", "babies", "toddlers", "minors", "seniors", "juveniles",
-    "infant", "infants", "preteen", "preteens", "tween", "tweens", "adolescent", "adolescents",
-    "underage", "schoolboy", "schoolboys", "schoolgirl", "schoolgirls", "boyish",
-    "grandmother", "grandmothers", "grandmas", "grandpas", "grandfathers", "granddad",
-    "granddads",
-]  # fmt: skip
-FEMALE = [
-    "she",
-    "her",
-    "hers",
-    "herself",
-    "woman",
-    "women",
-    "girl",
-    "girls",
-    "lady",
-    "ladies",
-    "female",
-    "mum",
-    "mom",
-    "mother",
-    "daughter",
-    "wife",
-    "girlfriend",
-    "females", "mothers", "moms", "mums", "daughters", "wives", "girlfriends", "girlish",
-]  # fmt: skip
-APPEARANCE = [
-    "fat",
-    "skinny",
-    "ugly",
-    "pretty",
-    "beautiful",
-    "handsome",
-    "bald",
-    "chubby",
-    "overweight",
-    "slim",
-    "sexy",
-    "hot body",
-    "gorgeous",
-    "fatter", "fattest", "skinnier", "uglier", "prettier", "prettiest", "slimmer", "slimmest",
-    "balding",
-]  # fmt: skip
-ABILITY = ["disabled", "handicapped", "crippled", "retarded", "cripple", "spastic"]
-# Profanity. Extend as needed; this is the floor, not a moderation system.
-PROFANITY = ["fuck", "fucking", "shit", "bitch", "cunt", "bastard", "asshole", "nigger", "faggot"]
+from epic_replay import paths
 
-GLOBAL_BANNED = (
-    REAL_PEOPLE
-    + CATCHPHRASES
-    + OUTLETS
-    + NEWSROOM
-    + AGE
-    + FEMALE
-    + APPEARANCE
-    + ABILITY
-    + PROFANITY
-)
+_DATA = json.loads((paths.require(paths.LEXICONS, "lexicons") / "en.json").read_text("utf-8"))
+_TERMS: dict[str, list[str]] = {k: v["terms"] for k, v in _DATA["categories"].items()}
+
+REAL_PEOPLE = _TERMS["real_people"]
+CATCHPHRASES = _TERMS["catchphrases"]
+OUTLETS = _TERMS["outlets"]
+NEWSROOM = _TERMS["newsroom"]
+AGE = _TERMS["age"]
+FEMALE = _TERMS["female"]
+APPEARANCE = _TERMS["appearance"]
+ABILITY = _TERMS["ability"]
+PROFANITY = _TERMS["profanity"]
+
+GLOBAL_BANNED = [t for c in _DATA["global_banned"] for t in _TERMS[c]]
 
 
 def _pattern(terms: list[str]) -> re.Pattern[str]:
@@ -170,7 +47,7 @@ def find_banned(text: str, extra: list[str] | tuple[str, ...] = ()) -> list[str]
 
 
 # The play sheet's descriptor rules (FR-008): what may describe someone in the model's text.
-DESCRIPTOR_BANNED = AGE + FEMALE + APPEARANCE + ABILITY
+DESCRIPTOR_BANNED = [t for c in _DATA["descriptor_banned"] for t in _TERMS[c]]
 _DESCRIPTOR = _pattern(DESCRIPTOR_BANNED)
 
 

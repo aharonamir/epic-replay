@@ -1,6 +1,6 @@
 # Implementation Plan: One repository for the PC app and an Android app
 
-**Spec**: `specs/002-platform-split/spec.md` (revision 2, approved 2026-11-13)
+**Spec**: `specs/002-platform-split/spec.md` (revision 4, approved 2026-11-13, corrected 2026-11-14)
 **Base**: `main` at `ac0c716`
 **Estimate**: about 14 hours, two working days, one person (tasks.md)
 
@@ -124,7 +124,7 @@ Tests: 20 test files read fixtures through relative strings such as `"tests/fixt
 
 `shared/lexicons/zh.json` holds `age`, `female`, `female_pronoun`, `appearance`, `ability`, `profanity`, `real_people`, `outlets`, `newsroom`, `famous_names` (each term with its English gloss), `allowed` (phrases masked first), `allowed_when` (pattern → gloss), `not_numbers`, `not_numbers_when`, `numeral_run` (the pattern), `digits` and `units`. `lexicon_zh.py` keeps `find_banned`, `famous_names` and `numbers_in`.
 
-`shared/lexicons/README.md` states the matching each platform implements: English whole-word, case-insensitive, extra terms from the pack; Mandarin substring after masking `allowed` and `allowed_when`, single characters banned only where listed (`她`), numerals read through `numeral_run`, `digits` and `units`, ignoring `not_numbers` and `not_numbers_when`. It lists the allowed regex syntax: literals, character classes, `(?=…)` and `(?!…)` lookahead, `|`, `?`, `*`, `+`, `{m,n}`, non-capturing groups. No lookbehind, named groups, inline flags or Python-only escapes. `test_shared.py` checks every stored pattern against that list and that it compiles in Python.
+`shared/lexicons/README.md` states the matching each platform implements: English whole-word, case-insensitive, extra terms from the pack; Mandarin substring after masking `allowed` and `allowed_when`, single characters banned only where listed (`她`), numerals read through `numeral_run`, `digits` and `units`, ignoring `not_numbers` and `not_numbers_when`. It lists the allowed regex syntax: literals, character classes, `(?=…)` and `(?!…)` lookahead, negative lookbehind over one character class `(?<![…])` (used by `numeral_run` and one `not_numbers_when` pattern; agreed 2026-11-14), `|`, `?`, `*`, `+`, `{m,n}`, non-capturing groups. No other lookbehind, no named groups, inline flags or Python-only escapes. `test_shared.py` checks every stored pattern against that list and that it compiles in Python.
 
 ## 6. Conformance suite
 

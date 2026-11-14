@@ -2,7 +2,7 @@
 
 **Feature branch**: `002-platform-split`
 **Created**: 2026-11-13
-**Status**: Approved, revision 3 (the owner accepted every recommendation in section 8 on 2026-11-13)
+**Status**: Approved, revision 4 (the owner accepted every recommendation in section 8 on 2026-11-13; two corrections agreed on 2026-11-14, section 11)
 **Input**: "I am thinking of converting this app to an Android app ... do you think both deployments can live on the same repo: android and pc? ... let's start with the first spec, read the repository current status and create a spec for the restructuring."
 **Depends on**: `specs/001-epic-replay` as built at `ac0c716` (2026-11-01). This spec changes where files live and how code finds them. It changes no behaviour of the PC app.
 
@@ -49,7 +49,7 @@ After the move, the owner installs and runs the PC app with the updated commands
 
 1. **Given** the repository before the move with all tests passing, **when** the restructure is complete, **then** the same number of tests pass, none fail, and `ruff check` and `ruff format --check` are clean.
 2. **Given** `tests/fixtures/english_golden.json`, **when** the golden test runs after the move, **then** it passes and the file is not rewritten.
-3. **Given** the recorded provider replies, **when** the Spotter check runs in count mode on the starter clips, **then** it reports 0 new calls.
+3. **Given** the recorded provider replies, **when** the Spotter check runs in count mode on the starter clips, **then** it reports the same calls and the same new calls as before the move (the baseline: 54 calls, 5 new).
 4. **Given** the owner's cached demo runs moved as the migration note says, **when** the page opens `/demo/flipping_pancakes_football_refreshed`, **then** it plays as before.
 
 ### US2 - One place to change shared data (Priority: P1)
@@ -98,7 +98,7 @@ A new Claude Code session can begin the Android spec with `shared/`, `specs/` an
 - **The editable install points at the old path.** After the move the virtual environment must be reinstalled from `pc/`; the setup steps say so.
 - **Recordings are gitignored but tracked.** They move with `git mv` and stay tracked; the `.gitignore` entry moves with them.
 - **The historical `tools/` spikes** hard-code repository paths. They are either updated to the new paths or moved to `pc/tools/archive/` and marked as not maintained.
-- **Word-list patterns.** The Mandarin lists hold regular expressions (`ALLOWED_WHEN`, `NOT_NUMBERS_WHEN`, `NUMERAL_RUN`). Patterns stored as data must use only syntax that behaves the same in Python `re` and in Java/Kotlin regex (lookahead yes; no Python-only constructs).
+- **Word-list patterns.** The Mandarin lists hold regular expressions (`ALLOWED_WHEN`, `NOT_NUMBERS_WHEN`, `NUMERAL_RUN`). Patterns stored as data must use only syntax that behaves the same in Python `re` and in Java/Kotlin regex (lookahead yes; negative lookbehind only over one character class, `(?<![…])`; no Python-only constructs). `NUMERAL_RUN` and one `NOT_NUMBERS_WHEN` pattern use that lookbehind today.
 - **Symlinks.** Not used: they break on Windows and complicate Android builds.
 - **Git history.** Every move uses `git mv` so file history follows.
 
@@ -162,7 +162,7 @@ A new Claude Code session can begin the Android spec with `shared/`, `specs/` an
 - **SC-1** The number of passing tests after the move equals the number before, measured at the start of the work; no test is deleted or skipped to get there, except those FR-024 lists for CI.
 - **SC-2** `english_golden.json` is unchanged and its test passes.
 - **SC-3** The replay run of `shared/fixtures/sample_run` produces byte-identical `storyboard.json` and `script.json` before and after the move.
-- **SC-4** `tools/spotter_check.py --count` (moved to `pc/tools/`) reports 0 new calls on the starter clips.
+- **SC-4** `tools/spotter_check.py --count` (moved to `pc/tools/`) reports the same calls and new calls on the starter clips as the baseline measured in T101 (54 calls, 5 new: the code at `ac0c716` already has 5 calls with no recording).
 - **SC-5** The duplicate check finds each shared file exactly once in the repository.
 - **SC-6** No Python file outside `epic_replay.paths` uses a `parents[...]` index or a `REPO` constant to reach outside its package (a test greps for it), except archived spikes.
 - **SC-7** The conformance suite holds at least 30 cases across the six areas of FR-021, and the Python runner passes all of them.
@@ -216,3 +216,4 @@ Not part of this feature; recorded so they are not lost.
 - Revision 1 (2026-11-13): first draft, from the repository at `ac0c716`.
 - Revision 2 (2026-11-13): the owner accepted all six decisions; FR-019a (constitution 1.5); section 10, notes for the Android spec, including ElevenLabs sign-in.
 - Revision 3 (2026-11-13): the Android spec is now 004, because 003 is the switchable model backends; the owner keeps the ElevenLabs API key (section 10).
+- Revision 4 (2026-11-14, agreed with the owner during T107): the portable regex subset allows negative lookbehind over one character class, which two stored Mandarin patterns use (edge cases, plan section 5); SC-4 and US1 scenario 3 compare the Spotter count with the baseline, which is 5 new calls before any change, not 0.
