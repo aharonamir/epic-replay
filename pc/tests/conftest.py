@@ -7,6 +7,28 @@ import pytest
 os.environ["EPIC_PROVIDER_MODE"] = "replay"
 
 
+# The model settings a developer may have in the shell or in pc/.env (spec 003): a test that
+# needs one sets it itself, so the suite gives the same result whichever profile or key is in
+# use. Done once, when the session starts and before any fixture builds a server (the browser
+# tests keep one for a whole module), and not for `pytest -m live`, which needs the keys.
+MODEL_SETTINGS = (
+    "EPIC_VISION_PROFILE", "EPIC_TEXT_PROFILE", "EPIC_VISION_API_BASE", "EPIC_VISION_MODEL",
+    "EPIC_VISION_API_KEY", "EPIC_AGENT_API_BASE", "EPIC_AGENT_MODEL", "EPIC_AGENT_API_KEY",
+    "EPIC_AGENT_PROVIDER", "DEEPSEEK_API_KEY",
+)  # fmt: skip
+
+
+def pytest_configure(config):
+    expr = config.getoption("markexpr") or ""
+    if "live" in expr and "not live" not in expr:  # `-m live` runs the paid tests, which need keys
+        return
+    from epic_replay import paths  # loads pc/.env first, so what it sets is removed too
+
+    assert paths.ENV_FILE
+    for name in MODEL_SETTINGS:
+        os.environ.pop(name, None)
+
+
 @pytest.fixture
 def no_network(monkeypatch):
     def refuse(*a, **k):

@@ -282,6 +282,7 @@ def test_a_gloss_reply_that_is_not_json_is_still_billed(tmp_path, monkeypatch):
     create = types.SimpleNamespace(create=lambda **_: reply)
     client = types.SimpleNamespace(chat=types.SimpleNamespace(completions=create))
     monkeypatch.setattr("openai.OpenAI", lambda **_: client)
+    monkeypatch.setenv("EPIC_AGENT_API_KEY", "test-key")  # the cloud profile needs one to call
     got = cm._gloss_call({"l1": "进球了"})
     assert got["gloss"] == {} and got["usage"]["input_tokens"] == 1000
 

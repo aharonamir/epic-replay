@@ -63,13 +63,17 @@ def sheet(tmp_path):
 
 def test_no_module_outside_the_client_names_a_model_url_price_or_json_mode():
     forbidden = re.compile(r"api\.deepseek\.com|PRICE_IN_PER_M|PRICE_OUT_PER_M|response_format")
+    # in the model code (providers/ and agents/) also a timeout number or a JSON mode; speech.py
+    # is ElevenLabs's, and the tools name the modes they probe
+    in_model_code = re.compile(r"timeout=\d|[\"']json_object[\"']|[\"']json_schema[\"']")
     found = []
     for top in (paths.PC / "src", paths.TOOLS):
         for p in top.rglob("*.py"):
             if p.name == "client.py" or "archive" in p.parts or "__pycache__" in p.parts:
                 continue
+            model_code = p.parent.name in ("providers", "agents") and p.name != "speech.py"
             for n, line in enumerate(p.read_text().splitlines(), 1):
-                if forbidden.search(line):
+                if forbidden.search(line) or (model_code and in_model_code.search(line)):
                     found.append(f"{p.relative_to(paths.ROOT)}:{n}: {line.strip()}")
     assert not found, "\n".join(found)
 

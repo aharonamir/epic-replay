@@ -8,7 +8,7 @@ there and changes the consent line with it (contracts/provider-adapters.md).
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from epic_replay import config
 from epic_replay.providers import models
@@ -19,7 +19,7 @@ class ModelEndpoint:
     provider: str
     model: str
     api_base: str
-    api_key: str = ""
+    api_key: str = field(default="", repr=False)
     profile: str = ""  # the id of the profile it came from
 
     def redacted(self) -> dict:
