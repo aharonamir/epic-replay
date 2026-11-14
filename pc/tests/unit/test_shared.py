@@ -36,7 +36,9 @@ def tree() -> list[str]:
 
 
 def shared_prefix() -> str:
-    return paths.SHARED.relative_to(paths.ROOT).as_posix() + "/"
+    if not paths.SHARED.resolve().is_relative_to(paths.ROOT):
+        pytest.skip(f"EPIC_SHARED_DIR points outside the repository: {paths.SHARED}")
+    return paths.SHARED.resolve().relative_to(paths.ROOT).as_posix() + "/"
 
 
 def lexicon(name: str) -> dict:
@@ -55,21 +57,24 @@ def portable(pattern: str) -> str | None:
     """Why `pattern` is outside the subset of shared/lexicons/README.md, or None if it is in."""
     i, depth, n = 0, 0, len(pattern)
     quantifiable = False
+    groups: list[bool] = []  # for each open group: is it a lookaround?
 
     def char_class(i: int) -> int:
         """Index after the class that starts at `pattern[i] == "["`, or -1 if it breaks a rule."""
         i += 1
         if i < n and pattern[i] == "^":
             i += 1
-        first = True
-        while i < n and (pattern[i] != "]" or first):
+        if i < n and pattern[i] == "]":
+            return -1  # a leading ] is a literal in Python, an error in Java
+        while i < n and pattern[i] != "]":
+            if pattern.startswith("&&", i):
+                return -1  # an intersection in Java, two literals in Python
             if pattern[i] == "\\":
                 if i + 1 >= n or pattern[i + 1] not in LITERAL_ESCAPES:
                     return -1
                 i += 1
             elif pattern[i] == "[":
                 return -1
-            first = False
             i += 1
         return i + 1 if i < n else -1
 
@@ -91,13 +96,16 @@ def portable(pattern: str) -> str | None:
                     return f"lookbehind at {i} is not one character class"
                 i, quantifiable = j + 1, False
                 continue
+            lookaround = pattern.startswith(("(?=", "(?!"), i)
             if not any(pattern.startswith(g, i) for g in ("(?:", "(?=", "(?!")):
                 return f"group at {i}: only (?:…), (?=…), (?!…) and (?<![…]) are allowed"
+            groups.append(lookaround)
             i, depth, quantifiable = i + 3, depth + 1, False
         elif c == ")":
             if depth == 0:
                 return f"unbalanced ) at {i}"
-            i, depth, quantifiable = i + 1, depth - 1, True
+            i, depth = i + 1, depth - 1
+            quantifiable = not groups.pop()  # no quantifier after a lookaround
         elif c in "?*+":
             if not quantifiable:
                 return f"quantifier {c} at {i} follows nothing, or makes a lazy or possessive one"
@@ -132,7 +140,21 @@ def test_every_stored_pattern_is_portable_and_compiles():
 
 @pytest.mark.parametrize(
     "pattern",
-    [r"(\d)", r"(?P<n>a)", r"(?<=a)b", r"(?<!ab)c", r"(?i)a", r"\bword", r"a+?", r"^a", r"a.b"],
+    [
+        r"(\d)",
+        r"(?P<n>a)",
+        r"(?<=a)b",
+        r"(?<!ab)c",
+        r"(?i)a",
+        r"\bword",
+        r"a+?",
+        r"^a",
+        r"a.b",
+        r"[a&&b]",
+        r"[]a]",
+        r"(?=a)+",
+        r"(?<![ab])+",
+    ],
 )
 def test_the_subset_check_refuses_what_is_outside_it(pattern):
     assert portable(pattern) is not None

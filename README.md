@@ -38,14 +38,13 @@ You need:
 - A local checkout of openJiuwen agent-core beside this repository (`../agent-core` from the repository root)
 - A DeepSeek API key and an ElevenLabs API key (paid tiers)
 
-The Python app lives in `pc/`; every command below runs there. `pip install -e ".[dev]"` does not resolve, because openjiuwen depends on a package by git URL. Install in this order instead:
+The Python app lives in `pc/`; every command below runs there. `pip install -e ".[dev]"` does not resolve, because openjiuwen depends on a package by git URL. Install in this order instead (the CI job does the same on a clean machine):
 
 ```bash
 cd pc
 uv venv --python 3.12 && source .venv/bin/activate
+uv pip install -r requirements-ci.txt          # pinned: the project's and agent-core's dependencies
 uv pip install -e ../../agent-core --no-deps
-uv pip install openai fastapi "uvicorn[standard]" python-multipart jinja2 jsonschema \
-  "pydantic>=2" numpy scipy opencv-python-headless playwright httpx python-dotenv pytest ruff
 uv pip install -e ".[dev]" --no-deps
 playwright install chromium
 cp .env.example .env

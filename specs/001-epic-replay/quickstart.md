@@ -28,6 +28,7 @@ Every command in this file runs from `pc/` with its virtual environment active. 
 ```bash
 cd pc
 uv venv --python 3.12 && source .venv/bin/activate
+uv pip install -r requirements-ci.txt                  # since 2026-11-14: the pinned set CI installs; or the list below
 uv pip install -e ../../agent-core --no-deps           # openjiuwen, local checkout beside the repository
 uv pip install openai fastapi "uvicorn[standard]" python-multipart jinja2 jsonschema \
   "pydantic>=2" numpy scipy opencv-python-headless playwright httpx python-dotenv pytest ruff

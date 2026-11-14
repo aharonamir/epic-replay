@@ -1,4 +1,4 @@
-"""Style packs (FR-040): every `*.json` in this folder except `voices.json`, checked at start-up.
+"""Style packs (FR-040): every `*.json` in `shared/styles/` except `voices.json`, checked at start-up.
 
 A pack is refused, with the reason logged, if it does not validate against
 contracts/style_pack.schema.json, names a voice missing from `voices.json` (the voices the

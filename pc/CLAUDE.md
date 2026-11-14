@@ -34,7 +34,8 @@ The data the app reads (schemas, packs, word lists, assets, the sample run, the 
 
 ```bash
 uv venv --python 3.12 && source .venv/bin/activate
-uv pip install -e ../../agent-core --no-deps           # then the dependencies: 001 quickstart.md section 2
+uv pip install -r requirements-ci.txt                  # pinned dependencies, as CI installs them
+uv pip install -e ../../agent-core --no-deps
 uv pip install -e ".[dev]" --no-deps && playwright install chromium
 pytest                       # replay mode, no network needed, live tests skipped
 pytest -m live               # agent and provider runs; costs money, ask first

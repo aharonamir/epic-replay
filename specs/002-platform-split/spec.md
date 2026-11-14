@@ -2,7 +2,7 @@
 
 **Feature branch**: `002-platform-split`
 **Created**: 2026-11-13
-**Status**: Approved, revision 6 (the owner accepted every recommendation in section 8 on 2026-11-13; corrections agreed on 2026-11-14, section 11)
+**Status**: Approved, revision 7 (the owner accepted every recommendation in section 8 on 2026-11-13; corrections agreed on 2026-11-14, section 11)
 **Input**: "I am thinking of converting this app to an Android app ... do you think both deployments can live on the same repo: android and pc? ... let's start with the first spec, read the repository current status and create a spec for the restructuring."
 **Depends on**: `specs/001-epic-replay` as built at `ac0c716` (2026-11-01). This spec changes where files live and how code finds them. It changes no behaviour of the PC app.
 
@@ -219,3 +219,4 @@ Not part of this feature; recorded so they are not lost.
 - Revision 4 (2026-11-14, agreed with the owner during T107): the portable regex subset allows negative lookbehind over one character class, which two stored Mandarin patterns use (edge cases, plan section 5); SC-4 and US1 scenario 3 compare the Spotter count with the baseline, which is 5 new calls before any change, not 0.
 - Revision 5 (2026-11-14, agreed with the owner during T108): the three contract examples were byte-identical to the sample run's `play_sheet.json`, `storyboard.json` and `script.json`, against SC-5; they are removed and the sample run is the example (FR-002, plan sections 2 and 3).
 - Revision 6 (2026-11-14, T109): the case format. Inputs and expected outputs are references (inline values, case files, shared fixtures with an optional JSON merge patch, style packs) instead of `input/` and `expected/` files only, because copies of the sample run as inputs, and identical small expected files, would break SC-5 (FR-020, plan section 6). To be confirmed by the owner at the T113 review.
+- Revision 7 (2026-11-14, T113 review): SC-5 has one recorded exception, the three narrator samples in `shared/assets/samples/`, which are the same silent placeholder until 001 T040 (listed in `test_shared.py`). FR-015: `shared/assets/LICENCES.md` names the tools at their new path (`pc/tools/`); no sound, font or other asset changed. The install steps in `README.md` and `pc/CLAUDE.md` use `pc/requirements-ci.txt`, the pinned set CI installs, so SC-8's evidence (the CI run) follows the README.

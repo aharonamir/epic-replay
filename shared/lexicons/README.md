@@ -39,7 +39,7 @@ The lists may change only with a spec change: `GLOBAL_BANNED` is part of the Eng
 
 **Masking.** Replace each phrase of the list, longest first, with as many `□` (U+25A1) as it has characters; then replace each match of each pattern, in file order, the same way. The masked text has the same length as the original.
 
-**Banned terms** (`find_banned`): mask with `allowed` and `allowed_when`. Then, for each term of the `banned` categories in order (a term in two categories counts once, in its first place), followed by a style pack's own Chinese `banned_terms`, report the term once if it occurs anywhere in the masked text (substring, no word boundaries). Then report `她` if it occurs.
+**Banned terms** (`find_banned`): mask with `allowed` and `allowed_when`. Then, for each term of the `banned` categories in order (a term in two categories counts once, in its first place), followed by a style pack's own Chinese `banned_terms`, report the term once if it occurs anywhere in the masked text (substring, no word boundaries). A pack term that is also in the lists is reported twice, once for each place. Then report `她` if it occurs.
 
 **Famous names** (`famous_names`): the same masking; each listed name that occurs, in list order.
 
@@ -62,5 +62,7 @@ Patterns stored in these files must behave the same in Python `re` and in Java/K
 - alternation `|`, and non-capturing groups `(?:…)`
 - lookahead `(?=…)` and negative lookahead `(?!…)`
 - negative lookbehind over one character class, `(?<![…])`: fixed width, one character (agreed by the owner on 2026-11-14)
+
+Inside a class, `&&` and a `]` as the first character are not allowed (Java reads them differently), and a quantifier may not follow a lookaround.
 
 Not allowed: capturing groups, named groups, back-references, other lookbehind, inline flags such as `(?i)`, anchors, `\d`, `\w`, `\s`, `\b` and other escape classes, Unicode property classes, possessive and lazy quantifiers.

@@ -1,6 +1,6 @@
 # Implementation Plan: One repository for the PC app and an Android app
 
-**Spec**: `specs/002-platform-split/spec.md` (revision 5, approved 2026-11-13, corrected 2026-11-14)
+**Spec**: `specs/002-platform-split/spec.md` (revision 7, approved 2026-11-13, corrected 2026-11-14)
 **Base**: `main` at `ac0c716`
 **Estimate**: about 14 hours, two working days, one person (tasks.md)
 
@@ -35,7 +35,7 @@ epic-replay/
       sample_run/           clip_meta, play_sheet, script, storyboard, user_context
       planted_errors/       6 scripts
       zh/                   zh_sentences.json, zh_alignment_shout.json
-    conformance/            <area>/<case>/case.json, input/, expected/
+    conformance/            <area>/<case>/case.json, expected/ when the output is large
   pc/
     CLAUDE.md               commands, pc layout, pc-only rules
     pyproject.toml  .env.example  .env (local, gitignored)

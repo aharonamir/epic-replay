@@ -21,8 +21,12 @@ FOLDERS += ("PLANTED", "ZH_FIXTURES", "RECORDINGS", "LABELS")
 
 
 def python_files():
-    for top in (paths.PC / "src", paths.PC / "tests"):
-        yield from (p for p in top.rglob("*.py") if "__pycache__" not in p.parts)
+    for top in (paths.PC / "src", paths.PC / "tests", paths.TOOLS):
+        yield from (
+            p
+            for p in top.rglob("*.py")
+            if "__pycache__" not in p.parts and "archive" not in p.parts
+        )
 
 
 def test_no_path_arithmetic_outside_the_paths_module():

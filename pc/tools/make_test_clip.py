@@ -5,8 +5,8 @@ is struck at 3.000 s (frame 90) and flies off, with a thud at the strike; a slow
 whole time (a decoy); a hard cut to another shot at 4.5 s (frame 135), which must not be
 taken for action.
 
-    python tools/make_test_clip.py eval/clips/synthetic_strike.mp4
-    python -m epic_replay.stages.s1_signals eval/clips/synthetic_strike.mp4
+    python tools/make_test_clip.py ../eval/clips/synthetic_strike.mp4    # from pc/
+    python -m epic_replay.stages.s1_signals ../eval/clips/synthetic_strike.mp4
     # expected: top candidate near frame 90, sound onset frame 90 +-2, cuts [135]
 """
 

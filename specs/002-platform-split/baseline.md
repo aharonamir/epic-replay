@@ -2,7 +2,7 @@
 
 Measured by T101 on 2026-11-14 at `96b7761` (`main`, which is `ac0c716` plus the spec commit and the removal of four log files), before any file moved. T106 and T112 repeat the same commands and fill in the after column.
 
-Environment: Python 3.12.13, openjiuwen 0.1.16 (editable install of `../agent-core` at `ab825d17a`), ruff 0.17.0, FFmpeg 8.0.1, `EPIC_PROVIDER_MODE=replay`.
+Environment: Python 3.12.13, openjiuwen 0.1.19 (editable install of `../agent-core` at `ab825d17a`; its pyproject says 0.1.19, the version CI checks out), ruff 0.17.0, FFmpeg 8.0.1, `EPIC_PROVIDER_MODE=replay`.
 
 ## Commands
 

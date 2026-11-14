@@ -13,6 +13,7 @@ against that fixture instead of written.
 from __future__ import annotations
 
 import json
+import shutil
 import sys
 
 from epic_replay import conformance, paths
@@ -227,9 +228,12 @@ def all_cases() -> dict[str, dict]:
 
 
 def write(rel: str, case: dict) -> str:
-    d = paths.CONFORMANCE / rel
-    if d.exists():
+    final = paths.CONFORMANCE / rel
+    if final.exists():
         return "kept"
+    # Built beside its final place and renamed at the end, so a failure leaves no half case.
+    d = final.with_name(f".{final.name}.partial")
+    shutil.rmtree(d, ignore_errors=True)
     d.mkdir(parents=True)
     expected = case.pop("expected", None)
     case = {"area": case.pop("area"), "function": case.pop("function"), **case}
@@ -250,6 +254,7 @@ def write(rel: str, case: dict) -> str:
             expected = {"file": "expected/output.json"}
     case["expected"] = expected
     (d / "case.json").write_text(json.dumps(case, ensure_ascii=False, indent=2) + "\n", "utf-8")
+    d.rename(final)
     return "written"
 
 
