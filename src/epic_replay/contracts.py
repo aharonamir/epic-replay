@@ -4,18 +4,18 @@ from __future__ import annotations
 
 import json
 from functools import cache
-from pathlib import Path
 
 from jsonschema import Draft202012Validator
 
-REPO = Path(__file__).resolve().parents[2]
-CONTRACTS = REPO / "specs" / "001-epic-replay" / "contracts"
+from epic_replay import paths
+
+CONTRACTS = paths.CONTRACTS
 EPS = 0.002  # seconds; timelines are rounded to ms in the examples
 
 
 @cache
 def _validator(name: str) -> Draft202012Validator:
-    schema = json.loads((CONTRACTS / f"{name}.schema.json").read_text())
+    schema = json.loads((paths.require(CONTRACTS, "contracts") / f"{name}.schema.json").read_text())
     Draft202012Validator.check_schema(schema)
     return Draft202012Validator(schema)
 

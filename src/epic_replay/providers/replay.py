@@ -15,9 +15,9 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
-from epic_replay import config
+from epic_replay import config, paths
 
-DEFAULT_DIR = config.REPO / "tests" / "fixtures" / "recordings"
+DEFAULT_DIR = paths.RECORDINGS
 
 
 class ReplayMiss(Exception):

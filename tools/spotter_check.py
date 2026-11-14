@@ -17,21 +17,20 @@ from pathlib import Path
 
 import jsonschema
 
-from epic_replay import config
+from epic_replay import config, paths
 from epic_replay.agents import spotter
 from epic_replay.guards.budget import Ledger
 from epic_replay.providers.vision import VisionAdapter
 from epic_replay.stages import s0_intake, s1_signals, s2_analysis, s3_key_moment
 from epic_replay.stages.base import RunContext
 
-REPO = Path(__file__).resolve().parents[1]
-SCHEMA = json.loads((REPO / "specs/001-epic-replay/contracts/play_sheet.schema.json").read_text())
+SCHEMA = json.loads((paths.CONTRACTS / "play_sheet.schema.json").read_text())
 
 
 def clips(only: str | None):
-    for lab in sorted((REPO / "eval/labels").glob("*.json")):
+    for lab in sorted(paths.LABELS.glob("*.json")):
         label = json.loads(lab.read_text())
-        path = REPO / "eval/clips" / label["clip"]
+        path = paths.CLIPS / label["clip"]
         if path.exists() and (only is None or label["clip"] == only):
             yield path, label
 

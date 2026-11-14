@@ -11,11 +11,11 @@ from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
-from epic_replay import contracts
+from epic_replay import paths
 
 HERE = Path(__file__).resolve().parent
 SKINS = HERE / "skins"
-FONTS = contracts.REPO / "assets" / "fonts"
+FONTS = paths.FONTS
 AI_LABEL = "AI COMMENTARY"
 TYPES = ("title", "replay_bug", "end_card", "ai_label")
 TIMEOUT_S = 20.0  # four overlays take a few seconds; S10 has 30 s and must reach its fallback

@@ -6,10 +6,7 @@ import os
 from dataclasses import dataclass
 from pathlib import Path
 
-from dotenv import load_dotenv
-
-REPO = Path(__file__).resolve().parents[2]
-load_dotenv(REPO / ".env", override=False)
+from epic_replay import paths  # reads .env
 
 PROVIDER_MODES = ("live", "record", "replay")
 
@@ -56,7 +53,7 @@ def load() -> Settings:
     ds = _s("DEEPSEEK_API_KEY")
     return Settings(
         provider_mode=mode,
-        runs_dir=Path(_s("EPIC_RUNS_DIR", str(REPO / "runs"))),
+        runs_dir=Path(_s("EPIC_RUNS_DIR", str(paths.RUNS_DEFAULT))),
         cap_run_usd=_f("EPIC_CAP_RUN_USD", 1.00),
         cap_day_usd=_f("EPIC_CAP_DAY_USD", 20.00),
         cap_pre_checkpoint_usd=_f("EPIC_CAP_PRE_CHECKPOINT_USD", 0.30),

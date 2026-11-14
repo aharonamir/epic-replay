@@ -22,13 +22,13 @@ import json
 import logging
 from pathlib import Path
 
-from epic_replay import contracts
+from epic_replay import contracts, paths
 from epic_replay.graphics import render
 
 log = logging.getLogger(__name__)
 
-STYLES = Path(__file__).resolve().parent
-ASSETS = contracts.REPO / "assets"
+STYLES = paths.STYLES
+ASSETS = paths.ASSETS
 REGISTRY = "voices.json"
 DEFAULT_LANGUAGE = "en"
 SOUNDS = ("bed", "climax", "replay_climax", "transition", "sting_in", "sting_out")
@@ -82,7 +82,7 @@ def usable_languages(pack: dict, blocks, voices: dict, name: str) -> dict:
 
 def load(styles: Path = STYLES, assets: Path = ASSETS) -> dict[str, dict]:
     """The usable packs by id, in picker order. Refused packs are logged and left out."""
-    voices = json.loads((styles / REGISTRY).read_text())
+    voices = json.loads((paths.require(styles, "styles") / REGISTRY).read_text())
     packs: dict[str, dict] = {}
     for path in sorted(styles.glob("*.json")):
         if path.name == REGISTRY:

@@ -52,7 +52,7 @@ from fastapi.responses import (
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-from epic_replay import config
+from epic_replay import config, paths
 from epic_replay.flow import runner
 from epic_replay.guards import consent
 from epic_replay.stages import s0_intake
@@ -79,7 +79,7 @@ async def lifespan(_app):
 
 app = FastAPI(title="Epic Replay", lifespan=lifespan)
 app.mount("/static", StaticFiles(directory=str(HERE / "static")), name="static")
-app.mount("/fonts", StaticFiles(directory=str(loader.ASSETS / "fonts")), name="fonts")
+app.mount("/fonts", StaticFiles(directory=str(paths.require(paths.FONTS, "fonts"))), name="fonts")
 app.state.settings = None  # tests set their own
 app.state.resume = None  # tests replace the background resume
 # One lock per run for every change the app makes to its folder: a card answer (check, pick
@@ -154,6 +154,15 @@ def run_dir(run_id: str) -> Path | None:
     if d.parent != root or not (d / "manifest.json").exists():
         return None
     return d
+
+
+def missing(root: Path, what: str) -> str | None:
+    """The FR-010 message when a whole folder is missing (after a move, say), else None."""
+    try:
+        paths.require(root, what)
+    except paths.MissingFolder as e:
+        return str(e)
+    return None
 
 
 def read(d: Path, name: str) -> dict:
@@ -869,13 +878,13 @@ def past(request: Request):
 def page(run_id: str, request: Request, part: str | None = None):
     d = run_dir(run_id)
     if d is None:
-        return HTMLResponse("No such run.", status_code=404)
+        return HTMLResponse(missing(settings().runs_dir, "runs") or "No such run.", status_code=404)
     return render(request, run_id, d, part=part == "main")
 
 
 # -- demo mode (FR-038): a stored run, shown as its result with the date it was made
 
-DEMO_DIR = config.REPO / "demo"
+DEMO_DIR = paths.DEMO
 
 
 def demo_dir(name: str) -> Path | None:
@@ -890,7 +899,7 @@ def demo_dir(name: str) -> Path | None:
 def demo_page(name: str, request: Request):
     d = demo_dir(name)
     if d is None:
-        return HTMLResponse("No such cached run.", status_code=404)
+        return HTMLResponse(missing(DEMO_DIR, "demo") or "No such cached run.", status_code=404)
     made = read(d, "manifest.json")["created_at"][:10]
     return render(request, name, d, demo=made)
 

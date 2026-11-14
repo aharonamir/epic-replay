@@ -34,17 +34,15 @@ from __future__ import annotations
 
 import argparse
 import subprocess
-import sys
 from pathlib import Path
 
 import numpy as np
 from scipy.signal import butter, sosfilt
 
-REPO = Path(__file__).resolve().parents[1]
-ASSETS = REPO / "assets"
-sys.path.insert(0, str(REPO / "src"))
+from epic_replay import paths
+from epic_replay.media import audio
 
-from epic_replay.media import audio  # noqa: E402
+ASSETS = paths.ASSETS
 
 SR = 48000
 LEVEL_LUFS = -20.0

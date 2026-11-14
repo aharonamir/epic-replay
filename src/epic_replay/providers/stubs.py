@@ -8,10 +8,11 @@ from pathlib import Path
 
 import numpy as np
 
+from epic_replay import paths
 from epic_replay.providers.base import AudioResult, CallInfo, Frame, VisionResult
 from epic_replay.styles.slots import spoken_units
 
-FIXTURE = Path(__file__).resolve().parents[3] / "tests" / "fixtures" / "sample_run"
+FIXTURE = paths.SAMPLE_RUN
 _INFO = CallInfo("stub", "stub", 0.0, 0.0, True)
 
 
