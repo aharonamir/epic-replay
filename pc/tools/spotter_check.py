@@ -204,6 +204,11 @@ def run_profile(a, s: config.Settings) -> None:
         raise SystemExit(
             f"{profile.id} is a cloud profile: its calls cost money; ask the owner first"
         )
+    if a.report_only:  # after the owner's marks: the same runs, the verdicts filled in
+        rows = json.loads((OUT / f"{profile.id}_runs.json").read_text())
+        (OUT / f"{profile.id}.md").write_text(report(profile, rows, a.repeats))
+        print(f"rewrote {OUT / (profile.id + '.md')} from {len(rows)} runs")
+        return
     todo = list(clips(a.clip, tuple(a.skip)))
     rows = []
     for path, label in todo:
@@ -234,6 +239,12 @@ def main() -> None:
     ap.add_argument("--clip")
     ap.add_argument("--profile", help="measure this local vision profile (spec 003, FR-017)")
     ap.add_argument("--repeats", type=int, default=2)
+    ap.add_argument(
+        "--report-only",
+        action="store_true",
+        help="rebuild <ID>.md from <ID>_runs.json "
+        "and the owner's marks, with no model call (--profile)",
+    )
     ap.add_argument("--skip", nargs="*", default=[], help="clips to leave out (--profile)")
     a = ap.parse_args()
     if a.profile:
