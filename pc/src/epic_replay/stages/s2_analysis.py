@@ -35,7 +35,7 @@ def run(ctx: RunContext) -> StageResult:
         "clip_info": info,
         "sheets": looks,
         "events_call": events,
-        "expected_usd": VisionAdapter.expected_sheets_usd(len(calls)),
+        "expected_usd": VisionAdapter.expected_sheets_usd(len(calls), ctx.settings),
         "actual_usd": round(sum(c.get("cost_usd", 0.0) for c in calls), 6),
     }
     ctx.path(TRACE).write_text(json.dumps(trace, indent=2) + "\n")

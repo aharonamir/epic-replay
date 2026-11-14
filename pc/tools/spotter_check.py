@@ -94,7 +94,7 @@ def main() -> None:
               f"{sheet['outcome_summary']['value'][:50]}")  # fmt: skip
     if a.count:
         print(f"total: {total_sheets} calls, {total_new} new calls, about "
-              f"{VisionAdapter.expected_sheets_usd(total_new):.3f} USD (average), at most "
+              f"{VisionAdapter.expected_sheets_usd(total_new, s):.3f} USD (average), at most "
               f"{total_new * 0.016:.3f} USD (ceiling: two images a call when the new calls are the "
               f"events calls), plus a retry for any misfit reply")  # fmt: skip
 

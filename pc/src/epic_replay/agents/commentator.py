@@ -33,23 +33,33 @@ from __future__ import annotations
 import asyncio
 import json
 import re
-import time
 from dataclasses import dataclass, field
-
-from openai import APITimeoutError
 
 from epic_replay import contracts
 from epic_replay.guards.budget import CapExceeded, Ledger, PaidResult, paid_call
-from epic_replay.providers import llm
+from epic_replay.providers import client, llm, models
 from epic_replay.providers.replay import Recorder, ReplayMiss, cache_key
 from epic_replay.stages import s6_checks
 from epic_replay.styles.slots import CJK, spoken_units
 
 MAX_ITERATIONS = 6
-PRICE_IN_PER_M, PRICE_OUT_PER_M = 0.30, 1.20  # deepseek-flash, as providers/vision.py
+
+
+def prices() -> tuple[float, float]:
+    """USD per million tokens in and out, from the text profile (T204 makes the estimates
+    below follow the chosen profile too; until then they are the default profile's)."""
+    p = models.get(llm.agent_endpoint().profile, "text")
+    return p.price_in_per_m, p.price_out_per_m
+
+
+_DEFAULT = models.get(models.DEFAULT_PROFILE)
 # Ceiling: six model turns of about 5,000 tokens in and 1,500 out (reasoning included).
-ESTIMATE_USD = round(MAX_ITERATIONS * (5000 * PRICE_IN_PER_M + 1500 * PRICE_OUT_PER_M) / 1e6, 6)
-DRAFT_ESTIMATE_USD = round((5000 * PRICE_IN_PER_M + 3000 * PRICE_OUT_PER_M) / 1e6, 6)
+ESTIMATE_USD = round(
+    MAX_ITERATIONS * (5000 * _DEFAULT.price_in_per_m + 1500 * _DEFAULT.price_out_per_m) / 1e6, 6
+)
+DRAFT_ESTIMATE_USD = round(
+    (5000 * _DEFAULT.price_in_per_m + 3000 * _DEFAULT.price_out_per_m) / 1e6, 6
+)
 KEY_ROLES = ("climax", "replay_climax")
 CAPTION = re.compile(
     r"\b(caption|captions|subtitle|subtitles|text|texts|title|titles|on-screen|logo|watermark|"
@@ -398,9 +408,10 @@ class Outcome:
 
 
 def cost_of(usage: dict) -> float:
+    price_in, price_out = prices()
     return round(
-        usage.get("input_tokens", 0) * PRICE_IN_PER_M / 1e6
-        + usage.get("output_tokens", 0) * PRICE_OUT_PER_M / 1e6,
+        usage.get("input_tokens", 0) * price_in / 1e6
+        + usage.get("output_tokens", 0) * price_out / 1e6,
         6,
     )
 
@@ -415,12 +426,7 @@ def build_agent(tools: Tools, system: str):
     agent = ReActAgent(card=AgentCard(name="commentator", description="writes the script"))
     agent.configure(
         ReActAgentConfig()
-        .configure_model_client(
-            provider=ep.provider,
-            api_key=ep.api_key or "unset",
-            api_base=ep.api_base,
-            model_name=ep.model,
-        )  # fmt: skip
+        .configure_model_client(**client.agent_config(ep))
         .configure_prompt_template([{"role": "system", "content": system}])
         .configure_max_iterations(MAX_ITERATIONS)
     )
@@ -453,50 +459,42 @@ async def _run_agent(tools: Tools, system: str, query: str) -> dict:
 
 def _structured_draft(system: str, query: str) -> dict:
     """One plain JSON call to the same model: the fallback's draft."""
-    from openai import OpenAI
-
-    ep = llm.agent_endpoint()
-    client = OpenAI(api_key=ep.api_key or "unset", base_url=ep.api_base, timeout=60)
-    t0 = time.monotonic()
-    r = client.chat.completions.create(
-        model=ep.model,
-        messages=[
+    r = client.chat(
+        llm.agent_endpoint(),
+        [
             {"role": "system", "content": system.split("Work:")[0]
              + "Answer with one JSON object: " + json.dumps(DRAFT_SCHEMA)},
             {"role": "user", "content": query},
         ],
-        response_format={"type": "json_object"},
+        schema=DRAFT_SCHEMA,
     )  # fmt: skip
-    u = r.usage
-    usage = {"input_tokens": u.prompt_tokens, "output_tokens": u.completion_tokens} if u else {}
+    usage = r.usage if r.raw_usage else {}
     try:
-        draft = json.loads(r.choices[0].message.content or "{}")
+        draft = json.loads(r.text or "{}")
     except ValueError:
         draft = {}
-    return {"draft": draft, "usage": usage, "latency_s": round(time.monotonic() - t0, 2)}
+    return {"draft": draft, "usage": usage, "latency_s": round(r.latency_s, 2)}
 
 
-GLOSS_ESTIMATE_USD = round((1000 * PRICE_IN_PER_M + 1500 * PRICE_OUT_PER_M) / 1e6, 6)
+GLOSS_ESTIMATE_USD = round(
+    (1000 * _DEFAULT.price_in_per_m + 1500 * _DEFAULT.price_out_per_m) / 1e6, 6
+)
 
 
 def _gloss_call(lines: dict) -> dict:
     """One plain JSON call: each line's English meaning."""
-    from openai import OpenAI
-
-    ep = llm.agent_endpoint()
-    r = OpenAI(api_key=ep.api_key or "unset", base_url=ep.api_base, timeout=60).chat.completions.create(
-        model=ep.model,
-        messages=[
+    r = client.chat(
+        llm.agent_endpoint(),
+        [
             {"role": "system", "content": "Give the plain English meaning of each Chinese line. "
              "Answer with one JSON object with the same keys and nothing else."},
             {"role": "user", "content": json.dumps(lines, ensure_ascii=False)},
         ],
-        response_format={"type": "json_object"},
+        schema={"type": "object"},
     )  # fmt: skip
-    u = r.usage
-    usage = {"input_tokens": u.prompt_tokens, "output_tokens": u.completion_tokens} if u else {}
+    usage = r.usage if r.raw_usage else {}
     try:  # a reply that is not JSON was still billed: it must reach the ledger
-        meaning = json.loads(r.choices[0].message.content or "{}")
+        meaning = json.loads(r.text or "{}")
     except ValueError:
         meaning = {}
     return {"gloss": meaning, "usage": usage}
@@ -518,7 +516,7 @@ def gloss(script: dict, ledger: Ledger, recorder: Recorder) -> tuple[dict, float
 
     got = paid_call(
         ledger, stage="S5", provider="openai-compatible", model=model,
-        estimate_usd=0.0 if recorder.has("commentator_gloss", key) else GLOSS_ESTIMATE_USD, fn=call, billed_on=(APITimeoutError,),
+        estimate_usd=0.0 if recorder.has("commentator_gloss", key) else GLOSS_ESTIMATE_USD, fn=call, billed_on=client.TIMEOUT_ERRORS,
     )  # fmt: skip
     return got["gloss"], spent[-1]
 
@@ -596,7 +594,7 @@ def write(
 
         got = paid_call(
             ledger, stage="S5", provider="openai-compatible", model=model,
-            estimate_usd=0.0 if recorder.has("commentator_draft", dkey) else DRAFT_ESTIMATE_USD, fn=draft_call, billed_on=(APITimeoutError,),
+            estimate_usd=0.0 if recorder.has("commentator_draft", dkey) else DRAFT_ESTIMATE_USD, fn=draft_call, billed_on=client.TIMEOUT_ERRORS,
         )  # fmt: skip
         draft = got.get("draft") or {}
         cost += spent[-1]

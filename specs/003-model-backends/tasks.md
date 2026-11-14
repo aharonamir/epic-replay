@@ -10,7 +10,7 @@ Rules: in order; the full suite green after every task; one commit per task; the
 - [x] **T202 Profiles and the contract** (1.5 h). Write `shared/contracts/model-backend.md` and `model_profile.schema.json`. Add `shared/models/deepseek-flash.json` with today's values (plan section 3) and `providers/models.py`: load, validate, unique `model` names, choose by role from `EPIC_VISION_PROFILE` and `EPIC_TEXT_PROFILE`, apply the old `EPIC_VISION_*` and `EPIC_AGENT_*` overrides, the key fallback. `llm.vision_endpoint()` and `agent_endpoint()` return endpoints built from profiles.
   *Done when*: the suite and T201's hashes pass; `test_models.py` covers the overrides, the role check and a missing key.
 
-- [ ] **T203 One client** (2.5 h). Add `providers/client.py` (plan section 4). Route `vision._post`, `commentator._structured_draft`, `_gloss_call` and `build_agent` through it. Move every price, timeout and JSON mode into the profile; delete the constants from `vision.py` and `commentator.py`. Add the SC-3 grep test.
+- [x] **T203 One client** (2.5 h). Add `providers/client.py` (plan section 4). Route `vision._post`, `commentator._structured_draft`, `_gloss_call` and `build_agent` through it. Move every price, timeout and JSON mode into the profile; delete the constants from `vision.py` and `commentator.py`. Add the SC-3 grep test.
   *Done when*: the suite, T201's hashes and `spotter_check.py --count` (54 calls, 5 new, as in the 002 baseline) pass; the grep test passes.
 
 - [ ] **T204 Costs, parallel limit, reachability** (1 h). The budget guard and the play card's estimate use the profile; local profiles cost 0. S2 respects `max_parallel`. `check_reachable` runs before a run's first call for local profiles and fails with the message in spec US1 scenario 3.

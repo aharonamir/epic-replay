@@ -25,6 +25,8 @@ Result = {
 }
 ```
 
+`look` adds the schema to the question; `chat` does not touch the messages, the caller's prompt already says what to answer, and its `schema` only turns the profile's JSON mode on (and is sent in `json_schema` mode). A profile with no key sends no `Authorization` header from `look` and `chat`; the agent-core client that runs the ReAct loop adds its own placeholder key, which a local server ignores.
+
 A reply that does not fit the schema is asked once more, with the line "Fill in the fields; do not repeat the schema." added to the question. Every attempt is its own call, with its own usage and cost. When the retry does not fit either, `SchemaMisfit`.
 
 Nothing here carries a URL, a header or a key: those belong to a profile of kind `openai_compatible`. An `on_device` backend names model files and where to download them instead (spec 004).

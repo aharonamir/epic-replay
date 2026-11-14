@@ -12,6 +12,7 @@ import pytest
 from epic_replay import config, paths
 from epic_replay.agents import spotter
 from epic_replay.guards.budget import Ledger
+from epic_replay.providers import client
 from epic_replay.providers import vision as vision_mod
 from epic_replay.providers.replay import Recorder
 from epic_replay.providers.vision import VisionAdapter
@@ -92,7 +93,7 @@ def run_ctx(tmp_path, prepared, mode, monkeypatch, rec_dir, slow=None, answer=No
     ctx = RunContext(run_dir=d, settings=s, adapters={"vision": vis}, ledger=led,
                      emit=events.append)  # fmt: skip
     fake = FakeEndpoint(slow, answer)
-    monkeypatch.setattr(vision_mod.httpx, "post", fake)
+    monkeypatch.setattr(client.httpx, "post", fake)
     return ctx, fake, events
 
 
