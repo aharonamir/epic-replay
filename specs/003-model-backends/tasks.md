@@ -28,7 +28,7 @@ Rules: in order; the full suite green after every task; one commit per task; the
 - [x] **T208 One end-to-end local run** (0.5 h). Both roles local, one single-shot demo clip through the page. Check SC-4 (0 USD for models) and SC-6 (no request to any other host during S2), and record both.
   *Done when*: the run's `cost.json` and the check are recorded in `provider-notes.md`.
 
-- [ ] **T209 Review and merge** (0.5 h). A fresh reviewer reads the diff for anything that changed the DeepSeek path, a price or URL outside the client, and a key that could be logged. Merge with the owner's yes.
+- [x] **T209 Review and merge** (0.5 h). A fresh reviewer reads the diff for anything that changed the DeepSeek path, a price or URL outside the client, and a key that could be logged. Merge with the owner's yes.
 
 **Total**: about 12 hours.
 
