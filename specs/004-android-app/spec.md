@@ -2,7 +2,7 @@
 
 **Feature branch**: `004-android-app`
 **Created**: 2026-11-15
-**Status**: Draft, revision 1: part A (where the models run) is specified; part B (the rest of the app) is an outline that needs the owner's decisions in section 9
+**Status**: Draft, revision 2: part A (where the models run) is specified and the owner's decisions D1 to D11 are in section 9; part B (the rest of the app) is an outline that the spikes in the plan firm up
 **Input**: "Start spec 004 with the three choices, the phone options are model run on cloud or downloaded like voice-reps." (2026-11-15). Before that: "can the user choose where the model runs: cloud with api key, ollama for pc, or local model on the phone like in voice-reps".
 **Depends on**: spec 002 (`shared/`, the conformance suite), spec 003 (model profiles and the model contract), merged at `e754d4a`. The on-device pattern is the owner's `voice-reps` app (github.com/aharonamir/voice-reps, commit `e03d3b3` and later, read 2026-11-15).
 
@@ -98,7 +98,7 @@ A user picks or records a 3 to 30 s clip, chooses a narrator and a language, con
 
 - **FR-001** `shared/contracts/model_profile.schema.json` gains kind `on_device`: instead of `api_base`, `api_key_env`, `timeout_s` and the JSON mode of a server, it holds `engine` (`llama.cpp`), `files` (for each: `name`, `url`, `sha256`, `bytes`, and `role` of the file: `weights`, `projector` or `steering`), `context_tokens`, `min_free_ram_mb`, `min_free_storage_mb`, `license`, plus the fields every profile has (`id`, `label`, `roles`, `supports_tools`, `status`, `notes`, price 0). `location` gains `device`.
 - **FR-002** The PC loader reads the new schema and **leaves out** a profile of a kind it cannot run, with a log line, instead of refusing the whole folder; the Android loader leaves out `openai_compatible` profiles of `location: local` (a server on the PC) in v1. A test on each platform lists the profiles it loads.
-- **FR-003** `shared/models/` ships one `on_device` profile in v1 (D2). Its file URLs and checksums are filled in by the task that downloads the files and checks them, from what was fetched, not from documentation (rule 2).
+- **FR-003** `shared/models/` ships two `on_device` profiles in v1 (D2): **Gemma 4 E2B**, the one offered first and preselected on the download screen, and **Qwen3.5 4B**, offered as an optional download. Each is offered for a role only if spike S1 showed the engine runs it for that role: llama.cpp's multimodal list names Gemma 4 and not Qwen3.5 (section 2), so Qwen3.5 may be text-only on the phone. Qwen3.5 is a thinking model: its profile switches the reasoning off through the chat template, because on the PC it returned nothing after about 3,000 tokens otherwise (`docs/local-models.md`). Both start `experimental`. File URLs and checksums are filled in by the task that downloads the files and checks them, from what was fetched, not from documentation (rule 2).
 - **FR-004** `shared/contracts/model-backend.md` states that `look()` and `chat()` have one meaning on every backend, lists what an `on_device` backend must return (`usage` token counts from the engine, `usd` 0, `latency_s`), and the errors it raises: `Unreachable` is replaced for `on_device` by `NotInstalled` (files missing or failing the checksum) and `OutOfMemory`.
 
 **The choice**
@@ -161,8 +161,8 @@ A user picks or records a 3 to 30 s clip, chooses a narrator and a language, con
 
 ## 7. Assumptions
 
-- Kotlin, Android 9+ (API 28), arm64 with ARMv8.2 dot-product, as voice-reps; sideloaded signed APK, not the Play Store, in v1 (D8).
-- The phone models are GGUF files that llama.cpp runs; the first is Gemma 4 E2B because llama.cpp's multimodal list names it (D2). Qwen3-VL and Qwen3.5 would need llama.cpp support first.
+- Kotlin and Jetpack Compose (D5), Android 9+ (API 28), arm64 with ARMv8.2 dot-product, as voice-reps; sideloaded signed APK, not the Play Store, in v1 (D8).
+- The phone models are GGUF files that llama.cpp runs; the default is Gemma 4 E2B because llama.cpp's multimodal list names it, and Qwen3.5 4B is the optional download (D2). Qwen3-VL would need llama.cpp support first.
 - The user's keys are their own, entered by them; the app never ships a key.
 - ElevenLabs stays the voice for both platforms (spec 002, section 10); on-device speech (voice-reps' ZONOS3) is a different product and out of scope (constitution VI: narrators are house voices).
 
@@ -178,16 +178,16 @@ A user picks or records a 3 to 30 s clip, chooses a narrator and a language, con
 
 | # | Decision | Recommendation |
 |---|---|---|
-| D1 | The phone offers cloud or downloaded models; no home server in v1 | Decided by the owner, 2026-11-15. A third location `network` stays open for the PC (D9) |
-| D2 | Which model is the first on-device profile | Gemma 4 E2B: llama.cpp lists it for vision. Qwen3-VL 2B and Qwen3.5 4B are not on llama.cpp's list. Confirm on a device in spike S1 before the profile is written |
-| D3 | The default for each role at first launch | No default: the first-run screen asks. A silent default would send frames to a provider or promise quality the phone cannot give |
+| D1 | The phone offers cloud or downloaded models; no home server in v1 | **Decided** (owner, 2026-11-15). A third location `network` is added on the PC side (D9) |
+| D2 | The on-device models | **Decided** (owner, 2026-11-15): Gemma 4 E2B is the default, Qwen3.5 4B an optional download (FR-003). Spike S1 confirms what each can do on a device before its profile is written |
+| D3 | The default for each role at first launch | **Decided**: no default; the first-run screen asks |
 | D4 | Key storage | Keystore-wrapped AES key, ciphertext in private storage, no backup (FR-008). A token server for ElevenLabs later |
-| D5 | UI toolkit: the same as voice-reps (AppCompat views and fragments) or Jetpack Compose | The same as voice-reps, to reuse its patterns (download gate, crash log, engine wrapper); the owner decides |
-| D6 | Media pipeline (slow motion, overlays, the mix with ducking, export): Media3 Transformer, or MediaCodec and OpenGL by hand, or a bundled FFmpeg | Spike S2 on Media3 first (it is the platform's own library); fall back only if a needed effect is missing |
+| D5 | UI toolkit | **Decided**: Jetpack Compose. voice-reps (views and fragments) is reused for the engine wrapper, the download gate and the crash log, not for the screens |
+| D6 | Media pipeline (slow motion, overlays, the mix with ducking, export) | **Decided**: Media3 Transformer first; spike S2 lists what is missing, and only then is a fallback (MediaCodec and OpenGL by hand, or a bundled FFmpeg) considered |
 | D7 | The Commentator on Android is a Kotlin loop, not agent-core | Yes (FR-021); measure it against the cloud before trusting it |
 | D8 | Distribution | Sideloaded signed APK in v1, with the persistent keystore of voice-reps; the Play Store is a later spec |
-| D9 | The PC's `local` location also covers a server on another machine, and says "on this computer" | Add a third location `network` to the shared schema and the consent file now (a small spec 003 follow-up), so the three words mean what they say before Android reads them |
-| D10 | Consent wording moves to `shared/` (FR-015, FR-016) before any Android code | Yes; a PC change with no change of words |
+| D9 | `local` also covers a server on another machine and says "on this computer" | **Decided**: add `network` to the shared schema and the consent file now (task T403, a PC change) so the words mean what they say before Android reads them |
+| D10 | Consent wording moves to `shared/` before any Android code | **Decided**: yes (T404), with no change of the cloud words |
 | D11 | Languages in v1 | English and Mandarin commentary as the PC; the app's own text in English |
 
 ## 10. Risks
@@ -202,3 +202,4 @@ A user picks or records a 3 to 30 s clip, chooses a narrator and a language, con
 ## 11. Revision history
 
 - Revision 1 (2026-11-15): first draft. Part A (the model sources) specified from spec 003 and voice-reps; part B outlined. Decisions D1 to D11 for the owner. The owner's reading of the three choices is recorded in the summary table.
+- Revision 2 (2026-11-15): the owner decided D2 (Gemma 4 E2B by default, Qwen3.5 4B as an optional download), D3 (no default model choice), D5 (Jetpack Compose), D6 (Media3 first), D9 (a `network` location, now) and D10 (consent wording to `shared/`, now). FR-003 ships two on-device profiles. Plan and tasks added.
