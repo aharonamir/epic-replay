@@ -2,7 +2,7 @@
 
 **Feature branch**: `003-model-backends`
 **Created**: 2026-11-13
-**Status**: Draft, revision 8 (being built; the owner asked for T201 to T209 on 2026-11-14)
+**Status**: Approved and merged (PR #4, 2026-11-14), revision 8
 **Input**: "Keep the usual API key I have now for ElevenLabs, and create an interface for the model serving (DeepSeek) so that I can switch between external OpenAI-compatible, like DeepSeek, or local, like Gemma 4 E2B or Qwen3-VL-2B."
 **Depends on**: spec 002 (the `shared/` folder). Read from the repository at `ac0c716`; re-checked at `e06bb95` after spec 002 was merged (the model code is unchanged, only moved to `pc/`).
 
