@@ -1,0 +1,10 @@
+{
+  "text_version": "4",
+  "consent": "I filmed this or have permission to use it. Everyone in it is an adult man who is happy to be filmed. I have read the note below.",
+  "lines": {
+    "cloud": "Still frames from the clip are sent to the vision model provider to be looked at. Nothing else leaves this machine. The provider may use what it receives to train its models.",
+    "local": "Still frames from the clip are looked at on this computer by {label}. They are sent to no model provider.",
+    "network": "Still frames from the clip are sent to another computer of yours, running {label}. They are sent to no model provider.",
+    "device": "Still frames from the clip are looked at on this phone by {label}. They never leave the phone."
+  }
+}

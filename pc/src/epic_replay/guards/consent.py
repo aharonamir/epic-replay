@@ -1,34 +1,23 @@
 """Consent record (FR-003). The page reads the wording from here. The cloud provider line
 names no service: the vision endpoint is configuration and can change (owner, 2026-10-29).
+The words are shared data, `shared/copy/consent.json`, read by both apps (spec 004, FR-015).
 With a `local` vision profile (spec 003, FR-015) the line says the frames are looked at on this
 computer and goes to no provider; the record says which of the two wordings was agreed to,
 and a consent given for a local model does not cover sending frames to a cloud provider."""
 
 from __future__ import annotations
 
+import json
 from datetime import UTC, datetime
 
-from epic_replay import config
+from epic_replay import config, paths
 from epic_replay.providers import models
 
-TEXT_VERSION = "4"  # 4: the note names no service or country (2026-10-29)
-
-CONSENT_TEXT = (
-    "I filmed this or have permission to use it. Everyone in it is an adult man who is "
-    "happy to be filmed. I have read the note below."
-)
-
-
-PROVIDER_LINE = (
-    "Still frames from the clip are sent to the vision model provider to be looked at. "
-    "Nothing else leaves this machine. The provider may use what it receives to train its models."
-)
-
-
-LOCAL_LINE = (
-    "Still frames from the clip are looked at on this computer by {label}. "
-    "They are sent to no model provider."
-)
+_WORDS = json.loads((paths.COPY / "consent.json").read_text("utf-8"))
+TEXT_VERSION = _WORDS["text_version"]  # 4: the note names no service or country (2026-10-29)
+CONSENT_TEXT = _WORDS["consent"]
+PROVIDER_LINE = _WORDS["lines"]["cloud"]
+LOCAL_LINE = _WORDS["lines"]["local"]  # the wordings of `network` and `device` are in the file
 
 
 def vision_profile(s: config.Settings | None = None) -> models.Profile:
@@ -41,7 +30,7 @@ REACH = {"device": 0, "local": 0, "network": 1, "cloud": 2}
 
 def provider_line(s: config.Settings | None = None) -> str:
     p = vision_profile(s)
-    return LOCAL_LINE.format(label=p.label) if p.location == "local" else PROVIDER_LINE
+    return _WORDS["lines"][p.location].format(label=p.label)
 
 
 class ConsentRequired(Exception):
