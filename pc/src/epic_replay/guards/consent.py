@@ -35,6 +35,10 @@ def vision_profile(s: config.Settings | None = None) -> models.Profile:
     return models.get((s or config.load()).vision_profile, "vision")
 
 
+# How far the frames go under each location: a consent covers a run whose frames go no further.
+REACH = {"device": 0, "local": 0, "network": 1, "cloud": 2}
+
+
 def provider_line(s: config.Settings | None = None) -> str:
     p = vision_profile(s)
     return LOCAL_LINE.format(label=p.label) if p.location == "local" else PROVIDER_LINE
@@ -66,6 +70,7 @@ def require(user_context: dict, settings: config.Settings | None = None) -> None
     c = user_context.get("consent") or {}
     if c.get("confirmed") is not True or c.get("text_version") != TEXT_VERSION:
         raise ConsentRequired("consent_required")
-    if settings is not None and c.get("vision_location", "cloud") == "local":
-        if vision_profile(settings).location != "local":
+    if settings is not None:
+        agreed = REACH.get(c.get("vision_location", "cloud"), -1)  # an unknown place covers none
+        if REACH[vision_profile(settings).location] > agreed:
             raise ConsentRequired("consent_required")

@@ -46,8 +46,8 @@ A profile is one JSON file, `shared/models/<id>.json`, named after its `id`. Fie
 | Field | Meaning |
 |---|---|
 | `id`, `label` | The name in settings and the name shown to the user |
-| `kind` | `openai_compatible` (`on_device` is reserved for spec 004) |
-| `location` | `cloud`: frames and text go to a provider. `local`: to a server on the owner's network or machine; the consent line says so |
+| `kind` | `openai_compatible`, or `on_device` (spec 004): model files run inside the app by `engine` (`llama.cpp`), with `files` (`name`, `url`, `sha256`, `bytes`, `role`: `weights`, `projector` or `steering`), `context_tokens`, `min_free_ram_mb`, `min_free_storage_mb` and `license` instead of the server fields. A platform leaves out, with a log line, a valid profile of a kind or location it cannot run; the PC runs `openai_compatible` only |
+| `location` | `cloud`: frames and text go to a provider. `local`: to a server on this computer. `network`: to a server on another computer of the owner's. `device`: nothing leaves the phone (`on_device` profiles only); the consent line says which |
 | `roles` | `vision`, `text`, or both: which roles the profile may be chosen for |
 | `api_base` | The server's base URL, without a trailing slash; the app adds `/chat/completions` and `/models` |
 | `model` | The model name sent to the server. **Unique across profiles**: it is part of every recording key, so two profiles never answer each other's requests |

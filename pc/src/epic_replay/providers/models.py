@@ -28,6 +28,10 @@ from epic_replay import paths
 log = logging.getLogger(__name__)
 
 ROLES = ("vision", "text")
+# What this platform can run (spec 004, FR-002). A valid profile of another kind or location,
+# such as an `on_device` one for the phone, is left out with a log line, not refused.
+RUNNABLE_KINDS = ("openai_compatible",)
+RUNNABLE_LOCATIONS = ("cloud", "local", "network")
 DEFAULT_PROFILE = "deepseek-flash"
 PROFILE_ENV = {"vision": "EPIC_VISION_PROFILE", "text": "EPIC_TEXT_PROFILE"}
 BASE_ENV = {"vision": "EPIC_VISION_API_BASE", "text": "EPIC_AGENT_API_BASE"}
@@ -117,6 +121,8 @@ def problems(data: object, stem: str) -> list[str]:
         return out or ["not an object"]
     if data["id"] != stem:
         out.append(f"id {data['id']} is not the file name {stem}")
+    if data["kind"] != "openai_compatible":
+        return out
     if data["call_ceiling_usd"] < data["call_mean_usd"]:
         out.append("call_ceiling_usd is below call_mean_usd")
     if set(data["timeout_s"]) != set(data["roles"]):
@@ -125,7 +131,8 @@ def problems(data: object, stem: str) -> list[str]:
 
 
 def load(directory: Path | None = None) -> dict[str, Profile]:
-    """The usable profiles by id. A refused profile is logged and left out; so is one whose
+    """The usable profiles by id. A refused profile is logged and left out; so is a valid one
+    this platform cannot run (FR-002), and one whose
     `model` another profile already has (FR-007: the model is part of every recording key)."""
     directory = paths.MODELS if directory is None else directory
     paths.require(directory, "model profiles")
@@ -138,6 +145,14 @@ def load(directory: Path | None = None) -> dict[str, Profile]:
             log.warning("model profile %s refused: not JSON (%s)", path.name, e)
             continue
         errs = problems(data, path.stem)
+        if not errs and (
+            data["kind"] not in RUNNABLE_KINDS or data["location"] not in RUNNABLE_LOCATIONS
+        ):
+            log.info(
+                "model profile %s left out: kind %s at location %s cannot run on this platform",
+                path.name, data["kind"], data["location"],
+            )  # fmt: skip
+            continue
         if not errs and data["model"] in owner:
             errs = [f"model {data['model']} is also the model of profile {owner[data['model']]}"]
         if errs:
