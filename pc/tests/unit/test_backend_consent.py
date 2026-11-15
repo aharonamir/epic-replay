@@ -50,11 +50,13 @@ def test_a_cloud_profile_keeps_todays_line_and_names_no_service():
 
 def test_a_local_profile_says_the_frames_stay_on_this_computer(local):
     line = consent.provider_line(local)
-    assert line == (
+    # T404b: the text role stays on DeepSeek here, so the line says where the text goes too
+    assert line.startswith(
         "Still frames from the clip are looked at on this computer by Tiny (local). "
-        "They are sent to no model provider."
+        "They are sent to no model provider. "
     )
-    assert "train" not in line and "vision model provider" not in line
+    assert "Descriptions of the clip" in line and "text model provider" in line
+    assert "vision model provider" not in line
 
 
 def test_the_record_says_which_wording_was_agreed_to(local):
@@ -162,3 +164,34 @@ def test_a_finished_runs_page_names_the_models_in_its_details(page, local, tmp_p
         "<dt>Writing the script</dt><dd>DeepSeek (cloud), deepseek-flash, at a cloud provider</dd>"
         in text
     )
+
+
+# Spec 004, T404: the words are shared data. These literals are the words as they were before
+# they moved, so a change to the file is a change to a test too (and a version bump).
+WORDS_BEFORE_THEY_MOVED = {
+    "consent": "I filmed this or have permission to use it. Everyone in it is an adult man who is "
+    "happy to be filmed. I have read the note below.",
+    "cloud": "Still frames from the clip are sent to the vision model provider to be looked at. "
+    "Nothing else leaves this machine. The provider may use what it receives to train its models.",
+    "local": "Still frames from the clip are looked at on this computer by {label}. "
+    "They are sent to no model provider.",
+}
+
+
+def test_the_words_are_the_shared_file_and_the_old_words_byte_for_byte():
+    words = json.loads((paths.COPY / "consent.json").read_text("utf-8"))
+    assert words["text_version"] == consent.TEXT_VERSION == "4"
+    assert words["consent"] == consent.CONSENT_TEXT == WORDS_BEFORE_THEY_MOVED["consent"]
+    assert words["lines"]["cloud"] == consent.PROVIDER_LINE == WORDS_BEFORE_THEY_MOVED["cloud"]
+    assert words["lines"]["local"] == consent.LOCAL_LINE == WORDS_BEFORE_THEY_MOVED["local"]
+    assert set(words["lines"]) == {"cloud", "local", "network", "device"}
+
+
+def test_the_network_and_device_lines_say_where_the_frames_go():
+    lines = json.loads((paths.COPY / "consent.json").read_text("utf-8"))["lines"]
+    assert (
+        "another computer of yours" in lines["network"] and "no model provider" in lines["network"]
+    )
+    assert "on this phone" in lines["device"] and "never leave the phone" in lines["device"]
+    for place in ("network", "device"):
+        assert "{label}" in lines[place] and "train" not in lines[place]

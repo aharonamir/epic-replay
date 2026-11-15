@@ -79,7 +79,7 @@ def test_the_default_profile_holds_the_values_the_code_had():
         ({"api_base": "localhost:8080"}, "api_base"),
         ({"price_in_per_m": -1}, "price_in_per_m"),
         ({"json_mode": "xml"}, "json_mode"),
-        ({"kind": "on_device"}, "kind"),
+        ({"kind": "on_device"}, "engine"),  # a server profile that claims the on-device kind
         ({"call_ceiling_usd": 0.001, "call_mean_usd": 0.002}, "below call_mean_usd"),
         ({"timeout_s": {"vision": 45}}, "timeout_s must have exactly the roles"),
         ({"timeout_s": {"vision": 0, "text": 5}}, "timeout_s"),

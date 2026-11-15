@@ -28,6 +28,7 @@ SHARED = Path(os.environ.get("EPIC_SHARED_DIR") or ROOT / "shared")
 CONTRACTS = SHARED / "contracts"
 STYLES = SHARED / "styles"
 MODELS = SHARED / "models"
+COPY = SHARED / "copy"
 LEXICONS = SHARED / "lexicons"
 ASSETS = SHARED / "assets"
 FONTS = ASSETS / "fonts"

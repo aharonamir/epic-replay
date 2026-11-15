@@ -5,54 +5,302 @@
   "type": "object",
   "additionalProperties": false,
   "required": [
-    "id", "label", "kind", "location", "roles", "api_base", "model", "api_key_env",
-    "price_in_per_m", "price_out_per_m", "call_ceiling_usd", "call_mean_usd", "timeout_s",
-    "max_parallel", "json_mode", "image", "supports_tools", "extra_body", "status", "serve",
+    "id",
+    "label",
+    "kind",
+    "location",
+    "roles",
+    "price_in_per_m",
+    "price_out_per_m",
+    "supports_tools",
+    "status",
     "notes"
   ],
   "properties": {
-    "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$"},
-    "label": {"type": "string", "minLength": 1},
-    "kind": {"enum": ["openai_compatible"], "description": "on_device is reserved for spec 004"},
-    "location": {"enum": ["cloud", "local"]},
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]*$"
+    },
+    "label": {
+      "type": "string",
+      "minLength": 1
+    },
+    "kind": {
+      "enum": [
+        "openai_compatible",
+        "on_device"
+      ],
+      "description": "openai_compatible: a server answering the OpenAI chat route. on_device: model files run inside the app (spec 004, FR-001)"
+    },
+    "location": {
+      "enum": [
+        "cloud",
+        "local",
+        "network",
+        "device"
+      ],
+      "description": "cloud: a provider. local: this computer. network: another computer of the owner's. device: inside the app on the phone"
+    },
     "roles": {
       "type": "array",
       "minItems": 1,
       "uniqueItems": true,
-      "items": {"enum": ["vision", "text"]}
+      "items": {
+        "enum": [
+          "vision",
+          "text"
+        ]
+      }
     },
-    "api_base": {"type": "string", "pattern": "^https?://[^\\s]+[^/\\s]$"},
-    "model": {"type": "string", "minLength": 1},
+    "api_base": {
+      "type": "string",
+      "pattern": "^https?://[^\\s]+[^/\\s]$"
+    },
+    "model": {
+      "type": "string",
+      "minLength": 1
+    },
     "api_key_env": {
-      "type": ["string", "null"],
+      "type": [
+        "string",
+        "null"
+      ],
       "pattern": "^[A-Z][A-Z0-9_]*$",
       "description": "The environment variable that holds the key; null sends no key at all"
     },
-    "price_in_per_m": {"type": "number", "minimum": 0},
-    "price_out_per_m": {"type": "number", "minimum": 0},
-    "call_ceiling_usd": {"type": "number", "minimum": 0},
-    "call_mean_usd": {"type": "number", "minimum": 0},
+    "price_in_per_m": {
+      "type": "number",
+      "minimum": 0
+    },
+    "price_out_per_m": {
+      "type": "number",
+      "minimum": 0
+    },
+    "call_ceiling_usd": {
+      "type": "number",
+      "minimum": 0
+    },
+    "call_mean_usd": {
+      "type": "number",
+      "minimum": 0
+    },
     "timeout_s": {
       "type": "object",
       "minProperties": 1,
-      "propertyNames": {"enum": ["vision", "text"]},
-      "additionalProperties": {"type": "number", "exclusiveMinimum": 0}
+      "propertyNames": {
+        "enum": [
+          "vision",
+          "text"
+        ]
+      },
+      "additionalProperties": {
+        "type": "number",
+        "exclusiveMinimum": 0
+      }
     },
-    "max_parallel": {"type": "integer", "minimum": 1},
-    "json_mode": {"enum": ["json_object", "json_schema", "prompt"]},
+    "max_parallel": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "json_mode": {
+      "enum": [
+        "json_object",
+        "json_schema",
+        "prompt"
+      ]
+    },
     "image": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["max_side_px", "detail"],
+      "required": [
+        "max_side_px",
+        "detail"
+      ],
       "properties": {
-        "max_side_px": {"type": ["integer", "null"], "minimum": 64},
-        "detail": {"enum": ["request", "low", "high", "auto", null]}
+        "max_side_px": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 64
+        },
+        "detail": {
+          "enum": [
+            "request",
+            "low",
+            "high",
+            "auto",
+            null
+          ]
+        }
       }
     },
-    "supports_tools": {"type": "boolean"},
-    "extra_body": {"type": "object"},
-    "status": {"enum": ["experimental", "measured"]},
-    "serve": {"type": "string", "minLength": 1},
-    "notes": {"type": "string"}
-  }
+    "supports_tools": {
+      "type": "boolean"
+    },
+    "extra_body": {
+      "type": "object"
+    },
+    "status": {
+      "enum": [
+        "experimental",
+        "measured"
+      ]
+    },
+    "serve": {
+      "type": "string",
+      "minLength": 1
+    },
+    "notes": {
+      "type": "string"
+    },
+    "engine": {
+      "enum": [
+        "llama.cpp"
+      ]
+    },
+    "files": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "url",
+          "sha256",
+          "bytes",
+          "role"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "url": {
+            "type": "string",
+            "pattern": "^https://[^\\s]+$"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "bytes": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "role": {
+            "enum": [
+              "weights",
+              "projector",
+              "steering"
+            ]
+          }
+        }
+      }
+    },
+    "context_tokens": {
+      "type": "integer",
+      "minimum": 512
+    },
+    "min_free_ram_mb": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "min_free_storage_mb": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "license": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "openai_compatible"
+          }
+        },
+        "required": [
+          "kind"
+        ]
+      },
+      "then": {
+        "required": [
+          "api_base",
+          "model",
+          "api_key_env",
+          "call_ceiling_usd",
+          "call_mean_usd",
+          "timeout_s",
+          "max_parallel",
+          "json_mode",
+          "image",
+          "extra_body",
+          "serve"
+        ],
+        "properties": {
+          "location": {
+            "enum": [
+              "cloud",
+              "local",
+              "network"
+            ]
+          },
+          "engine": false,
+          "files": false,
+          "context_tokens": false,
+          "min_free_ram_mb": false,
+          "min_free_storage_mb": false,
+          "license": false
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "on_device"
+          }
+        },
+        "required": [
+          "kind"
+        ]
+      },
+      "then": {
+        "required": [
+          "engine",
+          "files",
+          "context_tokens",
+          "min_free_ram_mb",
+          "min_free_storage_mb",
+          "license"
+        ],
+        "properties": {
+          "location": {
+            "const": "device"
+          },
+          "price_in_per_m": {
+            "const": 0
+          },
+          "price_out_per_m": {
+            "const": 0
+          },
+          "api_base": false,
+          "api_key_env": false,
+          "timeout_s": false,
+          "json_mode": false,
+          "model": false,
+          "serve": false,
+          "extra_body": false,
+          "max_parallel": false,
+          "call_ceiling_usd": false,
+          "call_mean_usd": false
+        }
+      }
+    }
+  ]
 }
