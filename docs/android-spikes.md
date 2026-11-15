@@ -111,7 +111,7 @@ The first five runs of the long storyboard (alone, with overlays, with audio, an
 - **Works without custom code**: cut, hold, overlays with the pack's fields, the audio mix, H.264/AAC export, speed change of the picture and the sound.
 - **Needs custom code**: smooth slow motion (a GL effect that repeats or blends frames to 30 fps), the ducking curve (a gain provider, small), TrueType fonts (a build step), a retry and fallback for the encoder failure.
 - **Missing**: reverse playback, which nothing needs.
-- No fallback to MediaCodec by hand or a bundled FFmpeg is needed on this evidence. The owner and I agree the choice of the slow-motion fallback: the 7.5 fps picture is acceptable only if the owner says so; otherwise M4 adds the GL effect (my estimate: 4 to 6 hours more than the plan's S9 port).
+- No fallback to MediaCodec by hand or a bundled FFmpeg is needed on this evidence. **Decided (owner, 2026-11-15): M4 adds the blending GL effect** (T421, 5 hours more than the plan's S9 port); the 7.5 fps picture is not accepted for v1.
 
 What this does not show: real footage, a zoom, the loudness target, a 3-minute clip, other phones, and the encoder failure's cause.
 
