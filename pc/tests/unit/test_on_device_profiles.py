@@ -40,6 +40,11 @@ def test_an_on_device_profile_fits_the_schema():
     [
         {"location": "local"},  # an on-device model is on the device
         {"api_base": "http://127.0.0.1:1/v1"},  # a server's field
+        {"serve": "x"},
+        {"extra_body": {}},
+        {"max_parallel": 1},
+        {"call_ceiling_usd": 0},
+        {"model": "m"},
         {"api_key_env": None},
         {"price_in_per_m": 0.1},
         {"engine": "other"},
@@ -199,3 +204,12 @@ def test_the_page_note_names_both_places_whenever_they_differ(vision, text, monk
         assert line == old  # the old line for that place, word for word
     else:
         assert line == " ".join(consent.blocks(s)) and "Descriptions" in line
+
+
+@pytest.mark.parametrize(
+    "extra",
+    [{"engine": "llama.cpp"}, {"files": []}, {"min_free_ram_mb": 1}, {"license": "x"},
+     {"context_tokens": 4096}, {"min_free_storage_mb": 1}],
+)  # fmt: skip
+def test_a_server_profile_may_not_carry_on_device_fields(extra):
+    assert models.problems({**DEFAULT, **extra}, "deepseek-flash")

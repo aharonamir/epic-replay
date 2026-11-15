@@ -249,7 +249,13 @@
               "local",
               "network"
             ]
-          }
+          },
+          "engine": false,
+          "files": false,
+          "context_tokens": false,
+          "min_free_ram_mb": false,
+          "min_free_storage_mb": false,
+          "license": false
         }
       }
     },
@@ -287,7 +293,12 @@
           "api_key_env": false,
           "timeout_s": false,
           "json_mode": false,
-          "model": false
+          "model": false,
+          "serve": false,
+          "extra_body": false,
+          "max_parallel": false,
+          "call_ceiling_usd": false,
+          "call_mean_usd": false
         }
       }
     }
