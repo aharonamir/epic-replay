@@ -1,6 +1,6 @@
 # Implementation Plan: Epic Replay on Android
 
-**Spec**: `specs/004-android-app/spec.md` (revision 2) · **After**: specs 002 and 003 are merged (they are) · **Estimate**: about 139 hours (section 6); the two spikes decide how much of it is real
+**Spec**: `specs/004-android-app/spec.md` (revision 3) · **After**: specs 002 and 003 are merged (they are) · **Estimate**: about 146 hours (section 6); the two spikes decide how much of it is real
 
 ## 1. Approach
 
@@ -76,9 +76,9 @@ The three existing local profiles (`gemma-4-e2b-local`, `qwen3-vl-2b-local`, `qw
 | M1 Shared prep on the PC | T403, T404, T404b | 6 |
 | M2 The model choice | T405 to T411 | 32 |
 | M3 Ports against conformance | T412 to T419 | 43 |
-| M4 Media pipeline | T420 to T424 | 28 |
+| M4 Media pipeline | T420 to T424 | 33 |
 | M5 Screens, the phone's numbers, review | T425 to T429 | 24 |
-| **Total** | | **about 141** |
+| **Total** | | **about 146** |
 
 If a task runs half again over its hours, stop and tell the owner (rule 11 of the PC's CLAUDE.md, kept). If T401 shows images do not run on the phone, M2 loses about 4 hours and the on-device choice becomes text-only; if T402 shows Media3 lacks a needed effect, M4 grows by what the fallback costs, decided together.
 

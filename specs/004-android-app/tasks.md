@@ -1,6 +1,6 @@
 # Tasks: Epic Replay on Android
 
-**Spec**: `spec.md` (revision 2) · **Plan**: `plan.md` · **Branch**: `004-android-app`, from `main` after the spec PR is merged
+**Spec**: `spec.md` (revision 3) · **Plan**: `plan.md` · **Branch**: `004-android-app`, from `main` after the spec PR is merged
 
 Rules: in order, except that the two spikes may run first or alongside T403 and T404; one commit per task with the task id; every PC check passes after T403 and T404 (suite, English golden, `test_backend_golden`, the replay outputs, `spotter_check --count` 54 calls and 5 new); Android tests pass after every later task; moves and ports follow the repository's rules (rule 2: nothing guessed about a library, run it; rule 3: no paid call without the owner's yes and the expected cost; rule 4: only frames to the chosen vision profile; shared data lives once). A spike's answer is written in `docs/android-spikes.md` with the commands that ran. If a task runs half again over its hours, stop and tell the owner.
 
@@ -10,7 +10,7 @@ Rules: in order, except that the two spikes may run first or alongside T403 and 
   The spike also records the build arrangement that worked (the `libllama`, `ggml` and `libmtmd` archives linked into one `.so` by the `native` CMake target, and the JNI surface) and how a running decode is aborted and the context freed, each by running it (rule 2); a spike that cannot link or cannot cancel fails.
   *Done when*: `docs/android-spikes.md` holds the numbers and one of three verdicts for each model and role (works, works for text only, does not run); the owner has read it. The plan's M2 is adjusted if vision does not run.
 
-- [ ] **T402 Spike S2: the video on Media3** (4 h). With Media3 Transformer, on a short synthetic clip (not footage) and the shared sounds and fonts: slow motion of one segment (and of a segment played backwards or held), a bitmap overlay with text drawn from a style pack's graphics fields, a second audio track ducked under the first by the pack's rule, the H.264 and AAC export; list what works, what needs a custom effect, what is missing.
+- [x] **T402 Spike S2: the video on Media3** (4 h). With Media3 Transformer, on a short synthetic clip (not footage) and the shared sounds and fonts: slow motion of one segment (and of a segment played backwards or held), a bitmap overlay with text drawn from a style pack's graphics fields, a second audio track ducked under the first by the pack's rule, the H.264 and AAC export; list what works, what needs a custom effect, what is missing.
   *Done when*: `docs/android-spikes.md` lists each effect as works, needs custom code, or missing, with the time the export took; the owner and I agree the fallback for anything missing (spec D6).
 
 ## M1: shared prep on the PC
@@ -26,7 +26,7 @@ Rules: in order, except that the two spikes may run first or alongside T403 and 
 
 ## M2: the model choice
 
-- [ ] **T405 The Android project and CI** (4 h). Gradle modules `app`, `core`, `engine`, `media`, `native`; Jetpack Compose in `app`; `shared/` read as source sets and assets, never copied; a signing setup like voice-reps' (keystore from the environment, nothing committed); the CI job of spec 002 runs the `core` tests and `assembleDebug` on changes under `android/` or `shared/`.
+- [ ] **T405 The Android project and CI** (4 h). Gradle modules `app`, `core`, `engine`, `media`, `native`; Jetpack Compose in `app`; `shared/` read as source sets and assets, never copied; a signing setup like voice-reps' (keystore from the environment, nothing committed); a build step that converts the shared `woff2` fonts to TrueType in the build output (spike S2), never committed; the CI job of spec 002 runs the `core` tests and `assembleDebug` on changes under `android/` or `shared/`.
   *Done when*: CI builds the debug APK and runs one `core` test; a test fails if a file under `android/` has a byte-identical twin in `shared/`.
 
 - [ ] **T406 Keys and settings** (3 h). The Keystore-wrapped store of spec FR-008 (an AES key in the Keystore, ciphertext in private storage, backups off, nothing in logs), the settings screen for the two keys (masked, replace, delete), and the file holding each role's chosen profile.
@@ -78,13 +78,13 @@ Rules: in order, except that the two spikes may run first or alongside T403 and 
 - [ ] **T420 Intake (S0)** (3 h). The same checks as the Python (3 to 30 s, formats, size, rotation, one video stream), a working copy, the frame source for the sheets.
   *Done when*: the intake tests of the Python suite have Kotlin equivalents and pass on starter-like synthetic clips.
 
-- [ ] **T421 Visuals (S9)** (6 h). The slow-motion segments of the visuals plan with the effects T402 found (or the agreed fallback), the held last frame.
-  *Done when*: a synthetic clip gives the segment lengths of the plan to the frame.
+- [ ] **T421 Visuals (S9)** (11 h; 6 h and, added after spike S2, 5 h for the blend effect). The segments of the visuals plan on Media3: cut, speed change of picture and sound, the held last frame as an image item with `setImageDurationMs`, and a custom `GlEffect` that turns the stretched 7.5 fps picture of a 0.25 segment into 30 fps by blending the neighbouring frames, as the PC's FFmpeg `framerate` does (spike S2: Media3 only stretches timestamps).
+  *Done when*: a synthetic clip gives the segment lengths of the plan to the frame, and a 0.25 segment has 30 fps frames with the in-between frames mixed from their neighbours (a test compares the middle frame's pixels with the mean of its two neighbours within a tolerance).
 
 - [ ] **T422 Voice (S7)** (5 h). The ElevenLabs client with the user's key (record and replay, the take's character timings; every call reserves its estimate in T408's app-wide ledger before dispatch and settles it after, so model and voice calls share the per-run and daily caps), the placement of key lines on the moment from the measured onsets. A live call costs money: ask for the owner's yes and the expected cost first (rule 3).
   *Done when*: concurrent model and voice calls cannot exceed either cap (test); the fixture's takes replay to the placement of the Python run; one paid call is made only with the owner's yes.
 
-- [ ] **T423 Mix and compose (S8, S10)** (10 h). The layers of the mix with the ducking of the pack's rule and the loudness target, the graphics (title, replay bug, end card, the "AI commentary" label) drawn from the pack's fields and the shared fonts, the export.
+- [ ] **T423 Mix and compose (S8, S10)** (10 h). The layers of the mix with the ducking of the pack's rule and the loudness target, the graphics (title, replay bug, end card, the "AI commentary" label) drawn from the pack's fields and the shared fonts (spike S2: `woff2` does not load on Android; T405 adds a build step that makes TrueType copies from the shared files, never committed), the export, with one retry and then the software encoder when the hardware encoder's output is refused (spike S2).
   *Done when*: the sample run's data produces a video of the storyboard's duration whose timing checks (the PC's `timing_check` ideas) pass; the label is on every export.
 
 - [ ] **T424 The run and its folder** (4 h). The stage runner on the phone with a run folder, the manifest, the events, resume after the app is killed, and the stages' records of which profile ran.
@@ -107,7 +107,7 @@ Rules: in order, except that the two spikes may run first or alongside T403 and 
 - [ ] **T429 Release build, documents, review and merge** (4 h). A signed release APK built by the documented command, the README for `android/`, `pc/CLAUDE.md` and the root rules updated, a fresh reviewer reading the diff for anything that changed the PC, a key that could be logged and a duplicate of shared data. Merge with the owner's yes.
   *Done when*: the review is approved and the owner has said yes to the merge.
 
-**Total**: about 139 hours (8 spikes, 4 shared prep, 32 model choice, 43 ports, 28 media, 24 screens and review).
+**Total**: about 146 hours (8 spikes, 6 shared prep, 32 model choice, 43 ports, 33 media, 24 screens and review).
 
 ## Not in this feature
 
