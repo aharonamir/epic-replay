@@ -1,0 +1,47 @@
+{
+  "vision": {
+    "frames": "ae445076da11dbeb3ade890689eb111053a4edcbaa3d56bb8a8f2e9177e51951",
+    "frames_requests": 2,
+    "sheet": "37d38e0bb1b3b1a5e819376da95943c05da39c8c790854064fa892582337e891",
+    "sheet_requests": 2,
+    "sheet_no_schema": "429c3e1cda0a022b5156bd030232c4f355396b6319deb2acf2c82e268da1471f",
+    "sheet_no_schema_requests": 1,
+    "events": "c6461dd33d289035a335d49d38f17a183b0bbe2c85b6560bd019c0ee5c4873c6",
+    "events_requests": 2,
+    "recordings": {
+      "vision/455ce14b1e1c1da02a9088c66d87ca842a3ff90a250982d0f8bc02f0056aa227.json": "9b3bd1bead3ef9aeeb72593449fceafff5124077313d17f288e8701d640e29b4",
+      "vision/45d9b93234d47d045441a58db29f84f4e46fd24c25a0584466b9f49f07702af2.json": "9b3bd1bead3ef9aeeb72593449fceafff5124077313d17f288e8701d640e29b4",
+      "vision/51f2eca9c78a09aec3855946c41f2443096dac26dd1bb7d28e3cd061eb3fb7f5.json": "9b3bd1bead3ef9aeeb72593449fceafff5124077313d17f288e8701d640e29b4",
+      "vision/6219c0f307cc07706556bb212ce0f38b485fba5994a4d8a7bb9a84ba745a7b0b.json": "9b3bd1bead3ef9aeeb72593449fceafff5124077313d17f288e8701d640e29b4",
+      "vision/af39332545c31b30fce97480897799d83adddd26eb3e48c520059d1a0783b7af.json": "9b3bd1bead3ef9aeeb72593449fceafff5124077313d17f288e8701d640e29b4",
+      "vision/c60001f81addac7a45358190b524ed264929df0163523faaf8772da4a2550008.json": "9b3bd1bead3ef9aeeb72593449fceafff5124077313d17f288e8701d640e29b4",
+      "vision/d7be88e98005843a45e9777235440834e484d22b41b3b9e4c39ae0af84fb2487.json": "9b3bd1bead3ef9aeeb72593449fceafff5124077313d17f288e8701d640e29b4"
+    },
+    "estimates": {
+      "frames_3": 0.001882,
+      "sheet": 0.008,
+      "sheets_6": 0.021
+    }
+  },
+  "text": {
+    "structured_draft": "b6b57c5c5e0c32b0924d4f66c91ed8e6f2badbb8bd9eb61c13bbc6916f3c786d",
+    "gloss": "284b776433a3e48cb05445a4eb87fe785acd6e812e6b59547c1a1e012cd18242",
+    "structured_draft_result": "4ee23a8f7682b61ca4e893566a49ff75efed0cb9c52e961885747517bc833158",
+    "gloss_result": "dd40642ee9329b237ae3c20f68720bfba30761ac9b3f3be2d3bd2e14b0077c3c",
+    "cost_of": 0.0009,
+    "estimates": {
+      "agent": 0.0198,
+      "draft": 0.0051,
+      "gloss": 0.0021
+    }
+  },
+  "agent": {
+    "model_client": {
+      "provider": "openai",
+      "api_key": "test-key",
+      "api_base": "https://api.deepseek.com",
+      "model_name": "deepseek-flash"
+    },
+    "max_iterations": 6
+  }
+}

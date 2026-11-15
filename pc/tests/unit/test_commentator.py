@@ -198,9 +198,9 @@ def test_an_agent_that_raises_goes_to_the_fallback_and_the_run_goes_on(tmp_path,
     cost = json.loads((run_dir / "cost.json").read_text())
     agent, draft = cost["calls"]
     assert (agent["provider"], draft["provider"]) == ("agent-core", "openai-compatible")
-    assert agent["actual_usd"] == cm.ESTIMATE_USD and agent["failed"] == "AgentFailed"
+    assert agent["actual_usd"] == cm.agent_estimate_usd() and agent["failed"] == "AgentFailed"
     trace = json.loads((run_dir / "commentator_trace.json").read_text())
-    assert trace["cost_usd"] == cm.ESTIMATE_USD  # the draft is a recording, so free
+    assert trace["cost_usd"] == cm.agent_estimate_usd()  # the draft is a recording, so free
 
 
 def test_the_estimate_of_an_agent_that_raises_counts_against_the_cap(tmp_path, monkeypatch):
@@ -212,7 +212,7 @@ def test_the_estimate_of_an_agent_that_raises_counts_against_the_cap(tmp_path, m
     monkeypatch.setattr(Recorder, "fetch", fetch)
     run_dir = tmp_path / "run"
     run_dir.mkdir()
-    cap = cm.ESTIMATE_USD + cm.DRAFT_ESTIMATE_USD / 2
+    cap = cm.agent_estimate_usd() + cm.draft_estimate_usd() / 2
     res, _ = run_s5(run_dir, rec, dataclasses.replace(config.load(), cap_run_usd=cap))
     assert res.status == "stopped" and "cap" in res.note
     assert json.loads((run_dir / "cost.json").read_text())["blocked"][0]["provider"] == "openai-compatible"  # fmt: skip
@@ -226,7 +226,7 @@ def test_s5_without_a_recording_fails_in_replay_mode(tmp_path):
 def test_the_agent_builds_offline_with_both_tools():
     agent = cm.build_agent(tools(), cm.system_prompt(PACK))
     assert sorted(a.name for a in agent.ability_manager.list()) == ["check_lines", "submit_script"]
-    assert cm.ESTIMATE_USD < 0.02
+    assert cm.agent_estimate_usd() < 0.02
 
 
 @pytest.mark.live
@@ -256,11 +256,11 @@ def test_a_timed_out_draft_is_counted_at_its_estimate_and_reported(tmp_path, mon
     res, events = run_s5(run_dir, rec)
     assert res.status == "degraded"
     calls = json.loads((run_dir / "cost.json").read_text())["calls"]
-    assert calls[-1]["actual_usd"] == cm.DRAFT_ESTIMATE_USD
+    assert calls[-1]["actual_usd"] == cm.draft_estimate_usd()
     assert calls[-1]["failed"] == "APITimeoutError"
     trace = json.loads((run_dir / "commentator_trace.json").read_text())
-    assert trace["cost_usd"] == cm.DRAFT_ESTIMATE_USD
-    assert events[-1]["cost_usd"] == cm.DRAFT_ESTIMATE_USD
+    assert trace["cost_usd"] == cm.draft_estimate_usd()
+    assert events[-1]["cost_usd"] == cm.draft_estimate_usd()
 
 
 def test_a_gloss_that_times_out_is_counted_at_its_estimate(tmp_path, monkeypatch):
@@ -272,7 +272,7 @@ def test_a_gloss_that_times_out_is_counted_at_its_estimate(tmp_path, monkeypatch
     script = {"lines": [{"id": "l1", "text": "进球了"}], "headline": "进球", "lower_third": "进球"}
     with pytest.raises(APITimeoutError):
         cm.gloss(script, ledger, Recorder("replay", tmp_path))
-    assert ledger.total_usd == cm.GLOSS_ESTIMATE_USD
+    assert ledger.total_usd == cm.gloss_estimate_usd()
 
 
 def test_a_gloss_reply_that_is_not_json_is_still_billed(tmp_path, monkeypatch):
@@ -282,6 +282,7 @@ def test_a_gloss_reply_that_is_not_json_is_still_billed(tmp_path, monkeypatch):
     create = types.SimpleNamespace(create=lambda **_: reply)
     client = types.SimpleNamespace(chat=types.SimpleNamespace(completions=create))
     monkeypatch.setattr("openai.OpenAI", lambda **_: client)
+    monkeypatch.setenv("EPIC_AGENT_API_KEY", "test-key")  # the cloud profile needs one to call
     got = cm._gloss_call({"l1": "进球了"})
     assert got["gloss"] == {} and got["usage"]["input_tokens"] == 1000
 

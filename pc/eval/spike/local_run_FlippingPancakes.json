@@ -1,0 +1,221 @@
+{
+ "clip": "FlippingPancakes.mp4",
+ "vision": "qwen3-5-4b-local",
+ "text": "qwen3-5-4b-local",
+ "status": "done",
+ "stages": [
+  {
+   "stage": "S0",
+   "status": "ok",
+   "duration_s": 0.9,
+   "cost_usd": 0,
+   "note": ""
+  },
+  {
+   "stage": "S1",
+   "status": "ok",
+   "duration_s": 1.16,
+   "cost_usd": 0,
+   "note": ""
+  },
+  {
+   "stage": "S2",
+   "status": "ok",
+   "duration_s": 13.56,
+   "cost_usd": 0,
+   "note": ""
+  },
+  {
+   "stage": "S3",
+   "status": "ok",
+   "duration_s": 0.01,
+   "cost_usd": 0,
+   "note": ""
+  },
+  {
+   "stage": "A",
+   "status": "waiting",
+   "duration_s": 0.0,
+   "cost_usd": 0,
+   "note": "waiting for the play card"
+  },
+  {
+   "stage": "A",
+   "status": "ok",
+   "duration_s": 0.0,
+   "cost_usd": 0,
+   "note": "key moment frame 60"
+  },
+  {
+   "stage": "S4",
+   "status": "ok",
+   "duration_s": 0.01,
+   "cost_usd": 0,
+   "note": ""
+  },
+  {
+   "stage": "S9",
+   "status": "ok",
+   "duration_s": 0.7,
+   "cost_usd": 0,
+   "note": ""
+  },
+  {
+   "stage": "S5",
+   "status": "degraded",
+   "duration_s": 3.17,
+   "cost_usd": 0,
+   "note": "Qwen3.5 4B (local) does not take tool calls: the structured draft was used; generic lines for l1, l2, l3, l4, l5, l6"
+  },
+  {
+   "stage": "S6",
+   "status": "ok",
+   "duration_s": 0.01,
+   "cost_usd": 0,
+   "note": ""
+  },
+  {
+   "stage": "S7",
+   "status": "ok",
+   "duration_s": 1.83,
+   "cost_usd": 0.0059,
+   "note": ""
+  },
+  {
+   "stage": "S8",
+   "status": "ok",
+   "duration_s": 1.43,
+   "cost_usd": 0.0,
+   "note": ""
+  },
+  {
+   "stage": "S10",
+   "status": "ok",
+   "duration_s": 3.03,
+   "cost_usd": 0.0,
+   "note": ""
+  }
+ ],
+ "cost_total_usd": 0.0059,
+ "calls": [
+  {
+   "stage": "S2",
+   "provider": "http://127.0.0.1:11434/v1",
+   "model": "qwen3.5:4b",
+   "estimate_usd": 0,
+   "actual_usd": 0.0
+  },
+  {
+   "stage": "S2",
+   "provider": "http://127.0.0.1:11434/v1",
+   "model": "qwen3.5:4b",
+   "estimate_usd": 0,
+   "actual_usd": 0.0
+  },
+  {
+   "stage": "S2",
+   "provider": "http://127.0.0.1:11434/v1",
+   "model": "qwen3.5:4b",
+   "estimate_usd": 0,
+   "actual_usd": 0.0
+  },
+  {
+   "stage": "S2",
+   "provider": "http://127.0.0.1:11434/v1",
+   "model": "qwen3.5:4b",
+   "estimate_usd": 0,
+   "actual_usd": 0.0
+  },
+  {
+   "stage": "S2",
+   "provider": "http://127.0.0.1:11434/v1",
+   "model": "qwen3.5:4b",
+   "estimate_usd": 0,
+   "actual_usd": 0.0
+  },
+  {
+   "stage": "S2",
+   "provider": "http://127.0.0.1:11434/v1",
+   "model": "qwen3.5:4b",
+   "estimate_usd": 0,
+   "actual_usd": 0.0
+  },
+  {
+   "stage": "S2",
+   "provider": "http://127.0.0.1:11434/v1",
+   "model": "qwen3.5:4b",
+   "estimate_usd": 0,
+   "actual_usd": 0.0
+  },
+  {
+   "stage": "S5",
+   "provider": "openai-compatible",
+   "model": "qwen3.5:4b",
+   "estimate_usd": 0.0,
+   "actual_usd": 0.0
+  },
+  {
+   "stage": "S7",
+   "provider": "elevenlabs",
+   "model": "eleven_v3",
+   "estimate_usd": 0.0,
+   "actual_usd": 0.0
+  },
+  {
+   "stage": "S7",
+   "provider": "elevenlabs",
+   "model": "eleven_v3",
+   "estimate_usd": 0.0,
+   "actual_usd": 0.0
+  },
+  {
+   "stage": "S7",
+   "provider": "elevenlabs",
+   "model": "eleven_v3",
+   "estimate_usd": 0.0,
+   "actual_usd": 0.0
+  },
+  {
+   "stage": "S7",
+   "provider": "elevenlabs",
+   "model": "eleven_v3",
+   "estimate_usd": 0.0,
+   "actual_usd": 0.0
+  },
+  {
+   "stage": "S7",
+   "provider": "elevenlabs",
+   "model": "eleven_v3",
+   "estimate_usd": 0.0028,
+   "actual_usd": 0.0028
+  },
+  {
+   "stage": "S7",
+   "provider": "elevenlabs",
+   "model": "eleven_v3",
+   "estimate_usd": 0.0031,
+   "actual_usd": 0.0031
+  }
+ ],
+ "s2_window_epoch": [
+  1794683532.0,
+  1794683547.0
+ ],
+ "s2_connections": [
+  "127.0.0.1:11434",
+  "127.0.0.1:11434",
+  "127.0.0.1:11434",
+  "127.0.0.1:11434",
+  "127.0.0.1:11434",
+  "127.0.0.1:11434",
+  "127.0.0.1:11434"
+ ],
+ "s2_hosts_outside_this_computer": [],
+ "whole_run_hosts_outside_this_computer": [
+  "api.elevenlabs.io:443"
+ ],
+ "local_ports_connected_to": [
+  11434
+ ],
+ "seconds": 28.1
+}

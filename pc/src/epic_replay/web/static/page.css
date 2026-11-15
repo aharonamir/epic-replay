@@ -232,6 +232,9 @@ table.costs { border-collapse: collapse; margin: 0 0 18px; font-size: 13px; colo
 table.costs td { padding: 4px 16px 4px 0; }
 table.costs td + td { text-align: right; white-space: nowrap; }
 table.costs tr.total td { color: var(--text); border-top: 1px solid var(--line); }
+dl.models { display: grid; grid-template-columns: max-content 1fr; gap: 4px 16px; margin: 0 0 18px; font-size: 13px; }
+dl.models dt { color: var(--muted); }
+dl.models dd { margin: 0; overflow-wrap: anywhere; }
 .download-row .tag { background: transparent; color: var(--text); border: 1px solid var(--control-line);
                      border-radius: 4px; padding: 6px 12px; font-size: 13px; }
 

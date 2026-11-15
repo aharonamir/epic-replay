@@ -46,7 +46,7 @@ from epic_replay import config
 from epic_replay.agents import commentator
 from epic_replay.guards import consent
 from epic_replay.guards.budget import Ledger
-from epic_replay.providers import speech
+from epic_replay.providers import llm, speech
 from epic_replay.stages import (
     s0_intake,
     s1_signals,
@@ -140,12 +140,14 @@ TEXT_MAX = {"activity": 80, "outcome_summary": 160}
 CHARS_PER_WORD = 6.5  # a word and its space, for the voice's price by character
 
 
-def rest_cost_usd(meta: dict, pack: dict) -> float:
+def rest_cost_usd(meta: dict, pack: dict, settings: config.Settings | None = None) -> float:
     """What the run costs after the card (add-back 8): the Commentator's ceiling plus the voice
     for as many words as the clip's length holds at the pack's rate. Later steps are free."""
     words = meta["duration_s"] * pack["voice"]["words_per_second"]
     per_word = 1.0 if pack.get("language") == "zh" else CHARS_PER_WORD  # a unit is a character
-    return round(commentator.ESTIMATE_USD + words * per_word * speech.USD_PER_CHAR, 2)
+    return round(
+        commentator.agent_estimate_usd(settings) + words * per_word * speech.USD_PER_CHAR, 2
+    )
 
 
 def to_check(ps: dict) -> list[str]:
@@ -237,7 +239,8 @@ class Run:
             "run_id": self.dir.name, "created_at": now(), "status": "running",
             "style": None, "parent_run_id": None, "demo": False,
             "stack": {"mode": self.s.provider_mode, "agent": self.s.agent_model,
-                      "vision": self.s.vision_model, "speech": self.s.speech_provider},
+                      "vision": self.s.vision_model, "speech": self.s.speech_provider,
+                      "models": llm.models_used(self.s)},
             "stages": [],
         }  # fmt: skip
 
@@ -301,7 +304,7 @@ class Run:
                 continue
             if stage == "S2":
                 try:
-                    consent.require(uc)
+                    consent.require(uc, self.s)
                 except consent.ConsentRequired:
                     return self.finish("stopped", stage, t0, "consent is required before S2")
             spent = self.ctx.ledger.total_usd

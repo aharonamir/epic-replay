@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "model_profile.schema.json",
+  "title": "A model profile: shared/models/<id>.json (shared/contracts/model-backend.md)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id", "label", "kind", "location", "roles", "api_base", "model", "api_key_env",
+    "price_in_per_m", "price_out_per_m", "call_ceiling_usd", "call_mean_usd", "timeout_s",
+    "max_parallel", "json_mode", "image", "supports_tools", "extra_body", "status", "serve",
+    "notes"
+  ],
+  "properties": {
+    "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$"},
+    "label": {"type": "string", "minLength": 1},
+    "kind": {"enum": ["openai_compatible"], "description": "on_device is reserved for spec 004"},
+    "location": {"enum": ["cloud", "local"]},
+    "roles": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"enum": ["vision", "text"]}
+    },
+    "api_base": {"type": "string", "pattern": "^https?://[^\\s]+[^/\\s]$"},
+    "model": {"type": "string", "minLength": 1},
+    "api_key_env": {
+      "type": ["string", "null"],
+      "pattern": "^[A-Z][A-Z0-9_]*$",
+      "description": "The environment variable that holds the key; null sends no key at all"
+    },
+    "price_in_per_m": {"type": "number", "minimum": 0},
+    "price_out_per_m": {"type": "number", "minimum": 0},
+    "call_ceiling_usd": {"type": "number", "minimum": 0},
+    "call_mean_usd": {"type": "number", "minimum": 0},
+    "timeout_s": {
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": {"enum": ["vision", "text"]},
+      "additionalProperties": {"type": "number", "exclusiveMinimum": 0}
+    },
+    "max_parallel": {"type": "integer", "minimum": 1},
+    "json_mode": {"enum": ["json_object", "json_schema", "prompt"]},
+    "image": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["max_side_px", "detail"],
+      "properties": {
+        "max_side_px": {"type": ["integer", "null"], "minimum": 64},
+        "detail": {"enum": ["request", "low", "high", "auto", null]}
+      }
+    },
+    "supports_tools": {"type": "boolean"},
+    "extra_body": {"type": "object"},
+    "status": {"enum": ["experimental", "measured"]},
+    "serve": {"type": "string", "minLength": 1},
+    "notes": {"type": "string"}
+  }
+}

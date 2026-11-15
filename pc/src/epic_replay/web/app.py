@@ -55,6 +55,7 @@ from fastapi.templating import Jinja2Templates
 from epic_replay import config, paths
 from epic_replay.flow import runner
 from epic_replay.guards import consent
+from epic_replay.providers import client
 from epic_replay.stages import s0_intake
 from epic_replay.styles import loader
 from epic_replay.web import copy, views
@@ -183,7 +184,7 @@ def rest_cost(d: Path, meta: dict) -> float:
         pack = loader.for_run(read(d, "user_context.json"))
     except (OSError, ValueError, loader.NoStyles):
         pack = loader.default(loader.load())
-    return runner.rest_cost_usd(meta, pack)
+    return runner.rest_cost_usd(meta, pack, settings())
 
 
 def card_data(run_id: str, d: Path) -> dict:
@@ -409,6 +410,10 @@ async def post_runs(request: Request):
     if file is None or isinstance(file, str):
         return error(400, "invalid_upload", "Choose a clip first.")
     s = settings()
+    try:  # a local model server that is down stops the run before the clip is stored
+        await run_in_threadpool(client.check_run_models, s)
+    except client.Unreachable as e:
+        return error(503, "model_unreachable", str(e))
     s.runs_dir.mkdir(parents=True, exist_ok=True)
     tmp = Path(tempfile.mkdtemp(dir=s.runs_dir, prefix=".upload-"))
     try:
@@ -444,7 +449,7 @@ def make_run(s: config.Settings, upload: Path, form: dict):
         return error(400, "invalid_upload", why)
     name = " ".join(str(form.get("player_name") or "").split())[:MAX_NAME] or None
     uc = {
-        "consent": consent.record(True),
+        "consent": consent.record(True, settings=s),
         "keep_for_demo": False,
         "style": style,
         "language": language,
@@ -602,7 +607,7 @@ def retell_source(run_id: str | None) -> Path | None:
     if not all((d / n).exists() for n in ("work.mp4", "clip_meta.json", "play_sheet.json", "user_context.json")):  # fmt: skip
         return None
     try:
-        consent.require(read(d, "user_context.json"))
+        consent.require(read(d, "user_context.json"), settings())
     except consent.ConsentRequired:
         return None
     return d
@@ -833,6 +838,7 @@ def render(
     if st and st["status"] == "done":
         script = read(d, "script.json") if (d / "script.json").exists() else {}
         ctx["headline"] = script.get("headline", "")
+        ctx["models"] = views.model_rows(read(d, "manifest.json"))
         ctx["script"] = views.script_panel(d)
         ctx["play_sheet"] = read(d, "play_sheet.json") if (d / "play_sheet.json").exists() else None
         ctx["costs"] = views.time_and_cost(st)
@@ -854,7 +860,7 @@ def retell_view(run_id: str | None) -> dict | None:
     style = others[0] if others else uc.get("style")
     cost = 0.0
     if settings().provider_mode != "replay":
-        cost = runner.rest_cost_usd(read(d, "clip_meta.json"), packs[style])
+        cost = runner.rest_cost_usd(read(d, "clip_meta.json"), packs[style], settings())
     return {"run_id": d.name, "style": style, "language": uc.get("language", loader.DEFAULT_LANGUAGE),
             "picture": frame_url(quote(d.name, safe=""), ps["climax"]["frame"]), "cost_usd": cost}  # fmt: skip
 

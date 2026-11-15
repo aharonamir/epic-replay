@@ -169,6 +169,7 @@
           {% for r in costs.rows %}<tr><td>{{ r.name }}</td><td>{{ r.duration }}</td><td>{{ r.cost }} USD</td></tr>{% endfor %}
           <tr class="total"><td>{{ copy.PANELS.total }}</td><td>{{ costs.duration }}</td><td>{{ costs.cost }} USD</td></tr>
         </table>
+        {% if models %}<dl class="models data muted">{% for r in models %}<dt>{{ r.name }}</dt><dd>{{ r.value }}</dd>{% endfor %}</dl>{% endif %}
       </details>
     </div>
   </div>

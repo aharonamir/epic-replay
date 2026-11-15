@@ -258,3 +258,61 @@ Heard by the owner (2026-10-30): `eleven_v3` with `[excited] [shouts]` shouts ve
 - The library verifies these voices on `eleven_v4`, not `eleven_v3`; `/v1/models` and the docs list Mandarin on v3, and all takes returned audio.
 - Shared voices synthesised without being added to the account, as in T004.
 
+## Model profiles (spec 003, T207), 2026-11-14
+
+How the three local vision models do on the same eight starter clips as T003, two repeats each, and how they do as the Commentator. Every local call is free (cost 0 USD) and ran on the owner's machine under Ollama: `docs/local-models.md` has the commands, `pc/eval/spike/<profile>.md` and `commentator_<profile>.md` the full per-run tables. The owner marked the outcome sentences of Qwen3.5 4B only (14 of 16; `fk_miss` was left unmarked); the other two are measured but not marked, so their `status` stays `experimental`.
+
+### Vision: the Spotter (S2 and S3)
+
+Strict: within EPIC_KEYFRAME_TOL_S of `climax_t`. Any: of the nearest valid moment. A call is answered when it fitted the schema after the one retry (six calls a run: five sheets and the events call).
+
+| Profile | Outcome right (owner) | Within tol, strict | Within tol, any | Calls answered | Retries | Seconds a run (mean) | Cost (USD) |
+|---|---|---|---|---|---|---|---|
+| DeepSeek (T003, 2026-10-20) | 13/16 | 2/16 | 3/16 | not counted (retry after a misfit: 2 in all, 0 left out) | 2 | 112.6 | 0.513 in all (0.032 a run) |
+| Qwen3.5 4B (`qwen3-5-4b-local`) | 8/14 marked | 1/16 | 2/16 | 65/96 | 13 | 15.9 | 0 |
+| Gemma 4 E2B (`gemma-4-e2b-local`) | not marked | 0/16 | 1/16 | 96/96 | 0 | 5.8 | 0 |
+| Qwen3-VL 2B (`qwen3-vl-2b-local`) | not marked | 1/16 | 2/16 | 94/96 | 0 | 5.9 | 0 |
+
+The DeepSeek row is the T003 spike (five signal candidates, sound snap, refining passes in sequence, 2026-10-20), so its time and its proposals are not a like-for-like timing of the same code; the local rows are the current S2 and S3 (`pc/tools/spotter_check.py --profile`). Read the accuracy columns, not the clock.
+
+Qwen3.5 4B per clip (the only profile with the owner's marks):
+
+| Clip | Outcome right | Within tol strict | Within tol any | Calls answered | Retries | Seconds a run |
+|---|---|---|---|---|---|---|
+| FlippingPancakes.mp4 | 1/2 | 0/2 | 0/2 | 6/12 | 3 | 17.4 |
+| Skateboard_trick.mp4 | 1/2 | 1/2 | 1/2 | 8/12 | 3 | 18.1 |
+| SlowMotion-skater.mp4 | 1/2 | 0/2 | 0/2 | 8/12 | 0 | 13.3 |
+| basket_ball_shot.mp4 | 1/2 | 0/2 | 1/2 | 10/12 | 0 | 12.9 |
+| bottle flip.mp4 | 1/2 | 0/2 | 0/2 | 8/12 | 3 | 16.2 |
+| dog_catch_ball.mp4 | 1/2 | 0/2 | 0/2 | 7/12 | 1 | 18.4 |
+| fk_1.mp4 | 2/2 | 0/2 | 0/2 | 10/12 | 0 | 13.4 |
+| fk_miss.mp4 | not marked | 0/2 | 0/2 | 8/12 | 3 | 17.2 |
+
+### Commentator (S5), 3 repeats on the sample fixture, fk_1 and basket_ball_shot
+
+| Profile | Path | Scripts accepted by the agent | Seconds a run | Lines written by the coded fallback | Finished scripts passing S6 |
+|---|---|---|---|---|---|
+| Gemma 4 E2B | agent (tools) | 0/9 | 15.2 | 34/60 | 9/9 |
+| Qwen3-VL 2B | structured draft (no tools) | 0/9 | 2.0 | 56/60 | 9/9 |
+| Qwen3.5 4B | structured draft (profile says no tools) | 0/9 | 3.4 | 60/60 | 9/9 |
+| Qwen3.5 4B | agent, reasoning off (`extra_body` handed to agent-core) | 0/9 | 13.0 | 60/60 | 9/9 |
+
+No local model got a script past the code checks on its own: the coded fallback wrote most or all of the lines, and the finished scripts pass S6 only because code wrote them. Listening to the lines is the owner's (the text is in `commentator_<profile>.json`). DeepSeek's Commentator numbers are not repeated here: the 001 notes hold them.
+
+### What the numbers say
+
+- Gemma 4 E2B and Qwen3-VL 2B answer almost every call in about 6 s, for nothing (Qwen3-VL 2B left the events call out in 2 runs). Qwen3.5 4B answers 65 of 96: its events call was left out in all 16 runs and 15 of its 80 sheet calls too, so S3 had no events to work from. Its answers take 16 s a run, against DeepSeek's 113 s for the T003 spike (see the note above on comparing the clocks).
+- Their proposals are far from the labels: at most 2 of 16 within tolerance on any valid moment (DeepSeek: 3 of 16, strict 2 of 16), so the play card's "pick the moment" step carries more of the load, not less.
+- The outcome sentences are the better signal: Qwen3.5 4B was judged right in 8 of 14 marked sentences (DeepSeek: 13 of 16). A small model's JSON is not reliable even in the constrained mode: Qwen3-VL 2B flagged one clip as sensitive while its own reason said it was not, which stops the run.
+- A thinking model needs its reasoning switched off by the request (`reasoning_effort: "none"` on Ollama), or it answers with nothing after 3,000 tokens.
+- SC-6 (no request to any host but the local server during S2) and SC-4 (0 USD for both roles in one run) are checked in T208.
+
+### One run with both roles local (T208, 2026-11-14)
+
+`pc/tools/local_run_check.py FlippingPancakes.mp4 --vision qwen3-5-4b-local --text qwen3-5-4b-local`, with the owner's yes (the voice is a paid ElevenLabs call, about 0.03 USD expected; mode `record`). It starts the page on a local port, does what the page does through its API (upload with consent, play card, result) and logs every address the process connects to. The key moment on the play card is the label's (2.0 s, frame 60), taken by code; the run's own play card had no events to check, and the vision model could not be asked about sensitivity (its events call was left out), so the confirm carried `clip_ok`, covered by the owner's yes for his own clip. Run `r_20261114_191210_cd6e3b`, result in `eval/spike/local_run_FlippingPancakes.json`.
+
+- **The run finished** (`done`, 28 s in all, a 30.6 s video). S5 was `degraded`: the structured draft was used and the coded fallback wrote lines l1 to l6, so the commentary is generic, as the T207 numbers predicted.
+- **SC-4: 0 USD for the models.** `cost.json`: seven S2 calls and one S5 call, every estimate and actual 0.0; the only charge is S7, six ElevenLabs takes of which two were new, 0.0059 USD in all (the estimate for the whole voice was 0.03). The run's total is 0.0059 USD against caps of 0.30 before the card, 1.00 a run, 20 a day.
+- **SC-6: no request to any host but the local server during S2.** The log of `socket.connect` in the page's process shows, inside S2's time (the events' timestamps, a second either side), seven connections, all to `127.0.0.1:11434`, the local Ollama. Over the whole run the only host outside this computer is `api.elevenlabs.io:443`, at S7. This is a log of the Python process's connections, not a packet capture; Ollama itself runs on this machine from local files.
+- **Recorded on the result:** `render.json` and the manifest name both profiles (`qwen3-5-4b-local`, location `local`); the result page's "Time and cost" panel shows them.
+

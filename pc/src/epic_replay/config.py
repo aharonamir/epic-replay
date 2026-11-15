@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from epic_replay import paths  # reads .env
+from epic_replay.providers import models
 
 PROVIDER_MODES = ("live", "record", "replay")
 
@@ -44,13 +45,18 @@ class Settings:
     openai_api_key: str
     elevenlabs_api_key: str
     elevenlabs_model: str
+    vision_profile: str = models.DEFAULT_PROFILE  # spec 003: the profile each role runs on
+    text_profile: str = models.DEFAULT_PROFILE
 
 
 def load() -> Settings:
     mode = _s("EPIC_PROVIDER_MODE", "replay")
     if mode not in PROVIDER_MODES:
         raise ValueError(f"EPIC_PROVIDER_MODE must be one of {PROVIDER_MODES}, got {mode!r}")
-    ds = _s("DEEPSEEK_API_KEY")
+    vision, text = (
+        models.chosen("vision"),
+        models.chosen("text"),
+    )  # the profiles, then the overrides
     return Settings(
         provider_mode=mode,
         runs_dir=Path(_s("EPIC_RUNS_DIR", str(paths.RUNS_DEFAULT))),
@@ -63,16 +69,18 @@ def load() -> Settings:
         sheet_passes=int(_f("EPIC_SHEET_PASSES", 3)),
         sound_snap_s=_f("EPIC_SOUND_SNAP_S", 0.25),
         min_output_s=_f("EPIC_MIN_OUTPUT_S", 20),
-        agent_provider=_s("EPIC_AGENT_PROVIDER", "openai"),
-        agent_api_base=_s("EPIC_AGENT_API_BASE", "https://api.deepseek.com"),
-        agent_model=_s("EPIC_AGENT_MODEL", "deepseek-flash"),
-        agent_api_key=_s("EPIC_AGENT_API_KEY", ds),
-        vision_api_base=_s("EPIC_VISION_API_BASE", "https://api.deepseek.com"),
-        vision_model=_s("EPIC_VISION_MODEL", "deepseek-flash"),
-        vision_api_key=_s("EPIC_VISION_API_KEY", ds),
+        agent_provider=_s("EPIC_AGENT_PROVIDER", models.AGENT_PROVIDER[text.profile.kind]),
+        agent_api_base=text.api_base,
+        agent_model=text.model,
+        agent_api_key=text.api_key,
+        vision_api_base=vision.api_base,
+        vision_model=vision.model,
+        vision_api_key=vision.api_key,
         speech_provider=_s("EPIC_SPEECH_PROVIDER", "elevenlabs"),
         gemini_api_key=_s("GEMINI_API_KEY"),
         openai_api_key=_s("OPENAI_API_KEY"),
         elevenlabs_api_key=_s("ELEVENLABS_API_KEY"),
         elevenlabs_model=_s("EPIC_ELEVENLABS_MODEL", "eleven_v3"),
+        vision_profile=vision.profile.id,
+        text_profile=text.profile.id,
     )

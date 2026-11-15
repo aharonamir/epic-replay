@@ -77,7 +77,10 @@ def test_consent_required():
     with pytest.raises(consent.ConsentRequired):
         consent.require({"consent": {"confirmed": True, "text_version": "2"}})
     rec = consent.record(True, now=datetime(2026, 10, 12, 9, 0, tzinfo=UTC))
-    assert rec == {"confirmed": True, "at": "2026-10-12T09:00:00Z", "text_version": "4"}
+    assert rec == {
+        "confirmed": True, "at": "2026-10-12T09:00:00Z", "text_version": "4",
+        "vision_location": "cloud",
+    }  # fmt: skip
     consent.require({"consent": rec})
 
 

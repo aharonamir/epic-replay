@@ -1,0 +1,23 @@
+{
+  "id": "qwen3-vl-2b-local",
+  "label": "Qwen3-VL 2B Instruct (local)",
+  "kind": "openai_compatible",
+  "location": "local",
+  "roles": ["vision", "text"],
+  "api_base": "http://127.0.0.1:11434/v1",
+  "model": "qwen3-vl:2b-instruct",
+  "api_key_env": null,
+  "price_in_per_m": 0,
+  "price_out_per_m": 0,
+  "call_ceiling_usd": 0,
+  "call_mean_usd": 0,
+  "timeout_s": {"vision": 120, "text": 120},
+  "max_parallel": 6,
+  "json_mode": "json_schema",
+  "image": {"max_side_px": null, "detail": null},
+  "supports_tools": false,
+  "extra_body": {},
+  "status": "experimental",
+  "serve": "Ollama (0.31.1): `ollama pull qwen3-vl:2b-instruct` (1.9 GB, Q4_K_M, vision and tools listed), then the Ollama server answers /v1/chat/completions on its own port. See docs/local-models.md.",
+  "notes": "Probed 2026-11-14 with pc/tools/probe_model.py: takes the 1344 px sheet; json_object does NOT fit the app's schemas (it answers with the schema itself, and the events reply fails the schema), json_schema fits both and so does prompt-only on the one-field test; tool calls failed with HTTP 500 in 2 of 7 calls, so supports_tools is false and the Commentator uses its coded fallback; the first call loads the model (11 s), later ones take 0.2 to 2.5 s; six calls at once took 0.6 s against 1.4 s in a row, so max_parallel is 6 (the calls S2 makes at most); detail is accepted and ignored, so it is not sent."
+}

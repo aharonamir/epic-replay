@@ -1,0 +1,59 @@
+{
+ "_about": "Owner's verdict on the model's outcome sentence against the real video, per repeat. true = right, false = wrong, null = not marked.",
+ "FlippingPancakes.mp4": {
+  "verdicts": [
+   null,
+   null
+  ],
+  "note": ""
+ },
+ "Skateboard_trick.mp4": {
+  "verdicts": [
+   null,
+   null
+  ],
+  "note": ""
+ },
+ "SlowMotion-skater.mp4": {
+  "verdicts": [
+   null,
+   null
+  ],
+  "note": ""
+ },
+ "basket_ball_shot.mp4": {
+  "verdicts": [
+   null,
+   null
+  ],
+  "note": ""
+ },
+ "bottle flip.mp4": {
+  "verdicts": [
+   null,
+   null
+  ],
+  "note": ""
+ },
+ "dog_catch_ball.mp4": {
+  "verdicts": [
+   null,
+   null
+  ],
+  "note": ""
+ },
+ "fk_1.mp4": {
+  "verdicts": [
+   null,
+   null
+  ],
+  "note": ""
+ },
+ "fk_miss.mp4": {
+  "verdicts": [
+   null,
+   null
+  ],
+  "note": ""
+ }
+}

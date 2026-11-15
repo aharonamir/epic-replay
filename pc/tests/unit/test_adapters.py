@@ -174,12 +174,12 @@ class FakeVision:
 
 
 def sheet_setup(tmp_path, monkeypatch, mode, *replies):
-    from epic_replay.providers import vision
+    from epic_replay.providers import client
 
     s = replace(config.load(), provider_mode=mode, vision_api_key="test-key")
     led = Ledger(tmp_path / "run", s, day_file=tmp_path / "day.json")
     fake = FakeVision(*replies)
-    monkeypatch.setattr(vision.httpx, "post", fake)
+    monkeypatch.setattr(client.httpx, "post", fake)
     sheet = tmp_path / "sheet.jpg"
     sheet.write_bytes(b"jpeg-sheet")
     cells = [{"cell": k + 1, "frame": 80 + k, "t": (80 + k) / 30} for k in range(9)]
@@ -233,9 +233,10 @@ def test_no_schema_means_no_retry(tmp_path, monkeypatch):
 
 
 def test_sheet_cost_ceiling_and_shown_cost_are_separate():
-    from epic_replay.providers import vision
+    from epic_replay.providers import models
 
-    assert vision.SHEET_CALL_CEILING_USD == 0.008
+    p = models.get("deepseek-flash")  # the numbers T003 measured live in the profile
+    assert p.call_ceiling_usd == 0.008 and p.call_mean_usd == 0.0035
     assert VisionAdapter.expected_sheets_usd(5) == pytest.approx(5 * 0.0035)
 
 

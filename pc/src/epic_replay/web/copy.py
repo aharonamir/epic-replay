@@ -85,6 +85,12 @@ ROLES = {"opening": "opening", "build_up": "build-up", "climax": "key moment",
 WHO = {"S2": "Spotter", "S3": "Spotter", "S5": "Commentator", "A": "you"}
 DETAILS = {
     "line": "{stage} · {who} · {duration} s · {cost} USD",
+    "model": "model: {value}",
+    "model_value": "{label}, {model}, {where}",
+    "role_vision": "Looking at the clip",
+    "role_text": "Writing the script",
+    "where_local": "on this computer",
+    "where_cloud": "at a cloud provider",
     "code": "code",
     "S0": "{duration} s at {fps} fps, {width}x{height}, working copy",
     "S1": "{n} candidate moments",

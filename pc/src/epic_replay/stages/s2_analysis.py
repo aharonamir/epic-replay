@@ -7,6 +7,7 @@ the play sheet.
 from __future__ import annotations
 
 import json
+import time
 
 from epic_replay.agents.spotter import SpotterTools
 from epic_replay.guards.budget import Ledger
@@ -28,14 +29,22 @@ def run(ctx: RunContext) -> StageResult:
     vision = vision_for(ctx)
     tools = SpotterTools(ctx, vision)
     info = tools.clip_info()
+    t0 = time.monotonic()
     looks, events = tools.look_sheets(info)
+    profile = vision.profile()
     answered = [lk for lk in looks if lk.get("answer")]
     calls = [*looks, events]
     trace = {
         "clip_info": info,
         "sheets": looks,
         "events_call": events,
-        "expected_usd": VisionAdapter.expected_sheets_usd(len(calls)),
+        "model": {  # what the calls were limited by, and what they took in all (FR-012)
+            "profile": profile.id,
+            "max_parallel": profile.max_parallel,
+            "timeout_s": profile.timeout("vision"),
+            "elapsed_s": round(time.monotonic() - t0, 2),
+        },
+        "expected_usd": VisionAdapter.expected_sheets_usd(len(calls), ctx.settings),
         "actual_usd": round(sum(c.get("cost_usd", 0.0) for c in calls), 6),
     }
     ctx.path(TRACE).write_text(json.dumps(trace, indent=2) + "\n")
