@@ -46,14 +46,13 @@ def blocks(s: config.Settings | None = None) -> list[str]:
 
 
 def provider_line(s: config.Settings | None = None) -> str:
-    """The page's consent note. With both roles in the cloud (the default) it is the old line
-    word for word; the text role's words are added only when the text goes somewhere wider
-    than the frames, so "stays on this computer" is never claimed alone."""
+    """The page's and the command line's consent note. When both roles go to the same place
+    (the default: both in the cloud) it is the old line for that place word for word; when
+    they differ it is `blocks`, so the frames' place is never stated without the text's."""
     v, t = vision_profile(s), text_profile(s)
-    line = _WORDS["lines"][v.location].format(label=v.label)
-    if REACH[t.location] > REACH[v.location]:
-        line += " " + _WORDS["text_lines"][t.location].format(label=t.label)
-    return line
+    if v.location == t.location:
+        return _WORDS["lines"][v.location].format(label=v.label)
+    return " ".join(blocks(s))
 
 
 class ConsentRequired(Exception):

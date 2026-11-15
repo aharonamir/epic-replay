@@ -187,3 +187,15 @@ def test_a_record_without_text_location_counts_as_cloud_for_the_text(monkeypatch
     consent.require(old, pair_settings(monkeypatch, "local", "cloud"))
     with pytest.raises(consent.ConsentRequired):
         consent.require(old, pair_settings(monkeypatch, "cloud", "cloud"))
+
+
+@pytest.mark.parametrize("vision", PLACES)
+@pytest.mark.parametrize("text", PLACES)
+def test_the_page_note_names_both_places_whenever_they_differ(vision, text, monkeypatch):
+    s = pair_settings(monkeypatch, vision, text)
+    line = consent.provider_line(s)
+    if vision == text:
+        old = consent._WORDS["lines"][vision].format(label=f"Model at {vision}")
+        assert line == old  # the old line for that place, word for word
+    else:
+        assert line == " ".join(consent.blocks(s)) and "Descriptions" in line
