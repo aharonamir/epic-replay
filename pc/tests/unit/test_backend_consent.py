@@ -50,11 +50,13 @@ def test_a_cloud_profile_keeps_todays_line_and_names_no_service():
 
 def test_a_local_profile_says_the_frames_stay_on_this_computer(local):
     line = consent.provider_line(local)
-    assert line == (
+    # T404b: the text role stays on DeepSeek here, so the line says where the text goes too
+    assert line.startswith(
         "Still frames from the clip are looked at on this computer by Tiny (local). "
-        "They are sent to no model provider."
+        "They are sent to no model provider. "
     )
-    assert "train" not in line and "vision model provider" not in line
+    assert "Descriptions of the clip" in line and "text model provider" in line
+    assert "vision model provider" not in line
 
 
 def test_the_record_says_which_wording_was_agreed_to(local):

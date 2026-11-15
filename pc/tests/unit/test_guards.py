@@ -79,7 +79,7 @@ def test_consent_required():
     rec = consent.record(True, now=datetime(2026, 10, 12, 9, 0, tzinfo=UTC))
     assert rec == {
         "confirmed": True, "at": "2026-10-12T09:00:00Z", "text_version": "4",
-        "vision_location": "cloud",
+        "vision_location": "cloud", "text_location": "cloud",
     }  # fmt: skip
     consent.require({"consent": rec})
 

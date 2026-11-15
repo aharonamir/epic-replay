@@ -6,5 +6,17 @@
     "local": "Still frames from the clip are looked at on this computer by {label}. They are sent to no model provider.",
     "network": "Still frames from the clip are sent to another computer of yours, running {label}. They are sent to no model provider.",
     "device": "Still frames from the clip are looked at on this phone by {label}. They never leave the phone."
+  },
+  "text_lines": {
+    "cloud": "Descriptions of the clip drawn from the frames, and the script, are sent to the text model provider to be written. The provider may use what it receives to train its models.",
+    "local": "Descriptions of the clip drawn from the frames, and the script, are handled on this computer by {label}. They are sent to no model provider.",
+    "network": "Descriptions of the clip drawn from the frames, and the script, are sent to another computer of yours, running {label}. They are sent to no model provider.",
+    "device": "Descriptions of the clip drawn from the frames, and the script, are handled on this phone by {label}. They never leave the phone."
+  },
+  "both_lines": {
+    "cloud": "Still frames from the clip, and descriptions drawn from them with the script, are sent to the model providers to be looked at and written. The providers may use what they receive to train their models.",
+    "local": "Still frames from the clip, and descriptions drawn from them with the script, are handled on this computer by {vision} and {text}. They are sent to no model provider.",
+    "network": "Still frames from the clip, and descriptions drawn from them with the script, are sent to another computer of yours, running {vision} and {text}. They are sent to no model provider.",
+    "device": "Still frames from the clip, and descriptions drawn from them with the script, are handled on this phone by {vision} and {text}. They never leave the phone."
   }
 }

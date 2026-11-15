@@ -123,3 +123,67 @@ def test_an_unknown_place_in_a_record_covers_nothing(settings_at):
                      "vision_location": "moon"}}  # fmt: skip
     with pytest.raises(consent.ConsentRequired):
         consent.require(r, settings_at("local"))
+
+
+# Spec 004, T404b: the consent names both roles, for every pair of places.
+PLACES = ("device", "local", "network", "cloud")
+
+
+def pair_settings(monkeypatch, vision: str, text: str):
+    base = config.load()
+    made = dict(models.profiles())
+    for place in {vision, text}:
+        p = {**DEFAULT, "id": f"p-{place}", "label": f"Model at {place}", "location": place,
+             "model": f"m-{place}", "api_key_env": None if place != "cloud" else "K"}  # fmt: skip
+        made[p["id"]] = models.Profile.from_json(p)
+    monkeypatch.setattr(models, "profiles", lambda: made)
+    return dataclasses.replace(base, vision_profile=f"p-{vision}", text_profile=f"p-{text}")
+
+
+@pytest.mark.parametrize("vision", PLACES)
+@pytest.mark.parametrize("text", PLACES)
+def test_the_consent_shown_for_every_pair_names_where_both_go(vision, text, monkeypatch):
+    shown = consent.blocks(pair_settings(monkeypatch, vision, text))
+    joined = " ".join(shown)
+    if vision == text:
+        assert len(shown) == 1 and "frames" in joined and "descriptions" in joined.lower()
+    else:
+        assert len(shown) == 2
+        assert "Still frames" in shown[0] and "Descriptions" in shown[1]
+    # the place of the frames is never shown without the place of the text
+    for place, words in (("cloud", "train"), ("device", "phone"), ("network", "another computer")):
+        if place in (vision, text):
+            assert words in joined
+    assert "{" not in joined  # every placeholder was filled
+
+
+def test_the_default_pair_keeps_the_old_page_line(monkeypatch):
+    s = config.load()
+    assert consent.provider_line(s) == consent.PROVIDER_LINE
+
+
+@pytest.mark.parametrize("vision", PLACES)
+@pytest.mark.parametrize("text", PLACES)
+def test_a_consent_covers_a_run_only_if_each_role_goes_no_further(vision, text, monkeypatch):
+    agreed = consent.record(True, settings=pair_settings(monkeypatch, vision, text))
+    assert (agreed["vision_location"], agreed["text_location"]) == (vision, text)
+    ctx = {"consent": agreed}
+    for v2 in PLACES:
+        for t2 in PLACES:
+            now = pair_settings(monkeypatch, v2, t2)
+            wider = (
+                consent.REACH[v2] > consent.REACH[vision] or consent.REACH[t2] > consent.REACH[text]
+            )
+            if wider:
+                with pytest.raises(consent.ConsentRequired):
+                    consent.require(ctx, now)
+            else:
+                consent.require(ctx, now)
+
+
+def test_a_record_without_text_location_counts_as_cloud_for_the_text(monkeypatch):
+    old = {"consent": {"confirmed": True, "at": "x", "text_version": consent.TEXT_VERSION,
+                       "vision_location": "local"}}  # fmt: skip
+    consent.require(old, pair_settings(monkeypatch, "local", "cloud"))
+    with pytest.raises(consent.ConsentRequired):
+        consent.require(old, pair_settings(monkeypatch, "cloud", "cloud"))
