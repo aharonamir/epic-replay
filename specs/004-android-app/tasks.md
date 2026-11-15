@@ -85,7 +85,7 @@ Rules: in order, except that the two spikes may run first or alongside T403 and 
   *Done when*: concurrent model and voice calls cannot exceed either cap (test); the fixture's takes replay to the placement of the Python run; one paid call is made only with the owner's yes.
 
 - [ ] **T423 Mix and compose (S8, S10)** (10 h). The layers of the mix with the ducking of the pack's rule and the loudness target, the graphics (title, replay bug, end card, the "AI commentary" label) drawn from the pack's fields and the shared fonts (spike S2: `woff2` does not load on Android; T405 adds a build step that makes TrueType copies from the shared files, never committed), the export, with one retry and then the software encoder when the hardware encoder's output is refused (spike S2).
-  *Done when*: the sample run's data produces a video of the storyboard's duration whose timing checks (the PC's `timing_check` ideas) pass; the label is on every export.
+  *Done when*: a test forces the hardware encoder's failure (a fake `EncoderSelector` or exporter that refuses its output) and the export finishes on the software encoder, with the retry logged; the sample run's data produces a video of the storyboard's duration whose timing checks (the PC's `timing_check` ideas) pass; the label is on every export.
 
 - [ ] **T424 The run and its folder** (4 h). The stage runner on the phone with a run folder, the manifest, the events, resume after the app is killed, and the stages' records of which profile ran.
   *Done when*: the fixture runs to a video on a device with recorded model replies and no network; killing the app between stages and reopening it finishes the run.

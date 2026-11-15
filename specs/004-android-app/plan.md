@@ -80,16 +80,17 @@ The three existing local profiles (`gemma-4-e2b-local`, `qwen3-vl-2b-local`, `qw
 | M5 Screens, the phone's numbers, review | T425 to T429 | 24 |
 | **Total** | | **about 146** |
 
-If a task runs half again over its hours, stop and tell the owner (rule 11 of the PC's CLAUDE.md, kept). If T401 shows images do not run on the phone, M2 loses about 4 hours and the on-device choice becomes text-only; if T402 shows Media3 lacks a needed effect, M4 grows by what the fallback costs, decided together.
+If a task runs half again over its hours, stop and tell the owner (rule 11 of the PC's CLAUDE.md, kept). T401 showed images run on the phone, so M2 keeps its vision path; T402 found one missing piece of Media3 (smooth slow motion), which is in M4 (T421, +5 h). The remaining unknowns are the app's memory limit, model quality on real clips, zoom and the encoder failure.
 
 ## 7. Risks
 
 | Risk | Sign | Response |
 |---|---|---|
-| libmtmd does not run on Android as built | T401 cannot get an answer from an image | On-device is text-only; the first-run screen says so; vision is cloud; raise it with the owner before M2 |
-| Qwen3.5 does not load in llama.cpp, or is far too slow | T401 | Its profile is not shipped; Gemma stays the only on-device option |
+| The app process gets less memory than the native test did (peak 5 GB for Gemma, 6 GB for Qwen3.5 on an 11.5 GB phone) | T409 on the phone | `min_free_ram_mb` from the app's own measurement, refused before loading; Qwen3.5 may need to be dropped on smaller phones |
+| On-device answers are poor on real clips (S1 used one synthetic sheet) | T427 | The play card and the fallback carry the run; FR-018 says so |
 | Memory: the phone kills the app while the model is loaded | T401, T409 | `min_free_ram_mb` from measurement, refused before loading, never a crash |
-| Media3 lacks slow motion, overlays or ducking | T402 | Decide with the owner: a custom effect, MediaCodec and OpenGL, or a bundled FFmpeg |
+| The hardware encoder refuses its own output (S2: five early failures, then 8 of 8 passes, cause unknown) | T423 | One retry, then the software encoder; the failure path is tested (T423) |
+| The blending effect is slower or heavier than the export times of S2 suggest | T421 | Measured on the phone; the 7.5 fps picture is the fallback the owner declined |
 | The Kotlin Commentator loop is worse than agent-core's | T419 on the cloud profile | Keep the PC's structured draft path as the Android default and the loop only if it measures better |
 | A shared change breaks the PC | T403, T404 | The PC's full checks after each; no word of the cloud consent changes |
 | The signal scan differs between OpenCV builds | T413 | The tolerance written in the case; the scan is advice to the Spotter, not a fact |

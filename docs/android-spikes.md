@@ -40,7 +40,7 @@ The Qwen3.5 files are from `unsloth`, not `ggml-org`; llama.cpp's own multimodal
 | Text speed (`llama-bench`, 6 threads) | prompt 168 tokens/s, generation 19.5 tokens/s | prompt 40.5, generation 10.6 |
 | Text JSON draft, 3 lines (grammar) | 7.1 s; fits | 13 to 20 s; fits |
 | Model and projector load (time to the CLI's "ready" line in the log) | about 6 s (the model alone, 2 to 4 s in the test program); files cached by the OS | about 12 s |
-| Five calls in a row (overview) | 24.8, 24.8, 26.6, 26.2, 26.2 s: **no throttling**; thermal status NONE at 68.6 C | not run |
+| Five calls in a row (overview) | 24.8, 24.8, 26.6, 26.2, 26.2 s: **no slowdown over these five calls (about two minutes)**; one reading of `dumpsys thermalservice` right after them: status NONE, 68.6 C. This does not show behaviour over a long run (T427 measures that) | not run |
 
 Threads: 4 and 6 gave the same time, 8 was slower (44.8 s against 41.3 s). Offloading the projector is moot: no GPU backend was built, so `--no-mmproj-offload` was used throughout.
 
@@ -62,7 +62,7 @@ What this does **not** show: whether the answers are any good on real clips (the
 ### What changes in the plan
 
 - FR-003 said Qwen3.5 might be text-only on the phone; it is not, on this build. Both models are offered for both roles, subject to the owner's reading of the speed.
-- Provisional floors for the profiles (T410 fixes them): `min_free_ram_mb` 5000 for Gemma and 6500 for Qwen3.5 (peak resident memory includes memory-mapped weights, which the system can drop; the phone has 11.5 GB), `min_free_storage_mb` 3800 for either (3.4 GB of files plus the `.part`), `context_tokens` 4096 to 6144.
+- Provisional floors for the profiles (T410 fixes them): `min_free_ram_mb` 5000 for Gemma and 6500 for Qwen3.5 (peak resident memory includes memory-mapped weights, which the system can drop; the phone has 11.5 GB), `min_free_storage_mb` 3800 for either (3.4 GB for the two files, 2.84 + 0.56 GB for Gemma and 2.74 + 0.67 GB for Qwen3.5: the `.part` file is the download itself, renamed in place after the checksum, so the peak is the total, not the total plus a copy; 0.4 GB is margin; T410 checks this with a real interrupted download), `context_tokens` 4096 to 6144.
 - The Spotter's image size should be capped (about 280 tokens a sheet) on the phone: encoding is the largest cost. A call is 25 to 60 s on Gemma, so the on-device Spotter takes minutes, and the progress screen must say so.
 - `max_parallel` is 1 (one model in memory, one call at a time).
 
@@ -72,7 +72,7 @@ What this does **not** show: whether the answers are any good on real clips (the
 
 ## S2: the video on Media3 (T402), 2026-11-15
 
-**What was tried.** A throwaway app (`~/workspace/android-dev/spikes/t402`, Java, not in the repository) with `androidx.media3:media3-transformer`, `-effect` and `-common` **1.11.1** (the newest stable; Android Gradle plugin 9.5.1, Gradle 9.9.1, compileSdk 36, minSdk 28), installed on the same Xiaomi 15T Pro and run from `adb shell am start`. The API was read from the 1.11.1 source jars (`dl.google.com/android/maven2/androidx/media3/.../1.11.1/...-sources.jar`), not from memory. Inputs are synthetic: a 1920x1080, 30 fps, 16 s `testsrc2` clip with a sine tone; tone bursts standing in for the voice (3 to 5 s, 8 to 10 s, 20 to 22 s); the shared `crowd_bed_01.wav`; the shared Sofia Sans font converted to TrueType. The outputs were pulled and checked with `ffprobe` and `ffmpeg`. The last case rebuilds the sample run's storyboard (`shared/fixtures/sample_run/storyboard.json`): hold 1 s, normal 15 s, hold 0.4 s, slow motion 0.25 of 2.5 s (10 s), hold 2.5 s, 28.9 s in all, with the five overlays and four audio layers.
+**What was tried.** A throwaway app (`~/workspace/android-dev/spikes/t402`, Java, not in the repository) with `androidx.media3:media3-transformer`, `-effect` and `-common` **1.11.1** (the newest stable; Android Gradle plugin 9.5.1, Gradle 9.9.1, compileSdk 36, minSdk 28), installed on the same Xiaomi 15T Pro and run from `adb shell am start`. The API was read from the 1.11.1 source jars (`dl.google.com/android/maven2/androidx/media3/.../1.11.1/...-sources.jar`), not from memory. Inputs are synthetic: a 1920x1080, 30 fps, 16 s `testsrc2` clip with a sine tone; a separate 29 s `voice.wav` standing in for the voice (tone bursts at 3 to 5 s, 8 to 10 s and 20 to 22 s on the storyboard's timeline, not the clip's, which is 16 s long); the shared `crowd_bed_01.wav`; the shared Sofia Sans font converted to TrueType. The outputs were pulled and checked with `ffprobe` and `ffmpeg`. The last case rebuilds the sample run's storyboard (`shared/fixtures/sample_run/storyboard.json`): hold 1 s, normal 15 s, hold 0.4 s, slow motion 0.25 of 2.5 s (10 s), hold 2.5 s, 28.9 s in all, with the five overlays and four audio layers.
 
 ### Effect by effect
 
@@ -114,6 +114,12 @@ The first five runs of the long storyboard (alone, with overlays, with audio, an
 - No fallback to MediaCodec by hand or a bundled FFmpeg is needed on this evidence. The owner and I agree the choice of the slow-motion fallback: the 7.5 fps picture is acceptable only if the owner says so; otherwise M4 adds the GL effect (my estimate: 4 to 6 hours more than the plan's S9 port).
 
 What this does not show: real footage, a zoom, the loudness target, a 3-minute clip, other phones, and the encoder failure's cause.
+
+### Commands that ran (measurements)
+
+S1, on the phone from `/data/local/tmp/t401` (a small `sh` script wrapped each call, polled `/proc/<pid>/status` `VmHWM` every 0.3 s for the peak memory and timed it with `date`): `llama-mtmd-cli -m <model> --mmproj <projector> --image sheet.jpg -p <prompt> -c 4096|6144 -n 64|400|1200 --temp 0 --jinja --json-schema <schema> --no-mmproj-offload -t 4|6|8 [--image-max-tokens 280]` (`--jinja` is required: without it the Gemma 4 template is refused); `llama-bench -m <model> -p 512 -n 64 -t 4,6 -r 2`; `llama-completion -m <model> -p <prompt> --jinja -cnv -st [-rea off|on] [--reasoning-budget 0] [--json-schema ...]`, and a raw prompt with `-no-cnv` for the empty think block. The Spotter prompts and schemas were exported from `pc/src/epic_replay/agents/spotter.py` and the replies checked with `jsonschema` on the PC. The cancellation test is `harness/t401.cpp` (in the spike folder below) run as `t401_main <model> 6`.
+
+S2: `adb install`, then `adb shell am start -n spike.t402/spike.Main [--es only <cases>] [--es seq '<items>']`; each export logged one JSON line under the tag `T402` (read with `adb logcat -d -s T402:I`: export time, frame count, size, encoder name); the files were pulled with `adb exec-out run-as spike.t402 cat files/out/<case>.mp4`; `ffprobe -show_entries stream=...`, `ffprobe -show_entries packet=pts_time` (frame times of the slow segment), `ffmpeg -ss <t> -t <d> -i <file> -af volumedetect -f null -` (the loudness windows) and `ffmpeg -ss <t> -frames:v 1` (the overlay frames). The raw logs were not kept in the repository; the numbers above are copied from them.
 
 ### Files kept (outside the repository)
 
