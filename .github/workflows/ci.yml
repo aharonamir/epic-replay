@@ -92,8 +92,10 @@ jobs:
       # Gradle installs the platform and build tools it needs once their licences are accepted.
       - name: Accept Android SDK licences
         run: |
-          # `yes` is killed by the pipe closing, which the shell's pipefail reports; check the result instead
-          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null || true
-          test -s "$ANDROID_HOME/licenses/android-sdk-license"
+          set +e +o pipefail
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > "$RUNNER_TEMP/licences.log" 2>&1
+          status=${PIPESTATUS[1]}   # sdkmanager's own exit status; `yes` ends when the pipe closes
+          tail -n 3 "$RUNNER_TEMP/licences.log"
+          test "$status" -eq 0 && test -s "$ANDROID_HOME/licenses/android-sdk-license"
       - name: Core tests and debug APK
         run: ./gradlew --no-daemon :core:test :app:assembleDebug

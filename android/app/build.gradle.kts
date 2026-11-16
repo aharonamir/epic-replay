@@ -83,10 +83,11 @@ dependencies {
  * assets, keeping the shared layout, and turns the shared .woff2 fonts into TrueType (Android cannot
  * load woff2; spike S2). The output is under build/, never committed.
  */
-@CacheableTask
+// Not cacheable: its result depends on the installed font tools, which no input can identify.
 abstract class PrepareSharedAssets : DefaultTask() {
     @get:InputDirectory @get:PathSensitive(PathSensitivity.RELATIVE) abstract val shared: DirectoryProperty
     @get:InputFile @get:PathSensitive(PathSensitivity.RELATIVE) abstract val fontScript: RegularFileProperty
+    @get:InputFile @get:PathSensitive(PathSensitivity.RELATIVE) abstract val fontRequirements: RegularFileProperty
     @get:Input abstract val python: Property<String>
     @get:OutputDirectory abstract val outputDir: DirectoryProperty
     @get:Inject abstract val fs: FileSystemOperations
@@ -117,6 +118,7 @@ abstract class PrepareSharedAssets : DefaultTask() {
 val prepareSharedAssets by tasks.registering(PrepareSharedAssets::class) {
     shared.set(rootProject.layout.projectDirectory.dir("../shared"))
     fontScript.set(rootProject.layout.projectDirectory.file("tools/woff2_to_ttf.py"))
+    fontRequirements.set(rootProject.layout.projectDirectory.file("tools/requirements.txt"))
     python.set(providers.environmentVariable("EPIC_PYTHON").orElse("python3"))
     outputDir.set(layout.buildDirectory.dir("generated/shared-assets"))
 }
