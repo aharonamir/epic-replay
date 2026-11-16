@@ -6,8 +6,9 @@ import javax.crypto.spec.GCMParameterSpec
 
 /** Encrypts and decrypts a small blob. The Android implementation uses a key that never leaves the Keystore. */
 interface SecretCipher {
-    fun encrypt(plain: ByteArray): ByteArray
-    fun decrypt(blob: ByteArray): ByteArray
+    /** [aad] is authenticated but not stored: decrypting with different bytes fails, so a blob cannot be moved to another name. */
+    fun encrypt(plain: ByteArray, aad: ByteArray): ByteArray
+    fun decrypt(blob: ByteArray, aad: ByteArray): ByteArray
 }
 
 /**
@@ -17,18 +18,20 @@ interface SecretCipher {
  * with a fresh random IV every time (the cipher makes it).
  */
 class AesGcmCipher(private val keyProvider: () -> Key) : SecretCipher {
-    override fun encrypt(plain: ByteArray): ByteArray {
+    override fun encrypt(plain: ByteArray, aad: ByteArray): ByteArray {
         val c = Cipher.getInstance(TRANSFORMATION)
         c.init(Cipher.ENCRYPT_MODE, keyProvider())
+        c.updateAAD(aad)
         val iv = c.iv
         check(iv.size == IV_BYTES) { "unexpected IV length" }
         return iv + c.doFinal(plain)
     }
 
-    override fun decrypt(blob: ByteArray): ByteArray {
+    override fun decrypt(blob: ByteArray, aad: ByteArray): ByteArray {
         require(blob.size > IV_BYTES + TAG_BYTES) { "blob too short" }
         val c = Cipher.getInstance(TRANSFORMATION)
         c.init(Cipher.DECRYPT_MODE, keyProvider(), GCMParameterSpec(TAG_BYTES * 8, blob, 0, IV_BYTES))
+        c.updateAAD(aad)
         return c.doFinal(blob, IV_BYTES, blob.size - IV_BYTES)
     }
 

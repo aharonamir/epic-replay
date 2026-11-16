@@ -20,7 +20,7 @@ class NoKeyInLogsTest {
         .filter { it.isFile && it.extension == "kt" && "/src/main/" in it.invariantSeparatorsPath }
         .toList()
 
-    private val logging = Regex("""\bLog\.[a-z]\(|\bprintln\(|\bprint\(|printStackTrace|\bTimber\.|android\.util\.Log""")
+    private val logging = Regex("""\bLog\.\w+\(|\bprintln\(|\bprint\(|printStackTrace|\bTimber\.|android\.util\.Log|System\.(out|err)|\bLogger\b""")
     private val allowedReveal = setOf("Secret.kt", "SecretStore.kt")
 
     @Test

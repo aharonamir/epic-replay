@@ -18,6 +18,7 @@ class SecretStoreTest {
     private lateinit var dir: File
     private val key = KeyGenerator.getInstance("AES").apply { init(256) }.generateKey()
     private val cipher = AesGcmCipher { key }
+    private val aad = "test".toByteArray()
     private val sentinel = "sk-TESTKEY-0123456789abcdefXYZ"
 
     @BeforeTest fun setUp() { dir = Files.createTempDirectory("secrets").toFile() }
@@ -37,8 +38,8 @@ class SecretStoreTest {
 
     @Test
     fun theSameKeyEncryptsToDifferentBlobsEveryTime() {
-        val a = cipher.encrypt(sentinel.toByteArray())
-        val b = cipher.encrypt(sentinel.toByteArray())
+        val a = cipher.encrypt(sentinel.toByteArray(), aad)
+        val b = cipher.encrypt(sentinel.toByteArray(), aad)
         assertFalse(a.contentEquals(b))
     }
 
@@ -82,6 +83,29 @@ class SecretStoreTest {
     }
 
     @Test
+    fun swappingTwoKeyFilesDoesNotExchangeTheKeys() {
+        val s = store()
+        s.put(KeyKind.MODEL_PROVIDER, Secret("model-key-aaaaaaaaaaaa"))
+        s.put(KeyKind.ELEVENLABS, Secret("voice-key-bbbbbbbbbbbb"))
+        val a = File(dir, "secrets/model_provider.bin"); val b = File(dir, "secrets/elevenlabs.bin")
+        val ba = a.readBytes(); a.writeBytes(b.readBytes()); b.writeBytes(ba)
+        assertEquals(KeyStatus.UNREADABLE, store().status(KeyKind.MODEL_PROVIDER))
+        assertEquals(KeyStatus.UNREADABLE, store().status(KeyKind.ELEVENLABS))
+        assertNull(store().get(KeyKind.MODEL_PROVIDER))
+    }
+
+    @Test
+    fun concurrentReplacesAndDeletesLeaveOneCleanState() {
+        val s = store()
+        val threads = (1..8).map { i ->
+            Thread { repeat(40) { n -> if (n % 5 == 4) s.delete(KeyKind.MODEL_PROVIDER) else s.put(KeyKind.MODEL_PROVIDER, Secret("key-$i-$n-0123456789")) } }
+        }
+        threads.forEach { it.start() }; threads.forEach { it.join() }
+        assertTrue(s.status(KeyKind.MODEL_PROVIDER) in setOf(KeyStatus.ABSENT, KeyStatus.PRESENT))
+        assertTrue(File(dir, "secrets").listFiles()!!.none { it.name.endsWith(".tmp") })
+    }
+
+    @Test
     fun anEmptyKeyIsRefused() {
         assertFailsWith<SecretStoreException> { store().put(KeyKind.MODEL_PROVIDER, Secret("   ")) }
     }
@@ -91,8 +115,8 @@ class SecretStoreTest {
         val s = store()
         s.put(KeyKind.MODEL_PROVIDER, Secret("old-key-1234567890"))
         val broken = object : SecretCipher {
-            override fun encrypt(plain: ByteArray): ByteArray = throw IllegalStateException("boom " + String(plain))
-            override fun decrypt(blob: ByteArray): ByteArray = cipher.decrypt(blob)
+            override fun encrypt(plain: ByteArray, aad: ByteArray): ByteArray = throw IllegalStateException("boom " + String(plain))
+            override fun decrypt(blob: ByteArray, aad: ByteArray): ByteArray = cipher.decrypt(blob, aad)
         }
         val e = assertFailsWith<SecretStoreException> { store(broken).put(KeyKind.MODEL_PROVIDER, Secret(sentinel)) }
         assertFalse(e.message!!.contains("TESTKEY"), "the message holds the key")

@@ -2,6 +2,8 @@ package app.epicreplay.core.secrets
 
 import java.io.File
 import java.io.IOException
+import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.withLock
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
@@ -14,10 +16,15 @@ enum class Role(val id: String) { VISION("vision"), TEXT("text") }
 /**
  * The profile chosen for each role (spec 004 FR-005): a small JSON file `{"vision": id|null, "text": id|null}`.
  * No choice is the default (D3): a role with no profile asks the user before a run. This file holds
- * profile ids only, never a key. The loader that decides which ids are offered is T407's.
+ * profile ids only, never a key. Whether an id names a loaded profile is checked where the choice is made
+ * and used (T407's loader, T411's screen); here an id is only checked to be a safe name.
  */
 class ModelChoiceStore(private val file: File) {
-    fun get(role: Role): String? {
+    private val lock = ReentrantLock()
+
+    fun get(role: Role): String? = lock.withLock { read(role) }
+
+    private fun read(role: Role): String? {
         if (!file.isFile) return null
         return try {
             val obj = Json.parseToJsonElement(file.readText()).jsonObject
@@ -28,9 +35,9 @@ class ModelChoiceStore(private val file: File) {
     }
 
     /** Sets the profile id for [role], or clears the choice with null. The write is atomic. */
-    fun set(role: Role, profileId: String?) {
+    fun set(role: Role, profileId: String?) = lock.withLock {
         require(profileId == null || ID.matches(profileId)) { "not a profile id" }
-        val now = Role.entries.associate { it.id to (if (it == role) profileId else get(it)) }
+        val now = Role.entries.associate { it.id to (if (it == role) profileId else read(it)) }
         val json = JsonObject(now.mapValues { (_, v) -> if (v == null) JsonNull else JsonPrimitive(v) })
         try {
             file.parentFile?.mkdirs()
