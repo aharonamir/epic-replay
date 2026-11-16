@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Android 11 and older: the same exclusions for the older backup (spec 004 FR-008). -->
+<full-backup-content>
+    <exclude domain="file" path="secrets" />
+    <exclude domain="file" path="settings" />
+</full-backup-content>
