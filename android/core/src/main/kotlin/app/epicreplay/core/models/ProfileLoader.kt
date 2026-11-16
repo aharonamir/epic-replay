@@ -11,11 +11,9 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.boolean
 import kotlinx.serialization.json.double
-import kotlinx.serialization.json.int
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
-import kotlinx.serialization.json.long
 
 /** What a platform can run: a valid profile of another kind or location is left out, not refused (spec 004 FR-002). */
 data class Platform(val name: String, val kinds: Set<String>, val locations: Set<String>) {
@@ -57,7 +55,7 @@ class ProfileLoader(schemaText: String, private val platform: Platform) {
             val data = try {
                 Json.parseToJsonElement(file.text)
             } catch (e: Exception) {
-                problems += ProfileProblem(file.name, false, "not JSON")
+                problems += ProfileProblem(file.name, false, "not JSON (${(e.message ?: e.javaClass.simpleName).take(120)})")
                 continue
             }
             var errs = problems(data, file.name.removeSuffix(".json"))
@@ -78,7 +76,13 @@ class ProfileLoader(schemaText: String, private val platform: Platform) {
                 problems += ProfileProblem(file.name, false, errs.joinToString("; "))
                 continue
             }
-            val profile = build(data.jsonObject)
+            val profile = try {
+                build(data.jsonObject)
+            } catch (e: Exception) {
+                // a value the schema allows but this platform cannot hold (a number beyond Int, say): refused, never a crash
+                problems += ProfileProblem(file.name, false, "a field is out of range (${e.javaClass.simpleName})")
+                continue
+            }
             if (profile is ServerProfile) owner[profile.model] = profile.id
             out[profile.id] = profile
         }
@@ -93,6 +97,11 @@ class ProfileLoader(schemaText: String, private val platform: Platform) {
             return errors.map { describe(it) }.sorted().ifEmpty { listOf("not an object") }
         }
         val out = mutableListOf<String>()
+        // The schema's `[^\s]` is ASCII-only in Kotlin's regex and Unicode in Python's: check the URL fields the same way as Python.
+        listOfNotNull(data["api_base"], *((data["files"] as? JsonArray)?.map { (it as? JsonObject)?.get("url") }?.toTypedArray() ?: emptyArray()))
+            .filterIsInstance<JsonPrimitive>()
+            .filter { it.isString && it.content.any { c -> c.isWhitespace() || Character.isSpaceChar(c) } }
+            .forEach { out += "a URL contains whitespace" }
         if (data.str("id") != stem) out += "id ${data.str("id")} is not the file name $stem"
         if (data.str("kind") != ServerProfile.KIND) return out
         if (data.getValue("call_ceiling_usd").jsonPrimitive.double < data.getValue("call_mean_usd").jsonPrimitive.double) {
@@ -117,11 +126,11 @@ class ProfileLoader(schemaText: String, private val platform: Platform) {
                 engine = o.str("engine"),
                 files = o.getValue("files").jsonArray.map {
                     val f = it.jsonObject
-                    ModelFile(f.str("name"), f.str("url"), f.str("sha256"), f.getValue("bytes").jsonPrimitive.long, f.str("role"))
+                    ModelFile(f.str("name"), f.str("url"), f.str("sha256"), f.getValue("bytes").toLongExact(), f.str("role"))
                 },
-                contextTokens = o.getValue("context_tokens").jsonPrimitive.int,
-                minFreeRamMb = o.getValue("min_free_ram_mb").jsonPrimitive.int,
-                minFreeStorageMb = o.getValue("min_free_storage_mb").jsonPrimitive.int,
+                contextTokens = o.getValue("context_tokens").toIntExact(),
+                minFreeRamMb = o.getValue("min_free_ram_mb").toIntExact(),
+                minFreeStorageMb = o.getValue("min_free_storage_mb").toIntExact(),
                 license = o.str("license"),
             )
         } else {
@@ -137,10 +146,10 @@ class ProfileLoader(schemaText: String, private val platform: Platform) {
                 callCeilingUsd = o.getValue("call_ceiling_usd").jsonPrimitive.double,
                 callMeanUsd = o.getValue("call_mean_usd").jsonPrimitive.double,
                 timeoutS = o.getValue("timeout_s").jsonObject.entries.associate { (k, v) -> Role.of(k)!! to v.jsonPrimitive.double },
-                maxParallel = o.getValue("max_parallel").jsonPrimitive.int,
+                maxParallel = o.getValue("max_parallel").toIntExact(),
                 jsonMode = o.str("json_mode"),
                 image = ImageSpec(
-                    maxSidePx = (image.getValue("max_side_px") as? JsonPrimitive)?.takeIf { it !is JsonNull }?.int,
+                    maxSidePx = (image.getValue("max_side_px") as? JsonPrimitive)?.takeIf { it !is JsonNull }?.toIntExact(),
                     detail = (image.getValue("detail") as? JsonPrimitive)?.takeIf { it !is JsonNull }?.content,
                 ),
                 extraBody = o.getValue("extra_body").jsonObject,
@@ -150,6 +159,15 @@ class ProfileLoader(schemaText: String, private val platform: Platform) {
     }
 
     private fun JsonObject.str(key: String): String = (this[key] as? JsonPrimitive)?.content ?: ""
+
+    /** JSON Schema counts 4096.0 as an integer, as Python does; a value that is not whole or does not fit throws. */
+    private fun JsonElement.toIntExact(): Int = toLongExact().also { check(it in Int.MIN_VALUE..Int.MAX_VALUE) { "out of Int range" } }.toInt()
+
+    private fun JsonElement.toLongExact(): Long {
+        val d = jsonPrimitive.double
+        check(d == Math.rint(d) && d >= -9.007199254740992E15 && d <= 9.007199254740992E15) { "not a whole number in range" }
+        return d.toLong()
+    }
 
     companion object {
         /** Loads every `*.json` in [dir] with the schema file [schema]. A missing folder or schema is named, not skipped. */

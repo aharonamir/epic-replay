@@ -37,4 +37,22 @@ class ProfileLoaderOnDeviceTest {
         assertTrue(r.profiles.isEmpty())
         assertTrue("surprise" in r.refused().single().reason)
     }
+
+    @Test
+    fun theIfThenAndFalseSchemaRulesHoldOnTheDevice() {
+        val schema = text("contracts/model_profile.schema.json")
+        val onDevice = """{"id":"phone-model","label":"P","kind":"on_device","location":"device","roles":["vision"],"engine":"llama.cpp",
+          "files":[{"name":"w.gguf","url":"https://example.org/w.gguf","sha256":"${"0".repeat(64)}","bytes":10,"role":"weights"}],
+          "context_tokens":4096,"min_free_ram_mb":3000,"min_free_storage_mb":4000,"license":"x","price_in_per_m":0,"price_out_per_m":0,
+          "supports_tools":false,"status":"experimental","notes":"n"}"""
+        val loader = ProfileLoader(schema, Platform.ANDROID)
+        assertTrue(loader.load(listOf(ProfileFile("phone-model.json", onDevice))).profiles.containsKey("phone-model"))
+        // a server field on an on_device profile (a `false` schema under `then`), and a wrong location (a `const`)
+        val withServer = onDevice.replace("\"engine\"", "\"api_base\":\"http://x/v1\",\"engine\"")
+        assertTrue(loader.load(listOf(ProfileFile("phone-model.json", withServer))).refused().isNotEmpty())
+        val wrongPlace = onDevice.replace("\"location\":\"device\"", "\"location\":\"cloud\"")
+        assertTrue(loader.load(listOf(ProfileFile("phone-model.json", wrongPlace))).refused().isNotEmpty())
+        val nbsp = text("models/deepseek-flash.json").replace("https://api.deepseek.com", "https://api.deep\u00a0seek.com")
+        assertTrue(loader.load(listOf(ProfileFile("deepseek-flash.json", nbsp))).refused().isNotEmpty())
+    }
 }

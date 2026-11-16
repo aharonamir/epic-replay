@@ -160,6 +160,57 @@ class ProfileLoaderTest {
         assertTrue("model profiles folder not found" in e.message!!)
     }
 
+    // -- parity with Python on edge cases (review of T407)
+
+    @Test
+    fun aWholeNumberWrittenWithADecimalPointIsAcceptedAsPythonDoes() {
+        val r = loader(Platform.ANDROID).load(folder("phone-model" to phone("context_tokens" to JsonPrimitive(4096.0), "min_free_ram_mb" to JsonPrimitive(3000.0)).toString()))
+        assertEquals(4096, (r.profiles["phone-model"] as OnDeviceProfile).contextTokens)
+        val s = pc("tiny-local" to local("max_parallel" to JsonPrimitive(2.0)).toString())
+        assertEquals(2, (s.profiles["tiny-local"] as ServerProfile).maxParallel)
+    }
+
+    @Test
+    fun aNumberTheSchemaAllowsButAnIntCannotHoldIsRefusedNotACrash() {
+        val r = loader(Platform.ANDROID).load(folder("phone-model" to phone("context_tokens" to JsonPrimitive(99999999999L)).toString()))
+        assertEquals(listOf("phone-model.json"), r.refused().map { it.file })
+        assertTrue("out of range" in r.refused().single().reason)
+        assertEquals(listOf("deepseek-flash"), r.profiles.keys.toList())
+    }
+
+    @Test
+    fun aUnicodeSpaceInAUrlIsRefusedAsPythonRefusesIt() {
+        // Python: re.search(r"^https?://[^\s]+[^/\s]$", "http://a\u00a0b/v1") is None; Kotlin's \s is ASCII only
+        val r = pc("tiny-local" to local("api_base" to JsonPrimitive("http://a\u00a0b/v1")).toString())
+        assertEquals(listOf("tiny-local.json"), r.refused().map { it.file })
+        assertTrue("whitespace" in r.refused().single().reason)
+        val files = loader(Platform.ANDROID).load(folder("phone-model" to phone("files" to JsonArray(listOf(buildJsonObject {
+            put("name", JsonPrimitive("w.gguf")); put("url", JsonPrimitive("https://example.org/w\u2003.gguf"))
+            put("sha256", JsonPrimitive("0".repeat(64))); put("bytes", JsonPrimitive(10)); put("role", JsonPrimitive("weights"))
+        }))).toString()))
+        assertEquals(listOf("phone-model.json"), files.refused().map { it.file })
+    }
+
+    @Test
+    fun theCostIsRoundedToSixPlacesAsPythonDoes() {
+        // expected values are the output of Python's round((i*pin + o*pout)/1e6, 6)
+        val cases = listOf(
+            listOf(1, 0, 0.5, 0.0, 0.0), listOf(3, 0, 0.5, 0.0, 2e-06), listOf(7, 0, 0.25, 0.0, 2e-06), listOf(1, 1, 0.5, 0.5, 1e-06),
+            listOf(1000, 500, 0.30, 1.20, 0.0009), listOf(123456, 7890, 0.27, 1.13, 0.042249), listOf(2, 0, 0.25, 0.0, 0.0), listOf(1500, 0, 0.5, 0.0, 0.00075),
+        )
+        for (c in cases) {
+            val p = (pc("tiny-local" to local("price_in_per_m" to JsonPrimitive(c[2] as Double), "price_out_per_m" to JsonPrimitive(c[3] as Double)).toString())
+                .profiles["tiny-local"] as ServerProfile)
+            assertEquals(c[4] as Double, p.usd((c[0] as Int).toLong(), (c[1] as Int).toLong()), "case $c")
+        }
+    }
+
+    @Test
+    fun aNotJsonFileSaysWhyInBriefly() {
+        val reason = pc("broken" to "{\"a\": ").refused().single().reason
+        assertTrue(reason.startsWith("not JSON (") && reason.length < 160, reason)
+    }
+
     // -- T403: the on_device kind and the platform filter
 
     @Test

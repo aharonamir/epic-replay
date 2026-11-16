@@ -1,7 +1,8 @@
 package app.epicreplay.core.models
 
 import kotlinx.serialization.json.JsonObject
-import kotlin.math.round
+import java.math.BigDecimal
+import java.math.RoundingMode
 
 /** A file of an on-device model (`files` of an `on_device` profile). */
 data class ModelFile(val name: String, val url: String, val sha256: String, val bytes: Long, val role: String)
@@ -28,7 +29,8 @@ sealed interface Profile {
 
     /** The cost of a call from its token counts, rounded to six places as the ledger records it. */
     fun usd(inputTokens: Long, outputTokens: Long): Double =
-        round((inputTokens * priceInPerM + outputTokens * priceOutPerM) / 1e6 * 1e6) / 1e6
+        // Python's round(x, 6) rounds the exact value of the double half to even; BigDecimal(double) is that exact value.
+        BigDecimal((inputTokens * priceInPerM + outputTokens * priceOutPerM) / 1e6).setScale(6, RoundingMode.HALF_EVEN).toDouble()
 }
 
 /** `kind: openai_compatible`: any server that answers the OpenAI chat route. */
