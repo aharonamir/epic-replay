@@ -27,7 +27,7 @@ Rules: in order, except that the two spikes may run first or alongside T403 and 
 
 ## M2: the model choice
 
-- [ ] **T405 The Android project and CI** (4 h). Gradle modules `app`, `core`, `engine`, `media`, `native`; Jetpack Compose in `app`; `shared/` read as source sets and assets, never copied; a signing setup like voice-reps' (keystore from the environment, nothing committed); a build step that converts the shared `woff2` fonts to TrueType in the build output (spike S2), never committed; the CI job of spec 002 runs the `core` tests and `assembleDebug` on changes under `android/` or `shared/`.
+- [x] **T405 The Android project and CI** (4 h). Gradle modules `app`, `core`, `engine`, `media`, `native`; Jetpack Compose in `app`; `shared/` read as source sets and assets, never copied; a signing setup like voice-reps' (keystore from the environment, nothing committed); a build step that converts the shared `woff2` fonts to TrueType in the build output (spike S2), never committed; the CI job of spec 002 runs the `core` tests and `assembleDebug` on changes under `android/` or `shared/`.
   *Done when*: CI builds the debug APK and runs one `core` test; a test fails if a file under `android/` has a byte-identical twin in `shared/`.
 
 - [ ] **T406 Keys and settings** (3 h). The Keystore-wrapped store of spec FR-008 (an AES key in the Keystore, ciphertext in private storage, backups off, nothing in logs), the settings screen for the two keys (masked, replace, delete), and the file holding each role's chosen profile.

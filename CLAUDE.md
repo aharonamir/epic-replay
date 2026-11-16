@@ -4,7 +4,7 @@ Epic Replay turns a short clip into a narrated highlight video. One repository h
 
 - `shared/`: data both apps read, never code: schemas, style packs and voices, banned-word lists, assets, fixtures, conformance cases. See `shared/README.md`.
 - `pc/`: the Python app, a live-demo MVP. Its commands, layout and own rules are in `pc/CLAUDE.md`.
-- `android/`: the Android app, not started; specified in `specs/004-…`.
+- `android/`: the Android app (Gradle project: `app`, `core`, `engine`, `media`, `native/`); its build and rules are in `android/README.md`; specified in `specs/004-…`.
 
 Design: `specs/001-epic-replay/` (the app: `spec.md`, section 10 = what this build defers; `plan.md`; `tasks.md`; `research.md`; `data-model.md`; `contracts/` with the stage contracts, `provider-adapters.md`, `http-api.md`, `ui.md`, `design.md`, `design-canvas/`), `specs/002-platform-split/` (this layout), `specs/003-model-backends/`. The JSON schemas are in `shared/contracts/`. Principles: `.specify/memory/constitution.md` (1.5; principle XI: one contract, every platform).
 
