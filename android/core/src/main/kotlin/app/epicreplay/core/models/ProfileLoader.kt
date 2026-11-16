@@ -3,6 +3,7 @@ package app.epicreplay.core.models
 import io.github.optimumcode.json.schema.JsonSchema
 import io.github.optimumcode.json.schema.ValidationError
 import java.io.File
+import java.math.BigDecimal
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
@@ -160,13 +161,15 @@ class ProfileLoader(schemaText: String, private val platform: Platform) {
 
     private fun JsonObject.str(key: String): String = (this[key] as? JsonPrimitive)?.content ?: ""
 
-    /** JSON Schema counts 4096.0 as an integer, as Python does; a value that is not whole or does not fit throws. */
-    private fun JsonElement.toIntExact(): Int = toLongExact().also { check(it in Int.MIN_VALUE..Int.MAX_VALUE) { "out of Int range" } }.toInt()
+    /** JSON Schema counts 4096.0 as an integer, as Python does. Read from the number's own text, so a large exact integer is never rounded through a Double. */
+    private fun JsonElement.toIntExact(): Int = wholeNumber().intValueExact()
 
-    private fun JsonElement.toLongExact(): Long {
-        val d = jsonPrimitive.double
-        check(d == Math.rint(d) && d >= -9.007199254740992E15 && d <= 9.007199254740992E15) { "not a whole number in range" }
-        return d.toLong()
+    private fun JsonElement.toLongExact(): Long = wholeNumber().longValueExact()
+
+    private fun JsonElement.wholeNumber(): BigDecimal {
+        val d = BigDecimal(jsonPrimitive.content)
+        check(d.stripTrailingZeros().scale() <= 0) { "not a whole number" }
+        return d
     }
 
     companion object {

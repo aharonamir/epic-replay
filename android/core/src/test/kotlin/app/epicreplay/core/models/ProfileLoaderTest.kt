@@ -171,6 +171,19 @@ class ProfileLoaderTest {
     }
 
     @Test
+    fun aLargeExactIntegerIsNeverRoundedThroughADouble() {
+        val big = 9007199254740993L // 2^53 + 1: a Double would make it 2^53
+        fun withBytes(n: JsonPrimitive) = phone("files" to JsonArray(listOf(buildJsonObject {
+            put("name", JsonPrimitive("w.gguf")); put("url", JsonPrimitive("https://example.org/w.gguf"))
+            put("sha256", JsonPrimitive("0".repeat(64))); put("bytes", n); put("role", JsonPrimitive("weights"))
+        }))).toString()
+        val r = loader(Platform.ANDROID).load(folder("phone-model" to withBytes(JsonPrimitive(big))))
+        assertEquals(big, (r.profiles["phone-model"] as OnDeviceProfile).files[0].bytes)
+        val frac = loader(Platform.ANDROID).load(folder("phone-model" to withBytes(JsonPrimitive(10.5))))
+        assertEquals(listOf("phone-model.json"), frac.refused().map { it.file }) // the schema says integer; 10.5 is not
+    }
+
+    @Test
     fun aNumberTheSchemaAllowsButAnIntCannotHoldIsRefusedNotACrash() {
         val r = loader(Platform.ANDROID).load(folder("phone-model" to phone("context_tokens" to JsonPrimitive(99999999999L)).toString()))
         assertEquals(listOf("phone-model.json"), r.refused().map { it.file })
