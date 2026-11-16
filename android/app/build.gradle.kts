@@ -1,4 +1,11 @@
-import org.gradle.api.tasks.Sync
+import javax.inject.Inject
+import org.gradle.api.DefaultTask
+import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.file.FileSystemOperations
+import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.provider.Property
+import org.gradle.api.tasks.*
+import org.gradle.process.ExecOperations
 
 plugins {
     alias(libs.plugins.android.application)
@@ -21,8 +28,20 @@ android {
     }
 
     // Signing like voice-reps: the keystore comes from the environment, nothing is committed.
-    // Without these variables the release build is unsigned (CI builds only the debug APK).
-    val keystore = System.getenv("EPIC_KEYSTORE_PATH")
+    // Without them a release task stops with a message (CI builds only the debug APK).
+    val signingVars = listOf("EPIC_KEYSTORE_PATH", "EPIC_KEYSTORE_PASSWORD", "EPIC_KEY_ALIAS", "EPIC_KEY_PASSWORD")
+    val given = signingVars.filter { !System.getenv(it).isNullOrEmpty() }
+    // All four or none: a half-set environment is a mistake, and a release is never unsigned by accident.
+    check(given.isEmpty() || given.size == signingVars.size) {
+        "Signing needs all of $signingVars; missing: ${signingVars - given.toSet()}"
+    }
+    val keystore = System.getenv("EPIC_KEYSTORE_PATH").takeIf { given.isNotEmpty() }
+    gradle.taskGraph.whenReady {
+        val wantsRelease = allTasks.any { it.project == project && it.name.matches(Regex("(assemble|bundle|package)Release.*")) }
+        check(!wantsRelease || keystore != null) {
+            "A release build must be signed: set $signingVars (use assembleDebug for an unsigned build)"
+        }
+    }
     signingConfigs {
         if (keystore != null) {
             create("release") {
@@ -48,16 +67,6 @@ android {
 
 }
 
-// The shared data is packaged as assets from ../../shared by a build step that selects what the
-// app needs and turns the fonts into TrueType. The output is under build/, never committed.
-androidComponents {
-    onVariants { variant ->
-        variant.sources.assets?.addStaticSourceDirectory(
-            layout.buildDirectory.dir("generated/shared-assets").get().asFile.absolutePath
-        )
-    }
-}
-
 dependencies {
     implementation(project(":core"))
     implementation(project(":engine"))
@@ -69,35 +78,51 @@ dependencies {
     implementation(libs.activity.compose)
 }
 
-val shared = rootProject.layout.projectDirectory.dir("../shared")
-val sharedAssets = layout.buildDirectory.dir("generated/shared-assets")
-val python = providers.environmentVariable("EPIC_PYTHON").orElse("python3")
+/**
+ * Packages the shared data the app reads (models, styles, lexicons, copy, contracts, sounds) as
+ * assets, keeping the shared layout, and turns the shared .woff2 fonts into TrueType (Android cannot
+ * load woff2; spike S2). The output is under build/, never committed.
+ */
+@CacheableTask
+abstract class PrepareSharedAssets : DefaultTask() {
+    @get:InputDirectory @get:PathSensitive(PathSensitivity.RELATIVE) abstract val shared: DirectoryProperty
+    @get:InputFile @get:PathSensitive(PathSensitivity.RELATIVE) abstract val fontScript: RegularFileProperty
+    @get:Input abstract val python: Property<String>
+    @get:OutputDirectory abstract val outputDir: DirectoryProperty
+    @get:Inject abstract val fs: FileSystemOperations
+    @get:Inject abstract val exec: ExecOperations
 
-val syncSharedAssets by tasks.registering(Sync::class) {
-    description = "Packages the shared data the app reads (models, styles, lexicons, copy, contracts, sounds)."
-    from(shared) {
-        include("models/**", "styles/**", "lexicons/**", "copy/**", "contracts/**")
-        include("assets/sfx/**", "assets/music/**", "assets/samples/**", "assets/LICENCES.md")
+    @TaskAction
+    fun run() {
+        val out = outputDir.get().asFile
+        fs.delete { delete(out) } // nothing stale survives a change in shared/
+        fs.copy {
+            from(shared) {
+                include("models/**", "styles/**", "lexicons/**", "copy/**", "contracts/**")
+                include("assets/sfx/**", "assets/music/**", "assets/samples/**", "assets/LICENCES.md")
+            }
+            into(out)
+        }
+        exec.exec {
+            commandLine(
+                python.get(),
+                fontScript.get().asFile.absolutePath,
+                shared.get().dir("assets/fonts").asFile.absolutePath,
+                out.resolve("assets/fonts").absolutePath,
+            )
+        }
     }
-    into(sharedAssets)
 }
 
-val convertFonts by tasks.registering(Exec::class) {
-    description = "Converts the shared .woff2 fonts to TrueType (Android cannot load woff2; spike S2)."
-    val fonts = shared.dir("assets/fonts")
-    val out = sharedAssets.map { it.dir("assets/fonts") } // the shared layout is kept: assets/fonts
-    inputs.dir(fonts)
-    inputs.file(rootProject.layout.projectDirectory.file("tools/woff2_to_ttf.py"))
-    outputs.dir(out)
-    dependsOn(syncSharedAssets) // Sync clears its target, so the fonts are written after it
-    commandLine(
-        python.get(),
-        rootProject.layout.projectDirectory.file("tools/woff2_to_ttf.py").asFile.absolutePath,
-        fonts.asFile.absolutePath,
-        out.get().asFile.absolutePath,
-    )
+val prepareSharedAssets by tasks.registering(PrepareSharedAssets::class) {
+    shared.set(rootProject.layout.projectDirectory.dir("../shared"))
+    fontScript.set(rootProject.layout.projectDirectory.file("tools/woff2_to_ttf.py"))
+    python.set(providers.environmentVariable("EPIC_PYTHON").orElse("python3"))
+    outputDir.set(layout.buildDirectory.dir("generated/shared-assets"))
 }
 
-tasks.matching { it.name.matches(Regex("merge.*Assets")) }.configureEach {
-    dependsOn(syncSharedAssets, convertFonts)
+androidComponents {
+    onVariants { variant ->
+        variant.sources.assets?.addGeneratedSourceDirectory(prepareSharedAssets, PrepareSharedAssets::outputDir)
+    }
 }

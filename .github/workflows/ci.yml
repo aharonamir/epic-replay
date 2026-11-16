@@ -87,10 +87,13 @@ jobs:
       - name: Font tools
         run: |
           python3 -m venv "$RUNNER_TEMP/fontvenv"
-          "$RUNNER_TEMP/fontvenv/bin/pip" install fonttools brotli
+          "$RUNNER_TEMP/fontvenv/bin/pip" install -r tools/requirements.txt
           echo "EPIC_PYTHON=$RUNNER_TEMP/fontvenv/bin/python" >> "$GITHUB_ENV"
       # Gradle installs the platform and build tools it needs once their licences are accepted.
       - name: Accept Android SDK licences
-        run: yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null || true
+        run: |
+          # `yes` is killed by the pipe closing, which the shell's pipefail reports; check the result instead
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null || true
+          test -s "$ANDROID_HOME/licenses/android-sdk-license"
       - name: Core tests and debug APK
         run: ./gradlew --no-daemon :core:test :app:assembleDebug

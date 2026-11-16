@@ -15,6 +15,8 @@ from fontTools.ttLib import TTFont
 def main(src: str, out: str) -> int:
     out_dir = Path(out)
     out_dir.mkdir(parents=True, exist_ok=True)
+    for old in out_dir.glob("*.ttf"):  # a font removed from shared/ must not stay in the build
+        old.unlink()
     fonts = sorted(Path(src).glob("*.woff2"))
     if not fonts:
         print(f"no .woff2 fonts in {src}", file=sys.stderr)

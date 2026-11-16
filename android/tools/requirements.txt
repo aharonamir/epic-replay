@@ -1,0 +1,3 @@
+# Pinned: the font step must give the same files everywhere (the versions that built the first APK)
+fonttools==4.68.0
+brotli==1.2.1
