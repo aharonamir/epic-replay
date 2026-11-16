@@ -38,6 +38,10 @@ Nothing here carries a URL, a header or a key: those belong to a profile of kind
 | `Unreachable` | Before any request: a `local` profile's server does not answer `GET {api_base}/models`. The message names the profile and the URL: "the vision model server for profile gemma-4-e2b-local is not reachable at http://127.0.0.1:8080/v1" |
 | `Timeout` | A call took longer than the profile's `timeout_s` for its role. It may still have been billed, so the budget counts it as spent at its estimate |
 | `SchemaMisfit` | The reply and its one retry did not fit the schema |
+| `NotInstalled` | An `on_device` profile's files are missing or fail their checksum (replaces `Unreachable` for that kind). The message names the profile and the missing files |
+| `OutOfMemory` | An `on_device` profile needs more free memory than the phone has (`min_free_ram_mb`); raised before loading, never a crash |
+
+An `on_device` backend returns the same `Result`: `usage` is the token counts from the engine, `usd` is 0, `latency_s` is measured as for any backend. The Android app implements the contract in Kotlin (`android/core`, `ModelBackend`) with `FakeBackend` for tests; the Kotlin loader reads these profiles and leaves out what the phone cannot run (`location` `local` and `network`).
 
 ## Profiles
 

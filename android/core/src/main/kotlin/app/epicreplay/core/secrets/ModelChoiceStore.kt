@@ -1,5 +1,6 @@
 package app.epicreplay.core.secrets
 
+import app.epicreplay.core.models.Role
 import java.io.File
 import java.io.IOException
 import java.util.concurrent.locks.ReentrantLock
@@ -9,9 +10,6 @@ import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.jsonObject
-
-/** The two roles a model profile serves (`shared/contracts/model_profile.schema.json`). */
-enum class Role(val id: String) { VISION("vision"), TEXT("text") }
 
 /**
  * The profile chosen for each role (spec 004 FR-005): a small JSON file `{"vision": id|null, "text": id|null}`.
