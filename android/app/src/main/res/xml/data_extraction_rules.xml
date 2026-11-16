@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Android 12 and newer (spec 004 FR-008): the key files are in neither the cloud backup nor a
+     device-to-device transfer. `allowBackup` is also off, so this is the second lock. -->
+<data-extraction-rules>
+    <cloud-backup>
+        <exclude domain="file" path="secrets" />
+        <exclude domain="file" path="settings" />
+    </cloud-backup>
+    <device-transfer>
+        <exclude domain="file" path="secrets" />
+        <exclude domain="file" path="settings" />
+    </device-transfer>
+</data-extraction-rules>

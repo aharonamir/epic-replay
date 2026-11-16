@@ -3,6 +3,8 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <application
         android:allowBackup="false"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
         android:usesCleartextTraffic="false"
         android:label="Epic Replay"
         android:theme="@android:style/Theme.Material.Light.NoActionBar">
