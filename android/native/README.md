@@ -1,0 +1,1 @@
+Build notes for `libllama`, `ggml` and `libmtmd` (T409). What worked in spike S1 is in `docs/android-spikes.md`: `BUILD_SHARED_LIBS=OFF`, `GGML_OPENMP=OFF`, `GGML_NATIVE=OFF`, `-march=armv8.2-a+dotprod`, API 28, server off; `libllama.a`, `libggml*.a`, `libmtmd.a` and `vendor/hash` linked into one `.so` that needs `libc++_shared.so`.
