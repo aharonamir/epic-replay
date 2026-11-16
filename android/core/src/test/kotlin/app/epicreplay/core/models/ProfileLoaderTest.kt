@@ -205,6 +205,19 @@ class ProfileLoaderTest {
     }
 
     @Test
+    fun everyCodePointPythonTreatsAsSpaceRefusesAUrl() {
+        assertEquals(29, ProfileLoader.PYTHON_WHITESPACE.size)
+        for (cp in ProfileLoader.PYTHON_WHITESPACE) {
+            val base = "http://a" + String(Character.toChars(cp)) + "b/v1"
+            val r = pc("tiny-local" to local("api_base" to JsonPrimitive(base)).toString())
+            assertEquals(listOf("tiny-local.json"), r.refused().map { it.file }, "U+%04X in api_base".format(cp))
+        }
+        // and a character Python does not treat as space (U+200B, zero width space) does not refuse
+        val ok = pc("tiny-local" to local("api_base" to JsonPrimitive("http://a\u200bb/v1")).toString())
+        assertTrue(ok.refused().isEmpty())
+    }
+
+    @Test
     fun theCostIsRoundedToSixPlacesAsPythonDoes() {
         // expected values are the output of Python's round((i*pin + o*pout)/1e6, 6)
         val cases = listOf(

@@ -101,7 +101,7 @@ class ProfileLoader(schemaText: String, private val platform: Platform) {
         // The schema's `[^\s]` is ASCII-only in Kotlin's regex and Unicode in Python's: check the URL fields the same way as Python.
         listOfNotNull(data["api_base"], *((data["files"] as? JsonArray)?.map { (it as? JsonObject)?.get("url") }?.toTypedArray() ?: emptyArray()))
             .filterIsInstance<JsonPrimitive>()
-            .filter { it.isString && it.content.any { c -> c.isWhitespace() || Character.isSpaceChar(c) } }
+            .filter { it.isString && it.content.any { c -> c.code in PYTHON_WHITESPACE } }
             .forEach { out += "a URL contains whitespace" }
         if (data.str("id") != stem) out += "id ${data.str("id")} is not the file name $stem"
         if (data.str("kind") != ServerProfile.KIND) return out
@@ -173,6 +173,13 @@ class ProfileLoader(schemaText: String, private val platform: Platform) {
     }
 
     companion object {
+        /** The 29 code points Python's `re` matches with `\\s` in a str pattern (Python 3.12: `[c for c in range(0x110000) if re.match(r'\\s', chr(c))]`). */
+        val PYTHON_WHITESPACE: Set<Int> = setOf(
+            0x0009, 0x000A, 0x000B, 0x000C, 0x000D, 0x001C, 0x001D, 0x001E, 0x001F, 0x0020, 0x0085, 0x00A0, 0x1680,
+            0x2000, 0x2001, 0x2002, 0x2003, 0x2004, 0x2005, 0x2006, 0x2007, 0x2008, 0x2009, 0x200A, 0x2028, 0x2029,
+            0x202F, 0x205F, 0x3000,
+        )
+
         /** Loads every `*.json` in [dir] with the schema file [schema]. A missing folder or schema is named, not skipped. */
         fun loadDir(dir: File, schema: File, platform: Platform): LoadedProfiles {
             require(dir.isDirectory) { "model profiles folder not found: $dir" }
