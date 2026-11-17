@@ -13,7 +13,9 @@ java {
 kotlin { compilerOptions { jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17) } }
 
 dependencies {
-    implementation(libs.serialization.json)
+    api(libs.serialization.json)
+    implementation(libs.json.schema)
+    api(libs.coroutines.core)
     testImplementation(libs.kotlin.test)
     testImplementation(platform(libs.junit.bom))
     testImplementation(libs.junit.jupiter)

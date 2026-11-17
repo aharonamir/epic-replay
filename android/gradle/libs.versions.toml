@@ -5,6 +5,8 @@ kotlin = "2.4.21"
 composeBom = "2026.09.00"
 activityCompose = "1.13.0"
 serialization = "1.13.0"
+jsonSchema = "0.5.5"
+coroutines = "1.11.0"
 junit = "6.1.3"
 testRunner = "1.7.0"
 testExtJunit = "1.3.0"
@@ -15,6 +17,8 @@ compose-material3 = { module = "androidx.compose.material3:material3" }
 compose-ui = { module = "androidx.compose.ui:ui" }
 compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
 activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
+coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
+json-schema = { module = "io.github.optimumcode:json-schema-validator", version.ref = "jsonSchema" }
 serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "serialization" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test" }
 androidx-test-runner = { module = "androidx.test:runner", version.ref = "testRunner" }

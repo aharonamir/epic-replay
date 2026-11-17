@@ -1,5 +1,6 @@
 package app.epicreplay.core.secrets
 
+import app.epicreplay.core.models.Role
 import java.io.File
 import java.nio.file.Files
 import kotlin.test.AfterTest
