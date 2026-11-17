@@ -219,9 +219,170 @@ def cells_cases() -> dict[str, dict]:
     }  # fmt: skip
 
 
+# -- spec 004, T408: the model client's requests, the recording key and the budget ----------
+
+
+def _backend_scenarios() -> tuple[dict[str, list[dict]], list[dict]]:
+    """The calls the golden test makes, caught at the client's door with their exact arguments
+    (`backend_golden.json` pins what they send), and the arguments of every recording key."""
+    import base64
+    import sys
+    import tempfile
+    from pathlib import Path
+
+    import pytest
+
+    sys.path.insert(0, str(paths.PC / "tests" / "unit"))
+    import test_backend_golden as g
+
+    from epic_replay.providers import client, vision
+
+    looks: list[dict] = []
+    chats: list[dict] = []
+    keys: list[dict] = []
+    real_look, real_chat, real_key = client.look, client.chat, vision.cache_key
+
+    def spy_look(ep, images, question, *, detail, schema):
+        looks.append({
+            "kind": "look", "detail": detail, "schema": schema, "question": question,
+            "images": [{"label": lab, "base64": base64.b64encode(Path(p).read_bytes()).decode()} for lab, p in images],
+        })  # fmt: skip
+        return real_look(ep, images, question, detail=detail, schema=schema)
+
+    def spy_chat(ep, messages, *, schema=None, tools=None):
+        chats.append({"kind": "chat", "messages": messages, "schema": schema, "tools": tools})
+        return real_chat(ep, messages, schema=schema, tools=tools)
+
+    def spy_key(adapter, model, request, file_hashes=()):
+        k = real_key(adapter, model, request, file_hashes)
+        keys.append(
+            {
+                "adapter": adapter,
+                "model": model,
+                "request": request,
+                "files": list(file_hashes),
+                "key": k,
+            }
+        )
+        return k
+
+    golden = json.loads(g.GOLDEN.read_text())
+    with pytest.MonkeyPatch.context() as mp, tempfile.TemporaryDirectory() as d:
+        for n in ("EPIC_VISION_PROFILE", "EPIC_TEXT_PROFILE", "DEEPSEEK_API_KEY", "EPIC_VISION_API_BASE",
+                  "EPIC_VISION_MODEL", "EPIC_AGENT_API_BASE", "EPIC_AGENT_MODEL", "EPIC_AGENT_PROVIDER"):  # fmt: skip
+            mp.delenv(n, raising=False)
+        mp.setenv("EPIC_VISION_API_KEY", g.KEY)
+        mp.setenv("EPIC_AGENT_API_KEY", g.KEY)
+        mp.setattr(client, "look", spy_look)
+        mp.setattr(client, "chat", spy_chat)
+        mp.setattr(vision, "cache_key", spy_key)
+        g.vision_requests(Path(d) / "v", mp)
+        g.text_requests(Path(d) / "t", mp)
+    out, i = {}, 0
+    for name in ("frames", "sheet", "sheet_no_schema", "events"):
+        n = golden["vision"][f"{name}_requests"]
+        out[f"vision_{name}"] = looks[i : i + n]
+        i += n
+    out["text_structured_draft"], out["text_gloss"] = chats[:1], chats[1:2]
+    return out, keys
+
+
+def backend_cases() -> dict[str, dict]:
+    from epic_replay import conformance_backend
+
+    scenarios, keys = _backend_scenarios()
+    golden = json.loads((paths.PC / "tests" / "fixtures" / "backend_golden.json").read_text())
+    out: dict[str, dict] = {}
+    for name, calls in scenarios.items():
+        role, scenario = name.split("_", 1)
+        key = "test-key"
+        got = conformance_backend.requests("deepseek-flash", role, key, calls)
+        want = golden[role if role == "vision" else "text"][scenario]
+        if got["sha256"] != want:  # the case must be what the golden file already pins
+            raise SystemExit(f"backend/{name}: {got['sha256']} is not the golden {want}")
+        out[f"requests_{name}"] = {
+            "area": "backend", "function": "backend.requests", "language": None,
+            "description": f"The DeepSeek requests of the {scenario.replace('_', ' ')} call ({role} role), "
+                           "as pinned by pc/tests/fixtures/backend_golden.json.",
+            "inputs": {"profile_id": value("deepseek-flash"), "role": value(role), "key": value(key), "calls": value(calls)},
+        }  # fmt: skip
+    seen = set()
+    for n, k in enumerate(keys):
+        if k["key"] in seen or n > 5:
+            continue
+        seen.add(k["key"])
+        rec = golden["vision"]["recordings"]
+        if f"vision/{k['key']}.json" not in rec:
+            raise SystemExit("a recording key is not one of the golden recordings")
+        out[f"recording_key_{len(seen)}"] = {
+            "area": "backend", "function": "backend.recording_key", "language": None,
+            "description": "A vision recording key of the golden test (the key of a recording the test stores).",
+            "inputs": {"adapter": value(k["adapter"]), "model": value(k["model"]), "request": value(k["request"]), "files": value(k["files"])},
+        }  # fmt: skip
+    out["recording_key_non_ascii"] = {
+        "area": "backend", "function": "backend.recording_key", "language": "zh",
+        "description": "Non-ASCII text is written as it is in the canonical request (not as \\u escapes) before hashing.",
+        "inputs": {"adapter": value("text"), "model": value("deepseek-flash"),
+                   "request": value({"question": "好球！进球了", "n": 3, "t": 0.1, "ok": True, "none": None}), "files": value([])},
+    }  # fmt: skip
+    return out
+
+
+def budget_cases() -> dict[str, dict]:
+    caps = {"run_usd": 1.0, "day_usd": 20.0, "pre_checkpoint_usd": 0.3}
+
+    def res(i, run, est, pre=False):
+        return {"op": "reserve", "id": i, "run": run, "estimate": est, "pre_checkpoint": pre}
+
+    def settle(i, actual):
+        return {"op": "settle", "id": i, "actual": actual}
+
+    def rel(i):
+        return {"op": "release", "id": i}
+
+    def case(desc, ops, **c):
+        return {"area": "budget", "function": "budget.run", "language": None, "description": desc,
+                "inputs": {"caps": value({**caps, **c}), "ops": value(ops)}}  # fmt: skip
+
+    return {
+        "settle_replaces_the_reservation": case(
+            "A call reserves its estimate, then settles at its actual cost: the run total is the actual.",
+            [res("a", "r1", 0.008), settle("a", 0.0035)],
+        ),
+        "run_cap_blocks_and_release_frees": case(
+            "A second reservation that would pass the run cap is blocked; releasing the first lets it in.",
+            [res("a", "r1", 0.6), res("b", "r1", 0.6), rel("a"), res("c", "r1", 0.6)],
+        ),
+        "in_flight_calls_count": case(
+            "Calls in flight count against the cap before any has settled.",
+            [res("a", "r1", 0.3), res("b", "r1", 0.3), settle("a", 0.1), res("b2", "r1", 0.3)], run_usd=0.5,
+        ),
+        "day_cap_is_shared_between_runs": case(
+            "The day cap spans runs: a second run is blocked by what the first spent.",
+            [res("a", "r1", 0.4), settle("a", 0.4), res("b", "r2", 0.2)], day_usd=0.5,
+        ),
+        "pre_checkpoint_cap": case(
+            "The pre-checkpoint cap counts only calls marked so; others are not stopped by it.",
+            [res("a", "r1", 0.2, True), res("b", "r1", 0.2, True), res("c", "r1", 0.2)],
+        ),
+        "billed_at_the_estimate": case(
+            "A call that may still be billed (a timeout) is recorded at its estimate.",
+            [res("a", "r1", 0.2), {"op": "settle_at_estimate", "id": "a"}, res("b", "r1", 0.9)],
+        ),
+        "a_recorded_reply_costs_nothing": case(
+            "A recording answers at no cost: a reservation of 0 never blocks, even on a spent run.",
+            [res("a", "r1", 0.99), settle("a", 0.99), res("b", "r1", 0.0), settle("b", 0.0)],
+        ),
+        "the_cap_itself_is_allowed": case(
+            "Reaching a cap exactly is allowed; one cent over is blocked.",
+            [res("a", "r1", 0.5), res("b", "r1", 0.5), res("c", "r1", 0.01)], run_usd=1.0,
+        ),
+    }  # fmt: skip
+
+
 def all_cases() -> dict[str, dict]:
     out = {}
-    for make in (storyboard_cases, slots_cases, checks_cases, lexicon_cases, units_cases, cells_cases):  # fmt: skip
+    for make in (storyboard_cases, slots_cases, checks_cases, lexicon_cases, units_cases, cells_cases, backend_cases, budget_cases):  # fmt: skip
         for name, case in make().items():
             out[f"{case['area']}/{name}"] = case
     return out

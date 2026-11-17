@@ -1,0 +1,41 @@
+{
+  "area": "backend",
+  "function": "backend.requests",
+  "language": null,
+  "description": "The DeepSeek requests of the gloss call (text role), as pinned by pc/tests/fixtures/backend_golden.json.",
+  "inputs": {
+    "profile_id": {
+      "value": "deepseek-flash"
+    },
+    "role": {
+      "value": "text"
+    },
+    "key": {
+      "value": "test-key"
+    },
+    "calls": {
+      "value": [
+        {
+          "kind": "chat",
+          "messages": [
+            {
+              "role": "system",
+              "content": "Give the plain English meaning of each Chinese line. Answer with one JSON object with the same keys and nothing else."
+            },
+            {
+              "role": "user",
+              "content": "{\"l1\": \"好球！\", \"headline\": \"进球了\"}"
+            }
+          ],
+          "schema": {
+            "type": "object"
+          },
+          "tools": null
+        }
+      ]
+    }
+  },
+  "expected": {
+    "file": "expected/output.json"
+  }
+}

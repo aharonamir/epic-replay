@@ -1,0 +1,79 @@
+{
+  "area": "budget",
+  "function": "budget.run",
+  "language": null,
+  "description": "A recording answers at no cost: a reservation of 0 never blocks, even on a spent run.",
+  "inputs": {
+    "caps": {
+      "value": {
+        "run_usd": 1.0,
+        "day_usd": 20.0,
+        "pre_checkpoint_usd": 0.3
+      }
+    },
+    "ops": {
+      "value": [
+        {
+          "op": "reserve",
+          "id": "a",
+          "run": "r1",
+          "estimate": 0.99,
+          "pre_checkpoint": false
+        },
+        {
+          "op": "settle",
+          "id": "a",
+          "actual": 0.99
+        },
+        {
+          "op": "reserve",
+          "id": "b",
+          "run": "r1",
+          "estimate": 0.0,
+          "pre_checkpoint": false
+        },
+        {
+          "op": "settle",
+          "id": "b",
+          "actual": 0.0
+        }
+      ]
+    }
+  },
+  "expected": {
+    "value": [
+      {
+        "op": "reserve",
+        "id": "a",
+        "outcome": "ok",
+        "cap": null,
+        "run_total": 0,
+        "day_total": 0.0
+      },
+      {
+        "op": "settle",
+        "id": "a",
+        "outcome": "ok",
+        "cap": null,
+        "run_total": 0.99,
+        "day_total": 0.99
+      },
+      {
+        "op": "reserve",
+        "id": "b",
+        "outcome": "ok",
+        "cap": null,
+        "run_total": 0.99,
+        "day_total": 0.99
+      },
+      {
+        "op": "settle",
+        "id": "b",
+        "outcome": "ok",
+        "cap": null,
+        "run_total": 0.99,
+        "day_total": 0.99
+      }
+    ]
+  }
+}

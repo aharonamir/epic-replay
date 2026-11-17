@@ -15,7 +15,7 @@ shared/conformance/<area>/<case>/expected/output.json   when the output is large
 
 | Key | Meaning |
 |---|---|
-| `area` | One of the six areas below; the folder the case sits in |
+| `area` | One of the eight areas below; the folder the case sits in |
 | `function` | The rule under test, by the platform-neutral name in the table below |
 | `language` | `en`, `zh`, or `null` when the rule has no language |
 | `description` | What the case shows |
@@ -56,6 +56,9 @@ Compare the platform's output, as JSON, with the expected value: objects by key 
 | `checks.text` | `language`, `texts`, `known`, `extra` | for each text, its failures `{rule, kind, detail}` | `s6_checks.check_text`, `check_text_zh` |
 | `lexicon.scan` | `language`, `texts`, `extra` | for each text: in English `{banned, descriptor}`; in Mandarin `{banned, famous_names, numbers}`, the numbers as decimal strings in numeric order | `guards.lexicon`, `guards.lexicon_zh` |
 | `units.spoken_units` | `language`, `texts` | for each text, its word-budget units | `styles.slots.spoken_units` |
+| `backend.requests` | `profile_id`, `role`, `key`, `calls` | `{requests, sha256}`: the HTTP request the client builds for each call (method, URL, `Authorization` header or null, content type, timeout, JSON body) and the SHA-256 of their canonical JSON | `providers.client.look`, `chat` (caught below the HTTP library) |
+| `backend.recording_key` | `adapter`, `model`, `request`, `files` | the key a recording is stored under (a hex string) | `providers.replay.cache_key` |
+| `budget.run` | `caps`, `ops` | one record per op: `{op, id, outcome (ok or blocked), cap, run_total, day_total}` | `guards.budget.Ledger` |
 | `cells.narrow` | `start_s`, `end_s`, `fps`, `n_frames`, `picks` | the frame numbers of each contact sheet: the first over the window, then one more for each picked cell (1 to 9) | `media.contact_sheet.sheet_frames`, `refine` |
 
 The matching rules behind `lexicon.scan` and `checks.text` are written out in `shared/lexicons/README.md`. The `detail` strings of the checks are English text and are part of the expected output.
@@ -70,5 +73,7 @@ The matching rules behind `lexicon.scan` and `checks.text` are written out in `s
 | `lexicon` | English whole-word false positives, matches, every global term, a pack's own terms; every Mandarin category's terms, 她, allowed phrases, numerals, famous names; the 123 reviewed Mandarin sentences in five groups |
 | `units` | English tokens, Mandarin characters, Mandarin text read with the English rule |
 | `cells` | three passes of narrowing; a window under nine frames; a window past the clip's end; a clip under nine frames; the edge cells |
+| `backend` | the six DeepSeek calls `backend_golden.json` pins (the overview with numbered frames, with a sheet, with no schema, the events call, the structured draft, the gloss), each with its retry; six vision recording keys of the same test; a key over non-ASCII text |
+| `budget` | a settle replaces its reservation; the run cap blocks and a release frees; calls in flight count; the day cap spans runs; the pre-checkpoint cap; a call billed at its estimate; a recording costs nothing; a cap reached exactly is allowed |
 
 Not here: the signal scan (optical flow, sound onsets), whose numbers differ by small amounts between OpenCV and FFmpeg builds. Spec 004 decides their tolerance.

@@ -1,0 +1,177 @@
+{
+  "area": "backend",
+  "function": "backend.recording_key",
+  "language": null,
+  "description": "A vision recording key of the golden test (the key of a recording the test stores).",
+  "inputs": {
+    "adapter": {
+      "value": "vision"
+    },
+    "model": {
+      "value": "deepseek-flash"
+    },
+    "request": {
+      "value": {
+        "detail": "high",
+        "schema": {
+          "type": "object",
+          "required": [
+            "events",
+            "sure",
+            "sensitive",
+            "sensitive_reason"
+          ],
+          "properties": {
+            "sensitive": {
+              "type": "boolean"
+            },
+            "sensitive_reason": {
+              "type": "string"
+            },
+            "events": {
+              "type": "array",
+              "minItems": 3,
+              "maxItems": 6,
+              "items": {
+                "type": "object",
+                "required": [
+                  "first_grid",
+                  "first_cell",
+                  "last_grid",
+                  "last_cell",
+                  "actor",
+                  "action",
+                  "outcome"
+                ],
+                "properties": {
+                  "first_grid": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 2
+                  },
+                  "first_cell": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 9
+                  },
+                  "last_grid": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 2
+                  },
+                  "last_cell": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 9
+                  },
+                  "actor": {
+                    "type": "string"
+                  },
+                  "action": {
+                    "type": "string"
+                  },
+                  "outcome": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "sure": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 10
+            }
+          }
+        },
+        "grids": [
+          [
+            {
+              "cell": 1,
+              "frame": 10
+            },
+            {
+              "cell": 2,
+              "frame": 20
+            },
+            {
+              "cell": 3,
+              "frame": 30
+            },
+            {
+              "cell": 4,
+              "frame": 40
+            },
+            {
+              "cell": 5,
+              "frame": 50
+            },
+            {
+              "cell": 6,
+              "frame": 60
+            },
+            {
+              "cell": 7,
+              "frame": 70
+            },
+            {
+              "cell": 8,
+              "frame": 80
+            },
+            {
+              "cell": 9,
+              "frame": 90
+            }
+          ],
+          [
+            {
+              "cell": 1,
+              "frame": 10
+            },
+            {
+              "cell": 2,
+              "frame": 20
+            },
+            {
+              "cell": 3,
+              "frame": 30
+            },
+            {
+              "cell": 4,
+              "frame": 40
+            },
+            {
+              "cell": 5,
+              "frame": 50
+            },
+            {
+              "cell": 6,
+              "frame": 60
+            },
+            {
+              "cell": 7,
+              "frame": 70
+            },
+            {
+              "cell": 8,
+              "frame": 80
+            },
+            {
+              "cell": 9,
+              "frame": 90
+            }
+          ]
+        ],
+        "question": "The images are two grids of up to 9 frames each from one short video, in time order: Grid 1 is the first half of the video and Grid 2 the second half. The cells are numbered 1 to 9 in the top-left corner of each cell. List the 3 to 6 things that happen, in the order they happen (any kind of moment, not necessarily sport). For each, give the grid and cell where it starts and where it ends, who or what does it (clothing colour or kind of animal only, never age or looks), what they do, and how it ends if it ends there (empty if not). Say how sure you are, 0 to 10. Then say whether the video shows anyone hurt, a fight, someone in distress or being humiliated, or anyone undressed: sensitive true or false, and when true the reason in a few plain words, without describing anyone's age or body (FR-009)."
+      }
+    },
+    "files": {
+      "value": [
+        "10fc3c51a152e90e5b90319b601d92ccf37290ef53c35ff92507687d8a911a08",
+        "09937d67845e9ea16eade263f7673cf8eba4a90f4a9be3fbab78c44f1ee70c99"
+      ]
+    }
+  },
+  "expected": {
+    "value": "51f2eca9c78a09aec3855946c41f2443096dac26dd1bb7d28e3cd061eb3fb7f5"
+  }
+}

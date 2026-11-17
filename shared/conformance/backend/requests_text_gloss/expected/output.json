@@ -1,0 +1,33 @@
+{
+  "requests": [
+    {
+      "method": "POST",
+      "url": "https://api.deepseek.com/chat/completions",
+      "authorization": "Bearer test-key",
+      "content_type": "application/json",
+      "timeout": {
+        "connect": 60,
+        "read": 60,
+        "write": 60,
+        "pool": 60
+      },
+      "body": {
+        "model": "deepseek-flash",
+        "messages": [
+          {
+            "role": "system",
+            "content": "Give the plain English meaning of each Chinese line. Answer with one JSON object with the same keys and nothing else."
+          },
+          {
+            "role": "user",
+            "content": "{\"l1\": \"好球！\", \"headline\": \"进球了\"}"
+          }
+        ],
+        "response_format": {
+          "type": "json_object"
+        }
+      }
+    }
+  ],
+  "sha256": "284b776433a3e48cb05445a4eb87fe785acd6e812e6b59547c1a1e012cd18242"
+}
