@@ -7,8 +7,9 @@ Every model call of an app goes through one client that implements this contract
 ## Operations
 
 ```
-look(images, question, schema | null) -> Result
+look(images, question, schema | null, detail) -> Result
     images:  a list of (label | null, JPEG bytes); each image is preceded by its label as text, if it has one
+    detail:   low | high | auto: what the caller asks; the profile's `image.detail` says whether and what is sent
     question: text; with a schema, the client adds "Answer with JSON only, matching this schema:" and the schema
 
 chat(messages, schema | null, tools | null) -> Result
@@ -38,6 +39,8 @@ Nothing here carries a URL, a header or a key: those belong to a profile of kind
 | `Unreachable` | Before any request: a `local` profile's server does not answer `GET {api_base}/models`. The message names the profile and the URL: "the vision model server for profile gemma-4-e2b-local is not reachable at http://127.0.0.1:8080/v1" |
 | `Timeout` | A call took longer than the profile's `timeout_s` for its role. It may still have been billed, so the budget counts it as spent at its estimate |
 | `SchemaMisfit` | The reply and its one retry did not fit the schema |
+| `Server` | The server answered with an error status (the Kotlin client reports the status only, never the body, which may echo the request) or with a reply that is not a chat completion |
+| `KeyMissing` | The profile takes a key (`api_key_env` is not `null`) and none is set. The message names the profile, never a key |
 | `NotInstalled` | An `on_device` profile's files are missing or fail their checksum (replaces `Unreachable` for that kind). The message names the profile and the missing files |
 | `OutOfMemory` | An `on_device` profile needs more free memory than the phone has (`min_free_ram_mb`); raised before loading, never a crash |
 
