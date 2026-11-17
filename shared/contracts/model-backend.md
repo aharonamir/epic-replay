@@ -63,7 +63,7 @@ Pinned by the conformance cases `backend/requests_*` (the DeepSeek requests of `
 
 A recording lets a run be repeated without a paid call (`EPIC_PROVIDER_MODE`: `live`, `record`, `replay`). Pinned by `backend/recording_key_*`.
 
-- **Canonical JSON**: object keys sorted by Unicode code point, no spaces (`,` and `:`), non-ASCII characters written as they are (not escaped), numbers as Python writes them (an integer has no point; `45.0` stays `45.0`; a float is its shortest round-trip form), `true`, `false`, `null`.
+- **Canonical JSON**: object keys sorted by Unicode code point, no spaces (`,` and `:`), non-ASCII characters written as they are (not escaped), numbers as Python writes the value it reads (`-0` is `0`, `0.10` is `0.1`, `1E5` is `100000.0`, `1e-5` is `1e-05`, `1e22` is `1e+22`: an integer has no point and a float is its shortest round-trip form), `true`, `false`, `null`.
 - **Key**: the lowercase hex SHA-256 of the UTF-8 bytes of the canonical JSON of `{"adapter": adapter, "model": model, "request": request, "files": files}`. `request` is the adapter's own description of the call, never the model name or any file's bytes (for a sheet: `detail`, `schema`, each cell's `cell` and `frame`, and the `question`; the retry's question has `"\nFill in the fields; do not repeat the schema."` added); `files` are the hex SHA-256 of each file sent, in order.
 - **A recording** is the JSON file `<adapter>/<key>.json` holding the adapter's payload (`text`, `data`, `usage`, `usage_usd`). A recording written on either platform is read by the other.
 
@@ -73,7 +73,7 @@ Every paid call reserves its estimate against three caps, makes the call, then r
 
 - **Caps** (settings; defaults 1.00 run, 20.00 day, 0.30 pre-checkpoint USD). A reservation of `e` is refused when, for any cap in the order run, day, pre-checkpoint, `spent + in flight + e > cap + 1e-9`: for the run, its spent and in-flight total; for the day, today's spent total over every run and every call in flight; for the pre-checkpoint cap (only for calls marked as made before the play card), those calls' spent and in-flight total. A refused call is not made.
 - **Settling**: the reservation is released and the call recorded at its actual cost; a recording hit costs 0 and a reservation of 0 is never refused; a call that failed is released; one that may still be billed (a timeout) is recorded at its estimate.
-- **The Android app adds** one app-wide ledger shared by every run and by the voice calls, with reservations written to disk before the call, so a reservation left over when the app was killed counts as spent at its estimate. (The Python app keeps reservations in memory only.)
+- **The Android app adds** one app-wide ledger shared by every run and by the voice calls, with reservations written to disk before the call, so a reservation left over when the app was killed counts as spent at its estimate. A call is charged to the UTC day it was reserved on, also when it settles after midnight or is recovered after a restart; Python charges the day it settles. (The Python app keeps reservations in memory only.)
 
 ## Profiles
 

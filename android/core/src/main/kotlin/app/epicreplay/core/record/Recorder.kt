@@ -1,5 +1,6 @@
 package app.epicreplay.core.record
 
+import app.epicreplay.core.io.Durable
 import app.epicreplay.core.json.PythonJson
 import java.io.File
 import java.io.IOException
@@ -35,8 +36,6 @@ fun cacheKey(adapter: String, model: String, request: JsonElement, fileHashes: L
 
 /** One recording per request, as `<dir>/<adapter>/<key>.json`; every reply is stored, including a misfit, so a replay repeats what happened. */
 class Recorder(val mode: ProviderMode, private val dir: File) {
-    private val pretty = Json { prettyPrint = true; prettyPrintIndent = "  " }
-
     fun path(adapter: String, key: String): File = File(File(dir, adapter), "$key.json")
 
     /** Whether [fetch] would answer from a recording, at no cost. */
@@ -52,10 +51,7 @@ class Recorder(val mode: ProviderMode, private val dir: File) {
         val payload = live()
         if (mode == ProviderMode.RECORD) {
             try {
-                p.parentFile?.mkdirs()
-                val tmp = File(p.path + ".tmp")
-                tmp.writeText(pretty.encodeToString(JsonObject.serializer(), payload))
-                if (!tmp.renameTo(p)) { tmp.delete(); throw IOException("rename failed") }
+                Durable.writeAtomic(p, PythonJson.dumpsIndented(payload).toByteArray(Charsets.UTF_8))
             } catch (e: IOException) {
                 throw IllegalStateException("a recording could not be written")
             }

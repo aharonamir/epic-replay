@@ -85,7 +85,11 @@ class BackendConformanceTest {
                         val m = it.jsonObject
                         ChatMessage(ChatRole.valueOf(m.getValue("role").jsonPrimitive.content.uppercase()), m.getValue("content").jsonPrimitive.content)
                     }
-                    backend.chat(messages, schema, null)
+                    val tools = (call["tools"] as? JsonArray)?.map {
+                        val f = it.jsonObject.getValue("function").jsonObject
+                        ToolDef(f.getValue("name").jsonPrimitive.content, f.getValue("description").jsonPrimitive.content, f.getValue("parameters").jsonObject)
+                    }
+                    backend.chat(messages, schema, tools)
                 }
             }
         }

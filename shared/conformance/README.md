@@ -73,7 +73,7 @@ The matching rules behind `lexicon.scan` and `checks.text` are written out in `s
 | `lexicon` | English whole-word false positives, matches, every global term, a pack's own terms; every Mandarin category's terms, 她, allowed phrases, numerals, famous names; the 123 reviewed Mandarin sentences in five groups |
 | `units` | English tokens, Mandarin characters, Mandarin text read with the English rule |
 | `cells` | three passes of narrowing; a window under nine frames; a window past the clip's end; a clip under nine frames; the edge cells |
-| `backend` | the six DeepSeek calls `backend_golden.json` pins (the overview with numbered frames, with a sheet, with no schema, the events call, the structured draft, the gloss), each with its retry; six vision recording keys of the same test; a key over non-ASCII text |
+| `backend` | the six DeepSeek calls `backend_golden.json` pins (the overview with numbered frames, with a sheet, with no schema, the events call, the structured draft, the gloss), each with its retry; a chat call with a tool; six vision recording keys of the same test; a key over non-ASCII text |
 | `budget` | a settle replaces its reservation; the run cap blocks and a release frees; calls in flight count; the day cap spans runs; the pre-checkpoint cap; a call billed at its estimate; a recording costs nothing; a cap reached exactly is allowed |
 
 Not here: the signal scan (optical flow, sound onsets), whose numbers differ by small amounts between OpenCV and FFmpeg builds. Spec 004 decides their tolerance.

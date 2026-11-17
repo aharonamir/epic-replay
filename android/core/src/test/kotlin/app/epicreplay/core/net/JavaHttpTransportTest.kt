@@ -62,4 +62,28 @@ class JavaHttpTransportTest {
         val e = assertFailsWith<ModelError.Unreachable> { post("http://127.0.0.1:$port/chat/completions?secret=abc") }
         assertTrue("secret=abc" !in e.message!!)
     }
+
+    @Test
+    fun aRedirectIsNotFollowedSoTheKeyGoesToNoOtherHost() {
+        var otherSawAuth: String? = null
+        val other = HttpServer.create(InetSocketAddress("127.0.0.1", 0), 0)
+        other.createContext("/") { ex ->
+            otherSawAuth = ex.requestHeaders.getFirst("Authorization") ?: "none"
+            ex.sendResponseHeaders(200, 2); ex.responseBody.use { it.write("{}".toByteArray()) }
+        }
+        other.start()
+        try {
+            val first = HttpServer.create(InetSocketAddress("127.0.0.1", 0), 0)
+            first.createContext("/chat/completions") { ex ->
+                ex.responseHeaders.add("Location", "http://127.0.0.1:${other.address.port}/elsewhere")
+                ex.sendResponseHeaders(302, -1); ex.close()
+            }
+            first.start(); server = first
+            val r = post("http://127.0.0.1:${first.address.port}/chat/completions")
+            assertEquals(302, r.status) // reported as it is; the backend turns a non-2xx into an error
+            assertEquals(null, otherSawAuth, "the redirect target was contacted")
+        } finally {
+            other.stop(0)
+        }
+    }
 }

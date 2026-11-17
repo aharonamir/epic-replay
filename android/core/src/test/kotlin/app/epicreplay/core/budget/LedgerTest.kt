@@ -63,6 +63,37 @@ class LedgerTest {
     }
 
     @Test
+    fun aCallIsChargedToTheDayItWasReservedOnEvenIfItSettlesAfterMidnight() {
+        var day = "2026-11-17"
+        val l = Ledger(InMemoryLedgerStorage(), Caps(), today = { day }, now = { "t" })
+        val r = l.reserve("r1", 0.3, false)
+        day = "2026-11-18" // midnight passes while the call is in flight
+        l.settle(r, 0.2, false)
+        assertEquals(0.0, l.dayTotal()) // the new day starts at zero
+        day = "2026-11-17"; assertEquals(0.2, l.dayTotal())
+    }
+
+    @Test
+    fun aReservationLeftOverAcrossMidnightIsChargedToItsOwnDayAfterARestart() {
+        val storage = InMemoryLedgerStorage()
+        val first = Ledger(storage, Caps(), today = { "2026-11-17" }, now = { "t" })
+        first.reserve("r1", 0.3, false) // killed
+        val restarted = Ledger(storage, Caps(), today = { "2026-11-18" }, now = { "t" })
+        assertEquals(0.0, restarted.dayTotal()); assertEquals(0.3, restarted.runTotal("r1"))
+        assertEquals(0.3, Ledger(storage, Caps(), today = { "2026-11-17" }, now = { "t" }).dayTotal())
+    }
+
+    @Test
+    fun aReservationIsDurablyWrittenThroughAFlushedFile() {
+        val f = File(dir, "durable.bin")
+        app.epicreplay.core.io.Durable.writeAtomic(f, byteArrayOf(1, 2, 3))
+        assertEquals(listOf<Byte>(1, 2, 3), f.readBytes().toList())
+        app.epicreplay.core.io.Durable.writeAtomic(f, byteArrayOf(9))
+        assertEquals(listOf<Byte>(9), f.readBytes().toList())
+        assertEquals(listOf("durable.bin"), dir.list()!!.filter { it.startsWith("durable") })
+    }
+
+    @Test
     fun manyThreadsCannotTakeTheRunPastItsCap() {
         val l = ledger(InMemoryLedgerStorage(), Caps(runUsd = 1.0))
         val won = CopyOnWriteArrayList<Reservation>()

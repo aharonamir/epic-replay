@@ -44,7 +44,8 @@ class RecorderTest {
         assertEquals(1, calls); assertFalse(hit1); assertTrue(hit2); assertEquals(first, second)
         val replay = Recorder(ProviderMode.REPLAY, dir)
         assertEquals(payload, replay.fetch("vision", key("a")) { error("no call in replay") }.first)
-        assertTrue(File(dir, "vision/${key("a")}.json").readText().startsWith("{\n  \"text\"")) // two-space indent, as the PC writes it
+        // byte for byte what json.dumps(payload, indent=2, ensure_ascii=False) writes
+        assertEquals("{\n  \"text\": \"好球\",\n  \"usage_usd\": 0.0035\n}", File(dir, "vision/${key("a")}.json").readText())
     }
 
     @Test

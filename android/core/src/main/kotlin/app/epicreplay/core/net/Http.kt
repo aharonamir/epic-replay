@@ -41,6 +41,7 @@ class JavaHttpTransport : HttpTransport {
         try {
             conn = (URL(request.url).openConnection() as HttpURLConnection).apply {
                 requestMethod = request.method
+                instanceFollowRedirects = false // a redirect would carry the Authorization header to another host
                 connectTimeout = ms
                 readTimeout = ms
                 request.headers.forEach { (k, v) -> setRequestProperty(k, v) }

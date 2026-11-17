@@ -306,6 +306,18 @@ def backend_cases() -> dict[str, dict]:
                            "as pinned by pc/tests/fixtures/backend_golden.json.",
             "inputs": {"profile_id": value("deepseek-flash"), "role": value(role), "key": value(key), "calls": value(calls)},
         }  # fmt: skip
+    tools = [{"type": "function", "function": {
+        "name": "check_lines", "description": "Check a draft of lines. Returns each failure.",
+        "parameters": {"type": "object", "properties": {"lines": {"type": "array", "items": {"type": "string"}}}, "required": ["lines"]},
+    }}]  # fmt: skip
+    out["requests_text_tools"] = {
+        "area": "backend", "function": "backend.requests", "language": None,
+        "description": "A chat call with a tool: the tool is sent in the OpenAI function format (spec 004, T408 review).",
+        "inputs": {"profile_id": value("deepseek-flash"), "role": value("text"), "key": value("test-key"),
+                   "calls": value([{"kind": "chat", "messages": [{"role": "system", "content": "You check lines."},
+                                                                 {"role": "user", "content": "Check this draft: ['Here we go!']"}],
+                                    "schema": None, "tools": tools}])},
+    }  # fmt: skip
     seen = set()
     for n, k in enumerate(keys):
         if k["key"] in seen or n > 5:

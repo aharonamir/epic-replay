@@ -1,5 +1,6 @@
 package app.epicreplay.core.budget
 
+import app.epicreplay.core.io.Durable
 import app.epicreplay.core.models.ModelError
 import java.io.File
 import java.io.IOException
@@ -35,6 +36,8 @@ data class BlockedRecord(
 data class HeldReservation(
     val id: Long, val runId: String, val estimateUsd: Double, val preCheckpoint: Boolean,
     val stage: String, val provider: String, val model: String, val at: String,
+    /** The UTC day it was reserved on: its cost is charged to that day when it settles, or after a restart. */
+    val day: String = "",
 )
 
 @Serializable
@@ -61,7 +64,7 @@ class InMemoryLedgerStorage : LedgerStorage {
     override fun save(state: LedgerState) { this.state = state }
 }
 
-/** One JSON file, replaced by a rename; the phone's app is one process, so this is the single writer. */
+/** One JSON file, written durably and replaced by a rename; the phone's app is one process, so this is the single writer. */
 class JsonFileLedgerStorage(private val file: File) : LedgerStorage {
     private val json = Json { ignoreUnknownKeys = true }
 
@@ -69,10 +72,7 @@ class JsonFileLedgerStorage(private val file: File) : LedgerStorage {
 
     override fun save(state: LedgerState) {
         try {
-            file.parentFile?.mkdirs()
-            val tmp = File(file.path + ".tmp")
-            tmp.writeText(json.encodeToString(LedgerState.serializer(), state))
-            if (!tmp.renameTo(file)) { tmp.delete(); throw IOException("rename failed") }
+            Durable.writeAtomic(file, json.encodeToString(LedgerState.serializer(), state).toByteArray(Charsets.UTF_8))
         } catch (e: IOException) {
             throw IllegalStateException("the cost ledger could not be written")
         }
@@ -102,14 +102,13 @@ class Ledger(
     private fun recoverAfterRestart() = lock.withLock {
         if (state.reservations.isEmpty()) return
         var s = state
-        for (r in s.reservations) s = withCall(s, r.runId, CallRecord(r.stage, r.provider, r.model, r.estimateUsd, r.estimateUsd, false, r.preCheckpoint, now(), failed = "Restart"))
+        for (r in s.reservations) s = withCall(s, r.runId, CallRecord(r.stage, r.provider, r.model, r.estimateUsd, r.estimateUsd, false, r.preCheckpoint, now(), failed = "Restart"), r.day.ifEmpty { today() })
         state = s.copy(reservations = emptyList())
         storage.save(state)
     }
 
-    private fun withCall(s: LedgerState, runId: String, call: CallRecord): LedgerState {
+    private fun withCall(s: LedgerState, runId: String, call: CallRecord, day: String): LedgerState {
         val run = s.runs[runId] ?: RunLedger()
-        val day = today()
         return s.copy(
             runs = s.runs + (runId to run.copy(calls = run.calls + call)),
             days = s.days + (day to round6((s.days[day] ?: 0.0) + call.actualUsd)),
@@ -144,7 +143,7 @@ class Ledger(
             }
         }
         val id = state.nextId
-        state = state.copy(nextId = id + 1, reservations = state.reservations + HeldReservation(id, runId, estimateUsd, preCheckpoint, stage, provider, model, now()))
+        state = state.copy(nextId = id + 1, reservations = state.reservations + HeldReservation(id, runId, estimateUsd, preCheckpoint, stage, provider, model, now(), today()))
         storage.save(state) // written before the call is made
         Reservation(id, runId, estimateUsd, preCheckpoint)
     }
@@ -153,7 +152,7 @@ class Ledger(
     fun settle(r: Reservation, actualUsd: Double, cacheHit: Boolean, failed: String? = null) = lock.withLock {
         val held = state.reservations.firstOrNull { it.id == r.id } ?: return@withLock
         val s = state.copy(reservations = state.reservations - held)
-        state = withCall(s, r.runId, CallRecord(held.stage, held.provider, held.model, held.estimateUsd, actualUsd, cacheHit, held.preCheckpoint, now(), failed))
+        state = withCall(s, r.runId, CallRecord(held.stage, held.provider, held.model, held.estimateUsd, actualUsd, cacheHit, held.preCheckpoint, now(), failed), held.day.ifEmpty { today() })
         storage.save(state)
     }
 
