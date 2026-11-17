@@ -86,8 +86,17 @@ object PythonJson {
         }
     }
 
-    fun sha256Hex(text: String): String =
-        MessageDigest.getInstance("SHA-256").digest(text.toByteArray(Charsets.UTF_8)).joinToString("") { "%02x".format(it) }
+    /** SHA-256 of the UTF-8 bytes. Text with an unpaired surrogate is refused, as Python's `str.encode` refuses it, not hashed with a replacement character. */
+    fun sha256Hex(text: String): String {
+        val bytes = try {
+            Charsets.UTF_8.newEncoder().onMalformedInput(java.nio.charset.CodingErrorAction.REPORT)
+                .onUnmappableCharacter(java.nio.charset.CodingErrorAction.REPORT)
+                .encode(java.nio.CharBuffer.wrap(text)).let { b -> ByteArray(b.remaining()).also { b.get(it) } }
+        } catch (e: java.nio.charset.CharacterCodingException) {
+            throw IllegalArgumentException("the text is not valid Unicode (an unpaired surrogate)")
+        }
+        return MessageDigest.getInstance("SHA-256").digest(bytes).joinToString("") { "%02x".format(it) }
+    }
 
     /** Python compares str by code point; Java's String order is by UTF-16 unit, which differs above U+FFFF. */
     private val byCodePoint = Comparator<String> { a, b ->

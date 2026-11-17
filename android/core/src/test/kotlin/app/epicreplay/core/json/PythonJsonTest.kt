@@ -2,6 +2,7 @@ package app.epicreplay.core.json
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlinx.serialization.json.Json
 
 /** The expected strings are what Python 3.12's `json.dumps` printed for the same values (see each comment). */
@@ -66,5 +67,11 @@ class PythonJsonTest {
         // json.dumps({"a": [1, {"b": None, "c": "好"}], "d": {}, "e": [], "f": 'x"y'}, indent=2, ensure_ascii=False)
         val expected = "{\n  \"a\": [\n    1,\n    {\n      \"b\": null,\n      \"c\": \"好\"\n    }\n  ],\n  \"d\": {},\n  \"e\": [],\n  \"f\": \"x\\\"y\"\n}"
         assertEquals(expected, PythonJson.dumpsIndented(parse("""{"a": [1, {"b": null, "c": "好"}], "d": {}, "e": [], "f": "x\"y"}""")))
+    }
+
+    @Test
+    fun anUnpairedSurrogateIsRefusedNotHashedWithAReplacement() {
+        assertFailsWith<IllegalArgumentException> { PythonJson.sha256Hex("bad \uD83D here") }
+        assertEquals(64, PythonJson.sha256Hex("pair \uD83D\uDE00 ok").length)
     }
 }
