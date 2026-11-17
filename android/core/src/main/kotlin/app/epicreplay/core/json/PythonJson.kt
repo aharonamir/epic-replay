@@ -53,7 +53,8 @@ object PythonJson {
         if (text == "true" || text == "false" || text == "null") return text // literals ride in the same primitive type
         if (INTEGER.matches(text)) return java.math.BigInteger(text).toString()
         val d = text.toDouble()
-        if (d.isNaN() || d.isInfinite()) return text
+        if (d.isInfinite()) return if (d > 0) "Infinity" else "-Infinity" // Python reads 1e400 as inf and writes it so
+        if (d.isNaN()) return "NaN"
         if (d == 0.0) return if (1.0 / d < 0) "-0.0" else "0.0"
         return (if (d < 0) "-" else "") + pythonRepr(Math.abs(d))
     }

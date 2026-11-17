@@ -74,6 +74,16 @@ class LedgerTest {
     }
 
     @Test
+    fun aCallStillHeldFromYesterdayDoesNotUseUpTodaysCap() {
+        var day = "2026-11-17"
+        val l = Ledger(InMemoryLedgerStorage(), Caps(runUsd = 10.0, dayUsd = 0.5), today = { day }, now = { "t" })
+        l.reserve("r1", 0.4, false) // still in flight at midnight
+        day = "2026-11-18"
+        l.reserve("r2", 0.4, false) // the new day has its whole cap
+        assertFailsWith<CapExceeded> { l.reserve("r3", 0.2, false) } // 0.4 + 0.2 > 0.5 today
+    }
+
+    @Test
     fun aReservationLeftOverAcrossMidnightIsChargedToItsOwnDayAfterARestart() {
         val storage = InMemoryLedgerStorage()
         val first = Ledger(storage, Caps(), today = { "2026-11-17" }, now = { "t" })

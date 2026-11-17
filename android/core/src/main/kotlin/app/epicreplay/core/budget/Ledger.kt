@@ -131,7 +131,7 @@ class Ledger(
         val inRun = state.reservations.filter { it.runId == runId }
         val tests = buildList {
             add(Triple("run", caps.runUsd, (state.runs[runId]?.calls?.sumOf { it.actualUsd } ?: 0.0) + inRun.sumOf { it.estimateUsd } + estimateUsd))
-            add(Triple("day", caps.dayUsd, (state.days[today()] ?: 0.0) + state.reservations.sumOf { it.estimateUsd } + estimateUsd))
+            add(Triple("day", caps.dayUsd, (state.days[today()] ?: 0.0) + state.reservations.filter { it.day.isEmpty() || it.day == today() }.sumOf { it.estimateUsd } + estimateUsd)) // a call from an earlier day is charged to that day
             if (preCheckpoint) add(Triple("pre_checkpoint", caps.preCheckpointUsd, preTotal(runId) + inRun.filter { it.preCheckpoint }.sumOf { it.estimateUsd } + estimateUsd))
         }
         for ((cap, limit, wouldBe) in tests) {
