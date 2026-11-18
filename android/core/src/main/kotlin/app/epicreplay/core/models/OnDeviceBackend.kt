@@ -3,16 +3,16 @@ package app.epicreplay.core.models
 import app.epicreplay.core.json.PythonJson
 import java.io.File
 import java.util.concurrent.Executors
+import java.util.concurrent.atomic.AtomicLong
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.NonCancellable
-import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
-import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.serialization.json.JsonObject
 
 /** Why a native generation stopped. */
@@ -37,14 +37,20 @@ class GenerateResult(
 /**
  * One loaded model and the one operation that runs it. The Android implementation is the JNI bridge to
  * llama.cpp and libmtmd; tests use a fake. [generate] blocks, and returns soon after [cancel] is called
- * from another thread (a running image encoding is the one thing that cannot be interrupted).
+ * from another thread (a running image encoding is the one thing that cannot be interrupted). [close] is called
+ * only on the engine's own thread, after the running call has returned.
  */
 interface InferenceEngine : AutoCloseable {
     /** The text the prompt uses where an image goes. */
     val mediaMarker: String
     fun load(modelPath: String, projectorPath: String?, contextTokens: Int, threads: Int, imageMaxTokens: Int)
-    fun generate(request: GenerateRequest): GenerateResult
-    fun cancel()
+
+    /**
+     * Runs one call, numbered [op] (from 1). A [cancel] for the same number stops it even when the cancel
+     * came before the call began; a cancel for another number does nothing.
+     */
+    fun generate(request: GenerateRequest, op: Long): GenerateResult
+    fun cancel(op: Long)
 }
 
 /** Free memory for the check before a model is loaded (spec 004 FR-014). */
@@ -94,42 +100,44 @@ class OnDeviceBackend(
     /** The names of the profile's files that are not in the model folder. */
     fun missingFiles(): List<String> = profile.files.filter { !File(modelDir, it.name).isFile }.map { it.name }
 
-    override suspend fun look(images: List<LabeledImage>, question: String, schema: JsonObject?, detail: String): ModelResult {
-        val marker = markerForPrompt()
-        val content = buildString {
-            for (img in images) {
-                if (!img.label.isNullOrEmpty()) append(img.label).append('\n')
-                append(marker).append('\n')
+    override suspend fun look(images: List<LabeledImage>, question: String, schema: JsonObject?, detail: String): ModelResult =
+        run(config.visionTimeoutS, schema != null) { marker ->
+            val content = buildString {
+                for (img in images) {
+                    if (!img.label.isNullOrEmpty()) append(img.label).append('\n')
+                    append(marker).append('\n')
+                }
+                append(if (schema == null) question else question + CloudBackend.SCHEMA_LINE + PythonJson.dumps(schema))
             }
-            append(if (schema == null) question else question + CloudBackend.SCHEMA_LINE + PythonJson.dumps(schema))
+            GenerateRequest(listOf("user"), listOf(content), images.map { it.jpeg }, schema?.toString(), config.maxTokens, config.temperature, config.thinking)
         }
-        return run(GenerateRequest(listOf("user"), listOf(content), images.map { it.jpeg }, schema?.toString(), config.maxTokens, config.temperature, config.thinking), config.visionTimeoutS, schema != null)
-    }
 
     override suspend fun chat(messages: List<ChatMessage>, schema: JsonObject?, tools: List<ToolDef>?): ModelResult {
         require(tools.isNullOrEmpty() || profile.supportsTools) { "model profile ${profile.id} does not support tool calls" }
-        val req = GenerateRequest(messages.map { it.role.name.lowercase() }, messages.map { it.content }, emptyList(), schema?.toString(), config.maxTokens, config.temperature, config.thinking)
-        return run(req, config.textTimeoutS, schema != null)
+        return run(config.textTimeoutS, schema != null) {
+            GenerateRequest(messages.map { it.role.name.lowercase() }, messages.map { it.content }, emptyList(), schema?.toString(), config.maxTokens, config.temperature, config.thinking)
+        }
     }
 
-    // The marker is a fixed string of libmtmd; it is known once the engine exists, which a look call needs before it is loaded.
-    private fun markerForPrompt(): String = DEFAULT_MARKER
+    private val ops = AtomicLong(0)
+    @Volatile private var activeOp = 0L
 
-    private suspend fun run(request: GenerateRequest, timeoutS: Double, withSchema: Boolean): ModelResult {
+    /** [build] makes the request from the engine's image marker, which is known once the engine exists. */
+    private suspend fun run(timeoutS: Double, withSchema: Boolean, build: (marker: String) -> GenerateRequest): ModelResult {
         val started = nanoTime()
-        try {
-            return withTimeout((timeoutS * 1000).toLong()) {
-                mutex.withLock {
-                    val e = ensureLoaded()
-                    val r = blocking(e) { e.generate(request) }
-                    if (r.stop == Stop.CANCELLED) throw CancellationException("the call was cancelled")
-                    val data = if (withSchema) FirstJson.of(r.text) as? JsonObject else null
-                    ModelResult(r.text, data, emptyList(), Usage(r.promptTokens, r.completionTokens), 0.0, (nanoTime() - started) / 1e9)
-                }
+        // withTimeoutOrNull ends only this call's own timeout with null; a timeout or cancellation of the caller passes through unchanged
+        return withTimeoutOrNull((timeoutS * 1000).toLong()) {
+            mutex.withLock {
+                val e = ensureLoaded()
+                val request = build(e.mediaMarker)
+                val op = ops.incrementAndGet()
+                activeOp = op
+                val r = blocking(e, op) { e.generate(request, op) }
+                if (r.stop == Stop.CANCELLED) throw CancellationException("the call was cancelled")
+                val data = if (withSchema) FirstJson.of(r.text) as? JsonObject else null
+                ModelResult(r.text, data, emptyList(), Usage(r.promptTokens, r.completionTokens), 0.0, (nanoTime() - started) / 1e9)
             }
-        } catch (e: TimeoutCancellationException) {
-            throw ModelError.Timeout(profile.id, "the on-device call took longer than ${timeoutS.toLong()} s")
-        }
+        } ?: throw ModelError.Timeout(profile.id, "the on-device call took longer than ${timeoutS.toLong()} s")
     }
 
     /** Loads the model on the first call: the files first, then the memory, never a crash for lack of either. */
@@ -141,7 +149,7 @@ class OnDeviceBackend(
         if (free < profile.minFreeRamMb) throw ModelError.OutOfMemory(profile.id, profile.minFreeRamMb, free.toInt())
         val e = engineFactory()
         try {
-            blocking(e) {
+            blocking(e, 0) {
                 e.load(file("weights")!!.path, file("projector")?.path, profile.contextTokens, config.threads, config.imageMaxTokens)
             }
         } catch (t: Throwable) {
@@ -156,12 +164,12 @@ class OnDeviceBackend(
      * Runs [block] on the engine thread. If this coroutine is cancelled, the engine is told to stop and
      * the block is waited for, so the engine is free again before the next call starts.
      */
-    private suspend fun <T> blocking(e: InferenceEngine, block: () -> T): T = coroutineScope {
+    private suspend fun <T> blocking(e: InferenceEngine, op: Long, block: () -> T): T = coroutineScope {
         val job = async(dispatcher) { block() }
         try {
             job.await()
         } catch (c: CancellationException) {
-            e.cancel()
+            e.cancel(op) // by number: it works even if the call has not started, and never touches a later call
             withContext(NonCancellable) { job.join() }
             throw c
         }
@@ -170,18 +178,22 @@ class OnDeviceBackend(
     /** Frees the model's memory; the next call loads it again. */
     suspend fun unload() = mutex.withLock {
         val e = engine ?: return@withLock
-        blocking(e) { e.close() }
+        blocking(e, 0) { e.close() }
         engine = null
     }
 
+    /**
+     * Stops the call in flight, if any, and frees the model on the engine thread once that call has returned,
+     * so the memory is never freed under a running generation. A call that arrives later fails.
+     */
     override fun close() {
-        engine?.close()
+        val e = engine
         engine = null
+        if (e != null) {
+            e.cancel(activeOp)
+            executor.execute { e.close() }
+        }
         executor.shutdown()
     }
 
-    companion object {
-        /** libmtmd's `mtmd_default_marker()`, which the native engine splits the prompt on. */
-        const val DEFAULT_MARKER = "<__media__>"
-    }
 }

@@ -23,6 +23,7 @@ import kotlinx.serialization.json.buildJsonObject
 
 /** A scripted engine: counts loads and overlapping calls, and can block a call until it is cancelled. */
 class FakeEngine(private val body: (GenerateRequest, FakeEngine) -> GenerateResult) : InferenceEngine {
+    val generateOps = java.util.concurrent.CopyOnWriteArrayList<Long>(); val cancelOps = java.util.concurrent.CopyOnWriteArrayList<Long>()
     override val mediaMarker = "<__media__>"
     val loads = AtomicInteger(); val closed = AtomicInteger(); val cancels = AtomicInteger()
     val inFlight = AtomicInteger(); @Volatile var peak = 0
@@ -35,8 +36,8 @@ class FakeEngine(private val body: (GenerateRequest, FakeEngine) -> GenerateResu
         loads.incrementAndGet(); loadArgs = listOf(modelPath, projectorPath, contextTokens, threads, imageMaxTokens)
     }
 
-    override fun generate(request: GenerateRequest): GenerateResult {
-        requests += request
+    override fun generate(request: GenerateRequest, op: Long): GenerateResult {
+        generateOps += op; requests += request
         peak = maxOf(peak, inFlight.incrementAndGet())
         try {
             if (blockUntilCancelled) {
@@ -47,7 +48,7 @@ class FakeEngine(private val body: (GenerateRequest, FakeEngine) -> GenerateResu
         } finally { inFlight.decrementAndGet() }
     }
 
-    override fun cancel() { cancels.incrementAndGet(); cancelled.countDown() }
+    override fun cancel(op: Long) { cancelOps += op; cancels.incrementAndGet(); cancelled.countDown() }
     override fun close() { closed.incrementAndGet() }
 }
 
@@ -148,8 +149,45 @@ class OnDeviceBackendTest {
         assertFailsWith<ModelError.Timeout> { b.chat(listOf(ChatMessage(ChatRole.USER, "x"))) }
         assertTrue((System.nanoTime() - t0) / 1e9 < 2.0, "the call did not return soon after the timeout")
         assertEquals(1, engine.cancels.get()); assertEquals(0, engine.inFlight.get()) // the engine is free again
+        assertEquals(engine.generateOps.toList(), engine.cancelOps.toList()) // the cancel names the call it stops
         engine.blockUntilCancelled = false
         assertEquals("""{"cell": 6}""", b.chat(listOf(ChatMessage(ChatRole.USER, "x")), schema).text) // the next call works
+        assertEquals(listOf(1L, 2L), engine.generateOps.toList()) // calls are numbered from 1
+    }
+
+    @Test
+    fun aCallersOwnTimeoutIsNotRelabelledAsTheBackendsTimeout() {
+        install()
+        val engine = FakeEngine(ok); engine.blockUntilCancelled = true
+        val b = backend(engine, cfg = OnDeviceConfig(textTimeoutS = 60.0))
+        val e = runCatching { runBlocking { kotlinx.coroutines.withTimeout(300) { b.chat(listOf(ChatMessage(ChatRole.USER, "x"))) } } }.exceptionOrNull()
+        assertTrue(e is kotlinx.coroutines.TimeoutCancellationException, "got $e") // the caller's, not ModelError.Timeout
+        assertEquals(0, engine.inFlight.get())
+    }
+
+    @Test
+    fun theImageMarkerComesFromTheEngine() = runBlocking {
+        install()
+        val engine = object : InferenceEngine by FakeEngine(ok) {
+            val seen = mutableListOf<String>()
+            override val mediaMarker = "<IMG>"
+            override fun generate(request: GenerateRequest, op: Long): GenerateResult { seen += request.contents; return GenerateResult("x", 1, 1, Stop.END_OF_TEXT, 1, 1, 0) }
+        }
+        OnDeviceBackend(profile(), Role.VISION, dir, { 5000 }, { engine }).look(listOf(LabeledImage(null, byteArrayOf(1))), "q")
+        assertTrue(engine.seen.single().startsWith("<IMG>\nq"), engine.seen.single())
+    }
+
+    @Test
+    fun closeStopsTheCallInFlightAndFreesTheModelOnlyAfterItReturned() = runBlocking {
+        install()
+        val engine = FakeEngine(ok); engine.blockUntilCancelled = true
+        val b = backend(engine)
+        val job = launch { runCatching { b.chat(listOf(ChatMessage(ChatRole.USER, "x"))) } }
+        delay(200)
+        b.close()
+        job.join()
+        Thread.sleep(300)
+        assertEquals(1, engine.closed.get()); assertEquals(1, engine.cancels.get()); assertEquals(0, engine.inFlight.get())
     }
 
     @Test

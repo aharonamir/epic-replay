@@ -37,10 +37,30 @@ struct Engine {
     mtmd::context_ptr vision;
     common_chat_templates_ptr tmpls;
     int n_batch = 0;
-    std::atomic<bool> cancel{false};
+    // A cancel names the call it is for: a cancel that arrives before its call has started still stops it, and a
+    // late cancel of a finished call never touches the next one. Calls are numbered from 1; no call has id -1.
+    std::atomic<jlong> cancel_id{-1};
+    jlong op = 0;
+    bool cancelled() const { return cancel_id.load() == op; }
 };
 
-bool abort_callback(void * data) { return static_cast<std::atomic<bool> *>(data)->load(); }
+bool abort_callback(void * data) { return static_cast<Engine *>(data)->cancelled(); }
+
+// Text crosses JNI as UTF-8 byte arrays: GetStringUTFChars gives "modified" UTF-8, which is not UTF-8 for
+// characters above U+FFFF or for NUL.
+std::string bytes_to_string(JNIEnv * env, jbyteArray arr) {
+    if (arr == nullptr) return "";
+    const jsize len = env->GetArrayLength(arr);
+    std::string out((size_t) len, '\0');
+    if (len > 0) env->GetByteArrayRegion(arr, 0, len, reinterpret_cast<jbyte *>(&out[0]));
+    return out;
+}
+
+jbyteArray string_to_bytes(JNIEnv * env, const std::string & s) {
+    jbyteArray arr = env->NewByteArray((jsize) s.size());
+    if (arr != nullptr && !s.empty()) env->SetByteArrayRegion(arr, 0, (jsize) s.size(), reinterpret_cast<const jbyte *>(s.data()));
+    return arr;
+}
 
 std::string to_string(JNIEnv * env, jstring s) {
     if (s == nullptr) return "";
@@ -145,8 +165,8 @@ JNIEXPORT jlong JNICALL Java_app_epicreplay_engine_NativeEngine_nativeLoad(
     }
 }
 
-JNIEXPORT void JNICALL Java_app_epicreplay_engine_NativeEngine_nativeCancel(JNIEnv *, jobject, jlong handle) {
-    if (handle != 0) reinterpret_cast<Engine *>(handle)->cancel.store(true);
+JNIEXPORT void JNICALL Java_app_epicreplay_engine_NativeEngine_nativeCancel(JNIEnv *, jobject, jlong handle, jlong op) {
+    if (handle != 0) reinterpret_cast<Engine *>(handle)->cancel_id.store(op);
 }
 
 JNIEXPORT void JNICALL Java_app_epicreplay_engine_NativeEngine_nativeFree(JNIEnv *, jobject, jlong handle) {
@@ -155,15 +175,15 @@ JNIEXPORT void JNICALL Java_app_epicreplay_engine_NativeEngine_nativeFree(JNIEnv
 
 // stats (out): [0] prompt tokens, [1] completion tokens, [2] stop (0 end of text, 1 token limit, 2 cancelled),
 //              [3] prompt ms (image encoding included), [4] generation ms, [5] image encoding ms
-JNIEXPORT jstring JNICALL Java_app_epicreplay_engine_NativeEngine_nativeGenerate(
-    JNIEnv * env, jobject, jlong handle, jobjectArray roles, jobjectArray contents, jobjectArray images,
-    jstring schema, jint maxTokens, jfloat temperature, jboolean thinking, jlongArray stats) {
+JNIEXPORT jbyteArray JNICALL Java_app_epicreplay_engine_NativeEngine_nativeGenerate(
+    JNIEnv * env, jobject, jlong handle, jlong op, jobjectArray roles, jobjectArray contents, jobjectArray images,
+    jbyteArray schema, jint maxTokens, jfloat temperature, jboolean thinking, jlongArray stats) {
     Engine & e = *reinterpret_cast<Engine *>(handle);
     jlong st[6] = {0, 0, 0, 0, 0, 0};
     std::string result;
     try {
-        e.cancel.store(false);
-        llama_set_abort_callback(e.lctx, abort_callback, &e.cancel);
+        e.op = op; // a cancel for this id that came earlier is seen at once
+        llama_set_abort_callback(e.lctx, abort_callback, &e);
         llama_memory_clear(llama_get_memory(e.lctx), true);
 
         // the chat, through the model's own template
@@ -171,8 +191,12 @@ JNIEXPORT jstring JNICALL Java_app_epicreplay_engine_NativeEngine_nativeGenerate
         const jsize n_msg = env->GetArrayLength(roles);
         for (jsize i = 0; i < n_msg; i++) {
             common_chat_msg m;
-            m.role = to_string(env, (jstring) env->GetObjectArrayElement(roles, i));
-            m.content = to_string(env, (jstring) env->GetObjectArrayElement(contents, i));
+            auto role = (jstring) env->GetObjectArrayElement(roles, i);
+            auto content = (jbyteArray) env->GetObjectArrayElement(contents, i);
+            m.role = to_string(env, role);
+            m.content = bytes_to_string(env, content);
+            env->DeleteLocalRef(role);
+            env->DeleteLocalRef(content);
             inputs.messages.push_back(std::move(m));
         }
         inputs.use_jinja = true;
@@ -195,6 +219,7 @@ JNIEXPORT jstring JNICALL Java_app_epicreplay_engine_NativeEngine_nativeGenerate
             const jsize len = env->GetArrayLength(arr);
             std::vector<unsigned char> buf(len);
             env->GetByteArrayRegion(arr, 0, len, reinterpret_cast<jbyte *>(buf.data()));
+            env->DeleteLocalRef(arr);
             mtmd_helper_init_opt opt = mtmd_helper_init_opt_default();
             auto res = mtmd_helper_bitmap_init_from_buf(e.vision.get(), buf.data(), buf.size(), false, opt);
             if (!res.bitmap) throw std::runtime_error("an image could not be read");
@@ -204,7 +229,7 @@ JNIEXPORT jstring JNICALL Java_app_epicreplay_engine_NativeEngine_nativeGenerate
         // the sampler, with the schema as a grammar when one is asked for
         common_params_sampling sp = e.params.sampling;
         sp.temp = temperature;
-        const std::string schemaText = to_string(env, schema);
+        const std::string schemaText = bytes_to_string(env, schema);
         if (!schemaText.empty()) {
             sp.grammar = {COMMON_GRAMMAR_TYPE_OUTPUT_FORMAT, json_schema_to_grammar(common_json::parse(schemaText))};
         }
@@ -215,9 +240,14 @@ JNIEXPORT jstring JNICALL Java_app_epicreplay_engine_NativeEngine_nativeGenerate
         // the prompt
         const int64_t t_prompt = ggml_time_ms();
         llama_pos n_past = 0;
+        size_t prompt_tokens = 0;
         bool ok = true;
+        const llama_pos n_ctx = (llama_pos) llama_n_ctx(e.lctx);
         if (!e.vision) {
-            ok = decode_text(e, common_tokenize(e.lctx, prompt, true, true), n_past);
+            const llama_tokens tokens = common_tokenize(e.lctx, prompt, true, true);
+            prompt_tokens = tokens.size();
+            if ((llama_pos) tokens.size() + maxTokens > n_ctx) throw std::runtime_error("the prompt and the reply do not fit the context");
+            ok = decode_text(e, tokens, n_past);
         } else {
             const std::string marker = mtmd_default_marker();
             std::vector<std::string> segments;
@@ -242,9 +272,14 @@ JNIEXPORT jstring JNICALL Java_app_epicreplay_engine_NativeEngine_nativeGenerate
             if (mtmd_tokenize_from_parts(e.vision.get(), chunks.ptr.get(), parts_ptr.data(), parts_ptr.size(), true) != 0) {
                 throw std::runtime_error("the prompt could not be tokenized");
             }
+            // the positions the prompt will take (more than its tokens for M-RoPE), known before anything is evaluated
+            prompt_tokens = mtmd_helper_get_n_tokens(chunks.ptr.get());
+            if (mtmd_helper_get_n_pos(chunks.ptr.get()) + maxTokens > n_ctx) {
+                throw std::runtime_error("the prompt and the reply do not fit the context");
+            }
             const size_t n_chunks = mtmd_input_chunks_size(chunks.ptr.get());
             for (size_t i = 0; i < n_chunks && ok; i++) {
-                if (e.cancel.load()) break;
+                if (e.cancelled()) break;
                 auto chunk = mtmd_input_chunks_get(chunks.ptr.get(), i);
                 llama_pos next = n_past;
                 if (mtmd_input_chunk_get_type(chunk) == MTMD_INPUT_CHUNK_TYPE_TEXT) {
@@ -255,7 +290,7 @@ JNIEXPORT jstring JNICALL Java_app_epicreplay_engine_NativeEngine_nativeGenerate
                     mtmd::batch_ptr mb(mtmd_batch_init(e.vision.get()));
                     ok = mtmd_batch_add_chunk(mb.get(), chunk) == 0 && mtmd_batch_encode(mb.get()) == 0;
                     st[5] += ggml_time_ms() - t_enc;
-                    if (ok && !e.cancel.load()) {
+                    if (ok && !e.cancelled()) {
                         float * embd = mtmd_batch_get_output_embd(mb.get(), chunk);
                         ok = embd != nullptr &&
                              mtmd_helper_decode_image_chunk(e.vision.get(), e.lctx, chunk, embd, n_past, 0, e.n_batch, &next, nullptr, nullptr) == 0;
@@ -265,13 +300,11 @@ JNIEXPORT jstring JNICALL Java_app_epicreplay_engine_NativeEngine_nativeGenerate
             }
         }
         st[3] = ggml_time_ms() - t_prompt;
-        st[0] = n_past;
-        if (e.cancel.load()) {
+        st[0] = (jlong) prompt_tokens;
+        if (e.cancelled()) {
             st[2] = 2;
         } else if (!ok) {
             throw std::runtime_error("the prompt could not be evaluated");
-        } else if (n_past + maxTokens > llama_n_ctx(e.lctx)) {
-            throw std::runtime_error("the prompt and the reply do not fit the context");
         } else {
             // the reply
             const int64_t t_gen = ggml_time_ms();
@@ -279,7 +312,7 @@ JNIEXPORT jstring JNICALL Java_app_epicreplay_engine_NativeEngine_nativeGenerate
             int n_gen = 0;
             st[2] = 1;
             while (n_gen < maxTokens) {
-                if (e.cancel.load()) { st[2] = 2; break; }
+                if (e.cancelled()) { st[2] = 2; break; }
                 llama_token id = common_sampler_sample(smpl, e.lctx, -1);
                 common_sampler_accept(smpl, id, true);
                 if (llama_vocab_is_eog(e.vocab, id)) { st[2] = 0; break; }
@@ -288,7 +321,7 @@ JNIEXPORT jstring JNICALL Java_app_epicreplay_engine_NativeEngine_nativeGenerate
                 batch.clear();
                 batch.add(id, n_past++, 0, true);
                 if (llama_process(e.lctx, LLAMA_PROCESS_TYPE_DECODE, batch.get())) {
-                    if (e.cancel.load()) { st[2] = 2; break; }
+                    if (e.cancelled()) { st[2] = 2; break; }
                     throw std::runtime_error("a token could not be decoded");
                 }
             }
@@ -301,8 +334,9 @@ JNIEXPORT jstring JNICALL Java_app_epicreplay_engine_NativeEngine_nativeGenerate
         throw_runtime(env, ex.what());
         return nullptr;
     }
+    llama_set_abort_callback(e.lctx, nullptr, nullptr);
     env->SetLongArrayRegion(stats, 0, 6, st);
-    return env->NewStringUTF(result.c_str());
+    return string_to_bytes(env, result);
 }
 
 } // extern "C"
