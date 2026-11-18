@@ -1,0 +1,29 @@
+{
+  "area": "backend",
+  "function": "backend.recording_key",
+  "language": "zh",
+  "description": "Non-ASCII text is written as it is in the canonical request (not as \\u escapes) before hashing.",
+  "inputs": {
+    "adapter": {
+      "value": "text"
+    },
+    "model": {
+      "value": "deepseek-flash"
+    },
+    "request": {
+      "value": {
+        "question": "好球！进球了",
+        "n": 3,
+        "t": 0.1,
+        "ok": true,
+        "none": null
+      }
+    },
+    "files": {
+      "value": []
+    }
+  },
+  "expected": {
+    "value": "08eab52e7d80afe36dc03d532bcf6ae0f28213f2e38ba7ec26c36c6bd3a66e52"
+  }
+}

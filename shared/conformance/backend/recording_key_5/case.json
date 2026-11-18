@@ -1,0 +1,67 @@
+{
+  "area": "backend",
+  "function": "backend.recording_key",
+  "language": null,
+  "description": "A vision recording key of the golden test (the key of a recording the test stores).",
+  "inputs": {
+    "adapter": {
+      "value": "vision"
+    },
+    "model": {
+      "value": "deepseek-flash"
+    },
+    "request": {
+      "value": {
+        "detail": "high",
+        "schema": null,
+        "sheet_cells": [
+          {
+            "cell": 1,
+            "frame": 10
+          },
+          {
+            "cell": 2,
+            "frame": 20
+          },
+          {
+            "cell": 3,
+            "frame": 30
+          },
+          {
+            "cell": 4,
+            "frame": 40
+          },
+          {
+            "cell": 5,
+            "frame": 50
+          },
+          {
+            "cell": 6,
+            "frame": 60
+          },
+          {
+            "cell": 7,
+            "frame": 70
+          },
+          {
+            "cell": 8,
+            "frame": 80
+          },
+          {
+            "cell": 9,
+            "frame": 90
+          }
+        ],
+        "question": "Describe it."
+      }
+    },
+    "files": {
+      "value": [
+        "10fc3c51a152e90e5b90319b601d92ccf37290ef53c35ff92507687d8a911a08"
+      ]
+    }
+  },
+  "expected": {
+    "value": "455ce14b1e1c1da02a9088c66d87ca842a3ff90a250982d0f8bc02f0056aa227"
+  }
+}

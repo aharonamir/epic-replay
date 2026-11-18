@@ -1,0 +1,87 @@
+{
+  "area": "backend",
+  "function": "backend.requests",
+  "language": null,
+  "description": "The DeepSeek requests of the structured draft call (text role), as pinned by pc/tests/fixtures/backend_golden.json.",
+  "inputs": {
+    "profile_id": {
+      "value": "deepseek-flash"
+    },
+    "role": {
+      "value": "text"
+    },
+    "key": {
+      "value": "test-key"
+    },
+    "calls": {
+      "value": [
+        {
+          "kind": "chat",
+          "messages": [
+            {
+              "role": "system",
+              "content": "You are a commentator. Answer with one JSON object: {\"type\": \"object\", \"properties\": {\"lines\": {\"type\": \"array\", \"items\": {\"type\": \"object\", \"properties\": {\"id\": {\"type\": \"string\", \"description\": \"the slot id, l1, l2, ...\"}, \"text\": {\"type\": \"string\"}, \"delivery\": {\"type\": \"string\", \"description\": \"short direction for the voice\"}, \"hit_word\": {\"type\": \"string\", \"description\": \"key lines only\"}, \"event_refs\": {\"type\": \"array\", \"items\": {\"type\": \"string\"}}}, \"required\": [\"id\", \"text\"]}}, \"headline\": {\"type\": \"string\"}, \"lower_third\": {\"type\": \"string\"}}, \"required\": [\"lines\", \"headline\", \"lower_third\"]}"
+            },
+            {
+              "role": "user",
+              "content": "Brief (data):\n{\"slots\": [{\"id\": \"l1\"}]}"
+            }
+          ],
+          "schema": {
+            "type": "object",
+            "properties": {
+              "lines": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "description": "the slot id, l1, l2, ..."
+                    },
+                    "text": {
+                      "type": "string"
+                    },
+                    "delivery": {
+                      "type": "string",
+                      "description": "short direction for the voice"
+                    },
+                    "hit_word": {
+                      "type": "string",
+                      "description": "key lines only"
+                    },
+                    "event_refs": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "text"
+                  ]
+                }
+              },
+              "headline": {
+                "type": "string"
+              },
+              "lower_third": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "lines",
+              "headline",
+              "lower_third"
+            ]
+          },
+          "tools": null
+        }
+      ]
+    }
+  },
+  "expected": {
+    "file": "expected/output.json"
+  }
+}

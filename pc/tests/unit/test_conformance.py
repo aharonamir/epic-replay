@@ -15,7 +15,16 @@ from jsonschema import Draft202012Validator
 from epic_replay import conformance, paths
 
 CASES = conformance.cases()
-AREAS = {"storyboard", "slots", "checks", "lexicon", "units", "cells"}
+AREAS = {
+    "storyboard",
+    "slots",
+    "checks",
+    "lexicon",
+    "units",
+    "cells",
+    "backend",
+    "budget",
+}  # backend and budget: spec 004, T408
 
 
 def schema() -> Draft202012Validator:
@@ -28,7 +37,7 @@ def name(case_dir) -> str:
     return case_dir.relative_to(paths.CONFORMANCE).as_posix()
 
 
-def test_at_least_thirty_cases_across_the_six_areas():
+def test_at_least_thirty_cases_across_the_areas():
     assert len(CASES) >= 30
     assert {c.parent.name for c in CASES} == AREAS
 

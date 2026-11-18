@@ -1,0 +1,97 @@
+{
+  "area": "backend",
+  "function": "backend.recording_key",
+  "language": null,
+  "description": "A vision recording key of the golden test (the key of a recording the test stores).",
+  "inputs": {
+    "adapter": {
+      "value": "vision"
+    },
+    "model": {
+      "value": "deepseek-flash"
+    },
+    "request": {
+      "value": {
+        "detail": "high",
+        "schema": {
+          "type": "object",
+          "required": [
+            "activity",
+            "outcome",
+            "actor",
+            "high_point_cell",
+            "sure"
+          ],
+          "properties": {
+            "activity": {
+              "type": "string"
+            },
+            "outcome": {
+              "type": "string"
+            },
+            "actor": {
+              "type": "string"
+            },
+            "high_point_cell": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9
+            },
+            "sure": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 10
+            }
+          }
+        },
+        "sheet_cells": [
+          {
+            "cell": 1,
+            "frame": 10
+          },
+          {
+            "cell": 2,
+            "frame": 20
+          },
+          {
+            "cell": 3,
+            "frame": 30
+          },
+          {
+            "cell": 4,
+            "frame": 40
+          },
+          {
+            "cell": 5,
+            "frame": 50
+          },
+          {
+            "cell": 6,
+            "frame": 60
+          },
+          {
+            "cell": 7,
+            "frame": 70
+          },
+          {
+            "cell": 8,
+            "frame": 80
+          },
+          {
+            "cell": 9,
+            "frame": 90
+          }
+        ],
+        "question": "The image is a grid of up to 9 frames from one short video, in time order, numbered 1 to 9 in the top-left corner of each cell. the whole clip Say what is going on (any kind of moment, not necessarily sport), how it ends, and who or what does it (clothing colour or kind of animal only, never age or looks). If the high point of the video (the moment it is all about) is shown in this grid, give its cell; if it is not in this grid, give 0. Say how sure you are, 0 to 10."
+      }
+    },
+    "files": {
+      "value": [
+        "10fc3c51a152e90e5b90319b601d92ccf37290ef53c35ff92507687d8a911a08"
+      ]
+    }
+  },
+  "expected": {
+    "value": "6219c0f307cc07706556bb212ce0f38b485fba5994a4d8a7bb9a84ba745a7b0b"
+  }
+}

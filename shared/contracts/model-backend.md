@@ -7,8 +7,9 @@ Every model call of an app goes through one client that implements this contract
 ## Operations
 
 ```
-look(images, question, schema | null) -> Result
+look(images, question, schema | null, detail) -> Result
     images:  a list of (label | null, JPEG bytes); each image is preceded by its label as text, if it has one
+    detail:   low | high | auto: what the caller asks; the profile's `image.detail` says whether and what is sent
     question: text; with a schema, the client adds "Answer with JSON only, matching this schema:" and the schema
 
 chat(messages, schema | null, tools | null) -> Result
@@ -38,10 +39,41 @@ Nothing here carries a URL, a header or a key: those belong to a profile of kind
 | `Unreachable` | Before any request: a `local` profile's server does not answer `GET {api_base}/models`. The message names the profile and the URL: "the vision model server for profile gemma-4-e2b-local is not reachable at http://127.0.0.1:8080/v1" |
 | `Timeout` | A call took longer than the profile's `timeout_s` for its role. It may still have been billed, so the budget counts it as spent at its estimate |
 | `SchemaMisfit` | The reply and its one retry did not fit the schema |
+| `Server` | The server answered with an error status (the Kotlin client reports the status only, never the body, which may echo the request) or with a reply that is not a chat completion |
+| `KeyMissing` | The profile takes a key (`api_key_env` is not `null`) and none is set. The message names the profile, never a key |
 | `NotInstalled` | An `on_device` profile's files are missing or fail their checksum (replaces `Unreachable` for that kind). The message names the profile and the missing files |
 | `OutOfMemory` | An `on_device` profile needs more free memory than the phone has (`min_free_ram_mb`); raised before loading, never a crash |
 
 An `on_device` backend returns the same `Result`: `usage` is the token counts from the engine, `usd` is 0, `latency_s` is measured as for any backend. The Android app implements the contract in Kotlin (`android/core`, `ModelBackend`) with `FakeBackend` for tests; the Kotlin loader reads these profiles and leaves out what the phone cannot run (`location` `local` and `network`).
+
+## The request of an `openai_compatible` profile
+
+Pinned by the conformance cases `backend/requests_*` (the DeepSeek requests of `pc/tests/fixtures/backend_golden.json`), which every platform reproduces byte for byte after canonical JSON (below).
+
+- **URL**: `api_base` without a trailing `/`, then `/chat/completions`. **Method**: `POST`. **Content type**: `application/json`.
+- **`Authorization`**: `Bearer <key>` when the profile takes a key (`api_key_env` is not `null`) and a key is set; no such header otherwise.
+- **Timeout**: the profile's `timeout_s` for the role, in seconds. (The reference run of `look` records it as a float, 45.0; the one of `chat` as an integer when the number is whole, 60.)
+- **`look` body**: `model`, then one `user` message whose `content` is, for each image in order, its label as `{"type": "text", "text": label}` when it has one, then `{"type": "image_url", "image_url": {"url": "data:image/jpeg;base64,<the JPEG>", "detail": D}}`, and last `{"type": "text", "text": question}`. The JPEG is resized so its longest side is `image.max_side_px` when that is set (the same input always gives the same bytes). `D` is the caller's `detail` when the profile's `image.detail` is `request`, that value when it is `low`, `high` or `auto`, and `detail` is left out when it is `null`. With a schema the question is followed by `"\nAnswer with JSON only, matching this schema:\n"` and the schema as JSON text: keys in the schema's own order, separators `", "` and `": "`, every non-ASCII character as a `\uXXXX` escape.
+- **`chat` body**: `model`, `messages` as given, and `tools` when there are any.
+- **`response_format`** (both, when a schema is asked for): none for `json_mode: prompt`; `{"type": "json_schema", "json_schema": {"name": "answer", "schema": <schema>}}` for `json_schema`; `{"type": "json_object"}` for `json_object`.
+- **`extra_body`**: the profile's fields are merged into the body at the top level.
+- **Reply**: `choices[0].message.content` is `text`; `usage.prompt_tokens` and `completion_tokens` are `usage`; `data` is the first JSON object in `text` after any code fence is stripped; `tool_calls` from `choices[0].message.tool_calls` as `{id, name, arguments}` (`arguments` as the JSON text the server sent).
+
+## Recording key
+
+A recording lets a run be repeated without a paid call (`EPIC_PROVIDER_MODE`: `live`, `record`, `replay`). Pinned by `backend/recording_key_*`.
+
+- **Canonical JSON**: object keys sorted by Unicode code point, no spaces (`,` and `:`), non-ASCII characters written as they are (not escaped), numbers as Python writes the value it reads (`-0` is `0`, `0.10` is `0.1`, `1E5` is `100000.0`, `1e-5` is `1e-05`, `1e22` is `1e+22`: an integer has no point and a float is its shortest round-trip form), `true`, `false`, `null`.
+- **Key**: the lowercase hex SHA-256 of the UTF-8 bytes of the canonical JSON of `{"adapter": adapter, "model": model, "request": request, "files": files}`. `request` is the adapter's own description of the call, never the model name or any file's bytes (for a sheet: `detail`, `schema`, each cell's `cell` and `frame`, and the `question`; the retry's question has `"\nFill in the fields; do not repeat the schema."` added); `files` are the hex SHA-256 of each file sent, in order.
+- **A recording** is the JSON file `<adapter>/<key>.json` holding the adapter's payload (`text`, `data`, `usage`, `usage_usd`). A recording written on either platform is read by the other.
+
+## Budget
+
+Every paid call reserves its estimate against three caps, makes the call, then replaces the reservation with the actual cost (`guards/budget.py`; pinned by `budget/*`).
+
+- **Caps** (settings; defaults 1.00 run, 20.00 day, 0.30 pre-checkpoint USD). A reservation of `e` is refused when, for any cap in the order run, day, pre-checkpoint, `spent + in flight + e > cap + 1e-9`: for the run, its spent and in-flight total; for the day, today's spent total over every run and every call in flight; for the pre-checkpoint cap (only for calls marked as made before the play card), those calls' spent and in-flight total. A refused call is not made.
+- **Settling**: the reservation is released and the call recorded at its actual cost; a recording hit costs 0 and a reservation of 0 is never refused; a call that failed is released; one that may still be billed (a timeout) is recorded at its estimate.
+- **The Android app adds** one app-wide ledger shared by every run and by the voice calls, with reservations written to disk before the call, so a reservation left over when the app was killed counts as spent at its estimate. A call is charged to the UTC day it was reserved on, also when it settles after midnight or is recovered after a restart; Python charges the day it settles. (The Python app keeps reservations in memory only.)
 
 ## Profiles
 

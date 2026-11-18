@@ -42,6 +42,13 @@ sealed class ModelError(message: String) : Exception(message) {
     /** The reply and its one retry did not fit the schema. */
     class SchemaMisfit(val profileId: String, message: String) : ModelError(message)
 
+    /** The server answered with an error status (never the body: it may echo the request). */
+    class Server(val profileId: String, val status: Int, message: String) : ModelError(message)
+
+    /** The profile takes a key and none is set. The message names the profile, never a key. */
+    class KeyMissing(val profileId: String) :
+        ModelError("the key for model profile $profileId is not set; enter it in settings")
+
     /** An `on_device` profile's files are missing or fail their checksum (spec 004 FR-004). */
     class NotInstalled(val profileId: String, val missing: List<String>) :
         ModelError("the model files of profile $profileId are not installed: ${missing.joinToString()}")
@@ -58,8 +65,11 @@ sealed class ModelError(message: String) : Exception(message) {
 interface ModelBackend {
     val profile: Profile
 
-    /** [images] are looked at with [question]; with a [schema] the reply is JSON matching it. */
-    suspend fun look(images: List<LabeledImage>, question: String, schema: JsonObject? = null): ModelResult
+    /**
+     * [images] are looked at with [question]; with a [schema] the reply is JSON matching it. [detail] (`low`, `high`
+     * or `auto`) is what the caller asks of the model; the profile says whether it is sent.
+     */
+    suspend fun look(images: List<LabeledImage>, question: String, schema: JsonObject? = null, detail: String = "high"): ModelResult
 
     suspend fun chat(messages: List<ChatMessage>, schema: JsonObject? = null, tools: List<ToolDef>? = null): ModelResult
 }

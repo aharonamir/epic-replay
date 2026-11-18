@@ -1,5 +1,6 @@
 package app.epicreplay.core.secrets
 
+import app.epicreplay.core.io.Durable
 import app.epicreplay.core.models.Role
 import java.io.File
 import java.io.IOException
@@ -38,13 +39,7 @@ class ModelChoiceStore(private val file: File) {
         val now = Role.entries.associate { it.id to (if (it == role) profileId else read(it)) }
         val json = JsonObject(now.mapValues { (_, v) -> if (v == null) JsonNull else JsonPrimitive(v) })
         try {
-            file.parentFile?.mkdirs()
-            val tmp = File(file.path + ".tmp")
-            tmp.writeText(json.toString())
-            if (!tmp.renameTo(file)) {
-                tmp.delete()
-                throw IOException("rename failed")
-            }
+            Durable.writeAtomic(file, json.toString().toByteArray(Charsets.UTF_8))
         } catch (e: IOException) {
             throw SecretStoreException("the choice could not be written")
         }

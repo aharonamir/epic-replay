@@ -1,0 +1,61 @@
+{
+  "area": "backend",
+  "function": "backend.requests",
+  "language": null,
+  "description": "A chat call with a tool: the tool is sent in the OpenAI function format (spec 004, T408 review).",
+  "inputs": {
+    "profile_id": {
+      "value": "deepseek-flash"
+    },
+    "role": {
+      "value": "text"
+    },
+    "key": {
+      "value": "test-key"
+    },
+    "calls": {
+      "value": [
+        {
+          "kind": "chat",
+          "messages": [
+            {
+              "role": "system",
+              "content": "You check lines."
+            },
+            {
+              "role": "user",
+              "content": "Check this draft: ['Here we go!']"
+            }
+          ],
+          "schema": null,
+          "tools": [
+            {
+              "type": "function",
+              "function": {
+                "name": "check_lines",
+                "description": "Check a draft of lines. Returns each failure.",
+                "parameters": {
+                  "type": "object",
+                  "properties": {
+                    "lines": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "lines"
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "expected": {
+    "file": "expected/output.json"
+  }
+}

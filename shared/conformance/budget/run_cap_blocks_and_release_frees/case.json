@@ -1,0 +1,80 @@
+{
+  "area": "budget",
+  "function": "budget.run",
+  "language": null,
+  "description": "A second reservation that would pass the run cap is blocked; releasing the first lets it in.",
+  "inputs": {
+    "caps": {
+      "value": {
+        "run_usd": 1.0,
+        "day_usd": 20.0,
+        "pre_checkpoint_usd": 0.3
+      }
+    },
+    "ops": {
+      "value": [
+        {
+          "op": "reserve",
+          "id": "a",
+          "run": "r1",
+          "estimate": 0.6,
+          "pre_checkpoint": false
+        },
+        {
+          "op": "reserve",
+          "id": "b",
+          "run": "r1",
+          "estimate": 0.6,
+          "pre_checkpoint": false
+        },
+        {
+          "op": "release",
+          "id": "a"
+        },
+        {
+          "op": "reserve",
+          "id": "c",
+          "run": "r1",
+          "estimate": 0.6,
+          "pre_checkpoint": false
+        }
+      ]
+    }
+  },
+  "expected": {
+    "value": [
+      {
+        "op": "reserve",
+        "id": "a",
+        "outcome": "ok",
+        "cap": null,
+        "run_total": 0,
+        "day_total": 0.0
+      },
+      {
+        "op": "reserve",
+        "id": "b",
+        "outcome": "blocked",
+        "cap": "run",
+        "run_total": 0,
+        "day_total": 0.0
+      },
+      {
+        "op": "release",
+        "id": "a",
+        "outcome": "ok",
+        "cap": null,
+        "run_total": 0,
+        "day_total": 0.0
+      },
+      {
+        "op": "reserve",
+        "id": "c",
+        "outcome": "ok",
+        "cap": null,
+        "run_total": 0,
+        "day_total": 0.0
+      }
+    ]
+  }
+}

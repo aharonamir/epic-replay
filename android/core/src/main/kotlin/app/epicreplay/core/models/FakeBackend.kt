@@ -8,7 +8,7 @@ import kotlinx.serialization.json.JsonObject
  */
 class FakeBackend(override val profile: Profile) : ModelBackend {
     sealed interface Call {
-        class Look(val images: List<LabeledImage>, val question: String, val schema: JsonObject?) : Call
+        class Look(val images: List<LabeledImage>, val question: String, val schema: JsonObject?, val detail: String) : Call
         class Chat(val messages: List<ChatMessage>, val schema: JsonObject?, val tools: List<ToolDef>?) : Call
     }
 
@@ -28,8 +28,8 @@ class FakeBackend(override val profile: Profile) : ModelBackend {
     private fun next(): ModelResult =
         (script.removeFirstOrNull() ?: error("FakeBackend: no reply queued for call ${calls.size}"))()
 
-    override suspend fun look(images: List<LabeledImage>, question: String, schema: JsonObject?): ModelResult {
-        calls += Call.Look(images, question, schema)
+    override suspend fun look(images: List<LabeledImage>, question: String, schema: JsonObject?, detail: String): ModelResult {
+        calls += Call.Look(images, question, schema, detail)
         return next()
     }
 

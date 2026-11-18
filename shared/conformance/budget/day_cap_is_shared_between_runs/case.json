@@ -1,0 +1,66 @@
+{
+  "area": "budget",
+  "function": "budget.run",
+  "language": null,
+  "description": "The day cap spans runs: a second run is blocked by what the first spent.",
+  "inputs": {
+    "caps": {
+      "value": {
+        "run_usd": 1.0,
+        "day_usd": 0.5,
+        "pre_checkpoint_usd": 0.3
+      }
+    },
+    "ops": {
+      "value": [
+        {
+          "op": "reserve",
+          "id": "a",
+          "run": "r1",
+          "estimate": 0.4,
+          "pre_checkpoint": false
+        },
+        {
+          "op": "settle",
+          "id": "a",
+          "actual": 0.4
+        },
+        {
+          "op": "reserve",
+          "id": "b",
+          "run": "r2",
+          "estimate": 0.2,
+          "pre_checkpoint": false
+        }
+      ]
+    }
+  },
+  "expected": {
+    "value": [
+      {
+        "op": "reserve",
+        "id": "a",
+        "outcome": "ok",
+        "cap": null,
+        "run_total": 0,
+        "day_total": 0.0
+      },
+      {
+        "op": "settle",
+        "id": "a",
+        "outcome": "ok",
+        "cap": null,
+        "run_total": 0.4,
+        "day_total": 0.4
+      },
+      {
+        "op": "reserve",
+        "id": "b",
+        "outcome": "blocked",
+        "cap": "day",
+        "run_total": 0,
+        "day_total": 0.4
+      }
+    ]
+  }
+}

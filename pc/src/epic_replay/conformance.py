@@ -15,7 +15,7 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
-from epic_replay import paths
+from epic_replay import conformance_backend, paths
 from epic_replay.guards import lexicon, lexicon_zh
 from epic_replay.media import contact_sheet
 from epic_replay.stages import s4_storyboard, s6_checks
@@ -97,6 +97,9 @@ FUNCTIONS: dict[str, Callable[..., Any]] = {
     "lexicon.scan": lambda language, texts, extra: _scan(language, texts, extra),
     "units.spoken_units": lambda language, texts: [slots.spoken_units(t, language) for t in texts],
     "cells.narrow": _narrow,
+    "backend.requests": conformance_backend.requests,
+    "backend.recording_key": conformance_backend.recording_key,
+    "budget.run": conformance_backend.budget_run,
 }
 
 

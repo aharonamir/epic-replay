@@ -1,5 +1,6 @@
 package app.epicreplay.core.secrets
 
+import app.epicreplay.core.io.Durable
 import java.io.File
 import java.io.IOException
 import java.util.concurrent.locks.ReentrantLock
@@ -29,13 +30,7 @@ class SecretStore(private val dir: File, private val cipher: SecretCipher) {
             throw SecretStoreException("the key could not be encrypted (${e.javaClass.simpleName})")
         }
         try {
-            dir.mkdirs()
-            val tmp = File(dir, kind.id + ".tmp")
-            tmp.writeBytes(byteArrayOf(FORMAT) + blob)
-            if (!tmp.renameTo(file(kind))) {
-                tmp.delete()
-                throw IOException("rename failed")
-            }
+            Durable.writeAtomic(file(kind), byteArrayOf(FORMAT) + blob)
         } catch (e: IOException) {
             throw SecretStoreException("the key could not be written")
         }

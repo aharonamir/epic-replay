@@ -1,0 +1,65 @@
+{
+  "area": "budget",
+  "function": "budget.run",
+  "language": null,
+  "description": "A call that may still be billed (a timeout) is recorded at its estimate.",
+  "inputs": {
+    "caps": {
+      "value": {
+        "run_usd": 1.0,
+        "day_usd": 20.0,
+        "pre_checkpoint_usd": 0.3
+      }
+    },
+    "ops": {
+      "value": [
+        {
+          "op": "reserve",
+          "id": "a",
+          "run": "r1",
+          "estimate": 0.2,
+          "pre_checkpoint": false
+        },
+        {
+          "op": "settle_at_estimate",
+          "id": "a"
+        },
+        {
+          "op": "reserve",
+          "id": "b",
+          "run": "r1",
+          "estimate": 0.9,
+          "pre_checkpoint": false
+        }
+      ]
+    }
+  },
+  "expected": {
+    "value": [
+      {
+        "op": "reserve",
+        "id": "a",
+        "outcome": "ok",
+        "cap": null,
+        "run_total": 0,
+        "day_total": 0.0
+      },
+      {
+        "op": "settle_at_estimate",
+        "id": "a",
+        "outcome": "ok",
+        "cap": null,
+        "run_total": 0.2,
+        "day_total": 0.2
+      },
+      {
+        "op": "reserve",
+        "id": "b",
+        "outcome": "blocked",
+        "cap": "run",
+        "run_total": 0.2,
+        "day_total": 0.2
+      }
+    ]
+  }
+}
