@@ -152,19 +152,17 @@ class OnDeviceBackend(
         if (free < profile.minFreeRamMb) throw ModelError.OutOfMemory(profile.id, profile.minFreeRamMb, free.toInt())
         val e = engineFactory()
         try {
+            // The load and the hand-over of the engine happen on the engine thread, in order with a close() that
+            // may be queued behind them: close() frees whatever is in engineRef, on that same thread.
             blocking(e, 0) {
                 e.load(file("weights")!!.path, file("projector")?.path, profile.contextTokens, config.threads, config.imageMaxTokens)
+                engineRef.set(e)
             }
         } catch (t: Throwable) {
-            e.close()
+            e.close() // not loaded (or the executor is shut down): nothing is running on it
             throw t
         }
-        engineRef.set(e)
-        if (closed) {
-            // close() came while the model was loading: it found no engine to free, so this one is freed here (the engine is idle)
-            engineRef.getAndSet(null)?.close()
-            throw IllegalStateException("the on-device backend for profile ${profile.id} was closed")
-        }
+        check(!closed) { "the on-device backend for profile ${profile.id} was closed" } // close() is queued behind the load and frees the engine
         return e
     }
 
@@ -200,12 +198,16 @@ class OnDeviceBackend(
      */
     override fun close() {
         closed = true // a call waiting for the mutex sees it when it gets in, and fails
-        val e = engineRef.getAndSet(null)
-        if (e != null) {
-            e.cancel(activeOp)
-            executor.execute { e.close() }
+        engineRef.get()?.cancel(activeOp)
+        try {
+            // queued behind any load or call on the engine thread; the executor shuts down after the free
+            executor.execute {
+                engineRef.getAndSet(null)?.close()
+                executor.shutdown()
+            }
+        } catch (_: java.util.concurrent.RejectedExecutionException) {
+            // closed before: nothing more to do
         }
-        executor.shutdown()
     }
 
 }

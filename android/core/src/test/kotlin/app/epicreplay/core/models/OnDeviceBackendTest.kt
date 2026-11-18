@@ -49,7 +49,8 @@ class FakeEngine(private val body: (GenerateRequest, FakeEngine) -> GenerateResu
     }
 
     override fun cancel(op: Long) { cancelOps += op; cancels.incrementAndGet(); cancelled.countDown() }
-    override fun close() { closed.incrementAndGet() }
+    @Volatile var closedOn: String? = null
+    override fun close() { closedOn = Thread.currentThread().name; closed.incrementAndGet() }
 }
 
 class OnDeviceBackendTest {
@@ -200,9 +201,10 @@ class OnDeviceBackendTest {
         install()
         val releaseLoad = CountDownLatch(1); val loading = CountDownLatch(1)
         val closes = AtomicInteger()
+        var closedOn: String? = null
         val engine = object : InferenceEngine by FakeEngine(ok) {
             override fun load(modelPath: String, projectorPath: String?, contextTokens: Int, threads: Int, imageMaxTokens: Int) { loading.countDown(); releaseLoad.await(5, TimeUnit.SECONDS) }
-            override fun close() { closes.incrementAndGet() }
+            override fun close() { closes.incrementAndGet(); closedOn = Thread.currentThread().name }
         }
         val b = OnDeviceBackend(profile(), Role.VISION, dir, { 5000 }, { engine })
         val call = async(kotlinx.coroutines.Dispatchers.Default) { runCatching { b.chat(listOf(ChatMessage(ChatRole.USER, "x"))) } } // not on the thread that blocks below
@@ -212,6 +214,7 @@ class OnDeviceBackendTest {
         assertTrue(call.await().exceptionOrNull() is IllegalStateException)
         Thread.sleep(200)
         assertEquals(1, closes.get(), "the engine must be freed exactly once")
+        assertEquals("epic-engine", closedOn, "the engine must be freed on the engine thread")
         Unit
     }
 
@@ -226,6 +229,7 @@ class OnDeviceBackendTest {
         job.join()
         Thread.sleep(300)
         assertEquals(1, engine.closed.get()); assertEquals(1, engine.cancels.get()); assertEquals(0, engine.inFlight.get())
+        assertEquals("epic-engine", engine.closedOn) // freed on the engine thread, after the call returned
     }
 
     @Test
