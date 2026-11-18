@@ -178,6 +178,24 @@ class OnDeviceBackendTest {
     }
 
     @Test
+    fun aCallWaitingWhenTheBackendIsClosedNeverReachesTheEngine() = runBlocking {
+        install()
+        val engine = FakeEngine { _, _ -> Thread.sleep(300); GenerateResult("x", 1, 1, Stop.END_OF_TEXT, 1, 1, 0) }
+        val b = backend(engine)
+        val first = launch { runCatching { b.chat(listOf(ChatMessage(ChatRole.USER, "1"))) } }
+        delay(80)
+        val second = async { runCatching { b.chat(listOf(ChatMessage(ChatRole.USER, "2"))) } }
+        delay(50)
+        b.close()
+        first.join()
+        val e = second.await().exceptionOrNull()
+        assertTrue(e is IllegalStateException || e is CancellationException, "got $e")
+        assertEquals(1, engine.requests.size) // only the call that was running
+        assertFailsWith<IllegalStateException> { b.chat(listOf(ChatMessage(ChatRole.USER, "3"))) } // and a later call fails
+        Unit // a test must return Unit, or JUnit does not run it
+    }
+
+    @Test
     fun closeStopsTheCallInFlightAndFreesTheModelOnlyAfterItReturned() = runBlocking {
         install()
         val engine = FakeEngine(ok); engine.blockUntilCancelled = true

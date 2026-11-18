@@ -29,6 +29,20 @@ tasks.test {
     systemProperty("android.dir", rootProject.layout.projectDirectory.asFile.absolutePath)
     // The tests read both trees, so a change in either must run them (and must not be served from the cache).
     inputs.dir(rootProject.layout.projectDirectory.dir("../shared")).withPropertyName("sharedData")
+    // JUnit silently skips a test method that returns a value (`= runBlocking { ... assertFailsWith ... }`): the
+    // number of tests that ran must equal the number of @Test methods in the sources.
+    doLast {
+        val filtered = filter.includePatterns.isNotEmpty() || (filter as org.gradle.api.internal.tasks.testing.filter.DefaultTestFilter).commandLineIncludePatterns.isNotEmpty()
+        if (!filtered) {
+            val annotated = fileTree("src/test").matching { include("**/*.kt") }.files
+                .sumOf { Regex("""(?m)^\s*@Test\b""").findAll(it.readText()).count() }
+            val ran = fileTree(layout.buildDirectory.dir("test-results/test")).matching { include("*.xml") }.files
+                .sumOf { Regex("""<testsuite [^>]*tests="(\d+)"""").find(it.readText())?.groupValues?.get(1)?.toInt() ?: 0 }
+            if (annotated != ran) {
+                throw GradleException("$annotated @Test methods in core/src/test but $ran tests ran: a test that returns a value is skipped by JUnit; end it with Unit")
+            }
+        }
+    }
     inputs.files(
         fileTree(rootProject.layout.projectDirectory) {
             exclude("**/build/**", "**/.gradle/**", "**/.kotlin/**", "**/.idea/**", "**/.cxx/**")

@@ -32,7 +32,11 @@ class NativeEngine : InferenceEngine {
         return GenerateResult(String(reply, Charsets.UTF_8), stats[0], stats[1], stop, stats[3], stats[4], stats[5])
     }
 
-    /** Safe from any thread, also after [close]: the handle is read and used under the same lock that frees it. */
+    /**
+     * Callable from any thread, also after [close]: the handle is read and used under the same lock that frees it.
+     * [generate] and [close] are not made safe against each other here: the caller runs both on one thread, and
+     * frees only after the running call has returned (OnDeviceBackend does).
+     */
     override fun cancel(op: Long) = synchronized(lock) {
         val h = handle
         if (h != 0L) nativeCancel(h, op)

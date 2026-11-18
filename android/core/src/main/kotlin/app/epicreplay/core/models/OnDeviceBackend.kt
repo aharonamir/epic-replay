@@ -121,6 +121,7 @@ class OnDeviceBackend(
 
     private val ops = AtomicLong(0)
     @Volatile private var activeOp = 0L
+    @Volatile private var closed = false
 
     /** [build] makes the request from the engine's image marker, which is known once the engine exists. */
     private suspend fun run(timeoutS: Double, withSchema: Boolean, build: (marker: String) -> GenerateRequest): ModelResult {
@@ -128,6 +129,7 @@ class OnDeviceBackend(
         // withTimeoutOrNull ends only this call's own timeout with null; a timeout or cancellation of the caller passes through unchanged
         return withTimeoutOrNull((timeoutS * 1000).toLong()) {
             mutex.withLock {
+                check(!closed) { "the on-device backend for profile ${profile.id} was closed" } // a call that was waiting when close() came
                 val e = ensureLoaded()
                 val request = build(e.mediaMarker)
                 val op = ops.incrementAndGet()
@@ -165,7 +167,11 @@ class OnDeviceBackend(
      * the block is waited for, so the engine is free again before the next call starts.
      */
     private suspend fun <T> blocking(e: InferenceEngine, op: Long, block: () -> T): T = coroutineScope {
-        val job = async(dispatcher) { block() }
+        val job = try {
+            async(dispatcher) { block() }
+        } catch (r: java.util.concurrent.RejectedExecutionException) {
+            throw IllegalStateException("the on-device backend for profile ${profile.id} was closed")
+        }
         try {
             job.await()
         } catch (c: CancellationException) {
@@ -177,6 +183,7 @@ class OnDeviceBackend(
 
     /** Frees the model's memory; the next call loads it again. */
     suspend fun unload() = mutex.withLock {
+        if (closed) return@withLock
         val e = engine ?: return@withLock
         blocking(e, 0) { e.close() }
         engine = null
@@ -187,6 +194,7 @@ class OnDeviceBackend(
      * so the memory is never freed under a running generation. A call that arrives later fails.
      */
     override fun close() {
+        closed = true // a call waiting for the mutex sees it when it gets in, and fails
         val e = engine
         engine = null
         if (e != null) {
