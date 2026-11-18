@@ -196,6 +196,26 @@ class OnDeviceBackendTest {
     }
 
     @Test
+    fun closingWhileTheModelIsLoadingFreesTheEngineOnceAndFailsTheCall() = runBlocking {
+        install()
+        val releaseLoad = CountDownLatch(1); val loading = CountDownLatch(1)
+        val closes = AtomicInteger()
+        val engine = object : InferenceEngine by FakeEngine(ok) {
+            override fun load(modelPath: String, projectorPath: String?, contextTokens: Int, threads: Int, imageMaxTokens: Int) { loading.countDown(); releaseLoad.await(5, TimeUnit.SECONDS) }
+            override fun close() { closes.incrementAndGet() }
+        }
+        val b = OnDeviceBackend(profile(), Role.VISION, dir, { 5000 }, { engine })
+        val call = async(kotlinx.coroutines.Dispatchers.Default) { runCatching { b.chat(listOf(ChatMessage(ChatRole.USER, "x"))) } } // not on the thread that blocks below
+        assertTrue(loading.await(5, TimeUnit.SECONDS), "the load never started")
+        b.close() // while the model is still loading
+        releaseLoad.countDown()
+        assertTrue(call.await().exceptionOrNull() is IllegalStateException)
+        Thread.sleep(200)
+        assertEquals(1, closes.get(), "the engine must be freed exactly once")
+        Unit
+    }
+
+    @Test
     fun closeStopsTheCallInFlightAndFreesTheModelOnlyAfterItReturned() = runBlocking {
         install()
         val engine = FakeEngine(ok); engine.blockUntilCancelled = true

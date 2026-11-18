@@ -90,7 +90,8 @@ class OnDeviceBackend(
     }
 
     private val mutex = Mutex()
-    private var engine: InferenceEngine? = null
+    // Whoever takes the engine out with getAndSet(null) owns freeing it: close() and a load that finishes after close() cannot both free it.
+    private val engineRef = java.util.concurrent.atomic.AtomicReference<InferenceEngine?>(null)
     // The engine runs on one thread with a big stack: the chat template and the prompt are parsed recursively.
     private val executor = Executors.newSingleThreadExecutor { r -> Thread(null, r, "epic-engine", 16L * 1024 * 1024) }
     private val dispatcher = executor.asCoroutineDispatcher()
@@ -144,7 +145,7 @@ class OnDeviceBackend(
 
     /** Loads the model on the first call: the files first, then the memory, never a crash for lack of either. */
     private suspend fun ensureLoaded(): InferenceEngine {
-        engine?.let { return it }
+        engineRef.get()?.let { return it }
         val missing = missingFiles()
         if (missing.isNotEmpty()) throw ModelError.NotInstalled(profile.id, missing)
         val free = memory.freeMb()
@@ -158,7 +159,12 @@ class OnDeviceBackend(
             e.close()
             throw t
         }
-        engine = e
+        engineRef.set(e)
+        if (closed) {
+            // close() came while the model was loading: it found no engine to free, so this one is freed here (the engine is idle)
+            engineRef.getAndSet(null)?.close()
+            throw IllegalStateException("the on-device backend for profile ${profile.id} was closed")
+        }
         return e
     }
 
@@ -184,9 +190,8 @@ class OnDeviceBackend(
     /** Frees the model's memory; the next call loads it again. */
     suspend fun unload() = mutex.withLock {
         if (closed) return@withLock
-        val e = engine ?: return@withLock
+        val e = engineRef.getAndSet(null) ?: return@withLock
         blocking(e, 0) { e.close() }
-        engine = null
     }
 
     /**
@@ -195,8 +200,7 @@ class OnDeviceBackend(
      */
     override fun close() {
         closed = true // a call waiting for the mutex sees it when it gets in, and fails
-        val e = engine
-        engine = null
+        val e = engineRef.getAndSet(null)
         if (e != null) {
             e.cancel(activeOp)
             executor.execute { e.close() }
