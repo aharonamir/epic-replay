@@ -1,6 +1,8 @@
 package app.epicreplay
 
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
@@ -57,8 +59,8 @@ class FirstRunScreenTest {
         rule.onNodeWithText("Where do the models run?").assertExists()
         rule.onNodeWithText("Looking at the clip").assertExists()
         rule.onNodeWithText("Writing the script").assertExists()
-        rule.onNodeWithText("Frames go to DeepSeek V4 Flash; costs money.", substring = true).assertExists()
-        rule.onNodeWithText("Stays on this phone; free; needs a", substring = true, useUnmergedTree = true).assertExists()
+        rule.onNodeWithText("Frames go to DeepSeek (cloud); costs money.", substring = true).assertExists()
+        rule.onAllNodesWithText("Stays on this phone; free; needs a", substring = true).assertCountEquals(4) // two models, for each of the two roles
     }
 
     @Test
@@ -85,7 +87,7 @@ class FirstRunScreenTest {
         graph.setup.choose(Role.VISION, "deepseek-flash"); graph.setup.choose(Role.TEXT, "deepseek-flash")
         graph.secrets.put(KeyKind.MODEL_PROVIDER, Secret("sk-abcdefghijklmnop1234"))
         show()
-        rule.onNodeWithText("Still frames from the clip are sent to", substring = true).assertExists()
+        rule.onNodeWithText("Still frames from the clip, and descriptions drawn from them with the script, are sent to the model providers", substring = true).assertExists()
         rule.onNodeWithText("I agree").assertIsNotEnabled()
         rule.onNodeWithText("I filmed this or have permission to use it.", substring = true).performClick()
         rule.onNodeWithText("I agree").assertIsEnabled().performClick()

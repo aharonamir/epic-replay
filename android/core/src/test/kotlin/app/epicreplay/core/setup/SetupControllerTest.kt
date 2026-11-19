@@ -77,8 +77,8 @@ class SetupControllerTest {
     @Test
     fun eachChoiceSaysInOneLineWhatItMeans() {
         val c = controller()
-        assertEquals(listOf("Frames go to DeepSeek V4 Flash; costs money.", "Stays on this phone; free; needs a 2 MB download; slower and less accurate."),
-            c.options(Role.VISION).map { it.meaning }.map { it.replace(cloud.label, "DeepSeek V4 Flash").replace("needs a 2 MB", "needs a 2 MB") })
+        assertEquals(listOf("Frames go to ${cloud.label}; costs money.", "Stays on this phone; free; needs a 2 MB download; slower and less accurate."),
+            c.options(Role.VISION).map { it.meaning })
         assertTrue(c.options(Role.TEXT).first { it.profile.id == "deepseek-flash" }.meaning.startsWith("Text goes to "))
         assertTrue(c.options(Role.TEXT).first { it.profile.id == "deepseek-flash" }.meaning.endsWith("; costs money."))
     }

@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
@@ -145,8 +146,8 @@ private fun DownloadPart(step: SetupStep.NeedsDownload, actions: FirstRunActions
 private fun ConsentPart(step: SetupStep.NeedsConsent, onConfirm: () -> Unit) {
     var ticked by remember { mutableStateOf(false) }
     step.blocks.forEach { Text(it) }
-    Row {
-        Checkbox(checked = ticked, onCheckedChange = { ticked = it })
+    Row(Modifier.fillMaxWidth().toggleable(value = ticked, role = SemanticsRole.Checkbox, onValueChange = { ticked = it })) {
+        Checkbox(checked = ticked, onCheckedChange = null)
         Text(step.consentText, Modifier.padding(start = 8.dp))
     }
     Button(onClick = onConfirm, enabled = ticked) { Text("I agree") }
