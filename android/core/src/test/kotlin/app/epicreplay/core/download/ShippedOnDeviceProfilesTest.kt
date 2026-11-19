@@ -42,11 +42,15 @@ class ShippedOnDeviceProfilesTest {
     }
 
     @Test
-    fun theStorageFloorCoversTheFilesAndTheRamFloorIsAtLeastTheFilesInMemory() {
+    fun theStorageFloorCoversTheFilesAndTheRamFloorIsInARealisticRange() {
         for (p in profiles) {
             val mb = p.files.sumOf { it.bytes } / 1_000_000
             assertTrue(p.minFreeStorageMb >= mb, "${p.id}: ${p.minFreeStorageMb} MB is below the files' $mb MB")
-            assertTrue(p.minFreeRamMb >= mb, "${p.id}: the model needs at least its own files in memory")
+            // provisional from S1 (docs/android-spikes.md); T427 measures them. The weights are mapped file pages the system can drop,
+            // so the floor is not tied to the file size, only kept to a range a phone with 8 to 16 GB can meet.
+            assertTrue(p.minFreeRamMb in 2_000..12_000, "${p.id}: ${p.minFreeRamMb} MB")
         }
+        val gemma = profiles.first { it.id == "gemma-4-e2b-device" }; val qwen = profiles.first { it.id == "qwen3-5-4b-device" }
+        assertTrue(qwen.minFreeRamMb >= gemma.minFreeRamMb, "the bigger model needs at least as much")
     }
 }

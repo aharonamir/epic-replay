@@ -278,6 +278,18 @@ class ProfileLoaderTest {
     }
 
     @Test
+    fun aFileNameThatIsNotAPlainNameIsRefused() {
+        for (bad in listOf("../x.gguf", "a/b.gguf", ".hidden.gguf", "", "x".repeat(200))) {
+            val files = JsonArray(listOf(buildJsonObject {
+                put("name", JsonPrimitive(bad)); put("url", JsonPrimitive("https://example.org/w.gguf"))
+                put("sha256", JsonPrimitive("0".repeat(64))); put("bytes", JsonPrimitive(10)); put("role", JsonPrimitive("weights"))
+            }))
+            val r = loader(Platform.ANDROID).load(folder("phone-model" to phone("files" to files).toString()))
+            assertEquals(listOf("phone-model.json"), r.refused().map { it.file }, "name '$bad'")
+        }
+    }
+
+    @Test
     fun aBrokenOnDeviceProfileIsRefusedNotLeftOut() {
         val r = loader(Platform.PC).load(folder("phone-model" to phone("files" to JsonArray(emptyList())).toString()))
         assertEquals(listOf("phone-model.json"), r.refused().map { it.file })

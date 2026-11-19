@@ -8,11 +8,16 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.io.InputStream
 import java.net.HttpURLConnection
+import java.net.SocketTimeoutException
 import java.net.URL
 import java.security.MessageDigest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import java.util.concurrent.ConcurrentHashMap
 import kotlinx.coroutines.withContext
 
 /** Free storage, in MB, where the models are kept (spec 004 FR-009: checked before the first byte). */
@@ -32,7 +37,7 @@ fun interface DownloadHttp {
 }
 
 /** `HttpURLConnection` with redirects off: the downloader follows them itself, one allowed host at a time. */
-class JavaDownloadHttp(private val connectTimeoutMs: Int = 20_000, private val readTimeoutMs: Int = 60_000) : DownloadHttp {
+class JavaDownloadHttp(private val connectTimeoutMs: Int = 20_000, private val readTimeoutMs: Int = 2_000) : DownloadHttp {
     override fun get(url: String, headers: Map<String, String>): DownloadResponse {
         val conn = URL(url).openConnection() as HttpURLConnection
         conn.instanceFollowRedirects = false
@@ -57,7 +62,14 @@ class JavaDownloadHttp(private val connectTimeoutMs: Int = 20_000, private val r
  *   first byte: a download is never appended to blindly.
  * - HTTPS only, from the hosts of the [policy]; a redirect is followed only to another allowed host.
  * - Free storage is checked before the first byte; a file that fails its checksum is deleted.
- * - Cancelling the coroutine keeps the `.part` so the next call resumes.
+ * - Cancelling the coroutine keeps the `.part` so the next call resumes. Reads time out in short slices and are retried
+ *   while nothing was cancelled, so a cancel is seen within a slice even when the server has gone quiet; a body that
+ *   sends nothing for [stallTimeoutMs] ends the attempt.
+ * - A file counts as installed only with a verification marker (`<name>.verified`: its size, its modification time and
+ *   its profile checksum, written after the checksum was checked), so a same-size file of unknown origin is not trusted.
+ * - Downloads and deletes of one file never overlap, also between two instances on the same folder.
+ * - The resume record (`<name>.part.meta`) holds the URL, the checksum and the validator: a `.part` is resumed only
+ *   for the same URL and checksum.
  */
 class ModelDownloader(
     private val dir: File,
@@ -65,17 +77,63 @@ class ModelDownloader(
     private val storage: StorageProbe,
     private val http: DownloadHttp = JavaDownloadHttp(),
     private val slackMb: Long = 100,
+    /** A body that sends nothing for this long ends the attempt (the `.part` is kept); reads time out in slices of [JavaDownloadHttp.readTimeoutMs]. */
+    private val stallTimeoutMs: Long = 60_000,
 ) {
-    private fun finalFile(f: ModelFile) = File(dir, f.name)
-    private fun partFile(f: ModelFile) = File(dir, f.name + ".part")
-    private fun metaFile(f: ModelFile) = File(dir, f.name + ".part.meta")
+    init {
+        require(slackMb >= 1) { "the storage slack is at least 1 MB" }
+    }
+
+    private fun safe(f: ModelFile): String {
+        if (!SAFE_NAME.matches(f.name) || f.name == "." || f.name == "..") throw DownloadError.UnsafeName(f.name)
+        return f.name
+    }
+    private fun finalFile(f: ModelFile) = File(dir, safe(f))
+    private fun partFile(f: ModelFile) = File(dir, safe(f) + ".part")
+    private fun metaFile(f: ModelFile) = File(dir, safe(f) + ".part.meta")
+    private fun markerFile(f: ModelFile) = File(dir, safe(f) + ".verified")
+    private fun lockFor(f: ModelFile): Mutex = locks.getOrPut(File(dir, f.name).absolutePath) { Mutex() }
+
+    private fun writeMarker(f: ModelFile) {
+        val file = finalFile(f)
+        Durable.writeAtomic(markerFile(f), "${file.length()}:${file.lastModified()}:${f.sha256.lowercase()}".toByteArray())
+    }
+
+    /** True when [f] is in place, complete, and was verified against its checksum (and has not been touched since). */
+    private fun verified(f: ModelFile): Boolean {
+        val file = finalFile(f)
+        if (!file.isFile || file.length() != f.bytes) return false
+        val marker = markerFile(f).takeIf { it.isFile }?.readText()?.trim() ?: return false
+        return marker == "${file.length()}:${file.lastModified()}:${f.sha256.lowercase()}"
+    }
 
     /** Whether every file of [profile] is complete (right size, and verified when it was downloaded). */
-    fun installed(profile: OnDeviceProfile): Boolean = profile.files.all { finalFile(it).let { f -> f.isFile && f.length() == it.bytes } }
+    fun installed(profile: OnDeviceProfile): Boolean = profile.files.all { verified(it) }
+
+    /**
+     * Checks the SHA-256 of each file in place and writes the marker for those that match; one that does not is
+     * deleted. For files that arrived by other means than [download] (copied by hand, or a marker that was lost).
+     */
+    suspend fun verify(profile: OnDeviceProfile): Boolean = withContext(Dispatchers.IO) {
+        profile.files.map { f ->
+            lockFor(f).withLock {
+                val file = finalFile(f)
+                if (!file.isFile || file.length() != f.bytes) false
+                else if (sha256(file).equals(f.sha256, ignoreCase = true)) { writeMarker(f); true }
+                else { file.delete(); markerFile(f).delete(); false }
+            }
+        }.all { it }
+    }
+
+    private fun sha256(file: File): String {
+        val d = MessageDigest.getInstance("SHA-256")
+        hashExisting(file, d)
+        return d.digest().joinToString("") { "%02x".format(it) }
+    }
 
     /** Bytes still to fetch for [profile], counting what a resumable `.part` already holds. */
     fun remainingBytes(profile: OnDeviceProfile): Long = profile.files.sumOf { f ->
-        if (finalFile(f).let { it.isFile && it.length() == f.bytes }) 0L
+        if (verified(f)) 0L
         else f.bytes - (partFile(f).takeIf { it.isFile && it.length() in 1 until f.bytes && metaFile(f).isFile }?.length() ?: 0L)
     }
 
@@ -83,25 +141,30 @@ class ModelDownloader(
     suspend fun download(profile: OnDeviceProfile, onProgress: (Progress) -> Unit = {}) = withContext(Dispatchers.IO) {
         dir.mkdirs()
         // before the first byte: the free storage covers what is left, and the profile's own floor
-        val needed = maxOf(profile.minFreeStorageMb.toLong(), remainingBytes(profile) / MB + slackMb)
+        val remaining = remainingBytes(profile)
+        val needed = maxOf(profile.minFreeStorageMb.toLong(), (remaining + MB - 1) / MB + slackMb) // rounded up, never down
         val free = storage.freeMb()
-        if (remainingBytes(profile) > 0 && free < needed) throw DownloadError.InsufficientStorage(needed, free)
+        if (remaining > 0 && free < needed) throw DownloadError.InsufficientStorage(needed, free)
         val total = profile.files.sumOf { it.bytes }
-        var done = profile.files.filter { installedFile(it) }.sumOf { it.bytes }
+        var done = profile.files.filter { verified(it) }.sumOf { it.bytes }
         for (file in profile.files) {
-            if (installedFile(file)) continue
-            val before = done
-            fetch(file) { fileBytes -> onProgress(Progress(file.name, fileBytes, file.bytes, before + fileBytes, total)) }
-            done += file.bytes
+            lockFor(file).withLock { // one download or delete of this file at a time
+                if (verified(file)) return@withLock
+                val before = done
+                try {
+                    fetch(file) { fileBytes -> onProgress(Progress(file.name, fileBytes, file.bytes, before + fileBytes, total)) }
+                } catch (e: IOException) {
+                    throw DownloadError.Storage(file.name) // the part stays, so the next call resumes
+                }
+                done += file.bytes
+            }
         }
     }
 
-    private fun installedFile(f: ModelFile) = finalFile(f).let { it.isFile && it.length() == f.bytes }
-
     /** Deletes the files of [profile], complete or partial (spec 004 FR-011). */
-    fun delete(profile: OnDeviceProfile) {
+    suspend fun delete(profile: OnDeviceProfile) {
         for (f in profile.files) {
-            finalFile(f).delete(); partFile(f).delete(); metaFile(f).delete()
+            lockFor(f).withLock { finalFile(f).delete(); markerFile(f).delete(); partFile(f).delete(); metaFile(f).delete() }
         }
     }
 
@@ -111,8 +174,12 @@ class ModelDownloader(
         var resumeFrom = 0L
         var validator: String? = null
         if (part.isFile && meta.isFile && part.length() in 1 until file.bytes) {
-            resumeFrom = part.length()
-            validator = meta.readText().trim().takeIf { it.isNotEmpty() }
+            val rec = readMeta(meta)
+            // resumed only for the same address and the same checksum: a newer profile that reuses the file name starts again
+            if (rec != null && rec.first == file.url && rec.second.equals(file.sha256, ignoreCase = true)) {
+                resumeFrom = part.length()
+                validator = rec.third
+            }
         }
         if (resumeFrom > 0 && validator == null) resumeFrom = 0
         if (resumeFrom == 0L) discard(file)
@@ -138,32 +205,39 @@ class ModelDownloader(
                 val length = response.headers["content-length"]?.toLongOrNull()
                 if (length != null && length != file.bytes) throw DownloadError.SizeMismatch(file.name)
                 dir.mkdirs()
-                meta.writeText(validatorOf(response.headers) ?: "")
+                Durable.writeAtomic(meta, "${file.url}\n${file.sha256.lowercase()}\n${validatorOf(response.headers) ?: ""}".toByteArray())
             }
             val digest = MessageDigest.getInstance("SHA-256")
             if (append) hashExisting(part, digest)
             var written = if (append) resumeFrom else 0L
             val body = response.body ?: throw DownloadError.Http(response.status, hostOf(file.url))
             val ctx = currentCoroutineContext()
-            try {
-                FileOutputStream(part, append).use { out ->
-                    val buf = ByteArray(64 * 1024)
-                    var lastReport = 0L
-                    while (true) {
-                        ctx.ensureActive() // cancelling keeps the .part
-                        val n = try { body.read(buf) } catch (e: IOException) { throw DownloadError.Interrupted(file.name) }
-                        if (n < 0) break
-                        if (written + n > file.bytes) throw DownloadError.SizeMismatch(file.name).also { discard(file) }
-                        out.write(buf, 0, n)
-                        digest.update(buf, 0, n)
-                        written += n
-                        if (written - lastReport >= REPORT_EVERY || written == file.bytes) { progress(written); lastReport = written }
+            FileOutputStream(part, append).use { out ->
+                val buf = ByteArray(64 * 1024)
+                var lastReport = 0L
+                var lastData = System.nanoTime()
+                while (true) {
+                    ctx.ensureActive() // cancelling keeps the .part
+                    val n = try {
+                        body.read(buf)
+                    } catch (e: SocketTimeoutException) {
+                        // reads time out in short slices, so a cancel is seen within one slice; a stall that lasts is an interruption
+                        ctx.ensureActive()
+                        if ((System.nanoTime() - lastData) / 1_000_000 > stallTimeoutMs) throw DownloadError.Interrupted(file.name)
+                        continue
+                    } catch (e: IOException) {
+                        throw DownloadError.Interrupted(file.name)
                     }
-                    out.flush()
-                    out.fd.sync()
+                    if (n < 0) break
+                    lastData = System.nanoTime()
+                    if (written + n > file.bytes) throw DownloadError.SizeMismatch(file.name).also { discard(file) }
+                    out.write(buf, 0, n)
+                    digest.update(buf, 0, n)
+                    written += n
+                    if (written - lastReport >= REPORT_EVERY || written == file.bytes) { progress(written); lastReport = written }
                 }
-            } catch (e: DownloadError.Interrupted) {
-                throw e
+                out.flush()
+                out.fd.sync()
             }
             if (written != file.bytes) throw DownloadError.Interrupted(file.name) // the server closed early: resumable
             val hex = digest.digest().joinToString("") { "%02x".format(it) }
@@ -174,6 +248,7 @@ class ModelDownloader(
             progress(written)
             if (!part.renameTo(finalFile(file))) throw IOException("rename failed")
             meta.delete()
+            writeMarker(file)
         } finally {
             response.close()
         }
@@ -192,8 +267,19 @@ class ModelDownloader(
         }
     }
 
-    /** The ETag, else the Last-Modified, the server gave: what must not change between the first request and a resume. */
-    private fun validatorOf(h: Map<String, String>): String? = h["etag"] ?: h["last-modified"]
+    /**
+     * The strong ETag, else the Last-Modified, the server gave: what must not change between the first request and a
+     * resume. A weak ETag (`W/"..."`) promises no byte-for-byte identity, so it is not a validator: without another one
+     * the file is started again instead of resumed.
+     */
+    private fun validatorOf(h: Map<String, String>): String? =
+        h["etag"]?.takeIf { !it.startsWith("W/") } ?: h["last-modified"]
+
+    private fun readMeta(f: File): Triple<String, String, String?>? {
+        val lines = f.readText().split("\n")
+        if (lines.size < 3 || lines[0].isEmpty() || lines[1].isEmpty()) return null
+        return Triple(lines[0], lines[1], lines[2].takeIf { it.isNotEmpty() })
+    }
 
     private fun contentRangeOk(value: String?, start: Long, total: Long): Boolean {
         val m = Regex("""^bytes (\d+)-(\d+)/(\d+)$""").find(value ?: return false) ?: return false
@@ -234,6 +320,9 @@ class ModelDownloader(
     }
 
     companion object {
+        /** One lock per file path, shared by every downloader on the same folder. */
+        private val locks = ConcurrentHashMap<String, Mutex>()
+        private val SAFE_NAME = Regex("[A-Za-z0-9][A-Za-z0-9._-]{0,127}")
         const val MB = 1024L * 1024L
         private const val REPORT_EVERY = 256L * 1024L
     }

@@ -30,6 +30,8 @@ class DownloadPolicy(val hosts: List<HostRule>, val requireHttps: Boolean = true
         val uri = try { URI(url) } catch (e: Exception) { return DownloadError.DisallowedHost("a malformed address") }
         val host = uri.host ?: return DownloadError.DisallowedHost("an address with no host")
         if (requireHttps && !uri.scheme.equals("https", ignoreCase = true)) return DownloadError.NotHttps(host)
+        // the default HTTPS port only: an allowed host on another port is another service
+        if (requireHttps && uri.port != -1 && uri.port != 443) return DownloadError.DisallowedHost("$host (port ${uri.port})")
         if (hosts.none { it.matches(host) }) return DownloadError.DisallowedHost(host)
         return null
     }
@@ -51,4 +53,6 @@ sealed class DownloadError(message: String) : Exception(message) {
     class SizeMismatch(val file: String) : DownloadError("$file is not the size the profile says")
     class ChecksumMismatch(val file: String) : DownloadError("$file does not match its checksum and was deleted")
     class Interrupted(val file: String) : DownloadError("the connection ended before $file was complete; it can be resumed")
+    class Storage(val file: String) : DownloadError("$file could not be written to storage")
+    class UnsafeName(val file: String) : DownloadError("a model file name must be a plain file name")
 }
