@@ -488,4 +488,15 @@ class ModelDownloaderTest {
         assertEquals(emptyList(), dir.list()!!.toList())
         Unit
     }
+
+    @Test
+    fun aCompletePartNeedsNoMoreStorageThanItAlreadyTakes() = runBlocking {
+        val s = server()
+        val p = profile(s.url, floorMb = 1)
+        File(dir, "m.gguf.part").writeBytes(data); File(dir, "m.gguf.part.meta").writeText("${p.files[0].url}\n${p.files[0].sha256}\n\"v1\"")
+        assertEquals(0L, downloader().remainingBytes(p))
+        downloader(free = 1).download(p) // 1 MB free would refuse a fresh 3 MB download, but nothing is left to fetch
+        assertTrue(File(dir, "m.gguf").isFile)
+        Unit
+    }
 }

@@ -142,6 +142,7 @@ class ModelDownloader(
     /** Bytes still to fetch for [profile], counting what a resumable `.part` already holds. */
     fun remainingBytes(profile: OnDeviceProfile): Long = profile.files.sumOf { f ->
         if (verified(f)) 0L
+        else if (completePart(f) != null) 0L // already on disk: it is checked and renamed, or deleted and then fetched in its place
         else f.bytes - (resumable(f)?.first ?: 0L)
     }
 
@@ -184,11 +185,9 @@ class ModelDownloader(
         val part = partFile(file)
         val meta = metaFile(file)
         // a complete .part (a cancel or a crash between the last byte and the rename): check it, and finish without fetching
-        if (part.isFile && part.length() == file.bytes && metaFile(file).isFile) {
-            val rec = readMeta(meta)
-            if (rec != null && rec.first == file.url && rec.second.equals(file.sha256, ignoreCase = true) &&
-                sha256(part).equals(file.sha256, ignoreCase = true)
-            ) {
+        if (part.isFile && part.length() == file.bytes && meta.isFile) {
+            if (completePart(file) != null && sha256(part).equals(file.sha256, ignoreCase = true)) {
+                currentCoroutineContext().ensureActive() // a cancel while the checksum was computed keeps the part
                 if (!part.renameTo(finalFile(file))) throw IOException("rename failed")
                 meta.delete()
                 writeMarker(file)
@@ -288,6 +287,15 @@ class ModelDownloader(
         val rec = readMeta(meta) ?: return null
         if (rec.first != f.url || !rec.second.equals(f.sha256, ignoreCase = true)) return null
         return rec.third?.let { part.length() to it }
+    }
+
+    /** [f]'s `.part` when it is complete and its record names this address and checksum (the checksum of its bytes is checked when it is finished). */
+    private fun completePart(f: ModelFile): File? {
+        val part = partFile(f)
+        val meta = metaFile(f)
+        if (!part.isFile || part.length() != f.bytes || !meta.isFile) return null
+        val rec = readMeta(meta) ?: return null
+        return part.takeIf { rec.first == f.url && rec.second.equals(f.sha256, ignoreCase = true) }
     }
 
     private fun discard(f: ModelFile) {
