@@ -524,4 +524,31 @@ class ModelDownloaderTest {
         assertEquals(0, s.seen.size)
         Unit
     }
+
+    @Test
+    fun partsThatCanNeverBeResumedAreRemovedBeforeTheStorageCheckHoldsThemUp() {
+        val s = server()
+        val p = profile(s.url, floorMb = 1)
+        for ((name, make) in listOf<Pair<String, () -> Unit>>(
+            "oversized" to { File(dir, "m.gguf.part").writeBytes(ByteArray(data.size + 10)); File(dir, "m.gguf.part.meta").writeText("${p.files[0].url}\n${p.files[0].sha256}\n\"v1\"") },
+            "no record" to { File(dir, "m.gguf.part").writeBytes(ByteArray(1000)); File(dir, "m.gguf.part.meta").delete() },
+            "another address" to { File(dir, "m.gguf.part").writeBytes(ByteArray(1000)); File(dir, "m.gguf.part.meta").writeText("http://elsewhere/x\n${p.files[0].sha256}\n\"v1\"") },
+            "no validator" to { File(dir, "m.gguf.part").writeBytes(ByteArray(1000)); File(dir, "m.gguf.part.meta").writeText("${p.files[0].url}\n${p.files[0].sha256}\n") },
+        )) {
+            make()
+            assertFailsWith<DownloadError.InsufficientStorage> { runBlocking { downloader(free = 1).download(p) } }
+            assertFalse(File(dir, "m.gguf.part").exists(), "$name: the part was left behind the storage refusal")
+            assertFalse(File(dir, "m.gguf.part.meta").exists(), "$name: its record was left behind")
+        }
+        assertEquals(0, s.seen.size)
+    }
+
+    @Test
+    fun aResumablePartIsKeptWhileTheStorageCheckRuns() = runBlocking {
+        val s = server(); s.cutAfter = 1_000_000
+        assertFailsWith<DownloadError.Interrupted> { downloader().download(profile(s.url)) }
+        assertFailsWith<DownloadError.InsufficientStorage> { downloader(free = 1).download(profile(s.url, floorMb = 50)) }
+        assertEquals(1_000_000L, File(dir, "m.gguf.part").length())
+        Unit
+    }
 }

@@ -280,10 +280,17 @@ class ModelDownloader(
         return rec.third?.let { part.length() to it }
     }
 
+    /** Settles each file's `.part` before anything is counted: a complete one is finished or deleted, one that cannot be resumed is deleted, a resumable one is kept. */
     private suspend fun settleCompleteParts(profile: OnDeviceProfile) {
         for (f in profile.files) {
             lockFor(f).withLock {
-                val part = completePart(f) ?: return@withLock
+                val part = completePart(f)
+                if (part == null) {
+                    // an oversized part, one with no record or another record, one shorter with no validator: it can never be
+                    // resumed, so it is removed now, before the storage check, instead of holding the space the check needs
+                    if (partFile(f).exists() && resumable(f) == null) discard(f)
+                    return@withLock
+                }
                 if (verified(f)) { discard(f); return@withLock }
                 val ok = sha256(part).equals(f.sha256, ignoreCase = true)
                 currentCoroutineContext().ensureActive() // a cancel during the checksum, whatever it found, keeps the part as it is
