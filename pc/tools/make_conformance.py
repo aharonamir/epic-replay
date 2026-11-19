@@ -146,6 +146,13 @@ def lexicon_cases() -> dict[str, dict]:
             ["a rare specimen", "the old specimen", "Specimens"], extra=["specimen"],
         ),
     }  # fmt: skip
+    out["en_unicode_whitespace_and_case"] = scan(
+        "Spaces in a term match any Unicode whitespace as Python reads it (no-break space, the "
+        "ideographic space, the control separators), and case folding is Unicode ('ſ' is an s, "
+        "the Kelvin sign a k); a zero-width space is not whitespace.", "en",
+        ["breaking\u00a0news", "BREAKING\u3000NEWS", "match\x1cof\x1dthe\x1eday", "ſhe scores",
+         "a \u212aid", "breaking\u200bnews", "breaking\u2028news", "match of\u0085the day"],
+    )  # fmt: skip
     for cat in json.loads((paths.LEXICONS / "zh.json").read_text("utf-8"))["banned"]:
         terms = list(getattr(lexicon_zh, cat.upper()))
         out[f"zh_every_{cat}_term"] = scan(
@@ -196,8 +203,35 @@ def units_cases() -> dict[str, dict]:
         "zh_characters": case("Mandarin: one unit per CJK character; punctuation, spaces, Latin "
                               "letters and digits count nothing.", "zh",
                               ["好球！", "他在 2026 年进球。", "Ａ队，好！", "“漂亮”——绝了", "", "看，这一脚！"]),
+        "en_unicode_whitespace": case(
+            "English: whitespace is what Python's split reads: no-break space, the ideographic "
+            "space, the control separators and the line separators split; a zero-width space "
+            "and a zero-width joiner do not.", "en",
+            ["a\u00a0b", "a\u3000b\u3000c", "a\x1cb\x1dc\x1ed\x1fe", "a\u200bb", "a\u200db",
+             "a\u2028b\u2029c", "a\u0085b", "\u00a0\u3000", "a\ufeffb"]),
+        "zh_ranges": case(
+            "Mandarin: the counted ranges are Extension A, the unified block and the compatibility "
+            "block, and only those: the supplementary-plane ideographs, kana, hangul and fullwidth "
+            "letters count nothing.", "zh",
+            ["\u3400\u4dbf", "\u4e00\u9fff", "\uf900\ufaff", "\U00020000\U0002a6df", "あいう",
+             "한국어", "\u9fff\ua000", "\u33ff\u3400", "\u4dc0\u4dff"]),
         "zh_text_read_as_en": case("Text read with the English rule counts tokens, whatever the script.",
                                    "en", ["好球！ 漂亮", "他在 2026 年进球。"]),
+    }  # fmt: skip
+
+
+def cell_layout_cases() -> dict[str, dict]:
+    def case(desc, width, height, count):
+        return {"area": "cells", "function": "cells.layout", "language": None, "description": desc,
+                "inputs": {"width": value(width), "height": value(height), "count": value(count)}}  # fmt: skip
+
+    return {
+        "layout_landscape_1080p": case("A full sheet of 1920 by 1080 frames.", 1920, 1080, 9),
+        "layout_portrait_1080p": case("Portrait frames make tall cells.", 1080, 1920, 9),
+        "layout_odd_ratio": case("A ratio that does not divide: the cell height is rounded.", 333, 777, 9),
+        "layout_half_even": case("A cell height that falls on .5 rounds to the even number, as Python's round does (2.5 is 2, not 3).",
+                                 896, 5, 9),
+        "layout_short_sheet": case("Five frames fill two rows.", 1280, 720, 5),
     }  # fmt: skip
 
 
@@ -443,7 +477,7 @@ def consent_cases() -> dict[str, dict]:
 
 def all_cases() -> dict[str, dict]:
     out = {}
-    for make in (storyboard_cases, slots_cases, checks_cases, lexicon_cases, units_cases, cells_cases, backend_cases, budget_cases, consent_cases):  # fmt: skip
+    for make in (storyboard_cases, slots_cases, checks_cases, lexicon_cases, units_cases, cells_cases, cell_layout_cases, backend_cases, budget_cases, consent_cases):  # fmt: skip
         for name, case in make().items():
             out[f"{case['area']}/{name}"] = case
     return out

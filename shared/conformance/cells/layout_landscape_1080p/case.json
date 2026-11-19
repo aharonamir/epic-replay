@@ -1,0 +1,30 @@
+{
+  "area": "cells",
+  "function": "cells.layout",
+  "language": null,
+  "description": "A full sheet of 1920 by 1080 frames.",
+  "inputs": {
+    "width": {
+      "value": 1920
+    },
+    "height": {
+      "value": 1080
+    },
+    "count": {
+      "value": 9
+    }
+  },
+  "expected": {
+    "value": {
+      "cell_w": 448,
+      "cell_h": 252,
+      "rows": 3,
+      "width": 1344,
+      "height": 756,
+      "label_x": 10,
+      "label_y": 58,
+      "label_scale": 1.4933333333333334,
+      "label_thickness": 4
+    }
+  }
+}

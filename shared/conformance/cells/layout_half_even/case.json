@@ -1,0 +1,30 @@
+{
+  "area": "cells",
+  "function": "cells.layout",
+  "language": null,
+  "description": "A cell height that falls on .5 rounds to the even number, as Python's round does (2.5 is 2, not 3).",
+  "inputs": {
+    "width": {
+      "value": 896
+    },
+    "height": {
+      "value": 5
+    },
+    "count": {
+      "value": 9
+    }
+  },
+  "expected": {
+    "value": {
+      "cell_w": 448,
+      "cell_h": 2,
+      "rows": 3,
+      "width": 1344,
+      "height": 6,
+      "label_x": 10,
+      "label_y": 58,
+      "label_scale": 1.4933333333333334,
+      "label_thickness": 4
+    }
+  }
+}

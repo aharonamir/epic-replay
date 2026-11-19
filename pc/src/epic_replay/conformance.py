@@ -81,6 +81,10 @@ def _narrow(start_s: float, end_s: float, fps: float, n_frames: int, picks: list
     return sheets
 
 
+def _layout(width: int, height: int, count: int) -> dict:
+    return contact_sheet.layout(width, height, count)
+
+
 FUNCTIONS: dict[str, Callable[..., Any]] = {
     "storyboard.build": lambda play_sheet, clip_meta, min_output_s: s4_storyboard.build(
         play_sheet, clip_meta, min_output_s
@@ -97,6 +101,7 @@ FUNCTIONS: dict[str, Callable[..., Any]] = {
     "lexicon.scan": lambda language, texts, extra: _scan(language, texts, extra),
     "units.spoken_units": lambda language, texts: [slots.spoken_units(t, language) for t in texts],
     "cells.narrow": _narrow,
+    "cells.layout": _layout,
     "backend.requests": conformance_backend.requests,
     "backend.recording_key": conformance_backend.recording_key,
     "budget.run": conformance_backend.budget_run,

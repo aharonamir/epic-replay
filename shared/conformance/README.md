@@ -62,6 +62,7 @@ Compare the platform's output, as JSON, with the expected value: objects by key 
 | `consent.covers` | `checks`: each `{record, vision_location, text_location}` | for each, whether the stored consent covers a run going there (confirmed, current wording, each role no wider than agreed) | `guards.consent.covers` |
 | `budget.run` | `caps`, `ops` | one record per op: `{op, id, outcome (ok or blocked), cap, run_total, day_total}` | `guards.budget.Ledger` |
 | `cells.narrow` | `start_s`, `end_s`, `fps`, `n_frames`, `picks` | the frame numbers of each contact sheet: the first over the window, then one more for each picked cell (1 to 9) | `media.contact_sheet.sheet_frames`, `refine` |
+| `cells.layout` | `width`, `height`, `count` | the geometry of a contact sheet of `count` frames of that size: `cell_w`, `cell_h` (rounded half to even, as Python's `round`), `rows`, `width`, `height` and where and how large each cell's number is drawn (`label_x`, `label_y`, `label_scale`, `label_thickness`) | `media.contact_sheet.layout` |
 
 The matching rules behind `lexicon.scan` and `checks.text` are written out in `shared/lexicons/README.md`. The `detail` strings of the checks are English text and are part of the expected output.
 
@@ -72,9 +73,9 @@ The matching rules behind `lexicon.scan` and `checks.text` are written out in `s
 | `storyboard` | the sample run; climax on the first frame; climax on the last frame (the replay holds its last frame); a 3 s clip; a 30 s clip |
 | `slots` | each of the three packs in English and Mandarin; a climax on the last frame |
 | `checks` | the clean sample script; each planted error in `shared/fixtures/planted_errors/`, the Mandarin one included |
-| `lexicon` | English whole-word false positives, matches, every global term, a pack's own terms; every Mandarin category's terms, 她, allowed phrases, numerals, famous names; the 123 reviewed Mandarin sentences in five groups |
-| `units` | English tokens, Mandarin characters, Mandarin text read with the English rule |
-| `cells` | three passes of narrowing; a window under nine frames; a window past the clip's end; a clip under nine frames; the edge cells |
+| `lexicon` | English whole-word false positives, matches, every global term, a pack's own terms; Unicode white space and case folding in English terms (added in T412); every Mandarin category's terms, 她, allowed phrases, numerals, famous names; the 123 reviewed Mandarin sentences in five groups |
+| `units` | English tokens, Mandarin characters, Mandarin text read with the English rule; Unicode white space and the counted CJK ranges (added in T412) |
+| `cells` | three passes of narrowing; a window under nine frames; a window past the clip's end; a clip under nine frames; the edge cells; the geometry of a sheet (`cells.layout`: portrait, landscape, a ratio that rounds half to even, a short sheet; added in T412) |
 | `backend` | the six DeepSeek calls `backend_golden.json` pins (the overview with numbered frames, with a sheet, with no schema, the events call, the structured draft, the gloss), each with its retry; a chat call with a tool; six vision recording keys of the same test; a key over non-ASCII text |
 | `budget` | a settle replaces its reservation; the run cap blocks and a release frees; calls in flight count; the day cap spans runs; the pre-checkpoint cap; a call billed at its estimate; a recording costs nothing; a cap reached exactly is allowed |
 | `consent` | the words for each of the 16 pairs of places; whether a consent covers a run, for every recorded pair against every run pair; records with no places, an unknown place, an old wording, no confirmation |

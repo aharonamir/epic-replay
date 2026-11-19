@@ -79,18 +79,32 @@ def read_frames(path: Path, wanted: list[int]) -> dict[int, np.ndarray]:
     return out
 
 
+def layout(width: int, height: int, count: int) -> dict:
+    """The geometry of a sheet of `count` frames of `width` by `height`: the grid and where
+    and how large each cell's number is drawn. Pure numbers, so another platform reproduces
+    them (conformance area `cells`, function `cells.layout`)."""
+    cell_h = int(round(height * CELL_W / width))
+    rows = (count + COLS - 1) // COLS
+    scale = CELL_W / 300
+    return {
+        "cell_w": CELL_W, "cell_h": cell_h, "rows": rows,
+        "width": COLS * CELL_W, "height": rows * cell_h,
+        "label_x": 10, "label_y": int(14 + 30 * scale),
+        "label_scale": scale, "label_thickness": max(2, int(scale * 3)),
+    }  # fmt: skip
+
+
 def compose(images: list[np.ndarray]) -> np.ndarray:
     """3-column grid, the cell number large in the top-left corner of each cell."""
     h0, w0 = images[0].shape[:2]
-    cell_h = int(round(h0 * CELL_W / w0))
-    rows = (len(images) + COLS - 1) // COLS
+    geo = layout(w0, h0, len(images))
+    cell_h, rows = geo["cell_h"], geo["rows"]
     sheet = np.zeros((rows * cell_h, COLS * CELL_W, 3), np.uint8)
-    scale = CELL_W / 300
-    thick = max(2, int(scale * 3))
+    scale, thick = geo["label_scale"], geo["label_thickness"]
     for k, img in enumerate(images):
         r, c = divmod(k, COLS)
         cell = cv2.resize(img, (CELL_W, cell_h), interpolation=cv2.INTER_AREA)
-        org = (10, int(14 + 30 * scale))
+        org = (geo["label_x"], geo["label_y"])
         for colour, t in (((0, 0, 0), thick + 5), ((255, 255, 255), thick)):
             cv2.putText(cell, str(k + 1), org, cv2.FONT_HERSHEY_SIMPLEX, scale, colour, t,
                         cv2.LINE_AA)  # fmt: skip
