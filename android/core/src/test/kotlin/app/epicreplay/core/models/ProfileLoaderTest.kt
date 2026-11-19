@@ -74,10 +74,14 @@ class ProfileLoaderTest {
 
     @Test
     fun theShippedProfilesAllLoadOnThePcAndHaveTheirOwnModel() {
-        val shipped = modelsDir.listFiles { f -> f.extension == "json" }!!.map { it.nameWithoutExtension }.sorted()
+        val kinds = modelsDir.listFiles { f -> f.extension == "json" }!!.associate {
+            it.nameWithoutExtension to Json.parseToJsonElement(it.readText()).jsonObject.getValue("kind").jsonPrimitive.content
+        }
         val r = ProfileLoader.loadDir(modelsDir, schema, Platform.PC)
-        assertEquals(emptyList(), r.problems.map { it.file + ": " + it.reason }, "nothing refused or left out on the PC")
-        assertEquals(shipped, r.profiles.keys.sorted())
+        assertEquals(emptyList(), r.refused().map { it.file + ": " + it.reason }, "nothing refused on the PC")
+        assertEquals(kinds.filterValues { it == "openai_compatible" }.keys.sorted(), r.profiles.keys.sorted())
+        // the PC leaves exactly the phone's profiles out (spec 004, T410), and says so
+        assertEquals(kinds.filterValues { it == "on_device" }.keys.map { "$it.json" }.sorted(), r.leftOut().map { it.file }.sorted())
         val models = r.profiles.values.filterIsInstance<ServerProfile>().map { it.model }
         assertEquals(models.size, models.toSet().size) // FR-007
     }
@@ -271,6 +275,18 @@ class ProfileLoaderTest {
             "net" to local("id" to JsonPrimitive("net"), "location" to JsonPrimitive("cloud"), "model" to JsonPrimitive("shared-model")).toString())
         val android = loader(Platform.ANDROID).load(files)
         assertEquals(listOf("deepseek-flash", "net"), android.profiles.keys.toList())
+    }
+
+    @Test
+    fun aFileNameThatIsNotAPlainNameIsRefused() {
+        for (bad in listOf("../x.gguf", "a/b.gguf", ".hidden.gguf", "", "x".repeat(200))) {
+            val files = JsonArray(listOf(buildJsonObject {
+                put("name", JsonPrimitive(bad)); put("url", JsonPrimitive("https://example.org/w.gguf"))
+                put("sha256", JsonPrimitive("0".repeat(64))); put("bytes", JsonPrimitive(10)); put("role", JsonPrimitive("weights"))
+            }))
+            val r = loader(Platform.ANDROID).load(folder("phone-model" to phone("files" to files).toString()))
+            assertEquals(listOf("phone-model.json"), r.refused().map { it.file }, "name '$bad'")
+        }
     }
 
     @Test

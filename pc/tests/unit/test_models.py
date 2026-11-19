@@ -48,9 +48,15 @@ def write(folder, data: dict, name: str | None = None) -> None:
 
 
 def test_the_shipped_profiles_all_load_and_have_their_own_model():
-    shipped = sorted(p.stem for p in paths.MODELS.glob("*.json"))
+    """The PC loads every shipped profile it can run and leaves the `on_device` ones out (spec 004, T410)."""
+    kinds = {p.stem: json.loads(p.read_text())["kind"] for p in paths.MODELS.glob("*.json")}
+    runnable = sorted(k for k, v in kinds.items() if v == "openai_compatible")
+    on_device = sorted(k for k, v in kinds.items() if v == "on_device")
     loaded = models.load()
-    assert sorted(loaded) == shipped  # none refused
+    assert sorted(loaded) == runnable  # none refused, and no server profile left out
+    assert on_device and not set(on_device) & set(
+        loaded
+    )  # the phone's profiles are shipped and the PC skips them
     assert len({p.model for p in loaded.values()}) == len(loaded)  # FR-007
 
 

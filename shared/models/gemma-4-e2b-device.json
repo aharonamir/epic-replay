@@ -1,0 +1,36 @@
+{
+  "id": "gemma-4-e2b-device",
+  "label": "Gemma 4 E2B (on this phone)",
+  "kind": "on_device",
+  "location": "device",
+  "roles": [
+    "vision",
+    "text"
+  ],
+  "engine": "llama.cpp",
+  "files": [
+    {
+      "name": "gemma-4-E2B-it-Q4_0.gguf",
+      "url": "https://huggingface.co/ggml-org/gemma-4-E2B-it-GGUF/resolve/2a8538c2e2d4687953a86c422c7c623cfd022880/gemma-4-E2B-it-Q4_0.gguf",
+      "sha256": "8e30dff3ac4c8434c49a7036fa15564bdbb6044e42bf04550bf1a096ad7e6a52",
+      "bytes": 2841481184,
+      "role": "weights"
+    },
+    {
+      "name": "mmproj-gemma-4-E2B-it-Q8_0.gguf",
+      "url": "https://huggingface.co/ggml-org/gemma-4-E2B-it-GGUF/resolve/2a8538c2e2d4687953a86c422c7c623cfd022880/mmproj-gemma-4-E2B-it-Q8_0.gguf",
+      "sha256": "042cc2561806cd3b5cb5efb25cab76911e3100c43cc09d854904f921924b1429",
+      "bytes": 557368096,
+      "role": "projector"
+    }
+  ],
+  "context_tokens": 6144,
+  "min_free_ram_mb": 3300,
+  "min_free_storage_mb": 3800,
+  "license": "Apache-2.0",
+  "price_in_per_m": 0,
+  "price_out_per_m": 0,
+  "supports_tools": false,
+  "status": "experimental",
+  "notes": "The default on-device model (spec 004 D2). Files from huggingface.co/ggml-org/gemma-4-E2B-it-GGUF at commit 2a8538c2 (Q4_0 weights, Q8_0 projector); the sizes and SHA-256 were read from the publisher's own listing at that commit and equal the files run on the owner's Xiaomi 15T Pro in spikes S1 and T409 (docs/android-spikes.md). The card says Apache-2.0. Runs images and text through llama.cpp; a look call of the synthetic sheet took about 10 s after the load (14 to 18 s the first time). The memory floor is measured in the app on the owner's Xiaomi 15T Pro (T410, 2026-11-19): after a call the process held 2215 MB of anonymous memory (KV cache and buffers) and 1630 MB of file pages (the mapped weights, which the system can drop); free memory fell from 5305 to 4273 MB while it loaded. The floor is the anonymous memory plus 1,000 MB of margin. T427 measures it again on a long run."
+}

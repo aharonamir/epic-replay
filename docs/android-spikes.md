@@ -142,3 +142,29 @@ What S1 left open: the JNI bridge, the load in an app process, and the app's own
 | The app's logcat (265 lines) | none of the tests' prompts, and no key-shaped text |
 
 The numbers match S1's within reason (the sheet call is faster than S1's 26 s because S1's included the process start and load). The memory floors for the profiles (T410) still come from these peaks: about 5,000 MB for Gemma and 6,500 MB for Qwen3.5, as provisionally noted above. What stays unproven: a cancel during an image encoding (7 to 15 s per sheet, S1) and a long run's heat (T427).
+
+## T410: downloads and the on-device profiles (2026-11-19)
+
+**The two profiles** are `shared/models/gemma-4-e2b-device.json` (the default, D2) and `shared/models/qwen3-5-4b-device.json` (the optional one). Each lists two files, which the PC loader leaves out and the phone loads.
+
+| File | Source (pinned to the repository's commit on 2026-11-19) | Bytes |
+|---|---|---|
+| `gemma-4-E2B-it-Q4_0.gguf` | `ggml-org/gemma-4-E2B-it-GGUF` at `2a8538c2e2d4687953a86c422c7c623cfd022880` | 2,841,481,184 |
+| `mmproj-gemma-4-E2B-it-Q8_0.gguf` | same | 557,368,096 |
+| `Qwen3.5-4B-Q4_K_M.gguf` | `unsloth/Qwen3.5-4B-GGUF` at `e87f176479d0855a907a41277aca2f8ee7a09523` | 2,740,937,888 |
+| `qwen3.5-4b-mmproj-F16.gguf` (the repository's `mmproj-F16.gguf`) | same | 672,423,616 |
+
+- **Checksums.** Each SHA-256 was read from the publisher's own listing at that commit (`https://huggingface.co/api/models/<repo>/tree/<commit>`, the file's `lfs.oid`) and compared with `sha256sum` of the files run on the phone in S1 and T409: **all four match**. The URLs use the commit, not `main`, so the bytes behind a profile cannot change under it; the checksum is the second lock.
+- **Licences.** Both repositories' cards say `apache-2.0` (`cardData.license` from `https://huggingface.co/api/models/<repo>`); the base models are `google/gemma-4-E2B-it` and `Qwen/Qwen3.5-4B`.
+- **Hosts, as observed.** `GET` of a profile URL with `Range: bytes=0-0` answers `302` from `huggingface.co`, then `206` from `us.aws.cdn.hf.co` with `Content-Range: bytes 0-0/<size>` and an `ETag`. The default policy (`DownloadPolicy.DEFAULT`, in code so a profile cannot widen it) allows `huggingface.co` and any host ending `.cdn.hf.co`, over HTTPS only.
+- **Floors.** `context_tokens` 6144 (what S1 ran the events call with), `min_free_storage_mb` 3800 (the two files are 3.4 GB; a `.part` is the file itself, so there is no second copy). `min_free_ram_mb` is **measured in the app** (`OnDeviceEngineTest`, one test per process): S1's provisional floors (5,000 and 6,500 MB, from peak resident memory) were too high, because the weights are file pages the system can drop and free memory on the phone moves between about 3.5 and 6.7 GB with its caches.
+
+  | After a look call | Gemma 4 E2B | Qwen3.5 4B |
+  |---|---|---|
+  | Anonymous memory (`RssAnon`: KV cache, buffers) | 2,269,116 kB (2.2 GB) | 3,356,608 kB (3.2 GB) |
+  | File pages (`RssFile`: the mapped weights) | 1,669,648 kB (1.6 GB) | 2,252,624 kB (2.1 GB) |
+  | Free memory before the load, then after | 5,305 MB, then 4,273 MB | 6,704 MB, then 3,511 MB |
+  | Floor in the profile (`RssAnon` + 1,000 MB of margin) | **3,300 MB** | **4,400 MB** |
+
+  Gemma ran in S1 with only 3.5 GB free, which the new floor allows. Qwen3.5 needs more free memory to run (its anonymous memory is 3.2 GB), so on a phone with less than 4.4 GB free it is refused before loading, as FR-014 intends. T427 measures a long run again.
+- **The downloader** (`core/download`, tested against a server on this computer for every failure in the done-when, and by an opt-in test against the real hosts, which passed on 2026-11-19: the 557 MB projector of Gemma under the default policy in about 17 s, cancelled at 32.8 MB, resumed with a `Range` request and matched its checksum): resumes only on a `206` whose `Content-Range` starts where the file ends and whose `ETag` or `Last-Modified` is the recorded one; a `200`, another range, another validator or a `.part` longer than the file restarts from the first byte; a redirect is followed only to an allowed host; free storage is checked before the first byte; the SHA-256 is checked before the rename and a mismatch deletes the file; cancelling keeps the `.part`.

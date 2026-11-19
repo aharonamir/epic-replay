@@ -55,6 +55,13 @@ def test_an_on_device_profile_that_breaks_a_rule_is_refused(change):
     assert models.problems({**PHONE, **change}, "phone-model")
 
 
+@pytest.mark.parametrize("name", ["../x.gguf", "a/b.gguf", ".hidden.gguf", "", "x" * 200])
+def test_a_model_file_name_must_be_a_plain_file_name(name):
+    bad = copy.deepcopy(PHONE)
+    bad["files"][0]["name"] = name
+    assert models.problems(bad, "phone-model")
+
+
 def test_an_on_device_profile_needs_its_own_fields():
     for key in ("engine", "files", "context_tokens", "min_free_ram_mb", "license"):
         gone = {k: v for k, v in PHONE.items() if k != key}

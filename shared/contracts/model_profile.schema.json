@@ -175,7 +175,8 @@
         "properties": {
           "name": {
             "type": "string",
-            "minLength": 1
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$",
+            "description": "A plain file name in the app's model folder: no folder, no leading dot"
           },
           "url": {
             "type": "string",

@@ -57,6 +57,9 @@ class OnDeviceEngineTest {
 
     private fun peakKb(): Long = File("/proc/self/status").readLines().first { it.startsWith("VmHWM") }.split(Regex("\\s+"))[1].toLong()
     private fun note(line: String) = metrics.appendText(line + "\n")
+    // The memory the model really takes: anonymous pages (KV cache, buffers) and file pages (the mapped weights, which the system can drop).
+    private fun rss(): String = File("/proc/self/status").readLines().filter { it.startsWith("RssAnon") || it.startsWith("RssFile") }.joinToString(", ") { it.replace(Regex("\\s+"), " ") }
+    private fun freeNow(): Long = app.epicreplay.engine.AndroidMemoryProbe(ctx).freeMb()
 
     // the test APK's own assets, not the app's
     private fun sheet() = InstrumentationRegistry.getInstrumentation().context.assets.open("sheet.jpg").readBytes()
@@ -82,7 +85,7 @@ class OnDeviceEngineTest {
     @Test
     fun gemmaLooksAtTheSheetThroughJniAndAnswersJsonThatFits() = runBlocking {
         assumeTrue(installed(gemma))
-        note("--- gemma look; peak before load ${peakKb()} kB")
+        note("--- gemma look; free memory before load ${freeNow()} MB; peak before load ${peakKb()} kB")
         val b = backend(gemma)
         val t0 = System.nanoTime()
         val r = b.look(listOf(LabeledImage(null, sheet())), question, cellSchema, "high")
@@ -93,7 +96,7 @@ class OnDeviceEngineTest {
         assertEquals(0.0, r.usd, 0.0)
         val t1 = System.nanoTime()
         b.look(listOf(LabeledImage(null, sheet())), question, cellSchema, "high")
-        note("gemma look: second call %.1f s, peak ${peakKb()} kB".format((System.nanoTime() - t1) / 1e9))
+        note("gemma look: second call %.1f s, peak ${peakKb()} kB; ${rss()}; free now ${freeNow()} MB".format((System.nanoTime() - t1) / 1e9))
     }
 
     @Test
@@ -130,6 +133,7 @@ class OnDeviceEngineTest {
     @Test
     fun qwenAnswersAtOnceWithReasoningOffAndSeesTheSheet() = runBlocking {
         assumeTrue(installed(qwen))
+        note("--- qwen; free memory before load ${freeNow()} MB")
         val b = backend(qwen, OnDeviceConfig(thinking = false))
         val t0 = System.nanoTime()
         val r = b.chat(listOf(ChatMessage(ChatRole.USER, "What is 17 times 23? Answer with just the number.")))
@@ -137,7 +141,7 @@ class OnDeviceEngineTest {
         assertTrue("391 not in the reply", "391" in r.text)
         assertTrue("it reasoned: ${r.usage.outputTokens} tokens", r.usage.outputTokens < 40)
         val v = b.look(listOf(LabeledImage(null, sheet())), question, cellSchema, "high")
-        note("qwen look: reply tokens ${v.usage.outputTokens}, peak ${peakKb()} kB")
+        note("qwen look: reply tokens ${v.usage.outputTokens}, peak ${peakKb()} kB; ${rss()}; free now ${freeNow()} MB")
         assertEquals(6, requireNotNull(v.data) { "no JSON in the reply" }.getValue("cell").jsonPrimitive.content.toInt())
     }
 }
