@@ -28,6 +28,9 @@ class Checks(private val english: EnglishLexicon, private val mandarin: Mandarin
 
     // --- numbers and names
 
+    /** A text the checks read must be a JSON string: Python's regular expressions refuse anything else, and so do we. */
+    private fun JsonElement.text(): String = (this as? JsonPrimitive)?.takeIf { it.isString }?.content ?: throw IllegalArgumentException("a text to check is not a string: $this")
+
     private fun lower(s: String) = s.lowercase(Locale.ROOT)
     private fun words(s: String) = WORD.findAll(s).map { it.value }.toList()
     private fun cleanNumber(raw: String): String = raw.replace(",", ".").trimEnd('0').trimEnd('.').ifEmpty { "0" }
@@ -158,7 +161,7 @@ class Checks(private val english: EnglishLexicon, private val mandarin: Mandarin
             val id = ln.getValue("id").jsonPrimitive.content
             var budget = Math.floor((num(ln["max_duration_s"])!! - startupD) * wpsD + EPS).toLong()
             if (ln.getValue("role").jsonPrimitive.content in KEY_ROLES) budget = maxOf(1L, budget)
-            val text = ln.getValue("text").jsonPrimitive.content
+            val text = ln.getValue("text").text()
             val n = if (zh) SpokenUnits.of(text, "zh") else SPOKEN.findAll(text).count()
             val maxWords = ln.getValue("max_words")
             val mw = num(maxWords)!!
@@ -181,9 +184,9 @@ class Checks(private val english: EnglishLexicon, private val mandarin: Mandarin
         val out = ArrayList<JsonObject>()
         for (ln in (script["lines"] as? JsonArray).orEmpty()) {
             val o = ln.jsonObject
-            read(o.getValue("text").jsonPrimitive.content).forEach { out += it.json(o.getValue("id").jsonPrimitive.content) }
+            read(o.getValue("text").text()).forEach { out += it.json(o.getValue("id").jsonPrimitive.content) }
         }
-        for (field in listOf("headline", "lower_third")) if (truthy(script[field])) read(script.getValue(field).jsonPrimitive.content).forEach { out += it.json(field) }
+        for (field in listOf("headline", "lower_third")) if (truthy(script[field])) read(script.getValue(field).text()).forEach { out += it.json(field) }
         return JsonArray(out + checkRefs(script, ps) + checkBudget(script, pack))
     }
 

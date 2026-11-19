@@ -1,0 +1,32 @@
+{
+  "area": "checks",
+  "function": "checks.text",
+  "language": "zh",
+  "description": "A pack's own banned terms in Mandarin: an ASCII one is matched as a whole English word, a Chinese one as a substring (rule 8).",
+  "inputs": {
+    "language": {
+      "value": "zh"
+    },
+    "texts": {
+      "value": [
+        "进了specimen",
+        "进了 specimen 球",
+        "进了点球",
+        "点球 specimen",
+        "进了球"
+      ]
+    },
+    "known": {
+      "value": ""
+    },
+    "extra": {
+      "value": [
+        "specimen",
+        "点球"
+      ]
+    }
+  },
+  "expected": {
+    "file": "expected/output.json"
+  }
+}

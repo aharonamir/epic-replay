@@ -652,6 +652,45 @@ def checks_more_cases() -> dict[str, dict]:
             "noa 梅西 七 seven",
             ["specimen"],
         ),
+        "text_zh_extra_terms": text(
+            "A pack's own banned terms in Mandarin: an ASCII one is matched as a whole English word, a Chinese one as a substring (rule 8).",
+            "zh",
+            ["进了specimen", "进了 specimen 球", "进了点球", "点球 specimen", "进了球"],
+            "",
+            ["specimen", "点球"],
+        ),
+        "budget_float_max_words": script(
+            "max_words written as a float: 8.0 equals the budget 8 and passes, 9.0 does not and the detail shows 9.0 (rule 5).",
+            "en",
+            {
+                "lines": [
+                    {
+                        "id": "l1",
+                        "segment_id": "s2",
+                        "role": "opening",
+                        "anchor": {"type": "start_at", "timeline_t": 1.3, "event_id": None},
+                        "max_duration_s": 4.0,
+                        "max_words": 8.0,
+                        "text": "Free kick, just outside the box.",
+                        "delivery": "x",
+                        "event_refs": ["e1"],
+                        "generic": False,
+                    },
+                    {
+                        "id": "l2",
+                        "segment_id": "s2",
+                        "role": "build_up",
+                        "anchor": {"type": "start_at", "timeline_t": 9.433, "event_id": None},
+                        "max_duration_s": 1.6,
+                        "max_words": 9.0,
+                        "text": "Noa...",
+                        "delivery": "x",
+                        "event_refs": ["e3"],
+                        "generic": False,
+                    },
+                ]
+            },
+        ),
         "headline_and_lower_third": script(
             "The headline and the lower third are read by rules 4 and 8 too.",
             "en",
