@@ -1,6 +1,6 @@
 # Implementation Plan: Epic Replay on Android
 
-**Spec**: `specs/004-android-app/spec.md` (revision 3) · **After**: specs 002 and 003 are merged (they are) · **Estimate**: about 146 hours (section 6); the two spikes decide how much of it is real
+**Spec**: `specs/004-android-app/spec.md` (revision 4) · **After**: specs 002 and 003 are merged (they are) · **Estimate**: about 149 hours (section 6); the two spikes decide how much of it is real
 
 ## 1. Approach
 
@@ -30,7 +30,10 @@ shared/                 read by the build as source sets / assets, never copied
   models/               + the on_device profiles                                  (T403, T410)
   copy/consent.json     the consent wording and its versions                      (T404)
   conformance/          + the areas added in M3
+  assets/brand/         the four icon SVGs, the single source of the app icon (revision 4, T424b)
 ```
+
+**The app icon (revision 4, spec 5.4).** The Android resources are derived from `shared/assets/brand/*.svg`, never drawn again (FR-ICON-4): the adaptive launcher icon (C, with the monochrome layer under `res/mipmap-anydpi-v33`; `minSdk` is 28, so there are no legacy bitmaps), the splash screen through `androidx.core:core-splashscreen` with a splash theme (A), A's mark in the top bar, and the 512 px store PNG. T424b chooses between a build step and committed drawables with a test against the SVGs; it is placed before T425 because the top bar belongs to the screens. `shared/` packaging (`PrepareSharedAssets`) copies only sounds and fonts today, so the icon step reads `shared/assets/brand/` on its own. The task checks, and stops to tell the owner, if the splash theme or the vector converter cannot reproduce the SVGs' path data.
 
 `core/` has no Android dependency so the conformance cases run in milliseconds on the JVM, on CI and on the owner's machine, with no emulator. Only `app/`, `engine/` and `media/` need a device or an emulator for their tests.
 
@@ -77,8 +80,8 @@ The three existing local profiles (`gemma-4-e2b-local`, `qwen3-vl-2b-local`, `qw
 | M2 The model choice | T405 to T411 | 32 |
 | M3 Ports against conformance | T412 to T419 | 43 |
 | M4 Media pipeline | T420 to T424 | 33 |
-| M5 Screens, the phone's numbers, review | T425 to T429 | 24 |
-| **Total** | | **about 146** |
+| M5 Screens, the app icon, the phone's numbers, review | T424b, T425 to T429 | 26.5 |
+| **Total** | | **about 149** |
 
 If a task runs half again over its hours, stop and tell the owner (rule 11 of the PC's CLAUDE.md, kept). T401 showed images run on the phone, so M2 keeps its vision path; T402 found one missing piece of Media3 (smooth slow motion), which is in M4 (T421, +5 h). The remaining unknowns are the app's memory limit, model quality on real clips, zoom and the encoder failure.
 

@@ -97,6 +97,9 @@ Rules: in order, except that the two spikes may run first or alongside T403 and 
 
 ## M5: screens, the phone's numbers, review
 
+- [ ] **T424b The app icon** (2.5 h). Spec 5.4, FR-ICON-1 to 5. The four SVGs in `shared/assets/brand/` are the source (already committed with the add-on). Derive the Android resources from them as FR-ICON-4 says (a build step, or committed drawables plus a unit test against the SVGs): the adaptive launcher icon C with its monochrome layer, the splash screen A through the AndroidX SplashScreen API, A's mark in the top bar (30 by 20 beside the wordmark), and the 512 by 512 PNG of C for the store.
+  *Done when*: acceptance 1 to 5 of spec 5.4 hold; screenshots of the home screen (normal and themed icons) and of the splash screen are in the task's notes; editing a triangle in `icon-monochrome.svg` makes the build or the check fail; the PC's tests and goldens pass.
+
 - [ ] **T425 The screens** (8 h). Pick or record a clip, the narrator and language choice, progress by the eight steps, the play card with the key-moment picker and the cost of the rest of the run.
   *Done when*: Compose tests walk spec US4 up to the result with `FakeBackend`; the owner uses it on the phone.
 
@@ -109,10 +112,10 @@ Rules: in order, except that the two spikes may run first or alongside T403 and 
 - [ ] **T428 End-to-end runs** (3 h). One run on the cloud profiles (paid: ElevenLabs and DeepSeek; the owner's yes and the expected cost first) and one on the phone's models with a connection log, SC-1 to SC-3.
   *Done when*: both runs finish; the log shows no connection during the on-device run's model stages; the results are in `docs/provider-notes.md`.
 
-- [ ] **T429 Release build, documents, review and merge** (4 h). A signed release APK built by the documented command, the README for `android/`, `pc/CLAUDE.md` and the root rules updated, a fresh reviewer reading the diff for anything that changed the PC, a key that could be logged and a duplicate of shared data. Merge with the owner's yes.
+- [ ] **T429 Release build, documents, review and merge** (4 h). A signed release APK built by the documented command, the README for `android/`, `pc/CLAUDE.md` and the root rules updated, the 512 px store image checked against `icon-c-yellow.svg`, a fresh reviewer reading the diff for anything that changed the PC, a key that could be logged and a duplicate of shared data. Merge with the owner's yes.
   *Done when*: the review is approved and the owner has said yes to the merge.
 
-**Total**: about 146 hours (8 spikes, 6 shared prep, 32 model choice, 43 ports, 33 media, 24 screens and review).
+**Total**: about 149 hours (8 spikes, 6 shared prep, 32 model choice, 43 ports, 33 media, 26.5 screens, icon and review).
 
 ## Not in this feature
 

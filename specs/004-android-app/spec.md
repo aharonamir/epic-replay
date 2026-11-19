@@ -2,7 +2,7 @@
 
 **Feature branch**: `004-android-app`
 **Created**: 2026-11-15
-**Status**: Draft, revision 3: part A (where the models run) is specified and the owner's decisions D1 to D11 are in section 9; part B (the rest of the app) is an outline that the spikes in the plan firm up
+**Status**: Draft, revision 4 (the app icon, section 5.4): part A (where the models run) is specified and the owner's decisions D1 to D11 are in section 9; part B (the rest of the app) is an outline that the spikes in the plan firm up
 **Input**: "Start spec 004 with the three choices, the phone options are model run on cloud or downloaded like voice-reps." (2026-11-15). Before that: "can the user choose where the model runs: cloud with api key, ollama for pc, or local model on the phone like in voice-reps".
 **Depends on**: spec 002 (`shared/`, the conformance suite), spec 003 (model profiles and the model contract), merged at `e754d4a`. The on-device pattern is the owner's `voice-reps` app (github.com/aharonamir/voice-reps, commit `e03d3b3` and later, read 2026-11-15).
 
@@ -149,6 +149,36 @@ A user picks or records a 3 to 30 s clip, chooses a narrator and a language, con
 - **FR-027** The model backends are measured on the phone with the PC's instruments ported: schema fit, retries, the proposal's error against `eval/labels`, latency per call, memory. Numbers go in `docs/provider-notes.md` next to the PC's.
 - **FR-028** CI builds the app and runs the Android tests on changes under `android/` or `shared/` (spec 002, FR-025's placeholder job gets its work).
 
+### 5.4 The app icon (revision 4; from the owner's add-on of 2026-11-19, options A and C)
+
+Spec 004 defined no launcher icon and the app showed the system default. The owner chose two variants of one design: the web app's two-triangle rewind mark (001 `contracts/design.md`, header) over the letters **ER**.
+
+| Variant | Use | Background | Rewind mark | ER |
+|---|---|---|---|---|
+| **C, yellow tile** | The launcher icon (home screen, app drawer, store) | `#FFD23F` | `#0D1012` | `#0D1012` |
+| **A, dark** | Inside the app: the splash screen and the top bar, matching the dark broadcast look | `#0D1012` | `#FFD23F` | `#F4F5F6` |
+
+The yellow is the football narrator's accent. On the web the accent follows the chosen narrator; the icon is fixed, so it uses this one colour on every screen.
+
+**Geometry** (108 by 108 adaptive-icon canvas, in dp): everything sits inside the circle of radius 33 centred at (54, 54), so no launcher mask cuts it. The rewind mark is two triangles pointing left, each 15.6 wide and 20 high, side by side with no gap, spanning x 38.4 to 69.6 and y 26 to 46. **ER** is Sofia Sans Extra Condensed 900 (`shared/assets/fonts/sofia-sans-extra-condensed-latin-900-normal.woff2`), 40 units, tracking 1 unit, centred on x = 54, baseline y = 82, **outlined to paths**: the icon never depends on a font at run time.
+
+**Sources**: four SVGs in `shared/assets/brand/`, each 108 by 108, path-only (no text, no fonts, no external references), generated from that font file. They are the single source of the icon (working rule 11).
+
+| File | What |
+|---|---|
+| `icon-c-yellow.svg` | C, complete. Source of the store image. |
+| `icon-c-foreground.svg` | C's foreground layer only (transparent background). |
+| `icon-a-dark.svg` | A, complete. |
+| `icon-monochrome.svg` | The mark and ER as one black shape, for themed icons (Android 13 and later). |
+
+- **FR-ICON-1** The launcher icon is variant C as an adaptive icon: background layer `#FFD23F`, foreground layer from `icon-c-foreground.svg`, monochrome layer from `icon-monochrome.svg`. The app's `minSdk` is 28, so every supported phone takes the adaptive icon; no legacy bitmap launcher icons are needed.
+- **FR-ICON-2** The splash screen (the AndroidX SplashScreen API) uses variant A: `#0D1012` background, A's mark and ER as the icon. The app's top bar shows A's mark at the size of the web header's mark (30 by 20) beside the wordmark.
+- **FR-ICON-3** A 512 by 512 PNG of variant C (full square, no mask, no shadow; the store applies its own mask) is produced for the store listing.
+- **FR-ICON-4** The Android resources are derived from the SVGs in `shared/assets/brand/`, not drawn again: either a Gradle step converts them at build time, or the vector drawables are committed together with a unit test that checks their path data against the SVGs. A changed SVG fails the build or the test until the drawables follow. The derived files keep different names from the sources, so `pc/tests/unit/test_shared.py` does not count them as copies.
+- **FR-ICON-5** Nothing in the icon depends on the chosen narrator, model or language.
+
+**Acceptance.** (1) On a phone with Android 13 or later the home screen shows C; with themed icons on, the monochrome layer shows in the theme's colours; no mask crops the mark or the letters. (2) A cold start shows A's splash screen, then the first screen. (3) The 512 px store image matches `icon-c-yellow.svg` scaled up. (4) Editing a triangle in `icon-monochrome.svg` (by hand, not committed) makes the build or the check of FR-ICON-4 fail. (5) The PC app is unchanged: its tests and goldens pass.
+
 ## 6. Success criteria
 
 - **SC-1** A user with no key and no network, who downloaded the phone models once, completes a run and gets a labelled, narrated video (generic lines allowed), with no request leaving the phone during the run (checked once with a connection log on a device, as in spec 003, SC-6).
@@ -204,3 +234,4 @@ A user picks or records a 3 to 30 s clip, chooses a narrator and a language, con
 - Revision 1 (2026-11-15): first draft. Part A (the model sources) specified from spec 003 and voice-reps; part B outlined. Decisions D1 to D11 for the owner. The owner's reading of the three choices is recorded in the summary table.
 - Revision 2 (2026-11-15): the owner decided D2 (Gemma 4 E2B by default, Qwen3.5 4B as an optional download), D3 (no default model choice), D5 (Jetpack Compose), D6 (Media3 first), D9 (a `network` location, now) and D10 (consent wording to `shared/`, now). FR-003 ships two on-device profiles. Plan and tasks added.
 - Revision 3 (2026-11-15): spikes S1 and S2 run on the owner's Xiaomi 15T Pro (`docs/android-spikes.md`). Both models run with images; the owner chose to add a blend effect for slow motion (T421, +5 h, total about 146 h); fonts convert to TrueType at build time; the encoder gets a retry and a software fallback.
+- Revision 4 (2026-11-19): app icon, from `addon-app-icon.md` (the owner's decision of 2026-11-19: launcher icon C, yellow tile; splash screen and top bar A, dark). Section 5.4 and FR-ICON-1 to 5; four SVGs in `shared/assets/brand/`; task T424b (2.5 h, total about 149 h). The add-on file is folded in and deleted, so the spec files stay the single source.
