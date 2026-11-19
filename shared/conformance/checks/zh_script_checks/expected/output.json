@@ -1,0 +1,26 @@
+[
+  {
+    "where": "l5",
+    "rule": 8,
+    "kind": "banned_term",
+    "detail": "'老人' is a banned term"
+  },
+  {
+    "where": "headline",
+    "rule": 4,
+    "kind": "invented_name",
+    "detail": "'梅西' is not in the play sheet or the user context"
+  },
+  {
+    "where": "headline",
+    "rule": 4,
+    "kind": "invented_number",
+    "detail": "write numbers in Chinese numerals, not digits"
+  },
+  {
+    "where": "lower_third",
+    "rule": 4,
+    "kind": "wrong_language",
+    "detail": "write in Simplified Chinese"
+  }
+]

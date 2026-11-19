@@ -1,0 +1,90 @@
+[
+  [
+    {
+      "rule": 4,
+      "kind": "invented_number",
+      "detail": "the number 3 is not in the play sheet or the user context"
+    }
+  ],
+  [],
+  [],
+  [
+    {
+      "rule": 4,
+      "kind": "invented_number",
+      "detail": "the number 1 is not in the play sheet or the user context"
+    }
+  ],
+  [
+    {
+      "rule": 4,
+      "kind": "invented_number",
+      "detail": "the number 10:3 is not in the play sheet or the user context"
+    }
+  ],
+  [
+    {
+      "rule": 4,
+      "kind": "invented_number",
+      "detail": "the number 20 is not in the play sheet or the user context"
+    }
+  ],
+  [
+    {
+      "rule": 4,
+      "kind": "invented_number",
+      "detail": "the number 30 is not in the play sheet or the user context"
+    }
+  ],
+  [
+    {
+      "rule": 4,
+      "kind": "invented_number",
+      "detail": "the number 10 is not in the play sheet or the user context"
+    },
+    {
+      "rule": 4,
+      "kind": "invented_number",
+      "detail": "the number 100 is not in the play sheet or the user context"
+    }
+  ],
+  [],
+  [
+    {
+      "rule": 4,
+      "kind": "invented_number",
+      "detail": "the number ٣ is not in the play sheet or the user context"
+    }
+  ],
+  [
+    {
+      "rule": 4,
+      "kind": "invented_number",
+      "detail": "the number ３ is not in the play sheet or the user context"
+    }
+  ],
+  [
+    {
+      "rule": 4,
+      "kind": "invented_number",
+      "detail": "the number 3 is not in the play sheet or the user context"
+    },
+    {
+      "rule": 4,
+      "kind": "invented_number",
+      "detail": "the number 3.5 is not in the play sheet or the user context"
+    }
+  ],
+  [
+    {
+      "rule": 4,
+      "kind": "invented_number",
+      "detail": "the number 1000 is not in the play sheet or the user context"
+    },
+    {
+      "rule": 4,
+      "kind": "invented_number",
+      "detail": "the number 2 is not in the play sheet or the user context"
+    }
+  ]
+]

@@ -22,7 +22,7 @@ class ConformanceRunnerTest {
 
     /** Functions checked by their own tests (T408, T411) and functions a later task ports (T413 to T419). */
     private val checkedElsewhere = setOf("backend.requests", "backend.recording_key", "budget.run", "consent.blocks", "consent.covers")
-    private val laterTasks = setOf("checks.check", "checks.text")
+    private val laterTasks = emptySet<String>()
 
     @Test
     fun everyFunctionOfEveryCaseIsPortedHereCheckedElsewhereOrWaitingForItsTask() {
@@ -35,17 +35,17 @@ class ConformanceRunnerTest {
     @Test
     fun everyPortedCasePassesAndEveryAreaIsCovered() {
         val ported = all.filter { runner.isPorted(it) }
-        assertEquals(54, ported.size, "the cases ported so far: every lexicon.scan, units, cells, signals, storyboard and slots case")
+        assertEquals(77, ported.size, "the cases ported so far: every lexicon.scan, units, cells, signals, storyboard, slots and checks case")
         val failures = ported.mapNotNull { dir -> runner.check(dir).takeIf { it.isNotEmpty() }?.let { "${dir.parentFile.name}/${dir.name}: ${it.take(3)}" } }
         assertEquals(emptyList<String>(), failures)
         // exact counts: a case may not be dropped, and one function cannot stand in for another
         val byFunction = ported.groupBy { runner.function(it) }.mapValues { it.value.size }
-        assertEquals(mapOf("lexicon.scan" to 18, "units.spoken_units" to 5, "cells.narrow" to 5, "cells.layout" to 5, "signals.scan" to 7, "storyboard.build" to 7, "slots.build" to 7), byFunction)
+        assertEquals(mapOf("lexicon.scan" to 18, "units.spoken_units" to 5, "cells.narrow" to 5, "cells.layout" to 5, "signals.scan" to 7, "storyboard.build" to 7, "slots.build" to 7, "checks.check" to 13, "checks.text" to 10), byFunction)
         // no case passes by agreeing on nothing: each expects a non-empty list or object, and inputs are not empty
         for (dir in ported) {
             val case = runner.load(dir)
             val want = runner.resolve(case.getValue("expected").jsonObject, dir)
-            assertTrue((want is JsonArray && want.isNotEmpty()) || (want is JsonObject && want.isNotEmpty()), "${dir.name} expects nothing")
+            assertTrue((want is JsonArray && (want.isNotEmpty() || dir.name == "clean_script")) || (want is JsonObject && want.isNotEmpty()), "${dir.name} expects nothing") // a clean script is the one case that expects no failures
             for ((k, ref) in case.getValue("inputs").jsonObject) {
                 val v = runner.resolve(ref.jsonObject, dir)
                 if (k == "texts") assertTrue(v is JsonArray && v.isNotEmpty(), "${dir.name}: no texts")
@@ -61,8 +61,8 @@ class ConformanceRunnerTest {
 
     @Test
     fun aCaseWhoseFunctionIsNotPortedIsNamedNotSkipped() {
-        val pending = all.first { runner.function(it) == "checks.check" }
-        assertEquals("checks.check", assertFailsWith<NotPorted> { runner.run(pending) }.function)
+        val pending = all.first { runner.function(it) == "backend.requests" }
+        assertEquals("backend.requests", assertFailsWith<NotPorted> { runner.run(pending) }.function)
     }
 
     private fun copyOf(case: String, edit: (String) -> String): ConformanceRunner {

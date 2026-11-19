@@ -1,0 +1,66 @@
+[
+  [],
+  [],
+  [],
+  [
+    {
+      "rule": 4,
+      "kind": "invented_name",
+      "detail": "'Ronaldo' is not in the play sheet or the user context"
+    }
+  ],
+  [
+    {
+      "rule": 4,
+      "kind": "invented_name",
+      "detail": "'RONALDO' is not in the play sheet or the user context"
+    }
+  ],
+  [
+    {
+      "rule": 4,
+      "kind": "invented_name",
+      "detail": "'Hello' is not in the play sheet or the user context"
+    }
+  ],
+  [
+    {
+      "rule": 4,
+      "kind": "invented_name",
+      "detail": "'Messi's' is not in the play sheet or the user context"
+    }
+  ],
+  [
+    {
+      "rule": 4,
+      "kind": "invented_name",
+      "detail": "'Brazil' is not in the play sheet or the user context"
+    }
+  ],
+  [
+    {
+      "rule": 4,
+      "kind": "invented_name",
+      "detail": "'Wembley' is not in the play sheet or the user context"
+    }
+  ],
+  [
+    {
+      "rule": 4,
+      "kind": "invented_name",
+      "detail": "'Madrid' is not in the play sheet or the user context"
+    }
+  ],
+  [
+    {
+      "rule": 4,
+      "kind": "invented_name",
+      "detail": "'Paris' is not in the play sheet or the user context"
+    }
+  ],
+  [],
+  [],
+  [],
+  [],
+  []
+]

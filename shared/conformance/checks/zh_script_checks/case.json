@@ -1,0 +1,28 @@
+{
+  "area": "checks",
+  "function": "checks.check",
+  "language": "zh",
+  "description": "A Mandarin script with digits, a famous name and Traditional characters outside the typed names.",
+  "inputs": {
+    "script": {
+      "fixture": "planted_errors/zh_banned_term.json",
+      "merge_patch": {
+        "headline": "梅西进了3个",
+        "lower_third": "球隊"
+      }
+    },
+    "play_sheet": {
+      "fixture": "sample_run/play_sheet.json"
+    },
+    "user_context": {
+      "fixture": "sample_run/user_context.json"
+    },
+    "pack": {
+      "style": "football_commentator",
+      "language": "zh"
+    }
+  },
+  "expected": {
+    "file": "expected/output.json"
+  }
+}

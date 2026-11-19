@@ -1,0 +1,51 @@
+[
+  [
+    {
+      "rule": 4,
+      "kind": "invented_name",
+      "detail": "'specimen' is not in the play sheet or the user context"
+    },
+    {
+      "rule": 8,
+      "kind": "banned_term",
+      "detail": "'specimen' is a banned term"
+    }
+  ],
+  [
+    {
+      "rule": 4,
+      "kind": "invented_name",
+      "detail": "'specimen' is not in the play sheet or the user context"
+    },
+    {
+      "rule": 8,
+      "kind": "banned_term",
+      "detail": "'specimen' is a banned term"
+    }
+  ],
+  [
+    {
+      "rule": 8,
+      "kind": "banned_term",
+      "detail": "'点球' is a banned term"
+    }
+  ],
+  [
+    {
+      "rule": 4,
+      "kind": "invented_name",
+      "detail": "'specimen' is not in the play sheet or the user context"
+    },
+    {
+      "rule": 8,
+      "kind": "banned_term",
+      "detail": "'specimen' is a banned term"
+    },
+    {
+      "rule": 8,
+      "kind": "banned_term",
+      "detail": "'点球' is a banned term"
+    }
+  ],
+  []
+]

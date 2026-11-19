@@ -1,0 +1,33 @@
+{
+  "area": "checks",
+  "function": "checks.text",
+  "language": "en",
+  "description": "English banned terms: the global list and a pack's own extra terms, as whole words (rule 8).",
+  "inputs": {
+    "language": {
+      "value": "en"
+    },
+    "texts": {
+      "value": [
+        "She shoots",
+        "that young talent",
+        "the old man",
+        "bold move",
+        "what a specimen",
+        "Specimen!",
+        "SPECIMEN shape"
+      ]
+    },
+    "known": {
+      "value": "noa free kick 7 seven top corner 2.5 goal"
+    },
+    "extra": {
+      "value": [
+        "specimen"
+      ]
+    }
+  },
+  "expected": {
+    "file": "expected/output.json"
+  }
+}

@@ -24,7 +24,10 @@ object TextFunctions {
     fun table(shared: File): Map<String, (Map<String, JsonElement>) -> JsonElement> {
         val english = EnglishLexicon(File(shared, "lexicons/en.json").readText())
         val mandarin = MandarinLexicon(File(shared, "lexicons/zh.json").readText())
+        val checks = app.epicreplay.core.checks.Checks.fromShared(shared)
         return mapOf(
+            "checks.text" to { a -> checks.checkTexts(a.getValue("language").jsonPrimitive.content, strings(a.getValue("texts")), a.getValue("known").jsonPrimitive.content, strings(a.getValue("extra"))) },
+            "checks.check" to { a -> checks.check(a.getValue("script").jsonObject, a.getValue("play_sheet").jsonObject, a.getValue("user_context").jsonObject, a.getValue("pack").jsonObject) },
             "lexicon.scan" to { a ->
                 val extra = strings(a.getValue("extra"))
                 val texts = strings(a.getValue("texts"))

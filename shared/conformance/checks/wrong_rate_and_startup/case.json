@@ -1,0 +1,41 @@
+{
+  "area": "checks",
+  "function": "checks.check",
+  "language": "en",
+  "description": "A script whose rate or start-up is not the pack's: the detail shows each value as Python writes it.",
+  "inputs": {
+    "script": {
+      "fixture": "sample_run/script.json",
+      "merge_patch": {
+        "words_per_second": 3,
+        "startup_s": 0.90000001
+      }
+    },
+    "play_sheet": {
+      "fixture": "sample_run/play_sheet.json"
+    },
+    "user_context": {
+      "fixture": "sample_run/user_context.json"
+    },
+    "pack": {
+      "style": "football_commentator",
+      "language": "en"
+    }
+  },
+  "expected": {
+    "value": [
+      {
+        "where": "script",
+        "rule": 5,
+        "kind": "over_budget",
+        "detail": "words_per_second is 3, the style pack's is 2.6"
+      },
+      {
+        "where": "script",
+        "rule": 5,
+        "kind": "over_budget",
+        "detail": "startup_s is 0.90000001, the style pack's is 0.9"
+      }
+    ]
+  }
+}

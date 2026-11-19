@@ -126,3 +126,20 @@ def test_the_planted_mandarin_error_is_caught_on_its_line():
     assert contracts.validate("script", script) == []
     pack = loader.for_run({"style": "football_commentator", "language": "zh"})
     assert [(f["where"], f["kind"]) for f in s6.check(script, PS, UC, pack)] == [("l5", "banned_term")]  # fmt: skip
+
+
+def test_the_shared_gb2312_list_is_what_the_codec_encodes():
+    """The list the phone reads (shared/lexicons/zh.json, `gb2312`) is the Python codec's answer."""
+    import json
+
+    from epic_replay import paths
+
+    listed = json.loads((paths.LEXICONS / "zh.json").read_text("utf-8"))["gb2312"]["characters"]
+    codec = []
+    for cp in [*range(0x3400, 0x4DC0), *range(0x4E00, 0xA000), *range(0xF900, 0xFB00)]:
+        try:
+            chr(cp).encode("gb2312")
+        except UnicodeEncodeError:
+            continue
+        codec.append(chr(cp))
+    assert listed == "".join(codec) and len(listed) == 6763
