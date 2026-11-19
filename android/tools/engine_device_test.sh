@@ -23,9 +23,19 @@ for f in gemma-4-E2B-it-Q4_0.gguf mmproj-gemma-4-E2B-it-Q8_0.gguf qwen35-Qwen3.5
 done
 adb shell run-as app.epicreplay rm -f files/t409_metrics.txt
 adb logcat -c
-adb shell am instrument -w -e class app.epicreplay.OnDeviceEngineTest "$R" | tee /dev/stderr | grep -q '^OK ('
+# One test per run, so each starts a fresh app process and the peak memory it records (VmHWM) is that test's own.
+for t in aMissingModelIsNotInstalledAndTooLittleMemoryIsRefusedBeforeLoading gemmaLooksAtTheSheetThroughJniAndAnswersJsonThatFits \
+         gemmaChatAnswersAShortPrompt aTimeoutReallyStopsTheDecodeAndTheNextCallSucceeds qwenAnswersAtOnceWithReasoningOffAndSeesTheSheet; do
+  adb shell am instrument -w -e class "app.epicreplay.OnDeviceEngineTest#$t" "$R" | tee /dev/stderr | grep -q '^OK (' || { echo "$t failed"; exit 1; }
+done
 echo "--- timings and memory recorded by the tests"
 adb shell run-as app.epicreplay cat files/t409_metrics.txt
-echo "--- logcat lines mentioning a prompt or reply: $(adb logcat -d | grep -c -i -E 'Say hello|391|red square' || true)"
+# The app's own log lines (its uid) must hold none of the prompts or replies the tests used.
+UID_APP=$(adb shell pm list packages -U app.epicreplay | sed -n 's/.*uid:\([0-9]*\).*/\1/p' | head -1)
+adb logcat -d --uid "$UID_APP" > /tmp/t409_app_logcat.txt || adb logcat -d > /tmp/t409_app_logcat.txt
+echo "--- the app's logcat: $(wc -l < /tmp/t409_app_logcat.txt) lines"
+if grep -n -i -E 'Say hello in five words|17 times 23|3x3 grid|very long story|red square|sk-[A-Za-z0-9]{12}' /tmp/t409_app_logcat.txt | head -5 | grep .; then
+  echo "a prompt or a key is in the app's logcat"; exit 1
+fi
 adb uninstall app.epicreplay.test >/dev/null
 echo "T409 device checks passed"

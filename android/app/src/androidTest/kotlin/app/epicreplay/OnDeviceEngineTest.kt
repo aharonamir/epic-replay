@@ -58,7 +58,8 @@ class OnDeviceEngineTest {
     private fun peakKb(): Long = File("/proc/self/status").readLines().first { it.startsWith("VmHWM") }.split(Regex("\\s+"))[1].toLong()
     private fun note(line: String) = metrics.appendText(line + "\n")
 
-    private fun sheet() = ctx.assets.open("sheet.jpg").readBytes()
+    // the test APK's own assets, not the app's
+    private fun sheet() = InstrumentationRegistry.getInstrumentation().context.assets.open("sheet.jpg").readBytes()
     private val cellSchema: JsonObject = buildJsonObject {
         put("type", JsonPrimitive("object")); put("required", JsonArray(listOf(JsonPrimitive("cell"))))
         put("properties", buildJsonObject { put("cell", buildJsonObject { put("type", JsonPrimitive("integer")); put("minimum", JsonPrimitive(1)); put("maximum", JsonPrimitive(9)) }) })
