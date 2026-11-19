@@ -43,10 +43,10 @@ def climax_only_at(t: float) -> dict:
 
 
 def storyboard_cases() -> dict[str, dict]:
-    def case(desc, ps, meta, expected=None):
+    def case(desc, ps, meta, expected=None, minimum=20.0):
         return {"area": "storyboard", "function": "storyboard.build", "language": None,
                 "description": desc, "tolerance_s": 0.001,
-                "inputs": {"play_sheet": ps, "clip_meta": meta, "min_output_s": value(20.0)},
+                "inputs": {"play_sheet": ps, "clip_meta": meta, "min_output_s": value(minimum)},
                 **({"expected": expected} if expected else {})}  # fmt: skip
 
     return {
@@ -71,6 +71,14 @@ def storyboard_cases() -> dict[str, dict]:
             "A 30 s clip: trimmed around the climax at 18 s.",
             sample("play_sheet", merge_patch=climax_only_at(18.0)),
             sample("clip_meta", merge_patch={"duration_s": 30.0}),
+        ),
+        "long_minimum_caps_the_replay": case(
+            "A 40 s minimum: the replay widens to its 3.5 s cap and the end card holds for the rest (added in T414).",
+            sample("play_sheet"), sample("clip_meta"), minimum=40.0,
+        ),
+        "no_focus_box_no_zoom": case(
+            "A play sheet with no focus box: the replay has no zoom (added in T414).",
+            sample("play_sheet", merge_patch={"focus_box": None}), sample("clip_meta"),
         ),
     }  # fmt: skip
 

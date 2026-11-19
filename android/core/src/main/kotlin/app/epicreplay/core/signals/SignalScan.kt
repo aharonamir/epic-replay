@@ -58,5 +58,5 @@ object SignalScan {
     }
 
     /** Python's `round(x, digits)`: half to even. */
-    fun rint(x: Double, digits: Int): Double = java.math.BigDecimal(x).setScale(digits, java.math.RoundingMode.HALF_EVEN).toDouble() // the exact binary value, as Python rounds
+    fun rint(x: Double, digits: Int): Double = app.epicreplay.core.PyMath.round(x, digits)
 }

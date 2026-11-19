@@ -71,7 +71,7 @@ The matching rules behind `lexicon.scan` and `checks.text` are written out in `s
 
 | Area | Cases |
 |---|---|
-| `storyboard` | the sample run; climax on the first frame; climax on the last frame (the replay holds its last frame); a 3 s clip; a 30 s clip |
+| `storyboard` | the sample run; climax on the first frame; climax on the last frame (the replay holds its last frame); a 3 s clip; a 30 s clip; a 40 s minimum (the replay widens to its cap); no focus box (no zoom) (the last two added in T414) |
 | `slots` | each of the three packs in English and Mandarin; a climax on the last frame |
 | `checks` | the clean sample script; each planted error in `shared/fixtures/planted_errors/`, the Mandarin one included |
 | `lexicon` | English whole-word false positives, matches, every global term, a pack's own terms; Unicode white space and case folding in English terms (added in T412); every Mandarin category's terms, 她, allowed phrases, numerals, famous names; the 123 reviewed Mandarin sentences in five groups |

@@ -1,0 +1,24 @@
+{
+  "area": "storyboard",
+  "function": "storyboard.build",
+  "language": null,
+  "description": "A play sheet with no focus box: the replay has no zoom (added in T414).",
+  "tolerance_s": 0.001,
+  "inputs": {
+    "play_sheet": {
+      "fixture": "sample_run/play_sheet.json",
+      "merge_patch": {
+        "focus_box": null
+      }
+    },
+    "clip_meta": {
+      "fixture": "sample_run/clip_meta.json"
+    },
+    "min_output_s": {
+      "value": 20.0
+    }
+  },
+  "expected": {
+    "file": "expected/output.json"
+  }
+}
