@@ -1,0 +1,80 @@
+{
+  "area": "lexicon",
+  "function": "lexicon.scan",
+  "language": "en",
+  "description": "Spaces in a term match any Unicode whitespace as Python reads it (no-break space, the ideographic space, the control separators), and case folding is Unicode ('ſ' is an s, the Kelvin sign a k); a zero-width space is not whitespace.",
+  "inputs": {
+    "language": {
+      "value": "en"
+    },
+    "texts": {
+      "value": [
+        "breaking news",
+        "BREAKING　NEWS",
+        "match\u001cof\u001dthe\u001eday",
+        "ſhe scores",
+        "a Kid",
+        "breaking​news",
+        "breaking news",
+        "match ofthe day"
+      ]
+    },
+    "extra": {
+      "value": []
+    }
+  },
+  "expected": {
+    "value": [
+      {
+        "banned": [
+          "breaking news"
+        ],
+        "descriptor": []
+      },
+      {
+        "banned": [
+          "breaking　news"
+        ],
+        "descriptor": []
+      },
+      {
+        "banned": [
+          "match\u001cof\u001dthe\u001eday"
+        ],
+        "descriptor": []
+      },
+      {
+        "banned": [
+          "ſhe"
+        ],
+        "descriptor": [
+          "ſhe"
+        ]
+      },
+      {
+        "banned": [
+          "kid"
+        ],
+        "descriptor": [
+          "kid"
+        ]
+      },
+      {
+        "banned": [],
+        "descriptor": []
+      },
+      {
+        "banned": [
+          "breaking news"
+        ],
+        "descriptor": []
+      },
+      {
+        "banned": [
+          "match ofthe day"
+        ],
+        "descriptor": []
+      }
+    ]
+  }
+}

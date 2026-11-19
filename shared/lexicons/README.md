@@ -17,7 +17,7 @@ The lists may change only with a spec change: `GLOBAL_BANNED` is part of the Eng
 
 1. The terms are the categories' terms in the order `global_banned` gives them. A style pack's own `banned_terms` are matched as a second list, after the global one.
 2. Each term is lowercased and escaped; each space in a term matches one or more whitespace characters.
-3. The terms are tried longest first, as one alternation.
+3. The terms are tried longest first, as one alternation. "Longest" is the length, in code points, of the term's pattern text: the lower-cased term with each regex special character escaped by a backslash and each space written `\s+`. Patterns of equal length are tried in code point order of that text, so the result never depends on the order a set happens to give.
 4. A match must not have an ASCII letter or digit (`A-Z`, `a-z`, `0-9`) directly before or after it. So `bold`, `holds`, `herald` and `kidney` do not match `old`, `her` or `kid`; `she's` matches `she`.
 5. The result is the matched text, lowercased, in order of where it occurs; the pack's matches follow the global ones. A term found twice is listed twice.
 

@@ -28,8 +28,9 @@ GLOBAL_BANNED = [t for c in _DATA["global_banned"] for t in _TERMS[c]]
 
 
 def _pattern(terms: list[str]) -> re.Pattern[str]:
+    # longest first; patterns of equal length in code point order (a set has no order of its own)
     alts = sorted(
-        {re.escape(t.lower()).replace(r"\ ", r"\s+") for t in terms}, key=len, reverse=True
+        {re.escape(t.lower()).replace(r"\ ", r"\s+") for t in terms}, key=lambda p: (-len(p), p)
     )
     return re.compile(r"(?<![A-Za-z0-9])(?:" + "|".join(alts) + r")(?![A-Za-z0-9])", re.I)
 

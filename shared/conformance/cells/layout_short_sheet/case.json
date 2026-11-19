@@ -1,0 +1,30 @@
+{
+  "area": "cells",
+  "function": "cells.layout",
+  "language": null,
+  "description": "Five frames fill two rows.",
+  "inputs": {
+    "width": {
+      "value": 1280
+    },
+    "height": {
+      "value": 720
+    },
+    "count": {
+      "value": 5
+    }
+  },
+  "expected": {
+    "value": {
+      "cell_w": 448,
+      "cell_h": 252,
+      "rows": 2,
+      "width": 1344,
+      "height": 504,
+      "label_x": 10,
+      "label_y": 58,
+      "label_scale": 1.4933333333333334,
+      "label_thickness": 4
+    }
+  }
+}

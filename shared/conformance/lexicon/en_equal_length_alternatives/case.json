@@ -1,0 +1,46 @@
+{
+  "area": "lexicon",
+  "function": "lexicon.scan",
+  "language": "en",
+  "description": "Two pack terms whose patterns have the same length are tried in code point order of the pattern text, so the text is read the same way on every run and platform.",
+  "inputs": {
+    "language": {
+      "value": "en"
+    },
+    "texts": {
+      "value": [
+        "a   b ",
+        "a   b",
+        "a b  "
+      ]
+    },
+    "extra": {
+      "value": [
+        "a b ",
+        "a  b"
+      ]
+    }
+  },
+  "expected": {
+    "value": [
+      {
+        "banned": [
+          "a   b"
+        ],
+        "descriptor": []
+      },
+      {
+        "banned": [
+          "a   b"
+        ],
+        "descriptor": []
+      },
+      {
+        "banned": [
+          "a b  "
+        ],
+        "descriptor": []
+      }
+    ]
+  }
+}

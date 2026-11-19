@@ -12,7 +12,7 @@
         "storyboard.build", "slots.build", "checks.check", "checks.text",
         "lexicon.scan", "units.spoken_units", "cells.narrow",
         "backend.requests", "backend.recording_key", "budget.run",
-        "consent.blocks", "consent.covers"
+        "consent.blocks", "consent.covers", "cells.layout"
       ]
     },
     "language": {"enum": ["en", "zh", null]},
