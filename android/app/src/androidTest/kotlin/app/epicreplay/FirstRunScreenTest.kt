@@ -39,12 +39,24 @@ class FirstRunScreenTest {
     private val downloads = mutableListOf<String>()
     private val status = MutableStateFlow<DownloadStatus>(DownloadStatus.Idle)
 
+    private val kept = File(ctx.filesDir, "models.kept-by-test")
+
+    /** Secrets and settings are cleared; downloaded models are set aside (a rename) and put back, never deleted. */
     private fun clean() {
-        for (d in listOf("secrets", "settings", "models")) File(ctx.filesDir, d).deleteRecursively()
+        for (d in listOf("secrets", "settings")) File(ctx.filesDir, d).deleteRecursively()
+        File(ctx.filesDir, "models").deleteRecursively()
     }
 
-    @Before fun setUp() { clean(); graph = AppGraph(ctx) }
-    @After fun tearDown() { clean() }
+    @Before fun setUp() {
+        val models = File(ctx.filesDir, "models")
+        if (models.exists() && !kept.exists()) check(models.renameTo(kept)) { "could not set the models aside" }
+        clean(); graph = AppGraph(ctx)
+    }
+
+    @After fun tearDown() {
+        clean()
+        if (kept.exists()) check(kept.renameTo(File(ctx.filesDir, "models"))) { "could not put the models back" }
+    }
 
     private fun show() = rule.setContent {
         MaterialTheme {
