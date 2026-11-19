@@ -58,5 +58,5 @@ object SignalScan {
     }
 
     /** Python's `round(x, digits)`: half to even. */
-    fun rint(x: Double, digits: Int): Double { val k = Math.pow(10.0, digits.toDouble()); return Math.rint(x * k) / k }
+    fun rint(x: Double, digits: Int): Double = java.math.BigDecimal(x).setScale(digits, java.math.RoundingMode.HALF_EVEN).toDouble() // the exact binary value, as Python rounds
 }

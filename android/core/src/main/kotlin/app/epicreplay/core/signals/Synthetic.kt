@@ -16,7 +16,7 @@ import kotlinx.serialization.json.put
 object Synthetic {
     private fun texture(x: Int, y: Int, kind: Int): Int {
         val (a, b, c) = if (kind == 0) Triple(37, 91, 5) else Triple(53, 29, 7)
-        return (x * a + y * b + ((x * y) % 23) * c) % 101 + 60
+        return Math.floorMod(x * a + y * b + Math.floorMod(x * y, 23) * c, 101) + 60 // Python's % never goes negative
     }
 
     fun frames(r: JsonObject): Sequence<Gray> {

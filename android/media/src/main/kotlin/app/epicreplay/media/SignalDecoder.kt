@@ -126,7 +126,9 @@ object SignalDecoder {
                 } else if (o >= 0) {
                     if (info.size > 0) {
                         if (firstPts < 0) firstPts = info.presentationTimeUs
-                        val s = codec.getOutputBuffer(o)!!.order(ByteOrder.nativeOrder()).asShortBuffer()
+                        val raw = codec.getOutputBuffer(o)!!
+                        raw.position(info.offset); raw.limit(info.offset + info.size)
+                        val s = raw.order(ByteOrder.nativeOrder()).asShortBuffer()
                         chunks.add(ShortArray(info.size / 2).also { s.get(it) })
                     }
                     codec.releaseOutputBuffer(o, false)

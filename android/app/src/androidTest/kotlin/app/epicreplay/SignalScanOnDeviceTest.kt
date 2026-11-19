@@ -43,6 +43,7 @@ class SignalScanOnDeviceTest {
         // the case's tolerance: 0.1 s. The strike is at 2.0 s and its thud begins at 1.974 s.
         assertEquals(2.0, top!!.t, 0.1)
         assertEquals(1.974, top.soundOnsetT!!, 0.1)
-        assertTrue("a lossy encode may add weak peaks, but the strike is the strongest by far", s.candidates.count { it.score >= top.score } == 1)
+        // a lossy encode may add weak peaks (the keyframes); the strike must be stronger than every other candidate
+        assertTrue(s.candidates.filter { it !== top }.all { it.score < top.score })
     }
 }
