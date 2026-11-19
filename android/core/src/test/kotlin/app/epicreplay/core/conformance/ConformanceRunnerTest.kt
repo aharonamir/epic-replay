@@ -142,6 +142,11 @@ class ConformanceRunnerTest {
         assertEquals(emptyList(), slice(2, 1).toList()) // a reversed slice is empty
         assertEquals(all.size, slice(-10_000, 10_000).size) // clamped on both sides
         assertEquals(all.subList(0, 3).toList(), slice(0, 3).toList())
+        val huge = runner.resolve(kotlinx.serialization.json.buildJsonObject {
+            put("fixture", JsonPrimitive("zh/zh_sentences.json")); put("field", JsonPrimitive("zh"))
+            put("slice", Json.parseToJsonElement("[-999999999999, 999999999999]"))
+        }, case).jsonArray
+        assertEquals(all.size, huge.size) // bounds beyond Int are clamped, as Python does
         assertFailsWith<UnsupportedReference> {
             runner.resolve(kotlinx.serialization.json.buildJsonObject { put("style", JsonPrimitive("news_reporter")) }, case)
         }

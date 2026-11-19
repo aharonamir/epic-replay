@@ -47,7 +47,10 @@ class ConformanceRunner(private val shared: File, private val functions: Map<Str
         ref["slice"]?.jsonArray?.let { s ->
             val items = data.jsonArray
             // Python's slice: a negative bound counts from the end, bounds are clamped, a start past the end is empty
-            fun bound(e: JsonElement): Int = e.jsonPrimitive.content.toInt().let { if (it < 0) maxOf(it + items.size, 0) else minOf(it, items.size) }
+            fun bound(e: JsonElement): Int = java.math.BigInteger(e.jsonPrimitive.content).let { v ->
+                val n = java.math.BigInteger.valueOf(items.size.toLong())
+                (if (v.signum() < 0) (v + n).max(java.math.BigInteger.ZERO) else v.min(n)).toInt()
+            }
             val a = bound(s[0]); val b = bound(s[1])
             data = JsonArray(if (a >= b) emptyList() else items.subList(a, b))
         }
