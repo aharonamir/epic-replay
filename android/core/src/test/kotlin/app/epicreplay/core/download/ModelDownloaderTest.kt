@@ -458,4 +458,34 @@ class ModelDownloaderTest {
         runBlocking { downloader().delete(profile(s.url)) }
         assertEquals(emptyList(), dir.list()!!.toList())
     }
+
+    @Test
+    fun aCompletePartIsCheckedAndFinishedWithoutFetchingAgain() = runBlocking {
+        val s = server()
+        val p = profile(s.url)
+        File(dir, "m.gguf.part").writeBytes(data); File(dir, "m.gguf.part.meta").writeText("${p.files[0].url}\n${p.files[0].sha256}\n\"v1\"")
+        downloader().download(p)
+        assertTrue(File(dir, "m.gguf").readBytes().contentEquals(data)); assertEquals(0, s.seen.size)
+        assertTrue(downloader().installed(p))
+        Unit
+    }
+
+    @Test
+    fun aCompletePartWithTheWrongBytesIsDiscardedAndFetchedAgain() = runBlocking {
+        val s = server()
+        val p = profile(s.url)
+        File(dir, "m.gguf.part").writeBytes(ByteArray(data.size)); File(dir, "m.gguf.part.meta").writeText("${p.files[0].url}\n${p.files[0].sha256}\n\"v1\"")
+        downloader().download(p)
+        assertTrue(File(dir, "m.gguf").readBytes().contentEquals(data)); assertEquals(1, s.seen.size); assertNull(s.seen[0].range)
+        Unit
+    }
+
+    @Test
+    fun verifyDeletesAFileOfTheWrongLength() = runBlocking {
+        val s = server()
+        File(dir, "m.gguf").writeBytes(data.copyOf(1000)); File(dir, "m.gguf.verified").writeText("old")
+        assertFalse(downloader().verify(profile(s.url)))
+        assertEquals(emptyList(), dir.list()!!.toList())
+        Unit
+    }
 }

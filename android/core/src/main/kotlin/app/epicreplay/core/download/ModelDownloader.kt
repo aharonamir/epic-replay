@@ -125,7 +125,8 @@ class ModelDownloader(
         profile.files.map { f ->
             lockFor(f).withLock {
                 val file = finalFile(f)
-                if (!file.isFile || file.length() != f.bytes) false
+                if (!file.isFile) false
+                else if (file.length() != f.bytes) { file.delete(); markerFile(f).delete(); false } // the wrong length cannot be the model
                 else if (sha256(file).equals(f.sha256, ignoreCase = true)) { writeMarker(f); true }
                 else { file.delete(); markerFile(f).delete(); false }
             }
@@ -182,6 +183,20 @@ class ModelDownloader(
     private suspend fun fetch(file: ModelFile, progress: (Long) -> Unit) {
         val part = partFile(file)
         val meta = metaFile(file)
+        // a complete .part (a cancel or a crash between the last byte and the rename): check it, and finish without fetching
+        if (part.isFile && part.length() == file.bytes && metaFile(file).isFile) {
+            val rec = readMeta(meta)
+            if (rec != null && rec.first == file.url && rec.second.equals(file.sha256, ignoreCase = true) &&
+                sha256(part).equals(file.sha256, ignoreCase = true)
+            ) {
+                if (!part.renameTo(finalFile(file))) throw IOException("rename failed")
+                meta.delete()
+                writeMarker(file)
+                progress(file.bytes)
+                return
+            }
+            discard(file)
+        }
         var resumeFrom = 0L
         var validator: String? = null
         resumable(file)?.let { (bytes, v) -> resumeFrom = bytes; validator = v }
@@ -230,6 +245,7 @@ class ModelDownloader(
                         if ((System.nanoTime() - lastData) / 1_000_000 > stallTimeoutMs) throw DownloadError.Interrupted(file.name)
                         continue
                     } catch (e: IOException) {
+                        ctx.ensureActive() // a cancel that raced with a read error is a cancellation
                         throw DownloadError.Interrupted(file.name)
                     }
                     ctx.ensureActive() // a cancel that came while the read returned data: no write, no progress call
@@ -245,6 +261,7 @@ class ModelDownloader(
                 out.fd.sync()
             }
             if (written != file.bytes) throw DownloadError.Interrupted(file.name) // the server closed early: resumable
+            ctx.ensureActive() // a cancel before the commit keeps the complete .part: the next call checks it and finishes
             val hex = digest.digest().joinToString("") { "%02x".format(it) }
             if (!hex.equals(file.sha256, ignoreCase = true)) {
                 discard(file)
