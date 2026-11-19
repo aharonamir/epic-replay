@@ -74,10 +74,14 @@ class ProfileLoaderTest {
 
     @Test
     fun theShippedProfilesAllLoadOnThePcAndHaveTheirOwnModel() {
-        val shipped = modelsDir.listFiles { f -> f.extension == "json" }!!.map { it.nameWithoutExtension }.sorted()
+        val kinds = modelsDir.listFiles { f -> f.extension == "json" }!!.associate {
+            it.nameWithoutExtension to Json.parseToJsonElement(it.readText()).jsonObject.getValue("kind").jsonPrimitive.content
+        }
         val r = ProfileLoader.loadDir(modelsDir, schema, Platform.PC)
-        assertEquals(emptyList(), r.problems.map { it.file + ": " + it.reason }, "nothing refused or left out on the PC")
-        assertEquals(shipped, r.profiles.keys.sorted())
+        assertEquals(emptyList(), r.refused().map { it.file + ": " + it.reason }, "nothing refused on the PC")
+        assertEquals(kinds.filterValues { it == "openai_compatible" }.keys.sorted(), r.profiles.keys.sorted())
+        // the PC leaves exactly the phone's profiles out (spec 004, T410), and says so
+        assertEquals(kinds.filterValues { it == "on_device" }.keys.map { "$it.json" }.sorted(), r.leftOut().map { it.file }.sorted())
         val models = r.profiles.values.filterIsInstance<ServerProfile>().map { it.model }
         assertEquals(models.size, models.toSet().size) // FR-007
     }

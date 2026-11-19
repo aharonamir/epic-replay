@@ -2,6 +2,8 @@ package app.epicreplay
 
 import android.content.Context
 import app.epicreplay.core.budget.Caps
+import app.epicreplay.core.download.DownloadPolicy
+import app.epicreplay.core.download.ModelDownloader
 import app.epicreplay.core.budget.JsonFileLedgerStorage
 import app.epicreplay.core.budget.Ledger
 import app.epicreplay.core.models.CloudBackend
@@ -21,6 +23,8 @@ import app.epicreplay.core.secrets.KeysController
 import app.epicreplay.core.secrets.ModelChoiceStore
 import app.epicreplay.core.secrets.SecretStore
 import app.epicreplay.engine.AndroidMemoryProbe
+import app.epicreplay.engine.AndroidNetworkInfo
+import app.epicreplay.engine.AndroidStorageProbe
 import app.epicreplay.engine.NativeEngine
 import app.epicreplay.net.BitmapImageResizer
 import app.epicreplay.secrets.AndroidKeystoreKey
@@ -61,6 +65,12 @@ class AppGraph(context: Context) {
     /** The backend for an on-device [profile] in [role]: the JNI engine, refusing before it loads when memory is short. */
     fun onDeviceBackend(profile: OnDeviceProfile, role: Role, config: OnDeviceConfig = OnDeviceConfig()): OnDeviceBackend =
         OnDeviceBackend(profile, role, modelDir, AndroidMemoryProbe(appContext), { NativeEngine() }, config)
+
+    /** Downloads, resumes and deletes the files of on-device profiles in [modelDir] (HTTPS, allowed hosts, checksum). */
+    fun modelDownloader(): ModelDownloader = ModelDownloader(modelDir, DownloadPolicy.DEFAULT, AndroidStorageProbe(modelDir))
+
+    /** Whether the connection is unmetered, for the download's Wi-Fi hint. */
+    fun isUnmetered(): Boolean = AndroidNetworkInfo(appContext).isUnmetered()
 
     companion object {
         const val SECRETS_DIR = "secrets"

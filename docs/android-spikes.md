@@ -142,3 +142,20 @@ What S1 left open: the JNI bridge, the load in an app process, and the app's own
 | The app's logcat (265 lines) | none of the tests' prompts, and no key-shaped text |
 
 The numbers match S1's within reason (the sheet call is faster than S1's 26 s because S1's included the process start and load). The memory floors for the profiles (T410) still come from these peaks: about 5,000 MB for Gemma and 6,500 MB for Qwen3.5, as provisionally noted above. What stays unproven: a cancel during an image encoding (7 to 15 s per sheet, S1) and a long run's heat (T427).
+
+## T410: downloads and the on-device profiles (2026-11-19)
+
+**The two profiles** are `shared/models/gemma-4-e2b-device.json` (the default, D2) and `shared/models/qwen3-5-4b-device.json` (the optional one). Each lists two files, which the PC loader leaves out and the phone loads.
+
+| File | Source (pinned to the repository's commit on 2026-11-19) | Bytes |
+|---|---|---|
+| `gemma-4-E2B-it-Q4_0.gguf` | `ggml-org/gemma-4-E2B-it-GGUF` at `2a8538c2e2d4687953a86c422c7c623cfd022880` | 2,841,481,184 |
+| `mmproj-gemma-4-E2B-it-Q8_0.gguf` | same | 557,368,096 |
+| `Qwen3.5-4B-Q4_K_M.gguf` | `unsloth/Qwen3.5-4B-GGUF` at `e87f176479d0855a907a41277aca2f8ee7a09523` | 2,740,937,888 |
+| `qwen3.5-4b-mmproj-F16.gguf` (the repository's `mmproj-F16.gguf`) | same | 672,423,616 |
+
+- **Checksums.** Each SHA-256 was read from the publisher's own listing at that commit (`https://huggingface.co/api/models/<repo>/tree/<commit>`, the file's `lfs.oid`) and compared with `sha256sum` of the files run on the phone in S1 and T409: **all four match**. The URLs use the commit, not `main`, so the bytes behind a profile cannot change under it; the checksum is the second lock.
+- **Licences.** Both repositories' cards say `apache-2.0` (`cardData.license` from `https://huggingface.co/api/models/<repo>`); the base models are `google/gemma-4-E2B-it` and `Qwen/Qwen3.5-4B`.
+- **Hosts, as observed.** `GET` of a profile URL with `Range: bytes=0-0` answers `302` from `huggingface.co`, then `206` from `us.aws.cdn.hf.co` with `Content-Range: bytes 0-0/<size>` and an `ETag`. The default policy (`DownloadPolicy.DEFAULT`, in code so a profile cannot widen it) allows `huggingface.co` and any host ending `.cdn.hf.co`, over HTTPS only.
+- **Floors.** `context_tokens` 6144 (what S1 ran the events call with), `min_free_storage_mb` 3800 (the two files are 3.4 GB; a `.part` is the file itself, so there is no second copy), `min_free_ram_mb` 5000 for Gemma and 6500 for Qwen3.5: **the provisional floors of S1**, which came from peak resident memory. They are the figures T401 handed to this task. Free memory on the phone moves between about 3.5 and 6 GB with its caches (`MemAvailable`, three readings), and the mapped weights are file pages the system can drop, so these floors may refuse a phone that could run the model slowly; T427 measures the anonymous memory a call really needs (the device test now records `RssAnon`, `RssFile` and the free memory before each load) and the profiles are updated with its numbers.
+- **The downloader** (`core/download`, tested against a server on this computer for every failure in the done-when, and by an opt-in test against the real hosts): resumes only on a `206` whose `Content-Range` starts where the file ends and whose `ETag` or `Last-Modified` is the recorded one; a `200`, another range, another validator or a `.part` longer than the file restarts from the first byte; a redirect is followed only to an allowed host; free storage is checked before the first byte; the SHA-256 is checked before the rename and a mismatch deletes the file; cancelling keeps the `.part`.

@@ -27,6 +27,8 @@ tasks.test {
     // Shared data is read where it lives, never copied (constitution XI, root CLAUDE.md rule 11).
     systemProperty("shared.dir", rootProject.layout.projectDirectory.dir("../shared").asFile.absolutePath)
     systemProperty("android.dir", rootProject.layout.projectDirectory.asFile.absolutePath)
+    // -Dnetwork.test=true runs the tests that download a real file (RealDownloadTest); off by default.
+    systemProperty("network.test", System.getProperty("network.test") ?: "")
     // The tests read both trees, so a change in either must run them (and must not be served from the cache).
     inputs.dir(rootProject.layout.projectDirectory.dir("../shared")).withPropertyName("sharedData")
     // JUnit silently skips a test method that returns a value (`= runBlocking { ... assertFailsWith ... }`): the
