@@ -16,6 +16,8 @@ import app.epicreplay.core.secrets.KeyKind
 import app.epicreplay.core.secrets.Secret
 import app.epicreplay.ui.FirstRunActions
 import app.epicreplay.ui.FirstRunScreen
+import app.epicreplay.download.DownloadStatus
+import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -35,6 +37,7 @@ class FirstRunScreenTest {
     private lateinit var graph: AppGraph
     private val asked = mutableListOf<Role>()
     private val downloads = mutableListOf<String>()
+    private val status = MutableStateFlow<DownloadStatus>(DownloadStatus.Idle)
 
     private fun clean() {
         for (d in listOf("secrets", "settings", "models")) File(ctx.filesDir, d).deleteRecursively()
@@ -46,7 +49,10 @@ class FirstRunScreenTest {
     private fun show() = rule.setContent {
         MaterialTheme {
             FirstRunScreen(graph.setup, graph.keys, FirstRunActions(
-                download = { p: OnDeviceProfile, _ -> downloads += p.id },
+                startDownload = { p: OnDeviceProfile -> downloads += p.id },
+                cancelDownload = {},
+                downloadStatus = status,
+                acknowledgeDownload = {},
                 unmetered = { true },
                 ask = { role -> asked += role; "answer for $role" },
             ))

@@ -77,6 +77,9 @@ class AppGraph(context: Context) {
     /** Downloads, resumes and deletes the files of on-device profiles in [modelDir] (HTTPS, allowed hosts, checksum). */
     fun modelDownloader(): ModelDownloader = ModelDownloader(modelDir, DownloadPolicy.DEFAULT, AndroidStorageProbe(modelDir))
 
+    /** The one download in progress, shared by the screen, the notification and the service. */
+    val downloads = app.epicreplay.download.DownloadTracker { modelDownloader() }
+
     /** Whether the connection is unmetered, for the download's Wi-Fi hint. */
     fun isUnmetered(): Boolean = AndroidNetworkInfo(appContext).isUnmetered()
 

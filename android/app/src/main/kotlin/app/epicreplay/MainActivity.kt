@@ -1,6 +1,11 @@
 package app.epicreplay
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
+import androidx.activity.result.contract.ActivityResultContracts
+import app.epicreplay.download.DownloadService
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -18,12 +23,22 @@ import app.epicreplay.ui.FirstRunActions
 import app.epicreplay.ui.FirstRunScreen
 
 class MainActivity : ComponentActivity() {
-    private val graph by lazy { AppGraph(applicationContext) }
+    private val graph by lazy { (application as EpicApp).graph }
+    private val askNotifications = registerForActivityResult(ActivityResultContracts.RequestPermission()) { }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val actions = FirstRunActions(
-            download = { profile, progress -> graph.modelDownloader().download(profile, progress) },
+            startDownload = { profile ->
+                // the progress notification needs the permission on Android 13+; the download goes on whatever the answer
+                if (Build.VERSION.SDK_INT >= 33 && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                    askNotifications.launch(Manifest.permission.POST_NOTIFICATIONS)
+                }
+                DownloadService.start(this, profile.id)
+            },
+            cancelDownload = { DownloadService.cancel(this, graph.downloads) },
+            downloadStatus = graph.downloads.status,
+            acknowledgeDownload = graph.downloads::acknowledge,
             unmetered = graph::isUnmetered,
             ask = { role -> askOneQuestion(role) },
         )

@@ -18,6 +18,8 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -27,7 +29,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role as SemanticsRole
 import androidx.compose.ui.unit.dp
-import app.epicreplay.core.download.DownloadError
+import app.epicreplay.download.DownloadStatus
+import kotlinx.coroutines.flow.StateFlow
 import app.epicreplay.core.download.ModelNotice
 import app.epicreplay.core.download.Progress
 import app.epicreplay.core.models.OnDeviceProfile
@@ -35,13 +38,15 @@ import app.epicreplay.core.models.Role
 import app.epicreplay.core.secrets.KeysController
 import app.epicreplay.core.setup.SetupController
 import app.epicreplay.core.setup.SetupStep
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 /** What the screen needs from the app, so a test can give it fakes (no network, no model). */
 class FirstRunActions(
-    val download: suspend (OnDeviceProfile, (Progress) -> Unit) -> Unit,
+    /** Starts the download outside the screen (a foreground service), so it goes on in the background. */
+    val startDownload: (OnDeviceProfile) -> Unit,
+    val cancelDownload: () -> Unit,
+    val downloadStatus: StateFlow<DownloadStatus>,
+    val acknowledgeDownload: () -> Unit,
     val unmetered: () -> Boolean,
     /** Asks the model chosen for [Role] one question and returns what it said (or why it could not). */
     val ask: suspend (Role) -> String,
@@ -111,34 +116,34 @@ private fun Summary(controller: SetupController, onChange: () -> Unit) {
 
 @Composable
 private fun DownloadPart(step: SetupStep.NeedsDownload, actions: FirstRunActions, onInstalled: () -> Unit) {
-    val scope = rememberCoroutineScope()
-    var job by remember { mutableStateOf<Job?>(null) }
-    var progress by remember { mutableStateOf<Progress?>(null) }
-    var message by remember { mutableStateOf<String?>(null) }
+    val status by actions.downloadStatus.collectAsState()
+    val mine = when (val s = status) {
+        is DownloadStatus.Running -> s.profile.id == step.profile.id
+        is DownloadStatus.Stopped -> s.profile.id == step.profile.id
+        is DownloadStatus.Failed -> s.profile.id == step.profile.id
+        is DownloadStatus.Done -> s.profile.id == step.profile.id
+        DownloadStatus.Idle -> false
+    }
+    LaunchedEffect(status) { if (status is DownloadStatus.Done && mine) { actions.acknowledgeDownload(); onInstalled() } }
     Text(step.notice.text())
     ModelNotice.connectionAdvice(step.profile, actions.unmetered())?.let { Text(it, style = MaterialTheme.typography.bodyMedium) }
-    progress?.let {
-        LinearProgressIndicator(progress = { if (it.totalBytes > 0) it.doneBytes.toFloat() / it.totalBytes else 0f }, modifier = Modifier.fillMaxWidth())
-        Text("${ModelNotice.megabytes(it.doneBytes)} of ${ModelNotice.megabytes(it.totalBytes)}")
-    }
-    message?.let { Text(it, color = MaterialTheme.colorScheme.error) }
-    if (job?.isActive == true) {
-        OutlinedButton(onClick = { job?.cancel() }) { Text("Cancel") } // the part stays, so a later tap resumes
+    val running = status as? DownloadStatus.Running
+    if (mine && running != null) {
+        running.progress?.let {
+            LinearProgressIndicator(progress = { if (it.totalBytes > 0) it.doneBytes.toFloat() / it.totalBytes else 0f }, modifier = Modifier.fillMaxWidth())
+            Text("${ModelNotice.megabytes(it.doneBytes)} of ${ModelNotice.megabytes(it.totalBytes)}")
+        }
+        Text("It goes on in the background; a notification shows the progress.", style = MaterialTheme.typography.bodySmall)
+        OutlinedButton(onClick = actions.cancelDownload) { Text("Cancel") } // the part stays, so a later tap resumes
     } else {
-        Button(onClick = {
-            message = null
-            job = scope.launch {
-                try {
-                    actions.download(step.profile) { progress = it }
-                    onInstalled()
-                } catch (e: CancellationException) {
-                    message = "Stopped. What was downloaded is kept; tap Download to continue."
-                    throw e
-                } catch (e: DownloadError) {
-                    message = e.message ?: "The download failed."
-                }
-            }
-        }) { Text(if (step.remainingBytes < step.profile.files.sumOf { it.bytes }) "Resume download" else "Download") }
+        when (val s = status) {
+            is DownloadStatus.Stopped -> if (mine) Text("Stopped. What was downloaded is kept; tap Resume download to continue.")
+            is DownloadStatus.Failed -> if (mine) Text(s.message, color = MaterialTheme.colorScheme.error)
+            else -> {}
+        }
+        Button(onClick = { actions.startDownload(step.profile) }) {
+            Text(if (step.remainingBytes < step.profile.files.sumOf { it.bytes }) "Resume download" else "Download")
+        }
     }
 }
 
