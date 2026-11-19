@@ -113,7 +113,7 @@ A user picks or records a 3 to 30 s clip, chooses a narrator and a language, con
 
 **Downloads**
 
-- **FR-009** The on-device files download over HTTPS with resume (`Range`), a `.part` file renamed only after the length and the SHA-256 match the profile, a progress bar, a cancel button, a storage check before the first byte, and a warning that the download is large and Wi-Fi is better. A failed or corrupt file is deleted. (voice-reps checks only a minimum size; this adds the checksum and resume.)
+- **FR-009** The on-device files download over HTTPS with resume (`Range`), a `.part` file renamed only after the length and the SHA-256 match the profile, a progress bar, a cancel button, a storage check before the first byte, and a warning that the download is large and Wi-Fi is better. A failed or corrupt file is deleted. (voice-reps checks only a minimum size; this adds the checksum and resume.) The download runs in a foreground service of type `dataSync` with a progress notification, so it goes on with the app in the background or the screen off; a cancel, or the system's time limit for that service type, stops it and keeps the part (agreed 2026-11-19, found when the owner's first download stopped in the background).
 - **FR-010** The app shows the license of the models and where they come from before the first download, from the profile.
 - **FR-011** Models can be deleted from settings, and a role whose model is deleted asks for a new choice before the next run.
 

@@ -1,0 +1,100 @@
+{
+  "area": "consent",
+  "function": "consent.covers",
+  "language": null,
+  "description": "Records with no places, an unknown place, an old wording, no confirmation, or one place missing.",
+  "inputs": {
+    "checks": {
+      "value": [
+        {
+          "record": {
+            "confirmed": true,
+            "at": "x",
+            "text_version": "4"
+          },
+          "vision_location": "cloud",
+          "text_location": "cloud"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "x",
+            "text_version": "4"
+          },
+          "vision_location": "device",
+          "text_location": "network"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "x",
+            "text_version": "4",
+            "vision_location": "moon",
+            "text_location": "cloud"
+          },
+          "vision_location": "device",
+          "text_location": "cloud"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "x",
+            "text_version": "3",
+            "vision_location": "cloud",
+            "text_location": "cloud"
+          },
+          "vision_location": "device",
+          "text_location": "device"
+        },
+        {
+          "record": {
+            "confirmed": false,
+            "at": "x",
+            "text_version": "4",
+            "vision_location": "cloud",
+            "text_location": "cloud"
+          },
+          "vision_location": "device",
+          "text_location": "device"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "x",
+            "text_version": "4",
+            "vision_location": "local"
+          },
+          "vision_location": "local",
+          "text_location": "cloud"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "x",
+            "text_version": "4",
+            "text_location": "local"
+          },
+          "vision_location": "cloud",
+          "text_location": "local"
+        },
+        {
+          "record": {},
+          "vision_location": "device",
+          "text_location": "device"
+        }
+      ]
+    }
+  },
+  "expected": {
+    "value": [
+      true,
+      true,
+      false,
+      false,
+      false,
+      true,
+      true,
+      false
+    ]
+  }
+}

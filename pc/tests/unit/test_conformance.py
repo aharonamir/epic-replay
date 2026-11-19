@@ -24,7 +24,8 @@ AREAS = {
     "cells",
     "backend",
     "budget",
-}  # backend and budget: spec 004, T408
+    "consent",
+}  # backend, budget and consent: spec 004, T408 and T411
 
 
 def schema() -> Draft202012Validator:

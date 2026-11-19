@@ -15,7 +15,7 @@ shared/conformance/<area>/<case>/expected/output.json   when the output is large
 
 | Key | Meaning |
 |---|---|
-| `area` | One of the eight areas below; the folder the case sits in |
+| `area` | One of the nine areas below; the folder the case sits in |
 | `function` | The rule under test, by the platform-neutral name in the table below |
 | `language` | `en`, `zh`, or `null` when the rule has no language |
 | `description` | What the case shows |
@@ -58,6 +58,8 @@ Compare the platform's output, as JSON, with the expected value: objects by key 
 | `units.spoken_units` | `language`, `texts` | for each text, its word-budget units | `styles.slots.spoken_units` |
 | `backend.requests` | `profile_id`, `role`, `key`, `calls` | `{requests, sha256}`: the HTTP request the client builds for each call (method, URL, `Authorization` header or null, content type, timeout, JSON body) and the SHA-256 of their canonical JSON | `providers.client.look`, `chat` (caught below the HTTP library) |
 | `backend.recording_key` | `adapter`, `model`, `request`, `files` | the key a recording is stored under (a hex string) | `providers.replay.cache_key` |
+| `consent.blocks` | `vision_location`, `vision_label`, `text_location`, `text_label` | the consent words the screen shows: one sentence when both places are the same, else a block for the frames and one for the text (`shared/copy/consent.json`) | `guards.consent.blocks_for` |
+| `consent.covers` | `checks`: each `{record, vision_location, text_location}` | for each, whether the stored consent covers a run going there (confirmed, current wording, each role no wider than agreed) | `guards.consent.covers` |
 | `budget.run` | `caps`, `ops` | one record per op: `{op, id, outcome (ok or blocked), cap, run_total, day_total}` | `guards.budget.Ledger` |
 | `cells.narrow` | `start_s`, `end_s`, `fps`, `n_frames`, `picks` | the frame numbers of each contact sheet: the first over the window, then one more for each picked cell (1 to 9) | `media.contact_sheet.sheet_frames`, `refine` |
 
@@ -75,5 +77,6 @@ The matching rules behind `lexicon.scan` and `checks.text` are written out in `s
 | `cells` | three passes of narrowing; a window under nine frames; a window past the clip's end; a clip under nine frames; the edge cells |
 | `backend` | the six DeepSeek calls `backend_golden.json` pins (the overview with numbered frames, with a sheet, with no schema, the events call, the structured draft, the gloss), each with its retry; a chat call with a tool; six vision recording keys of the same test; a key over non-ASCII text |
 | `budget` | a settle replaces its reservation; the run cap blocks and a release frees; calls in flight count; the day cap spans runs; the pre-checkpoint cap; a call billed at its estimate; a recording costs nothing; a cap reached exactly is allowed |
+| `consent` | the words for each of the 16 pairs of places; whether a consent covers a run, for every recorded pair against every run pair; records with no places, an unknown place, an old wording, no confirmation |
 
 Not here: the signal scan (optical flow, sound onsets), whose numbers differ by small amounts between OpenCV and FFmpeg builds. Spec 004 decides their tolerance.

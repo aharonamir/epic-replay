@@ -31,7 +31,7 @@ import app.epicreplay.core.secrets.KeysController
 
 /** The keys part of settings (spec 004 FR-008): each key masked, replace, delete. The key is never shown in full. */
 @Composable
-fun KeysSection(controller: KeysController, modifier: Modifier = Modifier) {
+fun KeysSection(controller: KeysController, modifier: Modifier = Modifier, onChanged: () -> Unit = {}) {
     var rows by remember { mutableStateOf(controller.rows()) }
     // While keys can be typed or shown masked, the window is excluded from screenshots, screen
     // recording and the recents thumbnail (review: the typed key must not be captured).
@@ -47,7 +47,7 @@ fun KeysSection(controller: KeysController, modifier: Modifier = Modifier) {
             "Your keys stay on this phone, encrypted, and are never backed up. They go only to the service they belong to.",
             style = MaterialTheme.typography.bodyMedium,
         )
-        rows.forEach { row -> KeyRowView(row, controller) { rows = controller.rows() } }
+        rows.forEach { row -> KeyRowView(row, controller) { rows = controller.rows(); onChanged() } }
     }
 }
 

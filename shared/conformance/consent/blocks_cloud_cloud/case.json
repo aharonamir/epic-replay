@@ -1,0 +1,25 @@
+{
+  "area": "consent",
+  "function": "consent.blocks",
+  "language": null,
+  "description": "The consent words when the frames go to cloud and the text to cloud.",
+  "inputs": {
+    "vision_location": {
+      "value": "cloud"
+    },
+    "vision_label": {
+      "value": "Vision Model"
+    },
+    "text_location": {
+      "value": "cloud"
+    },
+    "text_label": {
+      "value": "Text Model"
+    }
+  },
+  "expected": {
+    "value": [
+      "Still frames from the clip, and descriptions drawn from them with the script, are sent to the model providers to be looked at and written. The providers may use what they receive to train their models."
+    ]
+  }
+}
