@@ -56,8 +56,12 @@ class DownloadService : Service() {
         return START_NOT_STICKY
     }
 
-    /** Android's time limit for a `dataSync` service (Android 15): cancel and let the job's end stop the service, keeping the part. */
-    override fun onTimeout(startId: Int, fgsType: Int) { if (!tracker.cancel()) stopSelf() }
+    /**
+     * Android's time limit for a `dataSync` service (Android 15): the service must stop at once or the system raises an
+     * ANR. The job is cancelled and the service stopped together; the cancel unwinds on its own and the part stays on
+     * disk (it is written as it goes, and a resume checks its length against its record).
+     */
+    override fun onTimeout(startId: Int, fgsType: Int) { tracker.cancel(); stopSelf() }
 
     override fun onDestroy() { scope.cancel(); super.onDestroy() }
 
