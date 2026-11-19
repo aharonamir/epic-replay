@@ -917,6 +917,19 @@ def voice_cases() -> dict[str, dict]:
                 call("What a strike", "strike", delivery="shouting, full voice"),
             ],
         ),
+        "word_start_with_emoji": words(
+            "A character outside the Basic Multilingual Plane before the word counts as one position, in English and in Mandarin.",
+            "en",
+            [
+                call("\U0001f525 TOP CORNER \U0001f525 What a strike", "strike"),
+                call("What a \U0001f525\U0001f525 strike", "strike"),
+            ],
+        ),
+        "word_start_mandarin_with_emoji": words(
+            "The same in Mandarin: the position is counted in characters, not in UTF-16 units.",
+            "zh",
+            [call("\U0001f525进了，好球", "好球", "zh"), call("进了\U00020000好球", "好球", "zh")],
+        ),
         "word_start_mandarin": words(
             "Mandarin has no spaces: the word is found as a substring, and the first character leaves the work to the onset.",
             "zh",
@@ -930,6 +943,16 @@ def voice_cases() -> dict[str, dict]:
             ],
         ),
     }
+
+
+def _repeat_segments() -> list[dict]:
+    """The sample storyboard's segments with a second live, transition and end card, each differing from the first."""
+    segs = json.loads((paths.SAMPLE_RUN / "storyboard.json").read_text())["segments"]
+    extra = [
+        {**s, "id": s["id"] + "b", "timeline_start": round(s["timeline_start"] + 0.5, 3), "source": s["source"] and {"in_s": 1.0, "out_s": 2.0}}
+        for s in segs if s["kind"] in ("live", "transition", "endcard")
+    ]  # fmt: skip
+    return [*segs, *extra]
 
 
 def mix_cases() -> dict[str, dict]:
@@ -965,6 +988,28 @@ def mix_cases() -> dict[str, dict]:
             "A user context with no `keep_original_audio` keeps the clip's own sound.",
             "football_commentator",
             uc={"keep_original_audio": None},
+            expected={"file": "../layers_football/expected/output.json"},
+        ),
+        "layers_repeated_segment_kinds": case(
+            "Two segments of one kind: the mix reads the last of each (a dictionary keyed by kind), unlike the slots.",
+            "football_commentator",
+            storyboard={
+                "fixture": "sample_run/storyboard.json",
+                "merge_patch": {"segments": _repeat_segments()},
+            },
+        ),
+        "layers_falsy_numbers": case(
+            "has_audio 0 and keep_original_audio 0 are false as Python reads them: no original layer, even with both set.",
+            "football_commentator",
+            uc={"keep_original_audio": 0},
+            meta={"has_audio": 1},
+            expected={"file": "../layers_original_audio_off/expected/output.json"},
+        ),
+        "layers_truthy_numbers": case(
+            "has_audio 1 and keep_original_audio 1 are true: the original layer is there.",
+            "football_commentator",
+            uc={"keep_original_audio": 1},
+            meta={"has_audio": 1},
             expected={"file": "../layers_football/expected/output.json"},
         ),
         "layers_original_audio_off": case(
