@@ -25,12 +25,12 @@
     }
   ],
   "context_tokens": 6144,
-  "min_free_ram_mb": 6500,
+  "min_free_ram_mb": 4400,
   "min_free_storage_mb": 3800,
   "license": "Apache-2.0",
   "price_in_per_m": 0,
   "price_out_per_m": 0,
   "supports_tools": false,
   "status": "experimental",
-  "notes": "The optional on-device model (spec 004 D2). Files from huggingface.co/unsloth/Qwen3.5-4B-GGUF at commit e87f1764 (Q4_K_M weights, F16 projector); the sizes and SHA-256 were read from the publisher's own listing at that commit and equal the files run in spikes S1 and T409. The card says Apache-2.0 (base model Qwen/Qwen3.5-4B). It is a thinking model: the engine puts an empty think block in the prompt so it answers at once (about 3 tokens for a sum, against 3,000 with reasoning on in S1). About half the speed of Gemma 4 E2B and 6 GB of peak memory. The memory floor is the provisional one from S1; T427 measures it again."
+  "notes": "The optional on-device model (spec 004 D2). Files from huggingface.co/unsloth/Qwen3.5-4B-GGUF at commit e87f1764 (Q4_K_M weights, F16 projector); the sizes and SHA-256 were read from the publisher's own listing at that commit and equal the files run in spikes S1 and T409. The card says Apache-2.0 (base model Qwen/Qwen3.5-4B). It is a thinking model: the engine puts an empty think block in the prompt so it answers at once (about 3 tokens for a sum, against 3,000 with reasoning on in S1). About half the speed of Gemma 4 E2B and 6 GB of peak memory. The memory floor is measured in the app on the owner's Xiaomi 15T Pro (T410, 2026-11-19): after a call the process held 3277 MB of anonymous memory (KV cache and buffers) and 2199 MB of file pages (the mapped weights, which the system can drop); free memory fell from 6704 to 3511 MB while it loaded. The floor is the anonymous memory plus 1,000 MB of margin. T427 measures it again on a long run."
 }

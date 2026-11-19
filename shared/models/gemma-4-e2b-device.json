@@ -25,12 +25,12 @@
     }
   ],
   "context_tokens": 6144,
-  "min_free_ram_mb": 5000,
+  "min_free_ram_mb": 3300,
   "min_free_storage_mb": 3800,
   "license": "Apache-2.0",
   "price_in_per_m": 0,
   "price_out_per_m": 0,
   "supports_tools": false,
   "status": "experimental",
-  "notes": "The default on-device model (spec 004 D2). Files from huggingface.co/ggml-org/gemma-4-E2B-it-GGUF at commit 2a8538c2 (Q4_0 weights, Q8_0 projector); the sizes and SHA-256 were read from the publisher's own listing at that commit and equal the files run on the owner's Xiaomi 15T Pro in spikes S1 and T409 (docs/android-spikes.md). The card says Apache-2.0. Runs images and text through llama.cpp; a look call of the synthetic sheet took about 10 s after the load (14 to 18 s the first time). The memory floor is the provisional one from S1 (peak resident memory about 5 GB, part of it memory-mapped weights the system can drop); T427 measures it again."
+  "notes": "The default on-device model (spec 004 D2). Files from huggingface.co/ggml-org/gemma-4-E2B-it-GGUF at commit 2a8538c2 (Q4_0 weights, Q8_0 projector); the sizes and SHA-256 were read from the publisher's own listing at that commit and equal the files run on the owner's Xiaomi 15T Pro in spikes S1 and T409 (docs/android-spikes.md). The card says Apache-2.0. Runs images and text through llama.cpp; a look call of the synthetic sheet took about 10 s after the load (14 to 18 s the first time). The memory floor is measured in the app on the owner's Xiaomi 15T Pro (T410, 2026-11-19): after a call the process held 2215 MB of anonymous memory (KV cache and buffers) and 1630 MB of file pages (the mapped weights, which the system can drop); free memory fell from 5305 to 4273 MB while it loaded. The floor is the anonymous memory plus 1,000 MB of margin. T427 measures it again on a long run."
 }
