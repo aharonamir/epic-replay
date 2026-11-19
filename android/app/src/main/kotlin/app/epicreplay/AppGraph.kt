@@ -6,7 +6,15 @@ import app.epicreplay.core.download.DownloadPolicy
 import app.epicreplay.core.download.ModelDownloader
 import app.epicreplay.core.budget.JsonFileLedgerStorage
 import app.epicreplay.core.budget.Ledger
+import app.epicreplay.core.consent.ConsentCopy
+import app.epicreplay.core.consent.ConsentStore
 import app.epicreplay.core.models.CloudBackend
+import app.epicreplay.core.models.LoadedProfiles
+import app.epicreplay.core.models.ModelChoice
+import app.epicreplay.core.models.Platform
+import app.epicreplay.core.models.ProfileFile
+import app.epicreplay.core.models.ProfileLoader
+import app.epicreplay.core.setup.SetupController
 import app.epicreplay.core.models.OnDeviceBackend
 import app.epicreplay.core.models.OnDeviceConfig
 import app.epicreplay.core.models.OnDeviceProfile
@@ -71,6 +79,29 @@ class AppGraph(context: Context) {
 
     /** Whether the connection is unmetered, for the download's Wi-Fi hint. */
     fun isUnmetered(): Boolean = AndroidNetworkInfo(appContext).isUnmetered()
+
+    private fun asset(path: String) = appContext.assets.open(path).bufferedReader().use { it.readText() }
+
+    /** The profiles packaged from `shared/models/`, minus what Android cannot run (spec 004 FR-005). */
+    val profiles: LoadedProfiles by lazy {
+        val files = appContext.assets.list("models")!!.filter { it.endsWith(".json") }.map { ProfileFile(it, asset("models/$it")) }
+        ProfileLoader(asset("contracts/model_profile.schema.json"), Platform.ANDROID).load(files)
+    }
+
+    /** The first-run and settings logic: the choice for each role, what is missing before a run, the consent. */
+    val setup: SetupController by lazy {
+        SetupController(
+            profiles, ModelChoice(modelChoice, profiles), secrets, modelDownloader(),
+            ConsentStore(File(root, "settings/consent.json")), ConsentCopy(asset("copy/consent.json")),
+            { Instant.now().truncatedTo(java.time.temporal.ChronoUnit.SECONDS).toString() },
+        )
+    }
+
+    /** The backend for the profile chosen for [role], for whatever place it runs. */
+    fun backendFor(profile: app.epicreplay.core.models.Profile, role: Role): app.epicreplay.core.models.ModelBackend = when (profile) {
+        is ServerProfile -> cloudBackend(profile, role)
+        is OnDeviceProfile -> onDeviceBackend(profile, role)
+    }
 
     companion object {
         const val SECRETS_DIR = "secrets"
