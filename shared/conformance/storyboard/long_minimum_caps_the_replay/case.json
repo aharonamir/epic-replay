@@ -1,0 +1,21 @@
+{
+  "area": "storyboard",
+  "function": "storyboard.build",
+  "language": null,
+  "description": "A 40 s minimum: the replay widens to its 3.5 s cap and the end card holds for the rest (added in T414).",
+  "tolerance_s": 0.001,
+  "inputs": {
+    "play_sheet": {
+      "fixture": "sample_run/play_sheet.json"
+    },
+    "clip_meta": {
+      "fixture": "sample_run/clip_meta.json"
+    },
+    "min_output_s": {
+      "value": 40.0
+    }
+  },
+  "expected": {
+    "file": "expected/output.json"
+  }
+}

@@ -7,12 +7,14 @@ import app.epicreplay.core.text.SpokenUnits
 import java.io.File
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.double
 import kotlinx.serialization.json.int
 import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 
 /** The functions of the conformance table that `core/` has ported so far (T412): `lexicon.scan`, `units.spoken_units`, `cells.narrow`, `cells.layout`. */
@@ -54,6 +56,12 @@ object TextFunctions {
                 JsonArray(sheets.map { s -> JsonArray(s.map(::JsonPrimitive)) })
             },
             "signals.scan" to app.epicreplay.core.signals.Synthetic::scan,
+            "storyboard.build" to { a ->
+                app.epicreplay.core.storyboard.Storyboard.build(a.getValue("play_sheet").jsonObject, a.getValue("clip_meta").jsonObject, a.getValue("min_output_s").jsonPrimitive.content.toDouble())
+            },
+            "slots.build" to { a ->
+                app.epicreplay.core.style.Slots.build(a.getValue("storyboard").jsonObject, a.getValue("pack").jsonObject, (a.getValue("climax_event_id") as? JsonPrimitive)?.takeIf { it !is JsonNull }?.content)
+            },
             "cells.layout" to { a ->
                 val l = ContactSheet.layout(a.getValue("width").jsonPrimitive.int, a.getValue("height").jsonPrimitive.int, a.getValue("count").jsonPrimitive.int)
                 buildJsonObject {

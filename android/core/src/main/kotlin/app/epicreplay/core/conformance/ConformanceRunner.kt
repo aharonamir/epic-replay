@@ -26,6 +26,7 @@ class UnsupportedReference(val kind: String) : Exception("reference $kind is not
  */
 class ConformanceRunner(private val shared: File, private val functions: Map<String, (Map<String, JsonElement>) -> JsonElement>) {
     private val root = File(shared, "conformance")
+    private val styles by lazy { app.epicreplay.core.style.StyleLoader.loadShared(shared) }
 
     /** Every case folder, ordered by area and name. */
     fun cases(): List<File> = root.listFiles { f -> f.isDirectory }.orEmpty().sortedBy { it.name }
@@ -40,7 +41,7 @@ class ConformanceRunner(private val shared: File, private val functions: Map<Str
     /** An input or the expected value: `value`, `file`, `fixture`, with `slice`, `field` and `merge_patch` after a file. */
     fun resolve(ref: JsonObject, caseDir: File): JsonElement {
         if ("value" in ref) return ref.getValue("value")
-        if ("style" in ref) throw UnsupportedReference("style")
+        if ("style" in ref) return styles.resolved(ref.getValue("style").jsonPrimitive.content, (ref["language"] as? JsonPrimitive)?.takeIf { it !is JsonNull }?.content)
         val path = if ("file" in ref) File(caseDir, ref.getValue("file").jsonPrimitive.content)
         else File(shared, "fixtures/" + ref.getValue("fixture").jsonPrimitive.content)
         var data: JsonElement = Json.parseToJsonElement(path.readText())
