@@ -6,13 +6,13 @@
   "additionalProperties": false,
   "required": ["area", "function", "language", "description", "inputs", "expected"],
   "properties": {
-    "area": {"enum": ["storyboard", "slots", "checks", "lexicon", "units", "cells", "backend", "budget", "consent"]},
+    "area": {"enum": ["storyboard", "slots", "checks", "lexicon", "units", "cells", "backend", "budget", "consent", "signals"]},
     "function": {
       "enum": [
         "storyboard.build", "slots.build", "checks.check", "checks.text",
         "lexicon.scan", "units.spoken_units", "cells.narrow",
         "backend.requests", "backend.recording_key", "budget.run",
-        "consent.blocks", "consent.covers", "cells.layout"
+        "consent.blocks", "consent.covers", "cells.layout", "signals.scan"
       ]
     },
     "language": {"enum": ["en", "zh", null]},

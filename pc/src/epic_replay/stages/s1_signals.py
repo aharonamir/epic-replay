@@ -58,22 +58,37 @@ def stream_start(path: Path, kind: str) -> float | None:
         return None
 
 
+def decoded_frames(path: Path, width: int = 320):
+    """The clip's frames as small grey pictures, and its frame rate (what a decoder gives)."""
+    cap = cv2.VideoCapture(str(path))
+    fps = cap.get(cv2.CAP_PROP_FPS) or 30.0
+
+    def frames():
+        while True:
+            ok, frame = cap.read()
+            if not ok:
+                break
+            h, w = frame.shape[:2]
+            small = cv2.resize(frame, (width, max(2, round(h * width / w))))
+            yield cv2.cvtColor(small, cv2.COLOR_BGR2GRAY)
+        cap.release()
+
+    return fps, frames()
+
+
 def motion_curves(path: Path, width: int = 320, step: int = 8):
     """Per frame: flow left after the camera fit, pixel change left after it, how far the
     camera moved, and the share of the picture that still changed (for cuts).
     Entry i is the change from frame i-1 to frame i; entry 0 is 0."""
-    cap = cv2.VideoCapture(str(path))
-    fps = cap.get(cv2.CAP_PROP_FPS) or 30.0
+    fps, frames = decoded_frames(path, width)
+    return (fps, *curves_from_gray(frames, step))
+
+
+def curves_from_gray(frames, step: int = 8):
     dis = cv2.DISOpticalFlow_create(cv2.DISOPTICAL_FLOW_PRESET_FAST)
     prev = grid = p0 = None
     flow_e, change, camera, share = [], [], [], []
-    while True:
-        ok, frame = cap.read()
-        if not ok:
-            break
-        h, w = frame.shape[:2]
-        small = cv2.resize(frame, (width, max(2, round(h * width / w))))
-        gray = cv2.cvtColor(small, cv2.COLOR_BGR2GRAY)
+    for gray in frames:
         if prev is None:
             ys, xs = np.mgrid[step // 2 : gray.shape[0] : step, step // 2 : gray.shape[1] : step]
             grid = (ys.ravel(), xs.ravel())
@@ -106,8 +121,7 @@ def motion_curves(path: Path, width: int = 320, step: int = 8):
             change.append(float(np.partition(diff, -kd)[-kd:].mean()) if diff.size else 0.0)
             share.append(float(np.mean(diff > 6)) if diff.size else 1.0)
         prev = gray
-    cap.release()
-    return fps, np.array(flow_e), np.array(change), np.array(camera), np.array(share)
+    return np.array(flow_e), np.array(change), np.array(camera), np.array(share)
 
 
 def find_cuts(share: np.ndarray, level: float = 0.35) -> list[int]:
@@ -199,7 +213,22 @@ def scan(
     path: Path, top: int = 3, min_gap_s: float = 0.5, tie_break: bool = True
 ) -> tuple[dict, dict]:
     path = Path(path)
-    fps, flow_e, change, camera, share = motion_curves(path)
+    fps, frames = decoded_frames(path)
+    y = read_audio(path)
+    offset = 0.0
+    if y.size > SR // 10 and float(np.abs(y).max()) > 1e-3:
+        v0, a0 = stream_start(path, "v"), stream_start(path, "a")
+        offset = (a0 - v0) if (v0 is not None and a0 is not None) else 0.0
+    return scan_signals(path.name, fps, frames, y, offset, top, min_gap_s, tie_break)
+
+
+def scan_signals(
+    name: str, fps: float, frames, y: np.ndarray, offset: float = 0.0, top: int = 3,
+    min_gap_s: float = 0.5, tie_break: bool = True,
+) -> tuple[dict, dict]:  # fmt: skip
+    """The scan on what a decoder gives: grey frames (an iterable) and mono audio at SR, the
+    audio starting `offset` s after the video. Python and Kotlin both run this (T413)."""
+    flow_e, change, camera, share = curves_from_gray(frames)
     n = len(flow_e)
     t = np.arange(n) / fps
     cuts = find_cuts(share)
@@ -210,14 +239,11 @@ def scan(
     cz = robust_z(np.where(keep, change, np.median(change)))
     mz = np.maximum(fz, cz)
 
-    y = read_audio(path)
     has_sound = y.size > SR // 10 and float(np.abs(y).max()) > 1e-3
     sz = np.zeros(n)
     onsets = np.zeros(0)
     loud: list[dict] = []
     if has_sound:
-        v0, a0 = stream_start(path, "v"), stream_start(path, "a")
-        offset = (a0 - v0) if (v0 is not None and a0 is not None) else 0.0
         times, env = onset_envelope(y)
         times = times + offset
         idx = np.clip(np.floor(times * fps).astype(int), 0, n - 1)
@@ -254,7 +280,7 @@ def scan(
             "loud_peak_t": round(lp[0], 3) if lp else None,
         })  # fmt: skip
     result = {
-        "clip": path.name,
+        "clip": name,
         "fps": round(fps, 3),
         "frames": n,
         "has_sound": bool(has_sound),

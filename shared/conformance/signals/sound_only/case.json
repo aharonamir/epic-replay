@@ -1,0 +1,53 @@
+{
+  "area": "signals",
+  "function": "signals.scan",
+  "language": null,
+  "description": "A still picture and a loud thud at 2.0 s: the sound alone makes a candidate",
+  "tolerance_s": 0.1,
+  "inputs": {
+    "recipe": {
+      "value": {
+        "width": 160,
+        "height": 90,
+        "fps": 30,
+        "frames": 150,
+        "audio": {
+          "seconds": 5,
+          "floor": 0,
+          "bursts": [
+            {
+              "at_sample": 44100,
+              "length": 600,
+              "amp": 20000
+            }
+          ]
+        }
+      }
+    },
+    "top": {
+      "value": 3
+    },
+    "min_score": {
+      "value": 10
+    }
+  },
+  "expected": {
+    "value": {
+      "has_sound": true,
+      "frames": 150,
+      "cuts_t": [],
+      "onsets_t": [
+        1.974
+      ],
+      "loud_peaks_t": [
+        2.0
+      ],
+      "candidates": [
+        {
+          "t": 1.967,
+          "sound_onset_t": 1.974
+        }
+      ]
+    }
+  }
+}

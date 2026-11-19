@@ -480,9 +480,70 @@ def consent_cases() -> dict[str, dict]:
     return out
 
 
+def signals_cases() -> dict[str, dict]:
+    """A tiny synthetic clip as a recipe (integers only, so every platform draws the same
+    frames and samples). The scan's flow code differs between platforms (OpenCV here, Kotlin on
+    the phone), so what is compared is when things are found, within 0.1 s (3 frames); weak
+    peaks, which are noise in a clean clip, are left out by `min_score`."""
+    base = {"width": 160, "height": 90, "fps": 30, "frames": 150}
+
+    def ball(f, vx=8, vy=-3, n=3):
+        return {"x": 20, "y": 60, "vx": vx, "vy": vy, "size": 10, "from": f, "to": f + n}
+
+    def burst(t, amp=20000):
+        return {"at_sample": round(t * 22050), "length": 600, "amp": amp}
+
+    def audio(*bursts):
+        return {"seconds": 5, "floor": 0, "bursts": list(bursts)}
+
+    def case(desc, **recipe):
+        return {
+            "area": "signals", "function": "signals.scan", "language": None,
+            "description": desc, "tolerance_s": 0.1,
+            "inputs": {"recipe": value({**base, **recipe}), "top": value(3), "min_score": value(10)},
+        }  # fmt: skip
+
+    return {
+        "strike_with_sound": case(
+            "A ball is struck at 2.0 s and a thud sounds with it: one candidate there, with the sound onset just before it",
+            objects=[ball(60)],
+            audio=audio(burst(2.0)),
+        ),
+        "strike_without_sound": case(
+            "The same clip with no sound track: motion only, no sound onsets", objects=[ball(60)]
+        ),
+        "sound_only": case(
+            "A still picture and a loud thud at 2.0 s: the sound alone makes a candidate",
+            audio=audio(burst(2.0)),
+        ),
+        "two_strikes": case(
+            "Two strikes, 1.333 s and 3.333 s, with a louder and a quieter thud; two candidates in time order",
+            objects=[ball(40), ball(100, vx=-8)],
+            audio=audio(burst(40 / 30), burst(100 / 30, 12000)),
+        ),
+        "a_cut_is_not_an_event": case(
+            "A strike at 2.0 s, then a hard cut to another picture at 3.5 s: the cut is listed and is no candidate",
+            cut_frame=105,
+            objects=[ball(60)],
+            audio=audio(burst(2.0)),
+        ),
+        "a_camera_pan_is_not_motion": case(
+            "The camera pans two pixels right and one down every frame; a strike at 2.0 s still stands out and the pan makes no candidate",
+            pan=[2, 1],
+            objects=[ball(60)],
+            audio=audio(burst(2.0)),
+        ),
+        "loud_without_motion": case(
+            "A strike with a thud at 2.0 s and a quieter thud at 3.5 s with nothing moving: two candidates, two loud peaks",
+            objects=[ball(60)],
+            audio=audio(burst(2.0), burst(3.5, 8000)),
+        ),
+    }
+
+
 def all_cases() -> dict[str, dict]:
     out = {}
-    for make in (storyboard_cases, slots_cases, checks_cases, lexicon_cases, units_cases, cells_cases, cell_layout_cases, backend_cases, budget_cases, consent_cases):  # fmt: skip
+    for make in (storyboard_cases, slots_cases, checks_cases, lexicon_cases, units_cases, cells_cases, cell_layout_cases, backend_cases, budget_cases, consent_cases, signals_cases):  # fmt: skip
         for name, case in make().items():
             out[f"{case['area']}/{name}"] = case
     return out

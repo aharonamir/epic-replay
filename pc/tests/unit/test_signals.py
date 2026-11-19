@@ -53,3 +53,12 @@ def test_no_sound_gives_a_degraded_motion_only_result(tmp_path, strike):
 def test_no_working_copy_fails(tmp_path):
     res = s1_signals.run(RunContext(run_dir=tmp_path, settings=config.load()))
     assert res.status == "failed"
+
+
+def test_the_conformance_clip_as_an_mp4_has_its_strike_and_its_thud():
+    """T413: the clip the phone's decoders are tested on (tools/make_signal_clip.py), scanned here."""
+    clip = paths.FIXTURES / "signals" / "strike_with_sound.mp4"
+    result, _ = s1_signals.scan(clip, top=3)
+    top = max(result["candidates"], key=lambda c: c["score"])
+    assert result["frames"] == 150 and result["has_sound"] is True
+    assert abs(top["t"] - 2.0) <= 0.1 and abs(top["sound_onset_t"] - 1.974) <= 0.1

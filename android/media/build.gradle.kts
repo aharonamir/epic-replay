@@ -1,4 +1,4 @@
-// The Media3 Transformer pipeline: visuals, mix, compose, export (M4). Empty for now.
+
 plugins {
     alias(libs.plugins.android.library)
 }

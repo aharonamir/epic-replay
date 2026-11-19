@@ -15,7 +15,7 @@ shared/conformance/<area>/<case>/expected/output.json   when the output is large
 
 | Key | Meaning |
 |---|---|
-| `area` | One of the nine areas below; the folder the case sits in |
+| `area` | One of the ten areas below; the folder the case sits in |
 | `function` | The rule under test, by the platform-neutral name in the table below |
 | `language` | `en`, `zh`, or `null` when the rule has no language |
 | `description` | What the case shows |
@@ -63,6 +63,7 @@ Compare the platform's output, as JSON, with the expected value: objects by key 
 | `budget.run` | `caps`, `ops` | one record per op: `{op, id, outcome (ok or blocked), cap, run_total, day_total}` | `guards.budget.Ledger` |
 | `cells.narrow` | `start_s`, `end_s`, `fps`, `n_frames`, `picks` | the frame numbers of each contact sheet: the first over the window, then one more for each picked cell (1 to 9) | `media.contact_sheet.sheet_frames`, `refine` |
 | `cells.layout` | `width`, `height`, `count` | the geometry of a contact sheet of `count` frames of that size: `cell_w`, `cell_h` (rounded half to even, as Python's `round`), `rows`, `width`, `height` and where and how large each cell's number is drawn (`label_x`, `label_y`, `label_scale`, `label_thickness`) | `media.contact_sheet.layout` |
+| `signals.scan` | `recipe`, `top`, `min_score` | what the signal scan finds in a synthetic clip: `has_sound`, `frames`, `cuts_t`, `onsets_t`, `loud_peaks_t` and the `candidates` scoring at least `min_score`, in time order, each `{t, sound_onset_t}`. The recipe draws the clip with integers only (below) | `stages.s1_signals.scan_signals`, on the frames and samples the recipe draws |
 
 The matching rules behind `lexicon.scan` and `checks.text` are written out in `shared/lexicons/README.md`. The `detail` strings of the checks are English text and are part of the expected output.
 
@@ -80,4 +81,10 @@ The matching rules behind `lexicon.scan` and `checks.text` are written out in `s
 | `budget` | a settle replaces its reservation; the run cap blocks and a release frees; calls in flight count; the day cap spans runs; the pre-checkpoint cap; a call billed at its estimate; a recording costs nothing; a cap reached exactly is allowed |
 | `consent` | the words for each of the 16 pairs of places; whether a consent covers a run, for every recorded pair against every run pair; records with no places, an unknown place, an old wording, no confirmation |
 
-Not here: the signal scan (optical flow, sound onsets), whose numbers differ by small amounts between OpenCV and FFmpeg builds. Spec 004 decides their tolerance.
+| `signals` | a strike with and without a thud; a thud alone; two strikes (the quieter thud is no loud peak); a hard cut; a panning camera; a thud with nothing moving (T413) |
+
+### The synthetic clip (`signals.scan`)
+
+The `recipe` holds `width`, `height`, `fps`, `frames`; optionally `pan` `[dx, dy]` (pixels per frame), `shake` (frame number to `[dx, dy]`), `cut_frame` (from it the picture is another texture) and `objects` (squares of 250, each `x`, `y`, `vx`, `vy`, `size`, `from`, `to`: drawn on frames `from` up to `to`, moving `vx`, `vy` pixels a frame); and `audio` `{seconds, floor, bursts}` (22,050 Hz; a burst is `at_sample`, `length`, `amp`). The picture at pixel (x, y) is `(a*X + b*Y + ((X*Y) mod 23)*c) mod 101 + 60` with X, Y the pixel plus the pan plus 1000 (a, b, c = 37, 91, 5; after the cut 53, 29, 7). The noise is a linear congruential generator, `state = (state*1664525 + 1013904223) mod 2^32`, taking `(state >> 16 & 0xFFFF) - 32768` as r; a sample is `r*amp // 32768` with the burst's amp falling linearly (`amp*(length-i)//length`), integer divisions rounding down, summed, clipped to 16 bits and divided by 32768. Nothing here uses floating point, so the platforms draw the same clip.
+
+The scan's flow and camera fit are OpenCV's on the PC and Kotlin's on the phone, so they agree on when things happen, not on every number: the cases compare times within 0.1 s, and leave out peaks that score under `min_score`, which in a clean clip are noise (the plan's risk: the scan is advice to the Spotter, not a fact).
