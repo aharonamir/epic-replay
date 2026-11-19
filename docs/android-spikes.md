@@ -124,3 +124,21 @@ S2: `adb install`, then `adb shell am start -n spike.t402/spike.Main [--es only 
 ### Files kept (outside the repository)
 
 `~/workspace/android-dev/spikes/t402/`: the app, `in/` (synthetic inputs), `out/` (the exports and `montage.png`, a synthetic frame montage), `src-jars/` (the Media3 sources). Gradle is in `~/workspace/android-dev/tools/gradle-9.9.1`. The app is installed on the phone as `spike.t402`.
+
+## T409: the engine inside the app (2026-11-19)
+
+What S1 left open: the JNI bridge, the load in an app process, and the app's own memory. `android/native/engine_jni.cpp` is built into `libepic_engine.so` by Gradle (CMake fetches the llama.cpp commit of S1 by an archive pinned with its SHA-256; flags as in S1; also built on a CI runner in about 5 minutes). `OnDeviceBackend` (in `core`, tested on the JVM against a fake engine) and `NativeEngine` (the JNI bridge) run in the app process. Run on the same Xiaomi 15T Pro with the two S1 models, with `android/tools/engine_device_test.sh` (each test in a fresh process, so the peak memory, the process's `VmHWM`, is that test's own). Two full runs agreed; the second:
+
+| Check | Result |
+|---|---|
+| Model files missing | `NotInstalled`, naming the files |
+| `min_free_ram_mb` far above the free memory | `OutOfMemory` before any load (the peak did not move) |
+| Gemma 4 E2B, the synthetic sheet (`look`, schema, 280-token image cap) | JSON `{"cell": 6}` that fits the schema; 344 prompt tokens, 6 reply tokens. First call (load + sheet) 14.4 to 17.8 s, a second call 9.8 to 10.0 s |
+| Gemma chat | answers, 5.1 to 5.2 s including the load, 7 tokens |
+| A call limited to 12 s on a 2,000-token story | `Timeout` **12.01 s** after it began: the decode really stopped; the next call 0.5 s |
+| Qwen3.5 4B, reasoning off (an empty think block in the prompt), "17 times 23" | answered in **3 tokens** (13.3 to 13.5 s including the load); with reasoning on, S1 saw about 3,000 tokens |
+| Qwen3.5 4B, the sheet | `{"cell": 6}` |
+| Peak memory inside the app | Gemma 4.0 to 5.1 GB; Qwen3.5 6.1 to 6.3 GB (S1: 4.2 to 5.1 and 6.0 GB) |
+| The app's logcat (265 lines) | none of the tests' prompts, and no key-shaped text |
+
+The numbers match S1's within reason (the sheet call is faster than S1's 26 s because S1's included the process start and load). The memory floors for the profiles (T410) still come from these peaks: about 5,000 MB for Gemma and 6,500 MB for Qwen3.5, as provisionally noted above. What stays unproven: a cancel during an image encoding (7 to 15 s per sheet, S1) and a long run's heat (T427).
