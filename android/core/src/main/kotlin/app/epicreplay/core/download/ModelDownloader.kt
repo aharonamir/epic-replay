@@ -40,15 +40,20 @@ fun interface DownloadHttp {
 class JavaDownloadHttp(private val connectTimeoutMs: Int = 20_000, private val readTimeoutMs: Int = 2_000) : DownloadHttp {
     override fun get(url: String, headers: Map<String, String>): DownloadResponse {
         val conn = URL(url).openConnection() as HttpURLConnection
-        conn.instanceFollowRedirects = false
-        conn.connectTimeout = connectTimeoutMs
-        conn.readTimeout = readTimeoutMs
-        headers.forEach { (k, v) -> conn.setRequestProperty(k, v) }
-        val status = conn.responseCode
-        val out = HashMap<String, String>()
-        conn.headerFields.forEach { (k, v) -> if (k != null && v.isNotEmpty()) out[k.lowercase()] = v.last() }
-        val stream = if (status in 200..299) conn.inputStream else null
-        return DownloadResponse(status, out, stream) { try { conn.disconnect() } catch (_: Exception) {} }
+        try {
+            conn.instanceFollowRedirects = false
+            conn.connectTimeout = connectTimeoutMs
+            conn.readTimeout = readTimeoutMs
+            headers.forEach { (k, v) -> conn.setRequestProperty(k, v) }
+            val status = conn.responseCode
+            val out = HashMap<String, String>()
+            conn.headerFields.forEach { (k, v) -> if (k != null && v.isNotEmpty()) out[k.lowercase()] = v.last() }
+            val stream = if (status in 200..299) conn.inputStream else null
+            return DownloadResponse(status, out, stream) { try { conn.disconnect() } catch (_: Exception) {} }
+        } catch (e: Exception) {
+            try { conn.disconnect() } catch (_: Exception) {} // setup failed: nobody else holds this connection
+            throw e
+        }
     }
 }
 
@@ -67,6 +72,8 @@ class JavaDownloadHttp(private val connectTimeoutMs: Int = 20_000, private val r
  *   sends nothing for [stallTimeoutMs] ends the attempt.
  * - A file counts as installed only with a verification marker (`<name>.verified`: its size, its modification time and
  *   its profile checksum, written after the checksum was checked), so a same-size file of unknown origin is not trusted.
+ *   The marker detects a replaced or rewritten file, not silent corruption that keeps the size and the modification time
+ *   (storage bit rot); that would need the whole file hashed on every use, 3.4 GB, so [verify] is the explicit full check.
  * - Downloads and deletes of one file never overlap, also between two instances on the same folder.
  * - The resume record (`<name>.part.meta`) holds the URL, the checksum and the validator: a `.part` is resumed only
  *   for the same URL and checksum.
@@ -134,7 +141,7 @@ class ModelDownloader(
     /** Bytes still to fetch for [profile], counting what a resumable `.part` already holds. */
     fun remainingBytes(profile: OnDeviceProfile): Long = profile.files.sumOf { f ->
         if (verified(f)) 0L
-        else f.bytes - (partFile(f).takeIf { it.isFile && it.length() in 1 until f.bytes && metaFile(f).isFile }?.length() ?: 0L)
+        else f.bytes - (resumable(f)?.first ?: 0L)
     }
 
     /** Downloads the files of [profile] that are not there yet. Throws a [DownloadError]; a failed file leaves its `.part` unless it is corrupt. */
@@ -164,7 +171,11 @@ class ModelDownloader(
     /** Deletes the files of [profile], complete or partial (spec 004 FR-011). */
     suspend fun delete(profile: OnDeviceProfile) {
         for (f in profile.files) {
-            lockFor(f).withLock { finalFile(f).delete(); markerFile(f).delete(); partFile(f).delete(); metaFile(f).delete() }
+            lockFor(f).withLock {
+                val files = listOf(finalFile(f), markerFile(f), partFile(f), metaFile(f))
+                files.forEach { if (it.exists()) it.delete() }
+                if (files.any { it.exists() }) throw DownloadError.Storage(f.name) // reported, never silently kept
+            }
         }
     }
 
@@ -173,14 +184,7 @@ class ModelDownloader(
         val meta = metaFile(file)
         var resumeFrom = 0L
         var validator: String? = null
-        if (part.isFile && meta.isFile && part.length() in 1 until file.bytes) {
-            val rec = readMeta(meta)
-            // resumed only for the same address and the same checksum: a newer profile that reuses the file name starts again
-            if (rec != null && rec.first == file.url && rec.second.equals(file.sha256, ignoreCase = true)) {
-                resumeFrom = part.length()
-                validator = rec.third
-            }
-        }
+        resumable(file)?.let { (bytes, v) -> resumeFrom = bytes; validator = v }
         if (resumeFrom > 0 && validator == null) resumeFrom = 0
         if (resumeFrom == 0L) discard(file)
 
@@ -228,6 +232,7 @@ class ModelDownloader(
                     } catch (e: IOException) {
                         throw DownloadError.Interrupted(file.name)
                     }
+                    ctx.ensureActive() // a cancel that came while the read returned data: no write, no progress call
                     if (n < 0) break
                     lastData = System.nanoTime()
                     if (written + n > file.bytes) throw DownloadError.SizeMismatch(file.name).also { discard(file) }
@@ -252,6 +257,20 @@ class ModelDownloader(
         } finally {
             response.close()
         }
+    }
+
+    /**
+     * The length and validator of [f]'s `.part` when it can be resumed: it is shorter than the file, and its record names
+     * this address, this checksum and a validator. A newer profile that reuses the file name does not resume an older part.
+     * The storage check and the download use this one rule.
+     */
+    private fun resumable(f: ModelFile): Pair<Long, String>? {
+        val part = partFile(f)
+        val meta = metaFile(f)
+        if (!part.isFile || !meta.isFile || part.length() !in 1 until f.bytes) return null
+        val rec = readMeta(meta) ?: return null
+        if (rec.first != f.url || !rec.second.equals(f.sha256, ignoreCase = true)) return null
+        return rec.third?.let { part.length() to it }
     }
 
     private fun discard(f: ModelFile) {
@@ -284,7 +303,8 @@ class ModelDownloader(
     private fun contentRangeOk(value: String?, start: Long, total: Long): Boolean {
         val m = Regex("""^bytes (\d+)-(\d+)/(\d+)$""").find(value ?: return false) ?: return false
         val (s, e, t) = m.destructured
-        return s.toLong() == start && t.toLong() == total && e.toLong() == total - 1
+        // digit strings beyond Long are not a valid range: false, so the download restarts, not an exception
+        return s.toLongOrNull() == start && t.toLongOrNull() == total && e.toLongOrNull() == total - 1
     }
 
     private fun hashExisting(file: File, digest: MessageDigest) {

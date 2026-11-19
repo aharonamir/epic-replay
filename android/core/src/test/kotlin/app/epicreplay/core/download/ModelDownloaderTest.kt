@@ -411,4 +411,51 @@ class ModelDownloaderTest {
         runBlocking { downloader().download(profile(s.url)) }
         assertTrue(File(dir, "m.gguf").isFile)
     }
+
+    @Test
+    fun aContentRangeWithNumbersBeyondLongRestartsInsteadOfThrowing() = runBlocking {
+        val s = server(); s.cutAfter = 600_000
+        assertFailsWith<DownloadError.Interrupted> { downloader().download(profile(s.url)) }
+        // a hand-made 206 whose numbers overflow a Long: a server of its own, answering every request that way
+        val bad = HttpServer.create(InetSocketAddress("127.0.0.1", 0), 0)
+        bad.createContext("/file") { ex ->
+            if (ex.requestHeaders.getFirst("Range") != null) {
+                ex.responseHeaders.add("Content-Range", "bytes 99999999999999999999-99999999999999999999/99999999999999999999")
+                ex.responseHeaders.add("ETag", "\"v1\""); ex.sendResponseHeaders(206, 0); ex.responseBody.close()
+            } else { ex.responseHeaders.add("ETag", "\"v1\""); ex.sendResponseHeaders(200, data.size.toLong()); ex.responseBody.use { it.write(data) } }
+        }
+        bad.start()
+        try {
+            val p = profile("http://127.0.0.1:${bad.address.port}/file")
+            File(dir, "m.gguf.part").writeBytes(data.copyOf(600_000)) // a part with a record for this very address
+            File(dir, "m.gguf.part.meta").writeText("${p.files[0].url}\n${p.files[0].sha256}\n\"v1\"")
+            downloader().download(p)
+            assertTrue(File(dir, "m.gguf").readBytes().contentEquals(data))
+        } finally { bad.stop(0) }
+        Unit
+    }
+
+    @Test
+    fun aPartThatCannotBeResumedIsNotCountedAsAlreadyDownloaded() = runBlocking {
+        val s = server(); s.cutAfter = 1_000_000
+        assertFailsWith<DownloadError.Interrupted> { downloader().download(profile(s.url)) }
+        assertEquals((data.size - 1_000_000).toLong(), downloader().remainingBytes(profile(s.url)))
+        // the same file name from another address: its part is not resumable, so the whole file is still to fetch
+        val elsewhere = profile("http://127.0.0.1:${s.port}/other")
+        assertEquals(data.size.toLong(), downloader().remainingBytes(elsewhere))
+        Unit
+    }
+
+    @Test
+    fun deleteReportsAFileItCouldNotRemove() {
+        val s = server()
+        runBlocking { downloader().download(profile(s.url)) }
+        dir.setWritable(false)
+        try {
+            if (dir.canWrite()) return // not enforced for this user (root)
+            assertFailsWith<DownloadError.Storage> { runBlocking { downloader().delete(profile(s.url)) } }
+        } finally { dir.setWritable(true) }
+        runBlocking { downloader().delete(profile(s.url)) }
+        assertEquals(emptyList(), dir.list()!!.toList())
+    }
 }
