@@ -3,6 +3,8 @@ package app.epicreplay
 import android.content.Context
 import app.epicreplay.core.budget.Caps
 import app.epicreplay.core.download.DownloadPolicy
+import app.epicreplay.core.download.DownloadStatus
+import app.epicreplay.core.download.DownloadTracker
 import app.epicreplay.core.download.ModelDownloader
 import app.epicreplay.core.budget.JsonFileLedgerStorage
 import app.epicreplay.core.budget.Ledger
@@ -78,7 +80,7 @@ class AppGraph(context: Context) {
     fun modelDownloader(): ModelDownloader = ModelDownloader(modelDir, DownloadPolicy.DEFAULT, AndroidStorageProbe(modelDir))
 
     /** The one download in progress, shared by the screen, the notification and the service. */
-    val downloads = app.epicreplay.download.DownloadTracker { modelDownloader() }
+    val downloads = DownloadTracker { profile, progress -> modelDownloader().download(profile, progress) }
 
     /** Whether the connection is unmetered, for the download's Wi-Fi hint. */
     fun isUnmetered(): Boolean = AndroidNetworkInfo(appContext).isUnmetered()

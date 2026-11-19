@@ -29,7 +29,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role as SemanticsRole
 import androidx.compose.ui.unit.dp
-import app.epicreplay.download.DownloadStatus
+import app.epicreplay.core.download.DownloadStatus
 import kotlinx.coroutines.flow.StateFlow
 import app.epicreplay.core.download.ModelNotice
 import app.epicreplay.core.download.Progress
@@ -73,8 +73,7 @@ fun FirstRunScreen(controller: SetupController, keys: KeysController, actions: F
                 is SetupStep.NeedsChoice -> {}
                 is SetupStep.NeedsKey -> {
                     Text("A key is needed before anything is sent.", style = MaterialTheme.typography.titleMedium)
-                    KeysSection(keys)
-                    Button(onClick = { tick++ }) { Text("Continue") }
+                    KeysSection(keys, onChanged = { tick++ }) // a saved or deleted key changes what is missing
                 }
                 is SetupStep.NeedsDownload -> DownloadPart(step, actions) { tick++ }
                 is SetupStep.NeedsConsent -> ConsentPart(step) { controller.confirmConsent(); tick++ }

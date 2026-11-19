@@ -9,6 +9,8 @@ import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.os.IBinder
 import app.epicreplay.EpicApp
+import app.epicreplay.core.download.DownloadStatus
+import app.epicreplay.core.download.DownloadTracker
 import app.epicreplay.core.download.ModelNotice
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -23,6 +25,7 @@ import kotlinx.coroutines.launch
  * stopping the service (the user's cancel, or the system's time limit for this type) stops it and keeps the part.
  */
 class DownloadService : Service() {
+    /** The only owner of the download job: when the service is destroyed this scope ends and the job with it. */
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private val tracker get() = (application as EpicApp).graph.downloads
 
@@ -31,24 +34,30 @@ class DownloadService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val app = application as EpicApp
         val profile = intent?.getStringExtra(EXTRA_PROFILE)?.let { app.graph.profiles.profiles[it] } as? app.epicreplay.core.models.OnDeviceProfile
-        if (profile == null) { stopSelf(startId); return START_NOT_STICKY }
         createChannel()
+        // a foreground service must show its notification at once, whatever the start turns out to be
         startForeground(NOTIFICATION_ID, notification("Starting the download", null), ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC)
-        tracker.start(CoroutineScope(SupervisorJob() + Dispatchers.IO), profile) { stopSelf() }
-        scope.launch {
-            tracker.status.collectLatest { s ->
-                if (s is DownloadStatus.Running) {
-                    val p = s.progress
-                    val text = if (p == null) "Starting the download" else "${ModelNotice.megabytes(p.doneBytes)} of ${ModelNotice.megabytes(p.totalBytes)}"
-                    getSystemService(NotificationManager::class.java).notify(NOTIFICATION_ID, notification(text, p?.let { it.doneBytes.toFloat() / it.totalBytes }))
+        if (profile == null) {
+            if (!tracker.active()) stopSelf() // an unknown profile never stops a download that is running
+            return START_NOT_STICKY
+        }
+        // a start while one runs is ignored: the running download keeps the service, and its end stops it
+        if (tracker.start(scope, profile) { stopSelf() }) {
+            scope.launch {
+                tracker.status.collectLatest { s ->
+                    if (s is DownloadStatus.Running) {
+                        val p = s.progress
+                        val text = if (p == null) "Starting the download" else "${ModelNotice.megabytes(p.doneBytes)} of ${ModelNotice.megabytes(p.totalBytes)}"
+                        getSystemService(NotificationManager::class.java).notify(NOTIFICATION_ID, notification(text, p?.let { it.doneBytes.toFloat() / it.totalBytes }))
+                    }
                 }
             }
         }
         return START_NOT_STICKY
     }
 
-    /** Android's time limit for a `dataSync` service (Android 15): stop cleanly, keeping what was downloaded. */
-    override fun onTimeout(startId: Int, fgsType: Int) { tracker.cancel(); stopSelf() }
+    /** Android's time limit for a `dataSync` service (Android 15): cancel and let the job's end stop the service, keeping the part. */
+    override fun onTimeout(startId: Int, fgsType: Int) { if (!tracker.cancel()) stopSelf() }
 
     override fun onDestroy() { scope.cancel(); super.onDestroy() }
 
@@ -76,9 +85,9 @@ class DownloadService : Service() {
             context.startForegroundService(Intent(context, DownloadService::class.java).putExtra(EXTRA_PROFILE, profileId))
         }
 
+        /** The user's cancel: the job's end stops the service; with no job running the service is stopped here. */
         fun cancel(context: Context, tracker: DownloadTracker) {
-            tracker.cancel()
-            context.stopService(Intent(context, DownloadService::class.java))
+            if (!tracker.cancel()) context.stopService(Intent(context, DownloadService::class.java))
         }
     }
 }

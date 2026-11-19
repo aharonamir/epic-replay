@@ -1,11 +1,9 @@
-package app.epicreplay.download
+package app.epicreplay.core.download
 
-import app.epicreplay.core.download.DownloadError
-import app.epicreplay.core.download.ModelDownloader
-import app.epicreplay.core.download.Progress
 import app.epicreplay.core.models.OnDeviceProfile
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -25,35 +23,48 @@ sealed interface DownloadStatus {
  * The one running download of the app, outside any screen: the service starts it, the screen and the notification watch
  * [status]. One at a time; a start while one runs is ignored. The files are the downloader's, so a stop keeps the part.
  */
-class DownloadTracker(private val downloader: () -> ModelDownloader) {
+class DownloadTracker(private val run: suspend (OnDeviceProfile, (Progress) -> Unit) -> Unit) {
     private val state = MutableStateFlow<DownloadStatus>(DownloadStatus.Idle)
     val status: StateFlow<DownloadStatus> = state
     private var job: Job? = null
 
+    /**
+     * Starts [profile] as a child of [scope] and returns true; returns false (and changes nothing) while a download runs.
+     * Whatever happens, including a cancel before the job's first line runs and the end of [scope], the completion
+     * handler leaves a final state and calls [onEnd] once: the lifecycle does not depend on the coroutine body.
+     */
     @Synchronized
     fun start(scope: CoroutineScope, profile: OnDeviceProfile, onEnd: () -> Unit = {}): Boolean {
         if (job?.isActive == true) return false
         state.value = DownloadStatus.Running(profile, null)
-        job = scope.launch {
+        val j = scope.launch(start = CoroutineStart.LAZY) {
             try {
-                downloader().download(profile) { p -> state.value = DownloadStatus.Running(profile, p) }
+                run(profile) { p -> state.value = DownloadStatus.Running(profile, p) }
                 state.value = DownloadStatus.Done(profile)
             } catch (e: CancellationException) {
-                state.value = DownloadStatus.Stopped(profile)
                 throw e
             } catch (e: DownloadError) {
                 state.value = DownloadStatus.Failed(profile, e.message ?: "The download failed.")
             } catch (e: Exception) {
                 state.value = DownloadStatus.Failed(profile, "The download failed: ${e.javaClass.simpleName}")
-            } finally {
-                onEnd()
             }
         }
+        j.invokeOnCompletion {
+            if (state.value is DownloadStatus.Running) state.value = DownloadStatus.Stopped(profile) // cancelled, however early
+            onEnd()
+        }
+        job = j
+        j.start()
         return true
     }
 
+    /** Whether a download is running (and so will end through its completion handler). */
     @Synchronized
-    fun cancel() { job?.cancel() }
+    fun active(): Boolean = job?.isActive == true
+
+    /** Cancels the running download, if any, and says whether there was one. The part stays on disk. */
+    @Synchronized
+    fun cancel(): Boolean { val j = job?.takeIf { it.isActive } ?: return false; j.cancel(); return true }
 
     fun acknowledge() { if (state.value !is DownloadStatus.Running) state.value = DownloadStatus.Idle }
 }

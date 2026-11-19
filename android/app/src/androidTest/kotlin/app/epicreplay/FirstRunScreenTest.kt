@@ -16,7 +16,7 @@ import app.epicreplay.core.secrets.KeyKind
 import app.epicreplay.core.secrets.Secret
 import app.epicreplay.ui.FirstRunActions
 import app.epicreplay.ui.FirstRunScreen
-import app.epicreplay.download.DownloadStatus
+import app.epicreplay.core.download.DownloadStatus
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.After
 import org.junit.Before
