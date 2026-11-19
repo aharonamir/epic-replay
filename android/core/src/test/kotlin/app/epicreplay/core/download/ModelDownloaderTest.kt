@@ -499,4 +499,29 @@ class ModelDownloaderTest {
         assertTrue(File(dir, "m.gguf").isFile)
         Unit
     }
+
+    @Test
+    fun aCorruptCompletePartIsDeletedAndTheStorageCheckIsMadeOnTheFullFile() {
+        val s = server()
+        val p = profile(s.url, floorMb = 1)
+        File(dir, "m.gguf.part").writeBytes(ByteArray(data.size)); File(dir, "m.gguf.part.meta").writeText("${p.files[0].url}\n${p.files[0].sha256}\n\"v1\"")
+        // 1 MB free is enough for "nothing left" but not for the 3 MB file the part turns out not to be
+        assertFailsWith<DownloadError.InsufficientStorage> { runBlocking { downloader(free = 1).download(p) } }
+        assertEquals(0, s.seen.size)
+        assertFalse(File(dir, "m.gguf.part").exists())
+    }
+
+    @Test
+    fun aCancelWhileACompletePartIsCheckedKeepsItWhateverTheChecksumSays() = runBlocking {
+        val s = server()
+        val big = Random(9).nextBytes(48 * 1024 * 1024) // a checksum that takes a moment
+        val p = profile(s.url, content = big)
+        File(dir, "m.gguf.part").writeBytes(ByteArray(big.size)) // wrong bytes: the checksum fails
+        File(dir, "m.gguf.part.meta").writeText("${p.files[0].url}\n${p.files[0].sha256}\n\"v1\"")
+        val job = launch(Dispatchers.Default) { downloader().download(p) }
+        delay(15); job.cancel(); job.join()
+        assertTrue(File(dir, "m.gguf.part").exists(), "the cancelled check discarded the part")
+        assertEquals(0, s.seen.size)
+        Unit
+    }
 }

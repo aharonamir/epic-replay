@@ -142,13 +142,16 @@ class ModelDownloader(
     /** Bytes still to fetch for [profile], counting what a resumable `.part` already holds. */
     fun remainingBytes(profile: OnDeviceProfile): Long = profile.files.sumOf { f ->
         if (verified(f)) 0L
-        else if (completePart(f) != null) 0L // already on disk: it is checked and renamed, or deleted and then fetched in its place
+        else if (completePart(f) != null) 0L // an estimate: download() checks it first, and counts again if its bytes are wrong
         else f.bytes - (resumable(f)?.first ?: 0L)
     }
 
     /** Downloads the files of [profile] that are not there yet. Throws a [DownloadError]; a failed file leaves its `.part` unless it is corrupt. */
     suspend fun download(profile: OnDeviceProfile, onProgress: (Progress) -> Unit = {}) = withContext(Dispatchers.IO) {
         dir.mkdirs()
+        // first, any complete .part (a cancel or a crash between the last byte and the rename) is checked and finished, or
+        // deleted: only then is it known how much is still to fetch, and the storage check below is made on that
+        settleCompleteParts(profile)
         // before the first byte: the free storage covers what is left, and the profile's own floor
         val remaining = remainingBytes(profile)
         val needed = maxOf(profile.minFreeStorageMb.toLong(), (remaining + MB - 1) / MB + slackMb) // rounded up, never down
@@ -184,18 +187,6 @@ class ModelDownloader(
     private suspend fun fetch(file: ModelFile, progress: (Long) -> Unit) {
         val part = partFile(file)
         val meta = metaFile(file)
-        // a complete .part (a cancel or a crash between the last byte and the rename): check it, and finish without fetching
-        if (part.isFile && part.length() == file.bytes && meta.isFile) {
-            if (completePart(file) != null && sha256(part).equals(file.sha256, ignoreCase = true)) {
-                currentCoroutineContext().ensureActive() // a cancel while the checksum was computed keeps the part
-                if (!part.renameTo(finalFile(file))) throw IOException("rename failed")
-                meta.delete()
-                writeMarker(file)
-                progress(file.bytes)
-                return
-            }
-            discard(file)
-        }
         var resumeFrom = 0L
         var validator: String? = null
         resumable(file)?.let { (bytes, v) -> resumeFrom = bytes; validator = v }
@@ -287,6 +278,24 @@ class ModelDownloader(
         val rec = readMeta(meta) ?: return null
         if (rec.first != f.url || !rec.second.equals(f.sha256, ignoreCase = true)) return null
         return rec.third?.let { part.length() to it }
+    }
+
+    private suspend fun settleCompleteParts(profile: OnDeviceProfile) {
+        for (f in profile.files) {
+            lockFor(f).withLock {
+                val part = completePart(f) ?: return@withLock
+                if (verified(f)) { discard(f); return@withLock }
+                val ok = sha256(part).equals(f.sha256, ignoreCase = true)
+                currentCoroutineContext().ensureActive() // a cancel during the checksum, whatever it found, keeps the part as it is
+                if (ok) {
+                    if (!part.renameTo(finalFile(f))) throw DownloadError.Storage(f.name)
+                    metaFile(f).delete()
+                    writeMarker(f)
+                } else {
+                    discard(f) // the bytes are wrong: gone, and the free space is counted again below
+                }
+            }
+        }
     }
 
     /** [f]'s `.part` when it is complete and its record names this address and checksum (the checksum of its bytes is checked when it is finished). */
