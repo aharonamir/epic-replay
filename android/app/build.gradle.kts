@@ -123,6 +123,26 @@ abstract class PrepareSharedAssets : DefaultTask() {
     }
 }
 
+/** The conformance cases of the signal scan and the clip they are drawn as, for the on-device tests only (never in the app). */
+abstract class PrepareTestAssets : DefaultTask() {
+    @get:InputDirectory @get:PathSensitive(PathSensitivity.RELATIVE) abstract val shared: DirectoryProperty
+    @get:OutputDirectory abstract val outputDir: DirectoryProperty
+    @get:Inject abstract val fs: FileSystemOperations
+
+    @TaskAction
+    fun run() {
+        fs.sync {
+            from(shared) { include("conformance/signals/**", "fixtures/signals/**") }
+            into(outputDir)
+        }
+    }
+}
+
+val prepareTestAssets by tasks.registering(PrepareTestAssets::class) {
+    shared.set(rootProject.layout.projectDirectory.dir("../shared"))
+    outputDir.set(layout.buildDirectory.dir("generated/test-assets"))
+}
+
 val prepareSharedAssets by tasks.registering(PrepareSharedAssets::class) {
     shared.set(rootProject.layout.projectDirectory.dir("../shared"))
     fontScript.set(rootProject.layout.projectDirectory.file("tools/woff2_to_ttf.py"))
@@ -134,5 +154,6 @@ val prepareSharedAssets by tasks.registering(PrepareSharedAssets::class) {
 androidComponents {
     onVariants { variant ->
         variant.sources.assets?.addGeneratedSourceDirectory(prepareSharedAssets, PrepareSharedAssets::outputDir)
+        variant.androidTest?.sources?.assets?.addGeneratedSourceDirectory(prepareTestAssets, PrepareTestAssets::outputDir)
     }
 }

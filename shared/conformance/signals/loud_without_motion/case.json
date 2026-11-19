@@ -1,0 +1,74 @@
+{
+  "area": "signals",
+  "function": "signals.scan",
+  "language": null,
+  "description": "A strike with a thud at 2.0 s and a quieter thud at 3.5 s with nothing moving: two candidates, two loud peaks",
+  "tolerance_s": 0.1,
+  "inputs": {
+    "recipe": {
+      "value": {
+        "width": 160,
+        "height": 90,
+        "fps": 30,
+        "frames": 150,
+        "objects": [
+          {
+            "x": 20,
+            "y": 60,
+            "vx": 8,
+            "vy": -3,
+            "size": 10,
+            "from": 60,
+            "to": 63
+          }
+        ],
+        "audio": {
+          "seconds": 5,
+          "floor": 0,
+          "bursts": [
+            {
+              "at_sample": 44100,
+              "length": 600,
+              "amp": 20000
+            },
+            {
+              "at_sample": 77175,
+              "length": 600,
+              "amp": 8000
+            }
+          ]
+        }
+      }
+    },
+    "top": {
+      "value": 3
+    },
+    "min_score": {
+      "value": 10
+    }
+  },
+  "expected": {
+    "value": {
+      "has_sound": true,
+      "frames": 150,
+      "cuts_t": [],
+      "onsets_t": [
+        1.974,
+        3.471
+      ],
+      "loud_peaks_t": [
+        2.0
+      ],
+      "candidates": [
+        {
+          "t": 2.0,
+          "sound_onset_t": 1.974
+        },
+        {
+          "t": 3.5,
+          "sound_onset_t": 3.471
+        }
+      ]
+    }
+  }
+}

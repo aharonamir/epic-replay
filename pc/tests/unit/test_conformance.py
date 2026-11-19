@@ -25,7 +25,8 @@ AREAS = {
     "backend",
     "budget",
     "consent",
-}  # backend, budget and consent: spec 004, T408 and T411
+    "signals",
+}  # backend, budget, consent and signals: spec 004, T408, T411 and T413
 
 
 def schema() -> Draft202012Validator:

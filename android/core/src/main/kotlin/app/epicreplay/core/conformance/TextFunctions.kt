@@ -53,6 +53,7 @@ object TextFunctions {
                 )
                 JsonArray(sheets.map { s -> JsonArray(s.map(::JsonPrimitive)) })
             },
+            "signals.scan" to app.epicreplay.core.signals.Synthetic::scan,
             "cells.layout" to { a ->
                 val l = ContactSheet.layout(a.getValue("width").jsonPrimitive.int, a.getValue("height").jsonPrimitive.int, a.getValue("count").jsonPrimitive.int)
                 buildJsonObject {

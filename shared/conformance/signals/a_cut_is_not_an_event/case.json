@@ -1,0 +1,67 @@
+{
+  "area": "signals",
+  "function": "signals.scan",
+  "language": null,
+  "description": "A strike at 2.0 s, then a hard cut to another picture at 3.5 s: the cut is listed and is no candidate",
+  "tolerance_s": 0.1,
+  "inputs": {
+    "recipe": {
+      "value": {
+        "width": 160,
+        "height": 90,
+        "fps": 30,
+        "frames": 150,
+        "cut_frame": 105,
+        "objects": [
+          {
+            "x": 20,
+            "y": 60,
+            "vx": 8,
+            "vy": -3,
+            "size": 10,
+            "from": 60,
+            "to": 63
+          }
+        ],
+        "audio": {
+          "seconds": 5,
+          "floor": 0,
+          "bursts": [
+            {
+              "at_sample": 44100,
+              "length": 600,
+              "amp": 20000
+            }
+          ]
+        }
+      }
+    },
+    "top": {
+      "value": 3
+    },
+    "min_score": {
+      "value": 10
+    }
+  },
+  "expected": {
+    "value": {
+      "has_sound": true,
+      "frames": 150,
+      "cuts_t": [
+        3.5
+      ],
+      "onsets_t": [
+        1.974
+      ],
+      "loud_peaks_t": [
+        2.0
+      ],
+      "candidates": [
+        {
+          "t": 2.0,
+          "sound_onset_t": 1.974
+        }
+      ]
+    }
+  }
+}
