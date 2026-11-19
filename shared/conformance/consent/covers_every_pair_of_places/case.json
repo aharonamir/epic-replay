@@ -1,0 +1,2831 @@
+{
+  "area": "consent",
+  "function": "consent.covers",
+  "language": null,
+  "description": "A consent covers a run only if each role goes no further than it was given for: every recorded pair against every run pair.",
+  "inputs": {
+    "checks": {
+      "value": [
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "device",
+            "text_location": "device"
+          },
+          "vision_location": "device",
+          "text_location": "device"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "device",
+            "text_location": "device"
+          },
+          "vision_location": "device",
+          "text_location": "local"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "device",
+            "text_location": "device"
+          },
+          "vision_location": "device",
+          "text_location": "network"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "device",
+            "text_location": "device"
+          },
+          "vision_location": "device",
+          "text_location": "cloud"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "device",
+            "text_location": "device"
+          },
+          "vision_location": "local",
+          "text_location": "device"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "device",
+            "text_location": "device"
+          },
+          "vision_location": "local",
+          "text_location": "local"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "device",
+            "text_location": "device"
+          },
+          "vision_location": "local",
+          "text_location": "network"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "device",
+            "text_location": "device"
+          },
+          "vision_location": "local",
+          "text_location": "cloud"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "device",
+            "text_location": "device"
+          },
+          "vision_location": "network",
+          "text_location": "device"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "device",
+            "text_location": "device"
+          },
+          "vision_location": "network",
+          "text_location": "local"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "device",
+            "text_location": "device"
+          },
+          "vision_location": "network",
+          "text_location": "network"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "device",
+            "text_location": "device"
+          },
+          "vision_location": "network",
+          "text_location": "cloud"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "device",
+            "text_location": "device"
+          },
+          "vision_location": "cloud",
+          "text_location": "device"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "device",
+            "text_location": "device"
+          },
+          "vision_location": "cloud",
+          "text_location": "local"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "device",
+            "text_location": "device"
+          },
+          "vision_location": "cloud",
+          "text_location": "network"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "device",
+            "text_location": "device"
+          },
+          "vision_location": "cloud",
+          "text_location": "cloud"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "device",
+            "text_location": "local"
+          },
+          "vision_location": "device",
+          "text_location": "device"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "device",
+            "text_location": "local"
+          },
+          "vision_location": "device",
+          "text_location": "local"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "device",
+            "text_location": "local"
+          },
+          "vision_location": "device",
+          "text_location": "network"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "device",
+            "text_location": "local"
+          },
+          "vision_location": "device",
+          "text_location": "cloud"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "device",
+            "text_location": "local"
+          },
+          "vision_location": "local",
+          "text_location": "device"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "device",
+            "text_location": "local"
+          },
+          "vision_location": "local",
+          "text_location": "local"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "device",
+            "text_location": "local"
+          },
+          "vision_location": "local",
+          "text_location": "network"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "device",
+            "text_location": "local"
+          },
+          "vision_location": "local",
+          "text_location": "cloud"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "device",
+            "text_location": "local"
+          },
+          "vision_location": "network",
+          "text_location": "device"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "device",
+            "text_location": "local"
+          },
+          "vision_location": "network",
+          "text_location": "local"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "device",
+            "text_location": "local"
+          },
+          "vision_location": "network",
+          "text_location": "network"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "device",
+            "text_location": "local"
+          },
+          "vision_location": "network",
+          "text_location": "cloud"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "device",
+            "text_location": "local"
+          },
+          "vision_location": "cloud",
+          "text_location": "device"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "device",
+            "text_location": "local"
+          },
+          "vision_location": "cloud",
+          "text_location": "local"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "device",
+            "text_location": "local"
+          },
+          "vision_location": "cloud",
+          "text_location": "network"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "device",
+            "text_location": "local"
+          },
+          "vision_location": "cloud",
+          "text_location": "cloud"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "device",
+            "text_location": "network"
+          },
+          "vision_location": "device",
+          "text_location": "device"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "device",
+            "text_location": "network"
+          },
+          "vision_location": "device",
+          "text_location": "local"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "device",
+            "text_location": "network"
+          },
+          "vision_location": "device",
+          "text_location": "network"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "device",
+            "text_location": "network"
+          },
+          "vision_location": "device",
+          "text_location": "cloud"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "device",
+            "text_location": "network"
+          },
+          "vision_location": "local",
+          "text_location": "device"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "device",
+            "text_location": "network"
+          },
+          "vision_location": "local",
+          "text_location": "local"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "device",
+            "text_location": "network"
+          },
+          "vision_location": "local",
+          "text_location": "network"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "device",
+            "text_location": "network"
+          },
+          "vision_location": "local",
+          "text_location": "cloud"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "device",
+            "text_location": "network"
+          },
+          "vision_location": "network",
+          "text_location": "device"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "device",
+            "text_location": "network"
+          },
+          "vision_location": "network",
+          "text_location": "local"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "device",
+            "text_location": "network"
+          },
+          "vision_location": "network",
+          "text_location": "network"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "device",
+            "text_location": "network"
+          },
+          "vision_location": "network",
+          "text_location": "cloud"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "device",
+            "text_location": "network"
+          },
+          "vision_location": "cloud",
+          "text_location": "device"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "device",
+            "text_location": "network"
+          },
+          "vision_location": "cloud",
+          "text_location": "local"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "device",
+            "text_location": "network"
+          },
+          "vision_location": "cloud",
+          "text_location": "network"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "device",
+            "text_location": "network"
+          },
+          "vision_location": "cloud",
+          "text_location": "cloud"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "device",
+            "text_location": "cloud"
+          },
+          "vision_location": "device",
+          "text_location": "device"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "device",
+            "text_location": "cloud"
+          },
+          "vision_location": "device",
+          "text_location": "local"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "device",
+            "text_location": "cloud"
+          },
+          "vision_location": "device",
+          "text_location": "network"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "device",
+            "text_location": "cloud"
+          },
+          "vision_location": "device",
+          "text_location": "cloud"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "device",
+            "text_location": "cloud"
+          },
+          "vision_location": "local",
+          "text_location": "device"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "device",
+            "text_location": "cloud"
+          },
+          "vision_location": "local",
+          "text_location": "local"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "device",
+            "text_location": "cloud"
+          },
+          "vision_location": "local",
+          "text_location": "network"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "device",
+            "text_location": "cloud"
+          },
+          "vision_location": "local",
+          "text_location": "cloud"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "device",
+            "text_location": "cloud"
+          },
+          "vision_location": "network",
+          "text_location": "device"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "device",
+            "text_location": "cloud"
+          },
+          "vision_location": "network",
+          "text_location": "local"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "device",
+            "text_location": "cloud"
+          },
+          "vision_location": "network",
+          "text_location": "network"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "device",
+            "text_location": "cloud"
+          },
+          "vision_location": "network",
+          "text_location": "cloud"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "device",
+            "text_location": "cloud"
+          },
+          "vision_location": "cloud",
+          "text_location": "device"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "device",
+            "text_location": "cloud"
+          },
+          "vision_location": "cloud",
+          "text_location": "local"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "device",
+            "text_location": "cloud"
+          },
+          "vision_location": "cloud",
+          "text_location": "network"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "device",
+            "text_location": "cloud"
+          },
+          "vision_location": "cloud",
+          "text_location": "cloud"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "local",
+            "text_location": "device"
+          },
+          "vision_location": "device",
+          "text_location": "device"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "local",
+            "text_location": "device"
+          },
+          "vision_location": "device",
+          "text_location": "local"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "local",
+            "text_location": "device"
+          },
+          "vision_location": "device",
+          "text_location": "network"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "local",
+            "text_location": "device"
+          },
+          "vision_location": "device",
+          "text_location": "cloud"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "local",
+            "text_location": "device"
+          },
+          "vision_location": "local",
+          "text_location": "device"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "local",
+            "text_location": "device"
+          },
+          "vision_location": "local",
+          "text_location": "local"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "local",
+            "text_location": "device"
+          },
+          "vision_location": "local",
+          "text_location": "network"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "local",
+            "text_location": "device"
+          },
+          "vision_location": "local",
+          "text_location": "cloud"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "local",
+            "text_location": "device"
+          },
+          "vision_location": "network",
+          "text_location": "device"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "local",
+            "text_location": "device"
+          },
+          "vision_location": "network",
+          "text_location": "local"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "local",
+            "text_location": "device"
+          },
+          "vision_location": "network",
+          "text_location": "network"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "local",
+            "text_location": "device"
+          },
+          "vision_location": "network",
+          "text_location": "cloud"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "local",
+            "text_location": "device"
+          },
+          "vision_location": "cloud",
+          "text_location": "device"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "local",
+            "text_location": "device"
+          },
+          "vision_location": "cloud",
+          "text_location": "local"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "local",
+            "text_location": "device"
+          },
+          "vision_location": "cloud",
+          "text_location": "network"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "local",
+            "text_location": "device"
+          },
+          "vision_location": "cloud",
+          "text_location": "cloud"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "local",
+            "text_location": "local"
+          },
+          "vision_location": "device",
+          "text_location": "device"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "local",
+            "text_location": "local"
+          },
+          "vision_location": "device",
+          "text_location": "local"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "local",
+            "text_location": "local"
+          },
+          "vision_location": "device",
+          "text_location": "network"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "local",
+            "text_location": "local"
+          },
+          "vision_location": "device",
+          "text_location": "cloud"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "local",
+            "text_location": "local"
+          },
+          "vision_location": "local",
+          "text_location": "device"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "local",
+            "text_location": "local"
+          },
+          "vision_location": "local",
+          "text_location": "local"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "local",
+            "text_location": "local"
+          },
+          "vision_location": "local",
+          "text_location": "network"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "local",
+            "text_location": "local"
+          },
+          "vision_location": "local",
+          "text_location": "cloud"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "local",
+            "text_location": "local"
+          },
+          "vision_location": "network",
+          "text_location": "device"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "local",
+            "text_location": "local"
+          },
+          "vision_location": "network",
+          "text_location": "local"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "local",
+            "text_location": "local"
+          },
+          "vision_location": "network",
+          "text_location": "network"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "local",
+            "text_location": "local"
+          },
+          "vision_location": "network",
+          "text_location": "cloud"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "local",
+            "text_location": "local"
+          },
+          "vision_location": "cloud",
+          "text_location": "device"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "local",
+            "text_location": "local"
+          },
+          "vision_location": "cloud",
+          "text_location": "local"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "local",
+            "text_location": "local"
+          },
+          "vision_location": "cloud",
+          "text_location": "network"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "local",
+            "text_location": "local"
+          },
+          "vision_location": "cloud",
+          "text_location": "cloud"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "local",
+            "text_location": "network"
+          },
+          "vision_location": "device",
+          "text_location": "device"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "local",
+            "text_location": "network"
+          },
+          "vision_location": "device",
+          "text_location": "local"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "local",
+            "text_location": "network"
+          },
+          "vision_location": "device",
+          "text_location": "network"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "local",
+            "text_location": "network"
+          },
+          "vision_location": "device",
+          "text_location": "cloud"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "local",
+            "text_location": "network"
+          },
+          "vision_location": "local",
+          "text_location": "device"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "local",
+            "text_location": "network"
+          },
+          "vision_location": "local",
+          "text_location": "local"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "local",
+            "text_location": "network"
+          },
+          "vision_location": "local",
+          "text_location": "network"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "local",
+            "text_location": "network"
+          },
+          "vision_location": "local",
+          "text_location": "cloud"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "local",
+            "text_location": "network"
+          },
+          "vision_location": "network",
+          "text_location": "device"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "local",
+            "text_location": "network"
+          },
+          "vision_location": "network",
+          "text_location": "local"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "local",
+            "text_location": "network"
+          },
+          "vision_location": "network",
+          "text_location": "network"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "local",
+            "text_location": "network"
+          },
+          "vision_location": "network",
+          "text_location": "cloud"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "local",
+            "text_location": "network"
+          },
+          "vision_location": "cloud",
+          "text_location": "device"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "local",
+            "text_location": "network"
+          },
+          "vision_location": "cloud",
+          "text_location": "local"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "local",
+            "text_location": "network"
+          },
+          "vision_location": "cloud",
+          "text_location": "network"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "local",
+            "text_location": "network"
+          },
+          "vision_location": "cloud",
+          "text_location": "cloud"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "local",
+            "text_location": "cloud"
+          },
+          "vision_location": "device",
+          "text_location": "device"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "local",
+            "text_location": "cloud"
+          },
+          "vision_location": "device",
+          "text_location": "local"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "local",
+            "text_location": "cloud"
+          },
+          "vision_location": "device",
+          "text_location": "network"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "local",
+            "text_location": "cloud"
+          },
+          "vision_location": "device",
+          "text_location": "cloud"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "local",
+            "text_location": "cloud"
+          },
+          "vision_location": "local",
+          "text_location": "device"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "local",
+            "text_location": "cloud"
+          },
+          "vision_location": "local",
+          "text_location": "local"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "local",
+            "text_location": "cloud"
+          },
+          "vision_location": "local",
+          "text_location": "network"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "local",
+            "text_location": "cloud"
+          },
+          "vision_location": "local",
+          "text_location": "cloud"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "local",
+            "text_location": "cloud"
+          },
+          "vision_location": "network",
+          "text_location": "device"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "local",
+            "text_location": "cloud"
+          },
+          "vision_location": "network",
+          "text_location": "local"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "local",
+            "text_location": "cloud"
+          },
+          "vision_location": "network",
+          "text_location": "network"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "local",
+            "text_location": "cloud"
+          },
+          "vision_location": "network",
+          "text_location": "cloud"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "local",
+            "text_location": "cloud"
+          },
+          "vision_location": "cloud",
+          "text_location": "device"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "local",
+            "text_location": "cloud"
+          },
+          "vision_location": "cloud",
+          "text_location": "local"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "local",
+            "text_location": "cloud"
+          },
+          "vision_location": "cloud",
+          "text_location": "network"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "local",
+            "text_location": "cloud"
+          },
+          "vision_location": "cloud",
+          "text_location": "cloud"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "network",
+            "text_location": "device"
+          },
+          "vision_location": "device",
+          "text_location": "device"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "network",
+            "text_location": "device"
+          },
+          "vision_location": "device",
+          "text_location": "local"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "network",
+            "text_location": "device"
+          },
+          "vision_location": "device",
+          "text_location": "network"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "network",
+            "text_location": "device"
+          },
+          "vision_location": "device",
+          "text_location": "cloud"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "network",
+            "text_location": "device"
+          },
+          "vision_location": "local",
+          "text_location": "device"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "network",
+            "text_location": "device"
+          },
+          "vision_location": "local",
+          "text_location": "local"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "network",
+            "text_location": "device"
+          },
+          "vision_location": "local",
+          "text_location": "network"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "network",
+            "text_location": "device"
+          },
+          "vision_location": "local",
+          "text_location": "cloud"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "network",
+            "text_location": "device"
+          },
+          "vision_location": "network",
+          "text_location": "device"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "network",
+            "text_location": "device"
+          },
+          "vision_location": "network",
+          "text_location": "local"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "network",
+            "text_location": "device"
+          },
+          "vision_location": "network",
+          "text_location": "network"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "network",
+            "text_location": "device"
+          },
+          "vision_location": "network",
+          "text_location": "cloud"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "network",
+            "text_location": "device"
+          },
+          "vision_location": "cloud",
+          "text_location": "device"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "network",
+            "text_location": "device"
+          },
+          "vision_location": "cloud",
+          "text_location": "local"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "network",
+            "text_location": "device"
+          },
+          "vision_location": "cloud",
+          "text_location": "network"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "network",
+            "text_location": "device"
+          },
+          "vision_location": "cloud",
+          "text_location": "cloud"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "network",
+            "text_location": "local"
+          },
+          "vision_location": "device",
+          "text_location": "device"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "network",
+            "text_location": "local"
+          },
+          "vision_location": "device",
+          "text_location": "local"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "network",
+            "text_location": "local"
+          },
+          "vision_location": "device",
+          "text_location": "network"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "network",
+            "text_location": "local"
+          },
+          "vision_location": "device",
+          "text_location": "cloud"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "network",
+            "text_location": "local"
+          },
+          "vision_location": "local",
+          "text_location": "device"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "network",
+            "text_location": "local"
+          },
+          "vision_location": "local",
+          "text_location": "local"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "network",
+            "text_location": "local"
+          },
+          "vision_location": "local",
+          "text_location": "network"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "network",
+            "text_location": "local"
+          },
+          "vision_location": "local",
+          "text_location": "cloud"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "network",
+            "text_location": "local"
+          },
+          "vision_location": "network",
+          "text_location": "device"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "network",
+            "text_location": "local"
+          },
+          "vision_location": "network",
+          "text_location": "local"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "network",
+            "text_location": "local"
+          },
+          "vision_location": "network",
+          "text_location": "network"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "network",
+            "text_location": "local"
+          },
+          "vision_location": "network",
+          "text_location": "cloud"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "network",
+            "text_location": "local"
+          },
+          "vision_location": "cloud",
+          "text_location": "device"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "network",
+            "text_location": "local"
+          },
+          "vision_location": "cloud",
+          "text_location": "local"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "network",
+            "text_location": "local"
+          },
+          "vision_location": "cloud",
+          "text_location": "network"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "network",
+            "text_location": "local"
+          },
+          "vision_location": "cloud",
+          "text_location": "cloud"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "network",
+            "text_location": "network"
+          },
+          "vision_location": "device",
+          "text_location": "device"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "network",
+            "text_location": "network"
+          },
+          "vision_location": "device",
+          "text_location": "local"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "network",
+            "text_location": "network"
+          },
+          "vision_location": "device",
+          "text_location": "network"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "network",
+            "text_location": "network"
+          },
+          "vision_location": "device",
+          "text_location": "cloud"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "network",
+            "text_location": "network"
+          },
+          "vision_location": "local",
+          "text_location": "device"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "network",
+            "text_location": "network"
+          },
+          "vision_location": "local",
+          "text_location": "local"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "network",
+            "text_location": "network"
+          },
+          "vision_location": "local",
+          "text_location": "network"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "network",
+            "text_location": "network"
+          },
+          "vision_location": "local",
+          "text_location": "cloud"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "network",
+            "text_location": "network"
+          },
+          "vision_location": "network",
+          "text_location": "device"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "network",
+            "text_location": "network"
+          },
+          "vision_location": "network",
+          "text_location": "local"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "network",
+            "text_location": "network"
+          },
+          "vision_location": "network",
+          "text_location": "network"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "network",
+            "text_location": "network"
+          },
+          "vision_location": "network",
+          "text_location": "cloud"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "network",
+            "text_location": "network"
+          },
+          "vision_location": "cloud",
+          "text_location": "device"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "network",
+            "text_location": "network"
+          },
+          "vision_location": "cloud",
+          "text_location": "local"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "network",
+            "text_location": "network"
+          },
+          "vision_location": "cloud",
+          "text_location": "network"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "network",
+            "text_location": "network"
+          },
+          "vision_location": "cloud",
+          "text_location": "cloud"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "network",
+            "text_location": "cloud"
+          },
+          "vision_location": "device",
+          "text_location": "device"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "network",
+            "text_location": "cloud"
+          },
+          "vision_location": "device",
+          "text_location": "local"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "network",
+            "text_location": "cloud"
+          },
+          "vision_location": "device",
+          "text_location": "network"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "network",
+            "text_location": "cloud"
+          },
+          "vision_location": "device",
+          "text_location": "cloud"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "network",
+            "text_location": "cloud"
+          },
+          "vision_location": "local",
+          "text_location": "device"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "network",
+            "text_location": "cloud"
+          },
+          "vision_location": "local",
+          "text_location": "local"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "network",
+            "text_location": "cloud"
+          },
+          "vision_location": "local",
+          "text_location": "network"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "network",
+            "text_location": "cloud"
+          },
+          "vision_location": "local",
+          "text_location": "cloud"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "network",
+            "text_location": "cloud"
+          },
+          "vision_location": "network",
+          "text_location": "device"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "network",
+            "text_location": "cloud"
+          },
+          "vision_location": "network",
+          "text_location": "local"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "network",
+            "text_location": "cloud"
+          },
+          "vision_location": "network",
+          "text_location": "network"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "network",
+            "text_location": "cloud"
+          },
+          "vision_location": "network",
+          "text_location": "cloud"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "network",
+            "text_location": "cloud"
+          },
+          "vision_location": "cloud",
+          "text_location": "device"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "network",
+            "text_location": "cloud"
+          },
+          "vision_location": "cloud",
+          "text_location": "local"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "network",
+            "text_location": "cloud"
+          },
+          "vision_location": "cloud",
+          "text_location": "network"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "network",
+            "text_location": "cloud"
+          },
+          "vision_location": "cloud",
+          "text_location": "cloud"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "cloud",
+            "text_location": "device"
+          },
+          "vision_location": "device",
+          "text_location": "device"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "cloud",
+            "text_location": "device"
+          },
+          "vision_location": "device",
+          "text_location": "local"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "cloud",
+            "text_location": "device"
+          },
+          "vision_location": "device",
+          "text_location": "network"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "cloud",
+            "text_location": "device"
+          },
+          "vision_location": "device",
+          "text_location": "cloud"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "cloud",
+            "text_location": "device"
+          },
+          "vision_location": "local",
+          "text_location": "device"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "cloud",
+            "text_location": "device"
+          },
+          "vision_location": "local",
+          "text_location": "local"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "cloud",
+            "text_location": "device"
+          },
+          "vision_location": "local",
+          "text_location": "network"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "cloud",
+            "text_location": "device"
+          },
+          "vision_location": "local",
+          "text_location": "cloud"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "cloud",
+            "text_location": "device"
+          },
+          "vision_location": "network",
+          "text_location": "device"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "cloud",
+            "text_location": "device"
+          },
+          "vision_location": "network",
+          "text_location": "local"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "cloud",
+            "text_location": "device"
+          },
+          "vision_location": "network",
+          "text_location": "network"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "cloud",
+            "text_location": "device"
+          },
+          "vision_location": "network",
+          "text_location": "cloud"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "cloud",
+            "text_location": "device"
+          },
+          "vision_location": "cloud",
+          "text_location": "device"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "cloud",
+            "text_location": "device"
+          },
+          "vision_location": "cloud",
+          "text_location": "local"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "cloud",
+            "text_location": "device"
+          },
+          "vision_location": "cloud",
+          "text_location": "network"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "cloud",
+            "text_location": "device"
+          },
+          "vision_location": "cloud",
+          "text_location": "cloud"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "cloud",
+            "text_location": "local"
+          },
+          "vision_location": "device",
+          "text_location": "device"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "cloud",
+            "text_location": "local"
+          },
+          "vision_location": "device",
+          "text_location": "local"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "cloud",
+            "text_location": "local"
+          },
+          "vision_location": "device",
+          "text_location": "network"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "cloud",
+            "text_location": "local"
+          },
+          "vision_location": "device",
+          "text_location": "cloud"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "cloud",
+            "text_location": "local"
+          },
+          "vision_location": "local",
+          "text_location": "device"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "cloud",
+            "text_location": "local"
+          },
+          "vision_location": "local",
+          "text_location": "local"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "cloud",
+            "text_location": "local"
+          },
+          "vision_location": "local",
+          "text_location": "network"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "cloud",
+            "text_location": "local"
+          },
+          "vision_location": "local",
+          "text_location": "cloud"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "cloud",
+            "text_location": "local"
+          },
+          "vision_location": "network",
+          "text_location": "device"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "cloud",
+            "text_location": "local"
+          },
+          "vision_location": "network",
+          "text_location": "local"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "cloud",
+            "text_location": "local"
+          },
+          "vision_location": "network",
+          "text_location": "network"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "cloud",
+            "text_location": "local"
+          },
+          "vision_location": "network",
+          "text_location": "cloud"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "cloud",
+            "text_location": "local"
+          },
+          "vision_location": "cloud",
+          "text_location": "device"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "cloud",
+            "text_location": "local"
+          },
+          "vision_location": "cloud",
+          "text_location": "local"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "cloud",
+            "text_location": "local"
+          },
+          "vision_location": "cloud",
+          "text_location": "network"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "cloud",
+            "text_location": "local"
+          },
+          "vision_location": "cloud",
+          "text_location": "cloud"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "cloud",
+            "text_location": "network"
+          },
+          "vision_location": "device",
+          "text_location": "device"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "cloud",
+            "text_location": "network"
+          },
+          "vision_location": "device",
+          "text_location": "local"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "cloud",
+            "text_location": "network"
+          },
+          "vision_location": "device",
+          "text_location": "network"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "cloud",
+            "text_location": "network"
+          },
+          "vision_location": "device",
+          "text_location": "cloud"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "cloud",
+            "text_location": "network"
+          },
+          "vision_location": "local",
+          "text_location": "device"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "cloud",
+            "text_location": "network"
+          },
+          "vision_location": "local",
+          "text_location": "local"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "cloud",
+            "text_location": "network"
+          },
+          "vision_location": "local",
+          "text_location": "network"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "cloud",
+            "text_location": "network"
+          },
+          "vision_location": "local",
+          "text_location": "cloud"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "cloud",
+            "text_location": "network"
+          },
+          "vision_location": "network",
+          "text_location": "device"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "cloud",
+            "text_location": "network"
+          },
+          "vision_location": "network",
+          "text_location": "local"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "cloud",
+            "text_location": "network"
+          },
+          "vision_location": "network",
+          "text_location": "network"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "cloud",
+            "text_location": "network"
+          },
+          "vision_location": "network",
+          "text_location": "cloud"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "cloud",
+            "text_location": "network"
+          },
+          "vision_location": "cloud",
+          "text_location": "device"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "cloud",
+            "text_location": "network"
+          },
+          "vision_location": "cloud",
+          "text_location": "local"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "cloud",
+            "text_location": "network"
+          },
+          "vision_location": "cloud",
+          "text_location": "network"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "cloud",
+            "text_location": "network"
+          },
+          "vision_location": "cloud",
+          "text_location": "cloud"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "cloud",
+            "text_location": "cloud"
+          },
+          "vision_location": "device",
+          "text_location": "device"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "cloud",
+            "text_location": "cloud"
+          },
+          "vision_location": "device",
+          "text_location": "local"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "cloud",
+            "text_location": "cloud"
+          },
+          "vision_location": "device",
+          "text_location": "network"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "cloud",
+            "text_location": "cloud"
+          },
+          "vision_location": "device",
+          "text_location": "cloud"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "cloud",
+            "text_location": "cloud"
+          },
+          "vision_location": "local",
+          "text_location": "device"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "cloud",
+            "text_location": "cloud"
+          },
+          "vision_location": "local",
+          "text_location": "local"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "cloud",
+            "text_location": "cloud"
+          },
+          "vision_location": "local",
+          "text_location": "network"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "cloud",
+            "text_location": "cloud"
+          },
+          "vision_location": "local",
+          "text_location": "cloud"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "cloud",
+            "text_location": "cloud"
+          },
+          "vision_location": "network",
+          "text_location": "device"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "cloud",
+            "text_location": "cloud"
+          },
+          "vision_location": "network",
+          "text_location": "local"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "cloud",
+            "text_location": "cloud"
+          },
+          "vision_location": "network",
+          "text_location": "network"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "cloud",
+            "text_location": "cloud"
+          },
+          "vision_location": "network",
+          "text_location": "cloud"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "cloud",
+            "text_location": "cloud"
+          },
+          "vision_location": "cloud",
+          "text_location": "device"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "cloud",
+            "text_location": "cloud"
+          },
+          "vision_location": "cloud",
+          "text_location": "local"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "cloud",
+            "text_location": "cloud"
+          },
+          "vision_location": "cloud",
+          "text_location": "network"
+        },
+        {
+          "record": {
+            "confirmed": true,
+            "at": "2026-11-20T09:00:00Z",
+            "text_version": "4",
+            "vision_location": "cloud",
+            "text_location": "cloud"
+          },
+          "vision_location": "cloud",
+          "text_location": "cloud"
+        }
+      ]
+    }
+  },
+  "expected": {
+    "file": "expected/output.json"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "area": "consent",
+  "function": "consent.blocks",
+  "language": null,
+  "description": "The consent words when the frames go to device and the text to device.",
+  "inputs": {
+    "vision_location": {
+      "value": "device"
+    },
+    "vision_label": {
+      "value": "Vision Model"
+    },
+    "text_location": {
+      "value": "device"
+    },
+    "text_label": {
+      "value": "Text Model"
+    }
+  },
+  "expected": {
+    "value": [
+      "Still frames from the clip, and descriptions drawn from them with the script, are handled on this phone by Vision Model and Text Model. They never leave the phone."
+    ]
+  }
+}

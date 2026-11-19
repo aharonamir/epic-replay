@@ -392,9 +392,58 @@ def budget_cases() -> dict[str, dict]:
     }  # fmt: skip
 
 
+# -- spec 004, T411: the consent words and the rule that decides when consent is asked again ------
+
+
+def consent_cases() -> dict[str, dict]:
+    from epic_replay.guards import consent
+
+    places = ("device", "local", "network", "cloud")
+    out: dict[str, dict] = {}
+    for v in places:
+        for t in places:
+            out[f"blocks_{v}_{t}"] = {
+                "area": "consent", "function": "consent.blocks", "language": None,
+                "description": f"The consent words when the frames go to {v} and the text to {t}.",
+                "inputs": {"vision_location": value(v), "vision_label": value("Vision Model"),
+                           "text_location": value(t), "text_label": value("Text Model")},
+            }  # fmt: skip
+    cur = consent.TEXT_VERSION
+    checks = []
+    for rv in places:
+        for rt in places:
+            for nv in places:
+                for nt in places:
+                    checks.append({"record": {"confirmed": True, "at": "2026-11-20T09:00:00Z", "text_version": cur,
+                                              "vision_location": rv, "text_location": rt},
+                                   "vision_location": nv, "text_location": nt})  # fmt: skip
+    out["covers_every_pair_of_places"] = {
+        "area": "consent", "function": "consent.covers", "language": None,
+        "description": "A consent covers a run only if each role goes no further than it was given for: every recorded pair against every run pair.",
+        "inputs": {"checks": value(checks)},
+    }  # fmt: skip
+    rec = {"confirmed": True, "at": "x", "text_version": cur}
+    odd = [
+        {"record": rec, "vision_location": "cloud", "text_location": "cloud"},  # no places named: the cloud wording
+        {"record": rec, "vision_location": "device", "text_location": "network"},
+        {"record": {**rec, "vision_location": "moon", "text_location": "cloud"}, "vision_location": "device", "text_location": "cloud"},  # an unknown place covers none
+        {"record": {**rec, "text_version": "3", "vision_location": "cloud", "text_location": "cloud"}, "vision_location": "device", "text_location": "device"},
+        {"record": {**rec, "confirmed": False, "vision_location": "cloud", "text_location": "cloud"}, "vision_location": "device", "text_location": "device"},
+        {"record": {**rec, "vision_location": "local"}, "vision_location": "local", "text_location": "cloud"},  # no text place: the cloud
+        {"record": {**rec, "text_location": "local"}, "vision_location": "cloud", "text_location": "local"},  # no vision place: the cloud
+        {"record": {}, "vision_location": "device", "text_location": "device"},
+    ]  # fmt: skip
+    out["covers_odd_records"] = {
+        "area": "consent", "function": "consent.covers", "language": None,
+        "description": "Records with no places, an unknown place, an old wording, no confirmation, or one place missing.",
+        "inputs": {"checks": value(odd)},
+    }  # fmt: skip
+    return out
+
+
 def all_cases() -> dict[str, dict]:
     out = {}
-    for make in (storyboard_cases, slots_cases, checks_cases, lexicon_cases, units_cases, cells_cases, backend_cases, budget_cases):  # fmt: skip
+    for make in (storyboard_cases, slots_cases, checks_cases, lexicon_cases, units_cases, cells_cases, backend_cases, budget_cases, consent_cases):  # fmt: skip
         for name, case in make().items():
             out[f"{case['area']}/{name}"] = case
     return out

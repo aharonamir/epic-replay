@@ -1,0 +1,25 @@
+{
+  "area": "consent",
+  "function": "consent.blocks",
+  "language": null,
+  "description": "The consent words when the frames go to network and the text to network.",
+  "inputs": {
+    "vision_location": {
+      "value": "network"
+    },
+    "vision_label": {
+      "value": "Vision Model"
+    },
+    "text_location": {
+      "value": "network"
+    },
+    "text_label": {
+      "value": "Text Model"
+    }
+  },
+  "expected": {
+    "value": [
+      "Still frames from the clip, and descriptions drawn from them with the script, are sent to another computer of yours, running Vision Model and Text Model. They are sent to no model provider."
+    ]
+  }
+}
