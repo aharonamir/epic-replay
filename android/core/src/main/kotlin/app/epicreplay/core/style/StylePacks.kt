@@ -100,12 +100,18 @@ class StyleLoader(schemaText: String, private val voices: JsonObject, private va
     companion object {
         val SOUNDS = listOf("bed", "climax", "replay_climax", "transition", "sting_in", "sting_out")
 
+        /** An asset is a file that really lies under [root]: a link that leads out of it does not count (the Python loader resolves paths the same way). */
+        fun assetIn(root: File): (String) -> Boolean {
+            val base = root.canonicalFile
+            return { rel -> File(root, rel).canonicalFile.let { it.isFile && it.toPath().startsWith(base.toPath()) } }
+        }
+
         /** The packs in `shared/styles/` (every .json but `voices.json`), the schema in `shared/contracts/` and the assets in `shared/assets/`. */
         fun loadShared(shared: File, skinExists: ((String) -> Boolean)? = null): StylePacks {
             val styles = File(shared, "styles")
             require(styles.isDirectory) { "styles folder not found: $styles" }
             val voices = Json.parseToJsonElement(File(styles, "voices.json").readText()).jsonObject
-            val loader = StyleLoader(File(shared, "contracts/style_pack.schema.json").readText(), voices, { File(shared, "assets/$it").isFile }, skinExists)
+            val loader = StyleLoader(File(shared, "contracts/style_pack.schema.json").readText(), voices, assetIn(File(shared, "assets")), skinExists)
             val files = styles.listFiles { f -> f.isFile && f.extension == "json" && f.name != "voices.json" }!!.map { PackFile(it.name, it.readText()) }
             return loader.load(files)
         }

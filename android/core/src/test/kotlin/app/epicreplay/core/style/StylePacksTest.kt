@@ -107,4 +107,56 @@ class StylePacksTest {
         assertTrue("climax" in keys && "replay_climax" in keys)
         assertEquals(sb.getValue("segments").jsonArray.size > 0, true)
     }
+
+    private val sample = Json.parseToJsonElement(File(shared, "fixtures/sample_run/storyboard.json").readText()).jsonObject
+    private val football by lazy { StyleLoader.loadShared(shared).default() }
+
+    private fun rows(slots: kotlinx.serialization.json.JsonArray) = slots.map {
+        val o = it.jsonObject
+        listOf(o.getValue("segment_id").jsonPrimitive.content, o.getValue("role").jsonPrimitive.content, o.getValue("anchor").jsonObject.getValue("timeline_t").jsonPrimitive.content, o.getValue("max_duration_s").jsonPrimitive.content)
+    }
+
+    @Test
+    fun aLiveSegmentThatEndsTooSoonDropsTheOptionalSlotsItCannotHoldAndAnUnknownClimaxEventIsNull(): Unit {
+        val segs = sample.getValue("segments").jsonArray.map { s ->
+            if (s.jsonObject.getValue("kind").jsonPrimitive.content == "live") JsonObject(s.jsonObject + ("timeline_end" to JsonPrimitive(12.433))) else s
+        }
+        val sb = JsonObject(sample + ("segments" to kotlinx.serialization.json.JsonArray(segs)))
+        val slots = Slots.build(sb, football, null)
+        assertEquals(listOf("opening", "build_up", "climax", "replay_watch", "replay_climax", "sign_off"), slots.map { it.jsonObject.getValue("role").jsonPrimitive.content }) // no reaction
+        assertEquals(kotlinx.serialization.json.JsonNull, slots[2].jsonObject.getValue("anchor").jsonObject.getValue("event_id"))
+        assertEquals(listOf("l1", "l2", "l3", "l4", "l5", "l6"), slots.map { it.jsonObject.getValue("id").jsonPrimitive.content })
+    }
+
+    @Test
+    fun theFirstSegmentOfAKindIsTheOneSlotsUse(): Unit {
+        val segs = sample.getValue("segments").jsonArray.toMutableList()
+        segs.add(1, JsonObject(segs[1].jsonObject + mapOf("id" to JsonPrimitive("dup"), "timeline_start" to JsonPrimitive(3.0), "timeline_end" to JsonPrimitive(9.0))))
+        val r = rows(Slots.build(JsonObject(sample + ("segments" to kotlinx.serialization.json.JsonArray(segs))), football, "e6"))
+        assertEquals(listOf("dup", "opening", "3.3", "4.0"), r[0])
+        assertEquals(listOf("dup", "climax", "11.433", "2.0"), r[2])
+        assertEquals(listOf("s4", "replay_watch", "16.9", "3.5"), r[3])
+    }
+
+    @Test
+    fun theSlotAndStoryboardCasesAgreeExactlyNotOnlyWithinTheirTolerance(): Unit {
+        val runner = app.epicreplay.core.conformance.ConformanceRunner(shared, app.epicreplay.core.conformance.TextFunctions.table(shared))
+        val cases = runner.cases().filter { runner.function(it) in setOf("slots.build", "storyboard.build") }
+        assertEquals(14, cases.size)
+        for (c in cases) {
+            val want = runner.resolve(runner.load(c).getValue("expected").jsonObject, c)
+            assertEquals(emptyList(), app.epicreplay.core.conformance.ConformanceRunner.compare(runner.run(c), want, 0.0), c.name)
+        }
+    }
+
+    @Test
+    fun anAssetThatLinksOutOfTheAssetsFolderIsNotThere(): Unit {
+        val tmp = java.nio.file.Files.createTempDirectory("assets").toFile()
+        val assets = File(tmp, "assets").apply { File(this, "sfx").mkdirs() }
+        File(tmp, "secret.wav").writeBytes(byteArrayOf(1))
+        File(assets, "sfx/real.wav").writeBytes(byteArrayOf(1))
+        java.nio.file.Files.createSymbolicLink(File(assets, "sfx/roar.wav").toPath(), File(tmp, "secret.wav").toPath())
+        val exists = StyleLoader.assetIn(assets)
+        assertTrue(exists("sfx/real.wav")); assertFalse(exists("sfx/roar.wav")); assertFalse(exists("sfx/none.wav")); assertFalse(exists("../secret.wav"))
+    }
 }
