@@ -1,0 +1,10 @@
+{
+  "schema_version": "1.0",
+  "note": "The numbers of the mix (plan 4.9): the loudness target, the ceiling, the bed's fades and the ducking of the bed under the voice. Both apps read them: the PC's FFmpeg graph (s8_mix) builds its sidechaincompress from `duck`; the phone's mixer uses the same numbers. Layers and their gains come from the style pack (`sound`).",
+  "target_lufs": -14.0,
+  "ceiling_dbtp": -1.0,
+  "limit_margin_db": 1.0,
+  "sample_rate": 48000,
+  "bed": {"fade_in_s": 0.5, "fade_out_s": 1},
+  "duck": {"threshold": 0.02, "ratio": 8, "attack_ms": 20, "release_ms": 350, "makeup": 1}
+}

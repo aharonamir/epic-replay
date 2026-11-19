@@ -1,0 +1,70 @@
+[
+  {
+    "kind": "voice",
+    "id": "l1",
+    "file": "run/voice/l1.wav",
+    "start": 1.3,
+    "gain_db": 0.0
+  },
+  {
+    "kind": "voice",
+    "id": "l2",
+    "file": "run/voice/l2.wav",
+    "start": 9.433,
+    "gain_db": 0.0
+  },
+  {
+    "kind": "voice",
+    "id": "l3",
+    "file": "run/voice/l3.wav",
+    "start": 11.12,
+    "gain_db": 0.0
+  },
+  {
+    "kind": "voice",
+    "id": "l5",
+    "file": "run/voice/l5.wav",
+    "start": 16.9,
+    "gain_db": 0.0
+  },
+  {
+    "kind": "voice",
+    "id": "l6",
+    "file": "run/voice/l6.wav",
+    "start": 22.2,
+    "gain_db": 0.0
+  },
+  {
+    "kind": "voice",
+    "id": "l7",
+    "file": "run/voice/l7.wav",
+    "start": 26.7,
+    "gain_db": 0.0
+  },
+  {
+    "kind": "transition",
+    "file": "assets/sfx/news_swish_01.wav",
+    "start": 16.0,
+    "gain_db": 0.0
+  },
+  {
+    "kind": "sting_in",
+    "file": "assets/music/sting_news_in.wav",
+    "start": 0.0,
+    "gain_db": 0.0
+  },
+  {
+    "kind": "sting_out",
+    "file": "assets/music/sting_news_out.wav",
+    "start": 26.4,
+    "gain_db": 0.0
+  },
+  {
+    "kind": "original",
+    "file": "run/work.mp4",
+    "start": 1.0,
+    "gain_db": -9,
+    "in_s": 0.0,
+    "out_s": 15.0
+  }
+]

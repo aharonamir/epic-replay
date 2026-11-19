@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "mix_rules.schema.json",
+  "title": "The numbers of the mix: shared/mix/rules.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "target_lufs", "ceiling_dbtp", "limit_margin_db", "sample_rate", "bed", "duck"],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "note": {"type": "string"},
+    "target_lufs": {"type": "number", "maximum": 0},
+    "ceiling_dbtp": {"type": "number", "maximum": 0},
+    "limit_margin_db": {"type": "number", "minimum": 0},
+    "sample_rate": {"const": 48000},
+    "bed": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["fade_in_s", "fade_out_s"],
+      "properties": {
+        "fade_in_s": {"type": "number", "minimum": 0},
+        "fade_out_s": {"type": "number", "minimum": 0}
+      }
+    },
+    "duck": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["threshold", "ratio", "attack_ms", "release_ms", "makeup"],
+      "properties": {
+        "threshold": {"type": "number", "exclusiveMinimum": 0, "maximum": 1},
+        "ratio": {"type": "number", "minimum": 1},
+        "attack_ms": {"type": "number", "exclusiveMinimum": 0},
+        "release_ms": {"type": "number", "exclusiveMinimum": 0},
+        "makeup": {"type": "number", "minimum": 1}
+      }
+    }
+  }
+}

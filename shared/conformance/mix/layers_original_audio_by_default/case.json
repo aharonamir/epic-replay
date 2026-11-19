@@ -1,0 +1,76 @@
+{
+  "area": "mix",
+  "function": "mix.layers",
+  "language": "en",
+  "description": "A user context with no `keep_original_audio` keeps the clip's own sound.",
+  "tolerance_s": 0.001,
+  "inputs": {
+    "storyboard": {
+      "fixture": "sample_run/storyboard.json"
+    },
+    "voice": {
+      "value": {
+        "lines": [
+          {
+            "id": "l1",
+            "file": "voice/l1.wav",
+            "dropped": null,
+            "timeline_start": 1.3
+          },
+          {
+            "id": "l2",
+            "file": "voice/l2.wav",
+            "dropped": null,
+            "timeline_start": 9.433
+          },
+          {
+            "id": "l3",
+            "file": "voice/l3.wav",
+            "dropped": null,
+            "timeline_start": 11.12
+          },
+          {
+            "id": "l4",
+            "file": "voice/l4.wav",
+            "dropped": "would start under the key line before it",
+            "timeline_start": 13.683
+          },
+          {
+            "id": "l5",
+            "file": "voice/l5.wav",
+            "dropped": null,
+            "timeline_start": 16.9
+          },
+          {
+            "id": "l6",
+            "file": "voice/l6.wav",
+            "dropped": null,
+            "timeline_start": 22.2
+          },
+          {
+            "id": "l7",
+            "file": "voice/l7.wav",
+            "dropped": null,
+            "timeline_start": 26.7
+          }
+        ]
+      }
+    },
+    "pack": {
+      "style": "football_commentator",
+      "language": "en"
+    },
+    "user_context": {
+      "fixture": "sample_run/user_context.json",
+      "merge_patch": {
+        "keep_original_audio": null
+      }
+    },
+    "clip_meta": {
+      "fixture": "sample_run/clip_meta.json"
+    }
+  },
+  "expected": {
+    "file": "../layers_football/expected/output.json"
+  }
+}

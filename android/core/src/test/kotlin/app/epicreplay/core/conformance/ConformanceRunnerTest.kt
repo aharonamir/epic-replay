@@ -35,12 +35,12 @@ class ConformanceRunnerTest {
     @Test
     fun everyPortedCasePassesAndEveryAreaIsCovered() {
         val ported = all.filter { runner.isPorted(it) }
-        assertEquals(77, ported.size, "the cases ported so far: every lexicon.scan, units, cells, signals, storyboard, slots and checks case")
+        assertEquals(97, ported.size, "the cases ported so far: every lexicon.scan, units, cells, signals, storyboard, slots and checks case")
         val failures = ported.mapNotNull { dir -> runner.check(dir).takeIf { it.isNotEmpty() }?.let { "${dir.parentFile.name}/${dir.name}: ${it.take(3)}" } }
         assertEquals(emptyList<String>(), failures)
         // exact counts: a case may not be dropped, and one function cannot stand in for another
         val byFunction = ported.groupBy { runner.function(it) }.mapValues { it.value.size }
-        assertEquals(mapOf("lexicon.scan" to 18, "units.spoken_units" to 5, "cells.narrow" to 5, "cells.layout" to 5, "signals.scan" to 7, "storyboard.build" to 7, "slots.build" to 7, "checks.check" to 13, "checks.text" to 10), byFunction)
+        assertEquals(mapOf("lexicon.scan" to 18, "units.spoken_units" to 5, "cells.narrow" to 5, "cells.layout" to 5, "signals.scan" to 7, "storyboard.build" to 7, "slots.build" to 7, "checks.check" to 13, "checks.text" to 10, "voice.place" to 10, "voice.word_start" to 3, "mix.layers" to 7), byFunction)
         // no case passes by agreeing on nothing: each expects a non-empty list or object, and inputs are not empty
         for (dir in ported) {
             val case = runner.load(dir)

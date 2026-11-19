@@ -1,0 +1,116 @@
+{
+  "area": "mix",
+  "function": "mix.layers",
+  "language": "en",
+  "description": "A storyboard with no transition or end card: those one-shots are left out.",
+  "tolerance_s": 0.001,
+  "inputs": {
+    "storyboard": {
+      "fixture": "sample_run/storyboard.json",
+      "merge_patch": {
+        "segments": [
+          {
+            "id": "s1",
+            "kind": "title",
+            "timeline_start": 0.0,
+            "timeline_end": 1.0,
+            "source": null,
+            "speed": null,
+            "freeze_at_s": 0.0,
+            "zoom": null
+          },
+          {
+            "id": "s2",
+            "kind": "live",
+            "timeline_start": 1.0,
+            "timeline_end": 16.0,
+            "source": {
+              "in_s": 0.0,
+              "out_s": 15.0
+            },
+            "speed": 1.0,
+            "freeze_at_s": null,
+            "zoom": null
+          },
+          {
+            "id": "s4",
+            "kind": "replay",
+            "timeline_start": 16.4,
+            "timeline_end": 26.4,
+            "source": {
+              "in_s": 8.933,
+              "out_s": 11.433
+            },
+            "speed": 0.25,
+            "freeze_at_s": null,
+            "zoom": {
+              "scale": 1.25,
+              "ease_in_s": 1.0
+            }
+          }
+        ]
+      }
+    },
+    "voice": {
+      "value": {
+        "lines": [
+          {
+            "id": "l1",
+            "file": "voice/l1.wav",
+            "dropped": null,
+            "timeline_start": 1.3
+          },
+          {
+            "id": "l2",
+            "file": "voice/l2.wav",
+            "dropped": null,
+            "timeline_start": 9.433
+          },
+          {
+            "id": "l3",
+            "file": "voice/l3.wav",
+            "dropped": null,
+            "timeline_start": 11.12
+          },
+          {
+            "id": "l4",
+            "file": "voice/l4.wav",
+            "dropped": "would start under the key line before it",
+            "timeline_start": 13.683
+          },
+          {
+            "id": "l5",
+            "file": "voice/l5.wav",
+            "dropped": null,
+            "timeline_start": 16.9
+          },
+          {
+            "id": "l6",
+            "file": "voice/l6.wav",
+            "dropped": null,
+            "timeline_start": 22.2
+          },
+          {
+            "id": "l7",
+            "file": "voice/l7.wav",
+            "dropped": null,
+            "timeline_start": 26.7
+          }
+        ]
+      }
+    },
+    "pack": {
+      "style": "football_commentator",
+      "language": "en"
+    },
+    "user_context": {
+      "fixture": "sample_run/user_context.json"
+    },
+    "clip_meta": {
+      "fixture": "sample_run/clip_meta.json"
+    }
+  },
+  "expected": {
+    "file": "expected/output.json"
+  }
+}

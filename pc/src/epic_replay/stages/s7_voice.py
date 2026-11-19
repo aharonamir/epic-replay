@@ -107,7 +107,7 @@ def word_start(
 def fit(trimmed: Path, out: Path, raw_s: float, limit_s: float) -> tuple[float, float]:
     """Write the take to `out`, sped up to fit `limit_s` by at most 12 percent.
     Returns (speed factor, fitted duration)."""
-    factor = 1.0 if raw_s <= limit_s else min(MAX_SPEEDUP, raw_s / max(limit_s - 0.01, 1e-3))
+    factor = fit_factor(raw_s, limit_s)
     if factor > 1.0:
         audio.atempo(trimmed, out, factor)
         y, sr = audio.read_wav(out)
@@ -116,6 +116,61 @@ def fit(trimmed: Path, out: Path, raw_s: float, limit_s: float) -> tuple[float, 
     else:
         out.write_bytes(trimmed.read_bytes())
     return round(factor, 4), round(audio.duration(out), 3)
+
+
+def place(lines: list[dict], recs: list[dict], measures: list[dict], delay: float, end: float, refit) -> None:  # fmt: skip
+    """Where each take goes on the output timeline, from what was measured (the rules in the module's docstring).
+    `recs` hold each line's id, role, file, `raw_duration_s`, `speed_factor`, `duration_s` and `dropped`, and are
+    completed in place. `measures` hold, per line, `lead_s` (what the trim cut from the front) and, for a key
+    line, `onset_s` (its first strong onset in the fitted take) and `word_at_s` (the hit word's start in the raw take,
+    already moved to the nearest rise, or None). `refit(rec, room)` speeds a take up to fit `room` seconds and
+    returns (speed factor, duration): the audio's job on the PC, the conformance cases' model on any platform."""
+    for ln, rec, m in zip(lines, recs, measures, strict=True):
+        factor, dur, raw_s = rec["speed_factor"], rec["duration_s"], rec["raw_duration_s"]
+        key = ln["role"] in KEY_ROLES
+        if dur > ln["max_duration_s"] + 1e-3:
+            if key:
+                rec["over_s"] = round(dur - ln["max_duration_s"], 3)
+            else:
+                rec["dropped"] = f"{dur:.2f} s does not fit {ln['max_duration_s']:.2f} s at 12 percent faster"  # fmt: skip
+        if key:
+            rec["hit_offset_s"], rec["hit_source"] = round(m["onset_s"], 3), "onset"
+            at = m["word_at_s"]
+            if at is not None and 0 <= at - m["lead_s"] < raw_s:
+                rec["hit_offset_s"] = round((at - m["lead_s"]) / factor, 3)
+                rec["hit_source"] = "timing"
+            rec["target_s"] = round(ln["anchor"]["timeline_t"] + delay, 3)
+            rec["timeline_start"] = round(rec["target_s"] - rec["hit_offset_s"], 3)
+        else:
+            rec["timeline_start"] = ln["anchor"]["timeline_t"]
+
+    kept = [r for r in recs if not r["dropped"]]
+    for i, r in enumerate(kept):
+        if r["role"] in KEY_ROLES:
+            continue
+        nxt = next((k for k in kept[i + 1 :] if not k["dropped"]), None)
+        prv = next((k for k in reversed(kept[:i]) if not k["dropped"]), None)
+        if prv is not None and prv["role"] in KEY_ROLES:
+            if r["timeline_start"] < prv["timeline_start"] + prv["duration_s"] + GAP_S - 1e-6:
+                r["dropped"] = "would start under the key line before it"
+                continue
+        if nxt is not None and nxt["role"] in KEY_ROLES:
+            room = nxt["timeline_start"] - GAP_S - r["timeline_start"]
+            if r["duration_s"] > room + 1e-6:
+                if r["raw_duration_s"] > room * MAX_SPEEDUP + 1e-6:
+                    r["dropped"] = "does not end 0.1 s before the key line"
+                else:
+                    r["speed_factor"], r["duration_s"] = refit(r, room)
+    for r in recs:
+        if not r["dropped"] and r["role"] not in KEY_ROLES and r["timeline_start"] + r["duration_s"] > end + 1e-6:  # fmt: skip
+            r["dropped"] = "would run past the end of the video"
+        r.pop("_trimmed", None)
+        r["timeline_end"] = round(r["timeline_start"] + r["duration_s"], 3)
+
+
+def fit_factor(raw_s: float, limit_s: float) -> float:
+    """How much faster a take of `raw_s` must play to fit `limit_s`: 1.0 if it fits, else at most 12 percent."""
+    return 1.0 if raw_s <= limit_s else min(MAX_SPEEDUP, raw_s / max(limit_s - 0.01, 1e-3))
 
 
 def run(ctx: RunContext) -> StageResult:
@@ -137,6 +192,7 @@ def run(ctx: RunContext) -> StageResult:
         return StageResult("failed", f"{TRY_AGAIN} ({type(e).__name__}: {str(e)[:200]})")
 
     out: list[dict] = []
+    measures: list[dict] = []
     for ln, tk in zip(lines, takes, strict=True):
         path = ctx.path(f"voice/{ln['id']}.wav")
         trimmed = ctx.path(f"voice/raw/{ln['id']}.trimmed.wav")
@@ -149,52 +205,22 @@ def run(ctx: RunContext) -> StageResult:
             "provider": tk.info.provider, "voice": voice_id, "cost_usd": tk.info.cost_usd,
             "cache_hit": tk.info.cache_hit, "dropped": None,
         }  # fmt: skip
-        if dur > ln["max_duration_s"] + 1e-3:
-            if key:
-                rec["over_s"] = round(dur - ln["max_duration_s"], 3)
-            else:
-                rec["dropped"] = f"{dur:.2f} s does not fit {ln['max_duration_s']:.2f} s at 12 percent faster"  # fmt: skip
-        if key:
+        m = {"lead_s": lead_s, "onset_s": None, "word_at_s": None}
+        if key:  # what only the audio can tell: the first strong onset, and the word's start moved to the nearest rise
             y, sr = audio.read_wav(path)
-            rec["hit_offset_s"], rec["hit_source"] = round(audio.first_onset(y, sr), 3), "onset"
+            m["onset_s"] = audio.first_onset(y, sr)
             at = word_start(tk.alignment, ln["delivery"], ln["text"], ln.get("hit_word", ""), language)  # fmt: skip
             if at is not None:
                 raw, rsr = audio.read_wav(tk.wav_path)
-                at = audio.snap_to_rise(raw, rsr, at, SNAP_S)
-                if 0 <= at - lead_s < raw_s:
-                    rec["hit_offset_s"] = round((at - lead_s) / factor, 3)
-                    rec["hit_source"] = "timing"
-            rec["target_s"] = round(ln["anchor"]["timeline_t"] + delay, 3)
-            rec["timeline_start"] = round(rec["target_s"] - rec["hit_offset_s"], 3)
-        else:
-            rec["timeline_start"] = ln["anchor"]["timeline_t"]
+                m["word_at_s"] = audio.snap_to_rise(raw, rsr, at, SNAP_S)
         rec["_trimmed"] = trimmed
         out.append(rec)
+        measures.append(m)
 
-    kept = [r for r in out if not r["dropped"]]
-    for i, r in enumerate(kept):
-        if r["role"] in KEY_ROLES:
-            continue
-        nxt = next((k for k in kept[i + 1 :] if not k["dropped"]), None)
-        prv = next((k for k in reversed(kept[:i]) if not k["dropped"]), None)
-        if prv is not None and prv["role"] in KEY_ROLES:
-            if r["timeline_start"] < prv["timeline_start"] + prv["duration_s"] + GAP_S - 1e-6:
-                r["dropped"] = "would start under the key line before it"
-                continue
-        if nxt is not None and nxt["role"] in KEY_ROLES:
-            room = nxt["timeline_start"] - GAP_S - r["timeline_start"]
-            if r["duration_s"] > room + 1e-6:
-                if r["raw_duration_s"] > room * MAX_SPEEDUP + 1e-6:
-                    r["dropped"] = "does not end 0.1 s before the key line"
-                else:
-                    path = ctx.path(r["file"])
-                    r["speed_factor"], r["duration_s"] = fit(r["_trimmed"], path, r["raw_duration_s"], room)  # fmt: skip
-    end = sb["duration_s"]
-    for r in out:
-        if not r["dropped"] and r["role"] not in KEY_ROLES and r["timeline_start"] + r["duration_s"] > end + 1e-6:  # fmt: skip
-            r["dropped"] = "would run past the end of the video"
-        r.pop("_trimmed")
-        r["timeline_end"] = round(r["timeline_start"] + r["duration_s"], 3)
+    def refit(r: dict, room: float) -> tuple[float, float]:
+        return fit(r["_trimmed"], ctx.path(r["file"]), r["raw_duration_s"], room)
+
+    place(lines, out, measures, delay, sb["duration_s"], refit)
 
     doc = {"lines": out, "reaction_delay_s": delay,
            "cost_usd": round(sum(r["cost_usd"] for r in out), 6)}  # fmt: skip

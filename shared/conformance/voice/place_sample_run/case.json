@@ -1,0 +1,138 @@
+{
+  "area": "voice",
+  "function": "voice.place",
+  "language": null,
+  "description": "Every take fits: the key lines land on their markers by the first onset and by a word's timing.",
+  "tolerance_s": 0.001,
+  "inputs": {
+    "lines": {
+      "value": [
+        {
+          "id": "l1",
+          "role": "opening",
+          "max_duration_s": 4.0,
+          "anchor": {
+            "type": "start_at",
+            "timeline_t": 1.3,
+            "event_id": null
+          }
+        },
+        {
+          "id": "l2",
+          "role": "build_up",
+          "max_duration_s": 1.6,
+          "anchor": {
+            "type": "start_at",
+            "timeline_t": 9.433,
+            "event_id": null
+          }
+        },
+        {
+          "id": "l3",
+          "role": "climax",
+          "max_duration_s": 2.0,
+          "anchor": {
+            "type": "hit_at",
+            "timeline_t": 11.433,
+            "event_id": null
+          }
+        },
+        {
+          "id": "l4",
+          "role": "reaction",
+          "max_duration_s": 1.6,
+          "anchor": {
+            "type": "start_at",
+            "timeline_t": 13.683,
+            "event_id": null
+          }
+        },
+        {
+          "id": "l5",
+          "role": "replay_watch",
+          "max_duration_s": 3.5,
+          "anchor": {
+            "type": "start_at",
+            "timeline_t": 16.9,
+            "event_id": null
+          }
+        },
+        {
+          "id": "l6",
+          "role": "replay_climax",
+          "max_duration_s": 3.5,
+          "anchor": {
+            "type": "hit_at",
+            "timeline_t": 22.4,
+            "event_id": null
+          }
+        },
+        {
+          "id": "l7",
+          "role": "sign_off",
+          "max_duration_s": 1.6,
+          "anchor": {
+            "type": "start_at",
+            "timeline_t": 26.7,
+            "event_id": null
+          }
+        }
+      ]
+    },
+    "takes": {
+      "value": [
+        {
+          "raw_duration_s": 2.9,
+          "lead_s": 0.05,
+          "onset_s": null,
+          "word_at_s": null
+        },
+        {
+          "raw_duration_s": 0.9,
+          "lead_s": 0.05,
+          "onset_s": null,
+          "word_at_s": null
+        },
+        {
+          "raw_duration_s": 1.1,
+          "lead_s": 0.05,
+          "onset_s": 0.12,
+          "word_at_s": null
+        },
+        {
+          "raw_duration_s": 0.8,
+          "lead_s": 0.05,
+          "onset_s": null,
+          "word_at_s": null
+        },
+        {
+          "raw_duration_s": 3.2,
+          "lead_s": 0.05,
+          "onset_s": null,
+          "word_at_s": null
+        },
+        {
+          "raw_duration_s": 2.6,
+          "lead_s": 0.05,
+          "onset_s": 0.2,
+          "word_at_s": 0.62
+        },
+        {
+          "raw_duration_s": 1.1,
+          "lead_s": 0.05,
+          "onset_s": null,
+          "word_at_s": null
+        }
+      ]
+    },
+    "delay": {
+      "value": 0.15
+    },
+    "end": {
+      "value": 28.9
+    }
+  },
+  "expected": {
+    "file": "expected/output.json"
+  }
+}
