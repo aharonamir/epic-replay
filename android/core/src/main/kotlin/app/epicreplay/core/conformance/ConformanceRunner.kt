@@ -45,10 +45,11 @@ class ConformanceRunner(private val shared: File, private val functions: Map<Str
         else File(shared, "fixtures/" + ref.getValue("fixture").jsonPrimitive.content)
         var data: JsonElement = Json.parseToJsonElement(path.readText())
         ref["slice"]?.jsonArray?.let { s ->
-            val a = s[0].jsonPrimitive.content.toInt(); val b = s[1].jsonPrimitive.content.toInt()
-            require(a >= 0 && b >= 0) { "negative slices are not used by any case" }
             val items = data.jsonArray
-            data = JsonArray(items.subList(minOf(a, items.size), minOf(b, items.size)))
+            // Python's slice: a negative bound counts from the end, bounds are clamped, a start past the end is empty
+            fun bound(e: JsonElement): Int = e.jsonPrimitive.content.toInt().let { if (it < 0) maxOf(it + items.size, 0) else minOf(it, items.size) }
+            val a = bound(s[0]); val b = bound(s[1])
+            data = JsonArray(if (a >= b) emptyList() else items.subList(a, b))
         }
         ref["field"]?.let { f -> data = JsonArray(data.jsonArray.map { it.jsonObject.getValue(f.jsonPrimitive.content) }) }
         ref["merge_patch"]?.let { data = mergePatch(data, it) }

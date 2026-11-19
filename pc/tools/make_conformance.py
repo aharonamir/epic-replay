@@ -153,6 +153,11 @@ def lexicon_cases() -> dict[str, dict]:
         ["breaking\u00a0news", "BREAKING\u3000NEWS", "match\x1cof\x1dthe\x1eday", "ſhe scores",
          "a \u212aid", "breaking\u200bnews", "breaking\u2028news", "match of\u0085the day"],
     )  # fmt: skip
+    out["en_equal_length_alternatives"] = scan(
+        "Two pack terms whose patterns have the same length are tried in code point order of the "
+        "pattern text, so the text is read the same way on every run and platform.", "en",
+        ["a   b ", "a   b", "a b  "], extra=["a b ", "a  b"],
+    )  # fmt: skip
     for cat in json.loads((paths.LEXICONS / "zh.json").read_text("utf-8"))["banned"]:
         terms = list(getattr(lexicon_zh, cat.upper()))
         out[f"zh_every_{cat}_term"] = scan(

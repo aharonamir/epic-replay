@@ -17,6 +17,20 @@ object PyText {
     /** `len(s)` of Python: code points, not UTF-16 units. */
     fun length(s: String): Int = s.codePointCount(0, s.length)
 
+    /** Python's string order: by code point (Kotlin's own order is by UTF-16 unit, which differs above the surrogates). */
+    val CODE_POINT_ORDER: Comparator<String> = Comparator { a, b ->
+        var i = 0
+        var j = 0
+        while (i < a.length && j < b.length) {
+            val x = a.codePointAt(i)
+            val y = b.codePointAt(j)
+            if (x != y) return@Comparator x.compareTo(y)
+            i += Character.charCount(x)
+            j += Character.charCount(y)
+        }
+        (a.length - i).compareTo(b.length - j)
+    }
+
     /** The characters `re.escape` puts a backslash before (Python 3.7 and later). */
     private const val ESCAPED = "()[]{}?*+-|^$\\.&~# \t\n\u000B\u000C\r"
 

@@ -38,7 +38,7 @@ class EnglishLexicon(json: String) {
         // the alternatives are the distinct patterns, longest first; the length is the one of Python's pattern text
         val alts = list.map { PyText.termPattern(it) }
             .distinctBy { it.python }
-            .sortedWith(compareByDescending<PyText.TermPattern> { PyText.length(it.python) }.thenBy { it.python })
+            .sortedWith(compareByDescending<PyText.TermPattern> { PyText.length(it.python) }.then { a, b -> PyText.CODE_POINT_ORDER.compare(a.python, b.python) })
         return Regex("(?<![A-Za-z0-9])(?:" + alts.joinToString("|") { it.java } + ")(?![A-Za-z0-9])", RegexOption.IGNORE_CASE)
     }
 }

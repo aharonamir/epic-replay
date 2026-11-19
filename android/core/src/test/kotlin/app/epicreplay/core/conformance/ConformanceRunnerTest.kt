@@ -8,9 +8,11 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 
 /** T412: the runner over `shared/conformance/` and the areas it ports (lexicon scan, spoken units, cells). */
 class ConformanceRunnerTest {
@@ -33,12 +35,28 @@ class ConformanceRunnerTest {
     @Test
     fun everyPortedCasePassesAndEveryAreaIsCovered() {
         val ported = all.filter { runner.isPorted(it) }
-        assertEquals(32, ported.size, "the cases ported so far: every lexicon.scan, units, cells.narrow and cells.layout case")
+        assertEquals(33, ported.size, "the cases ported so far: every lexicon.scan, units, cells.narrow and cells.layout case")
         val failures = ported.mapNotNull { dir -> runner.check(dir).takeIf { it.isNotEmpty() }?.let { "${dir.parentFile.name}/${dir.name}: ${it.take(3)}" } }
         assertEquals(emptyList<String>(), failures)
+        // exact counts: a case may not be dropped, and one function cannot stand in for another
         val byFunction = ported.groupBy { runner.function(it) }.mapValues { it.value.size }
-        assertTrue(byFunction.getValue("lexicon.scan") >= 15 && byFunction.getValue("units.spoken_units") >= 5, "$byFunction")
-        assertTrue(byFunction.getValue("cells.narrow") == 5 && byFunction.getValue("cells.layout") == 5, "$byFunction")
+        assertEquals(mapOf("lexicon.scan" to 18, "units.spoken_units" to 5, "cells.narrow" to 5, "cells.layout" to 5), byFunction)
+        // no case passes by agreeing on nothing: each expects a non-empty list or object, and inputs are not empty
+        for (dir in ported) {
+            val case = runner.load(dir)
+            val want = runner.resolve(case.getValue("expected").jsonObject, dir)
+            assertTrue((want is JsonArray && want.isNotEmpty()) || (want is JsonObject && want.isNotEmpty()), "${dir.name} expects nothing")
+            for ((k, ref) in case.getValue("inputs").jsonObject) {
+                val v = runner.resolve(ref.jsonObject, dir)
+                if (k == "texts") assertTrue(v is JsonArray && v.isNotEmpty(), "${dir.name}: no texts")
+            }
+        }
+        // the scans are not all empty either: some case finds banned words in each language
+        for (lang in listOf("en", "zh")) {
+            val found = ported.filter { runner.function(it) == "lexicon.scan" && runner.load(it)["language"]?.jsonPrimitive?.content == lang }
+                .any { dir -> runner.run(dir).jsonArray.any { it.jsonObject.getValue("banned").jsonArray.isNotEmpty() } }
+            assertTrue(found, "no $lang scan finds anything")
+        }
     }
 
     @Test
@@ -116,6 +134,14 @@ class ConformanceRunnerTest {
         assertEquals(JsonArray(emptyList()), runner.resolve(kotlinx.serialization.json.buildJsonObject {
             put("fixture", JsonPrimitive("zh/zh_sentences.json")); put("slice", JsonArray(listOf(JsonPrimitive(5000), JsonPrimitive(6000))))
         }, case)) // a slice past the end is empty, as in Python
+        fun slice(a: Int, b: Int) = runner.resolve(kotlinx.serialization.json.buildJsonObject {
+            put("fixture", JsonPrimitive("zh/zh_sentences.json")); put("field", JsonPrimitive("zh"))
+            put("slice", JsonArray(listOf(JsonPrimitive(a), JsonPrimitive(b))))
+        }, case).jsonArray
+        assertEquals(all.subList(all.size - 2, all.size - 1).toList(), slice(-2, -1).toList()) // [-2:-1] is one item
+        assertEquals(emptyList(), slice(2, 1).toList()) // a reversed slice is empty
+        assertEquals(all.size, slice(-10_000, 10_000).size) // clamped on both sides
+        assertEquals(all.subList(0, 3).toList(), slice(0, 3).toList())
         assertFailsWith<UnsupportedReference> {
             runner.resolve(kotlinx.serialization.json.buildJsonObject { put("style", JsonPrimitive("news_reporter")) }, case)
         }
