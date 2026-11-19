@@ -5,6 +5,9 @@ import app.epicreplay.core.budget.Caps
 import app.epicreplay.core.budget.JsonFileLedgerStorage
 import app.epicreplay.core.budget.Ledger
 import app.epicreplay.core.models.CloudBackend
+import app.epicreplay.core.models.OnDeviceBackend
+import app.epicreplay.core.models.OnDeviceConfig
+import app.epicreplay.core.models.OnDeviceProfile
 import app.epicreplay.core.models.Role
 import app.epicreplay.core.models.ServerProfile
 import app.epicreplay.core.net.HttpTransport
@@ -17,6 +20,8 @@ import app.epicreplay.core.secrets.KeyKind
 import app.epicreplay.core.secrets.KeysController
 import app.epicreplay.core.secrets.ModelChoiceStore
 import app.epicreplay.core.secrets.SecretStore
+import app.epicreplay.engine.AndroidMemoryProbe
+import app.epicreplay.engine.NativeEngine
 import app.epicreplay.net.BitmapImageResizer
 import app.epicreplay.secrets.AndroidKeystoreKey
 import java.io.File
@@ -47,6 +52,15 @@ class AppGraph(context: Context) {
         val key = { secrets.get(KeyKind.MODEL_PROVIDER) }
         return CloudBackend(profile, role, RedactingTransport(transport) { listOf(key()) }, key, BitmapImageResizer())
     }
+
+    private val appContext = context.applicationContext
+
+    /** The model files of on-device profiles live here (T410 downloads them). */
+    val modelDir: File = File(root, "models")
+
+    /** The backend for an on-device [profile] in [role]: the JNI engine, refusing before it loads when memory is short. */
+    fun onDeviceBackend(profile: OnDeviceProfile, role: Role, config: OnDeviceConfig = OnDeviceConfig()): OnDeviceBackend =
+        OnDeviceBackend(profile, role, modelDir, AndroidMemoryProbe(appContext), { NativeEngine() }, config)
 
     companion object {
         const val SECRETS_DIR = "secrets"

@@ -120,8 +120,8 @@ A user picks or records a 3 to 30 s clip, chooses a narrator and a language, con
 **The engine**
 
 - **FR-012** The engine is llama.cpp (and `libmtmd` for images), built from source for `arm64-v8a` as one static library behind a JNI bridge, with the voice-reps flags: `BUILD_SHARED_LIBS=OFF`, `GGML_OPENMP=OFF`, `GGML_NATIVE=OFF`, `armv8.2-a+dotprod`, server off, API 28 (`docs/android.md` lists these limits). It implements `look()` (images in, a JSON reply constrained by the schema where the engine allows it) and `chat()`. A model that cannot take tool calls uses the structured draft (FR-014 of spec 003).
-- **FR-013** Calls are serialised: one at a time on the device (spec 003's `max_parallel`), each with a timeout from the profile, and the app stays responsive and can cancel.
-- **FR-014** Before a call the engine checks free RAM against the profile's `min_free_ram_mb` and refuses with `OutOfMemory` rather than being killed.
+- **FR-013** Calls are serialised: one at a time on the device (spec 003's `max_parallel`), each with a timeout, and the app stays responsive and can cancel. (An `on_device` profile has no `timeout_s`, FR-001: the backend's configuration holds the timeout, 300 s for a look and 120 s for a chat by default, measured in T427.)
+- **FR-014** Before the model is loaded the engine checks free RAM against the profile's `min_free_ram_mb` and refuses with `OutOfMemory` rather than being killed. A model that is already loaded holds its memory, so later calls do not check again (free memory is then low by design); unloading frees it.
 
 **Consent and records**
 

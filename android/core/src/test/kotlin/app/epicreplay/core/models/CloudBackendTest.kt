@@ -88,6 +88,7 @@ class CloudBackendTest {
         val t = CapturingTransport()
         backend(role = Role.TEXT, transport = t).chat(listOf(ChatMessage(ChatRole.USER, "x"))) // no schema: no format
         assertNull(body(t)["response_format"])
+        Unit
     }
 
     @Test
@@ -102,6 +103,7 @@ class CloudBackendTest {
         assertEquals("low", detailSent("request", "low"))
         assertEquals("high", detailSent("high", "low")) // the profile's own value wins
         assertNull(detailSent(null, "low")) // null: no detail field at all
+        Unit
     }
 
     @Test
@@ -133,6 +135,7 @@ class CloudBackendTest {
         backend(role = Role.TEXT, transport = t).chat(listOf(ChatMessage(ChatRole.USER, "x")), null, listOf(tool))
         assertEquals("check_lines", body(t).getValue("tools").jsonArray[0].jsonObject.getValue("function").jsonObject.getValue("name").jsonPrimitive.content)
         assertFailsWith<IllegalArgumentException> { backend(deepseek.copy(supportsTools = false), role = Role.TEXT).chat(emptyList(), null, listOf(tool)) }
+        Unit
     }
 
     @Test
