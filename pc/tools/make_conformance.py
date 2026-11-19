@@ -998,11 +998,18 @@ def mix_cases() -> dict[str, dict]:
                 "merge_patch": {"segments": _repeat_segments()},
             },
         ),
-        "layers_falsy_numbers": case(
-            "has_audio 0 and keep_original_audio 0 are false as Python reads them: no original layer, even with both set.",
+        "layers_falsy_keep_original_audio": case(
+            "keep_original_audio 0 is false as Python reads it: no original layer.",
             "football_commentator",
             uc={"keep_original_audio": 0},
             meta={"has_audio": 1},
+            expected={"file": "../layers_original_audio_off/expected/output.json"},
+        ),
+        "layers_falsy_has_audio": case(
+            "has_audio 0 is false as Python reads it: no original layer.",
+            "football_commentator",
+            uc={"keep_original_audio": 1},
+            meta={"has_audio": 0},
             expected={"file": "../layers_original_audio_off/expected/output.json"},
         ),
         "layers_truthy_numbers": case(

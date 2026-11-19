@@ -2,7 +2,7 @@
   "area": "mix",
   "function": "mix.layers",
   "language": "en",
-  "description": "has_audio 0 and keep_original_audio 0 are false as Python reads them: no original layer, even with both set.",
+  "description": "has_audio 0 is false as Python reads it: no original layer.",
   "tolerance_s": 0.001,
   "inputs": {
     "storyboard": {
@@ -63,13 +63,13 @@
     "user_context": {
       "fixture": "sample_run/user_context.json",
       "merge_patch": {
-        "keep_original_audio": 0
+        "keep_original_audio": 1
       }
     },
     "clip_meta": {
       "fixture": "sample_run/clip_meta.json",
       "merge_patch": {
-        "has_audio": 1
+        "has_audio": 0
       }
     }
   },
