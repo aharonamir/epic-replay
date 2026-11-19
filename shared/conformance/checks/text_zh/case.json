@@ -1,0 +1,46 @@
+{
+  "area": "checks",
+  "function": "checks.text",
+  "language": "zh",
+  "description": "Mandarin lines: language, Simplified only, Latin words and famous names as invented names, digits, Chinese numerals, banned terms (rule 4 and 8).",
+  "inputs": {
+    "language": {
+      "value": "zh"
+    },
+    "texts": {
+      "value": [
+        "进了！",
+        "Goal 进了",
+        "noa 进了",
+        "NOA进了",
+        "梅西进了",
+        "进了3个",
+        "进了３个",
+        "进了٣个",
+        "进了七个",
+        "进了三十个",
+        "进了一万个",
+        "进了七个和一百",
+        "後衛进了",
+        "球隊进了",
+        "没有汉字 only",
+        "123",
+        "她进了",
+        "老人进了",
+        "进了specimen",
+        "进了 specimen"
+      ]
+    },
+    "known": {
+      "value": "noa 梅西 七 seven"
+    },
+    "extra": {
+      "value": [
+        "specimen"
+      ]
+    }
+  },
+  "expected": {
+    "file": "expected/output.json"
+  }
+}

@@ -1,0 +1,68 @@
+[
+  {
+    "where": "l1",
+    "rule": 4,
+    "kind": "invented_number",
+    "detail": "the number 10 is not in the play sheet or the user context"
+  },
+  {
+    "where": "l1",
+    "rule": 4,
+    "kind": "invented_number",
+    "detail": "the number 2 is not in the play sheet or the user context"
+  },
+  {
+    "where": "l1",
+    "rule": 4,
+    "kind": "invented_number",
+    "detail": "the number 3 is not in the play sheet or the user context"
+  },
+  {
+    "where": "l1",
+    "rule": 4,
+    "kind": "invented_number",
+    "detail": "the number 5 is not in the play sheet or the user context"
+  },
+  {
+    "where": "l1",
+    "rule": 4,
+    "kind": "invented_number",
+    "detail": "the number 6 is not in the play sheet or the user context"
+  },
+  {
+    "where": "l1",
+    "rule": 4,
+    "kind": "invented_number",
+    "detail": "the number 7 is not in the play sheet or the user context"
+  },
+  {
+    "where": "l1",
+    "rule": 4,
+    "kind": "invented_number",
+    "detail": "the number 8 is not in the play sheet or the user context"
+  },
+  {
+    "where": "l1",
+    "rule": 4,
+    "kind": "invented_number",
+    "detail": "the number 9 is not in the play sheet or the user context"
+  },
+  {
+    "where": "l1",
+    "rule": 5,
+    "kind": "over_budget",
+    "detail": "max_words is 9, the duration allows 8"
+  },
+  {
+    "where": "l1",
+    "rule": 5,
+    "kind": "over_budget",
+    "detail": "more than 8 words (10)"
+  },
+  {
+    "where": "l2",
+    "rule": 5,
+    "kind": "over_budget",
+    "detail": "more than 1 word (2)"
+  }
+]

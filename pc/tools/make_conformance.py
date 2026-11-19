@@ -549,9 +549,181 @@ def signals_cases() -> dict[str, dict]:
     }
 
 
+def checks_more_cases() -> dict[str, dict]:
+    """Added in T415 for the Kotlin port: the text rules on many texts, and the script checks on edges."""
+
+    def text(desc, lang, texts, known, extra=()):
+        return {"area": "checks", "function": "checks.text", "language": lang, "description": desc,
+                "inputs": {"language": value(lang), "texts": value(texts), "known": value(known),
+                           "extra": value(list(extra))}}  # fmt: skip
+
+    def script(desc, lang, patch, uc=None, pack="football_commentator"):
+        base = "planted_errors/zh_banned_term.json" if lang == "zh" else "sample_run/script.json"
+        return {"area": "checks", "function": "checks.check", "language": lang, "description": desc,
+                "inputs": {"script": fixture(base, merge_patch=patch), "play_sheet": sample("play_sheet"),
+                           "user_context": sample("user_context", **({"merge_patch": uc} if uc else {})),
+                           "pack": {"style": pack, "language": lang}}}  # fmt: skip
+
+    en_known = "noa free kick 7 seven top corner 2.5 goal"
+    return {
+        "text_en_names": text(
+            "English names: capitals that start a sentence or are shouted pass unless listed; others must be known (rule 4).",
+            "en",
+            [
+                "Free kick, just outside the box.",
+                "TOP CORNER! What a strike!",
+                "Then Noa shoots.",
+                "Ronaldo scores",
+                "RONALDO SCORES",
+                "He said Hello there",
+                "A header by Messi's side",
+                '"Brazil" in the crowd',
+                "(Wembley) roars",
+                "Wow: Madrid",
+                "Mid sentence Paris appears",
+                "O'Neil takes it",
+                "Noa's strike",
+                "NOA'S strike",
+                "Smith... Jones!",
+                "one idea",
+            ],
+            en_known,
+        ),
+        "text_en_numbers": text(
+            "English numbers in digits and words, in either form; one and zero are too common to count (rule 4).",
+            "en",
+            [
+                "Seven goals in 3 games",
+                "7.0 seconds",
+                "2.50 metres",
+                "1,000 fans",
+                "10:30 kick off",
+                "twenty yards",
+                "thirty",
+                "a hundred and ten",
+                "zero chance, one idea",
+                "٣ goals",
+                "３ goals",
+                "3 and 3.5 and 3,5",
+                "two thousand",
+            ],
+            en_known,
+        ),
+        "text_en_banned": text(
+            "English banned terms: the global list and a pack's own extra terms, as whole words (rule 8).",
+            "en",
+            [
+                "She shoots",
+                "that young talent",
+                "the old man",
+                "bold move",
+                "what a specimen",
+                "Specimen!",
+                "SPECIMEN\u00a0shape",
+            ],
+            en_known,
+            ["specimen"],
+        ),
+        "text_zh": text(
+            "Mandarin lines: language, Simplified only, Latin words and famous names as invented names, digits, Chinese numerals, banned terms (rule 4 and 8).",
+            "zh",
+            [
+                "进了！",
+                "Goal 进了",
+                "noa 进了",
+                "NOA进了",
+                "梅西进了",
+                "进了3个",
+                "进了３个",
+                "进了٣个",
+                "进了七个",
+                "进了三十个",
+                "进了一万个",
+                "进了七个和一百",
+                "後衛进了",
+                "球隊进了",
+                "没有汉字 only",
+                "123",
+                "她进了",
+                "老人进了",
+                "进了specimen",
+                "进了 specimen",
+            ],
+            "noa 梅西 七 seven",
+            ["specimen"],
+        ),
+        "headline_and_lower_third": script(
+            "The headline and the lower third are read by rules 4 and 8 too.",
+            "en",
+            {"headline": "RONALDO SCORES", "lower_third": "Zidane saw a specimen of seven"},
+        ),
+        "wrong_rate_and_startup": script(
+            "A script whose rate or start-up is not the pack's: the detail shows each value as Python writes it.",
+            "en",
+            {"words_per_second": 3, "startup_s": 0.90000001},
+        ),
+        "budget_edges": script(
+            "max_words that the duration does not allow, a key line's floor of one word, a line over the smaller number.",
+            "en",
+            {
+                "lines": [
+                    {
+                        "id": "l1",
+                        "segment_id": "s2",
+                        "role": "opening",
+                        "anchor": {"type": "start_at", "timeline_t": 1.3, "event_id": None},
+                        "max_duration_s": 4.0,
+                        "max_words": 9,
+                        "text": "one two three four five six seven eight nine ten",
+                        "delivery": "x",
+                        "event_refs": ["e1"],
+                        "generic": False,
+                    },
+                    {
+                        "id": "l2",
+                        "segment_id": "s2",
+                        "role": "climax",
+                        "anchor": {"type": "hit_at", "timeline_t": 11.433, "event_id": "e6"},
+                        "max_duration_s": 0.5,
+                        "max_words": 1,
+                        "text": "TOP CORNER!",
+                        "hit_word": "TOP",
+                        "delivery": "x",
+                        "event_refs": ["e6"],
+                        "generic": False,
+                    },
+                    {
+                        "id": "l3",
+                        "segment_id": "s2",
+                        "role": "reaction",
+                        "anchor": {"type": "start_at", "timeline_t": 13.0, "event_id": None},
+                        "max_duration_s": 0.9,
+                        "max_words": 0,
+                        "text": "",
+                        "delivery": "x",
+                        "event_refs": [],
+                        "generic": False,
+                    },
+                ]
+            },
+        ),
+        "zh_typed_names_stay_as_typed": script(
+            "Names the user typed are left as typed, Traditional forms and all; a Latin one is not an invented name only if known.",
+            "zh",
+            {"headline": "後衛进了", "lower_third": "Noa 好"},
+            {"player_name": "後衛", "team_home": "Noa"},
+        ),
+        "zh_script_checks": script(
+            "A Mandarin script with digits, a famous name and Traditional characters outside the typed names.",
+            "zh",
+            {"headline": "梅西进了3个", "lower_third": "球隊"},
+        ),
+    }
+
+
 def all_cases() -> dict[str, dict]:
     out = {}
-    for make in (storyboard_cases, slots_cases, checks_cases, lexicon_cases, units_cases, cells_cases, cell_layout_cases, backend_cases, budget_cases, consent_cases, signals_cases):  # fmt: skip
+    for make in (storyboard_cases, slots_cases, checks_cases, lexicon_cases, units_cases, cells_cases, cell_layout_cases, backend_cases, budget_cases, consent_cases, signals_cases, checks_more_cases):  # fmt: skip
         for name, case in make().items():
             out[f"{case['area']}/{name}"] = case
     return out

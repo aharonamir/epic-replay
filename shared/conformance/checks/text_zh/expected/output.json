@@ -1,0 +1,127 @@
+[
+  [],
+  [
+    {
+      "rule": 4,
+      "kind": "invented_name",
+      "detail": "'Goal' is not in the play sheet or the user context"
+    }
+  ],
+  [],
+  [],
+  [],
+  [
+    {
+      "rule": 4,
+      "kind": "invented_number",
+      "detail": "write numbers in Chinese numerals, not digits"
+    }
+  ],
+  [
+    {
+      "rule": 4,
+      "kind": "invented_number",
+      "detail": "write numbers in Chinese numerals, not digits"
+    }
+  ],
+  [
+    {
+      "rule": 4,
+      "kind": "invented_number",
+      "detail": "write numbers in Chinese numerals, not digits"
+    }
+  ],
+  [],
+  [
+    {
+      "rule": 4,
+      "kind": "invented_number",
+      "detail": "the number 30 is not in the play sheet or the user context"
+    }
+  ],
+  [
+    {
+      "rule": 4,
+      "kind": "invented_number",
+      "detail": "the number 10000 is not in the play sheet or the user context"
+    }
+  ],
+  [
+    {
+      "rule": 4,
+      "kind": "invented_number",
+      "detail": "the number 100 is not in the play sheet or the user context"
+    }
+  ],
+  [
+    {
+      "rule": 4,
+      "kind": "wrong_language",
+      "detail": "write in Simplified Chinese"
+    }
+  ],
+  [
+    {
+      "rule": 4,
+      "kind": "wrong_language",
+      "detail": "write in Simplified Chinese"
+    }
+  ],
+  [
+    {
+      "rule": 4,
+      "kind": "invented_name",
+      "detail": "'only' is not in the play sheet or the user context"
+    }
+  ],
+  [
+    {
+      "rule": 4,
+      "kind": "wrong_language",
+      "detail": "this line has no Chinese in it"
+    },
+    {
+      "rule": 4,
+      "kind": "invented_number",
+      "detail": "write numbers in Chinese numerals, not digits"
+    }
+  ],
+  [
+    {
+      "rule": 8,
+      "kind": "banned_term",
+      "detail": "'她' is a banned term"
+    }
+  ],
+  [
+    {
+      "rule": 8,
+      "kind": "banned_term",
+      "detail": "'老人' is a banned term"
+    }
+  ],
+  [
+    {
+      "rule": 4,
+      "kind": "invented_name",
+      "detail": "'specimen' is not in the play sheet or the user context"
+    },
+    {
+      "rule": 8,
+      "kind": "banned_term",
+      "detail": "'specimen' is a banned term"
+    }
+  ],
+  [
+    {
+      "rule": 4,
+      "kind": "invented_name",
+      "detail": "'specimen' is not in the play sheet or the user context"
+    },
+    {
+      "rule": 8,
+      "kind": "banned_term",
+      "detail": "'specimen' is a banned term"
+    }
+  ]
+]

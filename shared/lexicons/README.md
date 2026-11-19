@@ -35,6 +35,7 @@ The lists may change only with a spec change: `GLOBAL_BANNED` is part of the Eng
 | `not_numbers_when` | Patterns masked with `not_numbers` (十分 not before 钟). |
 | `numeral_run` | The pattern of one run of Chinese numerals. |
 | `digits`, `units` | The value of each digit (零 and 〇 are 0, 两 is 2) and of 十, 百, 千. 万 is handled by the algorithm below. |
+| `gb2312` | The CJK characters GB 2312 encodes (6,763), written out so no platform depends on its own charset tables. A character outside this list is not Simplified. |
 | `traditional_in_gb2312` | Traditional forms that GB 2312 also encodes, so the Simplified-only check treats them as Traditional. |
 
 **Masking.** Replace each phrase of the list, longest first, with as many `□` (U+25A1) as it has characters; then replace each match of each pattern, in file order, the same way. The masked text has the same length as the original.

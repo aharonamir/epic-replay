@@ -1,0 +1,37 @@
+{
+  "area": "checks",
+  "function": "checks.text",
+  "language": "en",
+  "description": "English numbers in digits and words, in either form; one and zero are too common to count (rule 4).",
+  "inputs": {
+    "language": {
+      "value": "en"
+    },
+    "texts": {
+      "value": [
+        "Seven goals in 3 games",
+        "7.0 seconds",
+        "2.50 metres",
+        "1,000 fans",
+        "10:30 kick off",
+        "twenty yards",
+        "thirty",
+        "a hundred and ten",
+        "zero chance, one idea",
+        "٣ goals",
+        "３ goals",
+        "3 and 3.5 and 3,5",
+        "two thousand"
+      ]
+    },
+    "known": {
+      "value": "noa free kick 7 seven top corner 2.5 goal"
+    },
+    "extra": {
+      "value": []
+    }
+  },
+  "expected": {
+    "file": "expected/output.json"
+  }
+}

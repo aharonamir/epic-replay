@@ -1,0 +1,45 @@
+[
+  [
+    {
+      "rule": 8,
+      "kind": "banned_term",
+      "detail": "'she' is a banned term"
+    }
+  ],
+  [
+    {
+      "rule": 8,
+      "kind": "banned_term",
+      "detail": "'young' is a banned term"
+    }
+  ],
+  [
+    {
+      "rule": 8,
+      "kind": "banned_term",
+      "detail": "'old' is a banned term"
+    }
+  ],
+  [],
+  [
+    {
+      "rule": 8,
+      "kind": "banned_term",
+      "detail": "'specimen' is a banned term"
+    }
+  ],
+  [
+    {
+      "rule": 8,
+      "kind": "banned_term",
+      "detail": "'specimen' is a banned term"
+    }
+  ],
+  [
+    {
+      "rule": 8,
+      "kind": "banned_term",
+      "detail": "'specimen' is a banned term"
+    }
+  ]
+]

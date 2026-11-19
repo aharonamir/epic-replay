@@ -61,7 +61,7 @@
       "required": [
         "language", "match", "categories", "banned", "female_pronoun", "famous_names",
         "allowed", "allowed_when", "not_numbers", "not_numbers_when", "numeral_run",
-        "digits", "units", "traditional_in_gb2312"
+        "digits", "units", "traditional_in_gb2312", "gb2312"
       ],
       "properties": {
         "language": {"const": "zh"},
@@ -109,6 +109,15 @@
           "additionalProperties": {"type": "integer", "minimum": 10}
         },
         "traditional_in_gb2312": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["characters"],
+          "properties": {
+            "note": {"$ref": "#/$defs/note"},
+            "characters": {"type": "string", "minLength": 1}
+          }
+        },
+        "gb2312": {
           "type": "object",
           "additionalProperties": false,
           "required": ["characters"],

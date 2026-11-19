@@ -1,0 +1,40 @@
+{
+  "area": "checks",
+  "function": "checks.text",
+  "language": "en",
+  "description": "English names: capitals that start a sentence or are shouted pass unless listed; others must be known (rule 4).",
+  "inputs": {
+    "language": {
+      "value": "en"
+    },
+    "texts": {
+      "value": [
+        "Free kick, just outside the box.",
+        "TOP CORNER! What a strike!",
+        "Then Noa shoots.",
+        "Ronaldo scores",
+        "RONALDO SCORES",
+        "He said Hello there",
+        "A header by Messi's side",
+        "\"Brazil\" in the crowd",
+        "(Wembley) roars",
+        "Wow: Madrid",
+        "Mid sentence Paris appears",
+        "O'Neil takes it",
+        "Noa's strike",
+        "NOA'S strike",
+        "Smith... Jones!",
+        "one idea"
+      ]
+    },
+    "known": {
+      "value": "noa free kick 7 seven top corner 2.5 goal"
+    },
+    "extra": {
+      "value": []
+    }
+  },
+  "expected": {
+    "file": "expected/output.json"
+  }
+}
