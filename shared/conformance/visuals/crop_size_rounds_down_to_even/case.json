@@ -1,0 +1,30 @@
+{
+  "area": "visuals",
+  "function": "visuals.plan",
+  "language": null,
+  "description": "777 x 557 at a zoom of 1.25: 621.6 and 445.6 become 620 and 444, never odd.",
+  "tolerance_s": 0.001,
+  "inputs": {
+    "storyboard": {
+      "fixture": "sample_run/storyboard.json",
+      "merge_patch": {
+        "width": 777,
+        "height": 557
+      }
+    },
+    "focus_box": {
+      "value": {
+        "x": 0.08,
+        "y": 0.12,
+        "w": 0.3,
+        "h": 0.3
+      }
+    },
+    "src_frames": {
+      "value": 450
+    }
+  },
+  "expected": {
+    "file": "expected/output.json"
+  }
+}

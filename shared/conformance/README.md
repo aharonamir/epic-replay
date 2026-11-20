@@ -15,7 +15,7 @@ shared/conformance/<area>/<case>/expected/output.json   when the output is large
 
 | Key | Meaning |
 |---|---|
-| `area` | One of the twelve areas below; the folder the case sits in |
+| `area` | One of the thirteen areas below; the folder the case sits in |
 | `function` | The rule under test, by the platform-neutral name in the table below |
 | `language` | `en`, `zh`, or `null` when the rule has no language |
 | `description` | What the case shows |
@@ -67,6 +67,7 @@ Compare the platform's output, as JSON, with the expected value: objects by key 
 | `voice.word_start` | `calls`: each `{alignment, delivery, text, word, language}` | for each call, where `word` starts in the raw take, from the provider's character timings (a number), or `null`: no alignment, one that is not over the text as sent (`[tag] ` for each comma-separated delivery tag, then the text), a word not found as a whole word (English: any case, no letter, digit, `_` or `'` beside it; Mandarin: a substring). Positions count characters, not UTF-16 units. Case is folded as Java folds it: the few extra equivalences of Python's `re.IGNORECASE` (ı, İ, ſ, the Kelvin sign) are not ported, as a hit word is an ordinary word of the script, or the line's first word | `stages.s7_voice.word_start` |
 | `voice.place` | `lines`, `takes`, `delay`, `end` | for each line the S7 record: speed factor, duration, `dropped` (or null), for a key line `hit_offset_s`, `hit_source`, `target_s` and `over_s`, then `timeline_start` and `timeline_end`. The take's length after speeding up is the audio library's on a real run; the cases use one model, written under the table | `stages.s7_voice.place` |
 | `mix.layers` | `storyboard`, `voice`, `pack`, `user_context`, `clip_meta` | the layers of the mix in order (voice lines not dropped, the bed, the one-shots, the clip's own sound), with the folders written `run/` and `assets/` | `stages.s8_mix.layers` |
+| `visuals.plan` | `storyboard`, `focus_box` (or null), `src_frames` | for each segment what S9 does, in frames: `id`, `method` (null for a held frame, `blend` below speed 1, else `native`), `frames` (the segment's length: its end's frame number less its start's), `hold_s`; a held frame has `freeze_frame`; a cut one has `first_frame`, `end_frame` (at least one frame, both within the working copy), `speed` and `crop` (null, or `scale`, `w`, `h`, `x`, `y`: a crop of 1/scale of the picture, even sizes rounded down, centred on the focus box as far as the edges allow, the centre rounded half to even). A frame number is `round(t * fps + 1e-9)`, half to even | `stages.s9_visuals.plan` |
 
 The matching rules behind `lexicon.scan` and `checks.text` are written out in `shared/lexicons/README.md`. The `detail` strings of the checks are English text and are part of the expected output.
 
@@ -87,6 +88,7 @@ The matching rules behind `lexicon.scan` and `checks.text` are written out in `s
 | `signals` | a strike with and without a thud; a thud alone; two strikes (the quieter thud is no loud peak); a hard cut; a panning camera; a thud with nothing moving (T413) |
 | `voice` | where each take goes: every take fits; a long take sped up; too long (dropped, or a key line kept and running over); a line in the key line's way; a line after it; a line past the video's end; a word timing outside the take, at its edges; the pad cut; the words' start times in English, Mandarin, past an emoji and with no usable timing (T416) |
 | `mix` | the layers for each of the three packs, in Mandarin, with the user's or the clip's sound off, as Python reads numbers as true or false, with no replay or end card, with repeated segment kinds (T416) |
+| `visuals` | the sample storyboard; no focus box; a replay that holds its last frame; a 3 s and a 30 s clip; a working copy shorter than the storyboard; a portrait clip; focus boxes in the corners and the middle; an odd frame size and a zoom of 1.3, with the crop corner halfway between pixels; crop sizes rounded down to even; an empty source range; 25 and 29.97 fps (T417) |
 
 ### The take's length after speeding up (`voice.place`)
 

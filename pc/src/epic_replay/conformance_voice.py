@@ -53,3 +53,9 @@ def layers(
     return s8_mix.layers(
         storyboard, voice, pack, user_context, clip_meta, Path("run"), Path("assets")
     )
+
+
+def visuals_plan(storyboard: dict, focus_box: dict | None, src_frames: int) -> list[dict]:
+    from epic_replay.stages import s9_visuals
+
+    return [s9_visuals.plan(s, storyboard, focus_box, src_frames) for s in storyboard["segments"]]

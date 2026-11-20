@@ -25,20 +25,36 @@ VISUALS = "visuals.json"
 SEGMENTS = "segments"
 
 
-def chain_for(seg: dict, sb: dict, focus_box: dict | None, src_frames: int) -> str:
+def plan(seg: dict, sb: dict, focus_box: dict | None, src_frames: int) -> dict:
+    """What S9 does with one segment, in frames: the source range, the speed, the zoom crop, or the frame to hold,
+    and how many frames the segment has. The FFmpeg chain and the phone's pipeline both follow this."""
     fps = sb["fps"]
     n = ffmpeg.frames(seg["timeline_end"], fps) - ffmpeg.frames(seg["timeline_start"], fps)
+    out = {"id": seg["id"], "method": method(seg), "frames": n, "hold_s": seg.get("hold_s", 0.0)}
     if seg["source"] is None:
-        at = min(ffmpeg.frames(seg["freeze_at_s"], fps), src_frames - 1)
-        return ffmpeg.chain(ffmpeg.freeze(at), ffmpeg.fit(n, fps))
+        out["freeze_frame"] = min(ffmpeg.frames(seg["freeze_at_s"], fps), src_frames - 1)
+        return out
     first = min(ffmpeg.frames(seg["source"]["in_s"], fps), src_frames - 1)
     end = min(max(first + 1, ffmpeg.frames(seg["source"]["out_s"], fps)), src_frames)
     z = seg.get("zoom")
+    crop = None
+    if z and focus_box:
+        cw, ch, x, y = ffmpeg.zoom_crop(z["scale"], focus_box, sb["width"], sb["height"])
+        crop = {"scale": z["scale"], "w": cw, "h": ch, "x": x, "y": y}
+    return out | {"first_frame": first, "end_frame": end, "speed": seg["speed"], "crop": crop}
+
+
+def chain_for(seg: dict, sb: dict, focus_box: dict | None, src_frames: int) -> str:
+    fps = sb["fps"]
+    p = plan(seg, sb, focus_box, src_frames)
+    if seg["source"] is None:
+        return ffmpeg.chain(ffmpeg.freeze(p["freeze_frame"]), ffmpeg.fit(p["frames"], fps))
+    z = seg["zoom"]
     return ffmpeg.chain(
-        ffmpeg.cut(first, end),
+        ffmpeg.cut(p["first_frame"], p["end_frame"]),
         ffmpeg.speed(seg["speed"], fps, blend=True),
-        ffmpeg.zoom(z["scale"], focus_box, sb["width"], sb["height"]) if z and focus_box else "",
-        ffmpeg.fit(n, fps),
+        ffmpeg.zoom(z["scale"], focus_box, sb["width"], sb["height"]) if p["crop"] else "",
+        ffmpeg.fit(p["frames"], fps),
     )
 
 

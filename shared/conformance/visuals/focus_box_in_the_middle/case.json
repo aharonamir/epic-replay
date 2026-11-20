@@ -1,0 +1,26 @@
+{
+  "area": "visuals",
+  "function": "visuals.plan",
+  "language": null,
+  "description": "A box in the middle of the frame: the crop is centred on it.",
+  "tolerance_s": 0.001,
+  "inputs": {
+    "storyboard": {
+      "fixture": "sample_run/storyboard.json"
+    },
+    "focus_box": {
+      "value": {
+        "x": 0.4,
+        "y": 0.35,
+        "w": 0.2,
+        "h": 0.2
+      }
+    },
+    "src_frames": {
+      "value": 450
+    }
+  },
+  "expected": {
+    "file": "expected/output.json"
+  }
+}

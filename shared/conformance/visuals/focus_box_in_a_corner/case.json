@@ -1,0 +1,26 @@
+{
+  "area": "visuals",
+  "function": "visuals.plan",
+  "language": null,
+  "description": "A focus box in the top-left corner: the crop stops at the edges, as the sample's does (its box is near the corner too).",
+  "tolerance_s": 0.001,
+  "inputs": {
+    "storyboard": {
+      "fixture": "sample_run/storyboard.json"
+    },
+    "focus_box": {
+      "value": {
+        "x": 0.0,
+        "y": 0.0,
+        "w": 0.1,
+        "h": 0.1
+      }
+    },
+    "src_frames": {
+      "value": 450
+    }
+  },
+  "expected": {
+    "file": "../sample_run/expected/output.json"
+  }
+}

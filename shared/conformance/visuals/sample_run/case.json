@@ -1,0 +1,26 @@
+{
+  "area": "visuals",
+  "function": "visuals.plan",
+  "language": null,
+  "description": "The sample storyboard: cut, the replay at 0.25 with its zoom, held frames, frame counts that add up.",
+  "tolerance_s": 0.001,
+  "inputs": {
+    "storyboard": {
+      "fixture": "sample_run/storyboard.json"
+    },
+    "focus_box": {
+      "value": {
+        "x": 0.08,
+        "y": 0.12,
+        "w": 0.3,
+        "h": 0.3
+      }
+    },
+    "src_frames": {
+      "value": 450
+    }
+  },
+  "expected": {
+    "file": "expected/output.json"
+  }
+}
