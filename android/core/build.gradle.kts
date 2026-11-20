@@ -29,6 +29,7 @@ tasks.test {
     systemProperty("android.dir", rootProject.layout.projectDirectory.asFile.absolutePath)
     // -Dnetwork.test=true runs the tests that download a real file (RealDownloadTest); off by default.
     systemProperty("network.test", System.getProperty("network.test") ?: "")
+    systemProperty("measure.cloud", System.getProperty("measure.cloud") ?: "") // the paid measurement of T419 (CommentatorMeasureTest)
     // The tests read both trees, so a change in either must run them (and must not be served from the cache).
     inputs.dir(rootProject.layout.projectDirectory.dir("../shared")).withPropertyName("sharedData")
     // JUnit silently skips a test method that returns a value (`= runBlocking { ... assertFailsWith ... }`): the
