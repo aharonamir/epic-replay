@@ -72,13 +72,16 @@ class CommentatorRun(
             val draft = draftOf(args)
             val fails = c.failures(draft, slots, ps, uc, sb, pack)
             val n = (draft["lines"] as? JsonArray)?.size ?: 0
-            calls += buildJsonObject { put("tool", name); put("lines", n); put("failures", fails.size) }
-            return when (name) {
-                "check_lines" -> if (fails.isEmpty()) "All lines pass. Call submit_script with this draft." else buildJsonObject { put("failures", JsonArray(fails)) }.toString()
-                "submit_script" -> if (fails.isNotEmpty()) buildJsonObject { put("rejected", true); put("failures", JsonArray(fails)) }.toString()
-                else { if (accepted == null) accepted = draft; "Accepted. You are done." }
-                else -> "unknown tool $name"
+            if (name == "check_lines" || name == "submit_script") calls += buildJsonObject { put("tool", name); put("lines", n); put("failures", fails.size) }
+            if (name == "check_lines") {
+                return if (fails.isEmpty()) "All lines pass. Call submit_script with this draft." else buildJsonObject { put("failures", JsonArray(fails)) }.toString()
             }
+            if (name == "submit_script") {
+                if (fails.isNotEmpty()) return buildJsonObject { put("rejected", true); put("failures", JsonArray(fails)) }.toString()
+                if (accepted == null) accepted = draft
+                return "Accepted. You are done."
+            }
+            return "unknown tool $name" // nothing is accepted by a tool this loop does not have
         }
     }
 
@@ -89,20 +92,27 @@ class CommentatorRun(
         return listOf("check_lines", "submit_script").map { ToolDef(it, words.toolDescription(it), params) }
     }
 
-    private class Agent(val draft: JsonObject?, val calls: List<JsonObject>, val usd: Double, val turns: Int)
+    private class Agent(val draft: JsonObject?, val calls: List<JsonObject>, val usd: Double, val turns: Int, val tokensIn: Long, val tokensOut: Long) {
+        /** As the PC records an agent run (`draft`, `calls`, `usage`), and what this platform also keeps: the cost and the turns. */
+        fun payload(): JsonObject = buildJsonObject {
+            put("draft", draft ?: JsonNull); put("calls", JsonArray(calls))
+            put("usage", buildJsonObject { put("input_tokens", tokensIn); put("output_tokens", tokensOut) })
+            put("usage_usd", usd); put("turns", turns)
+        }
+    }
 
     /** The agent's turns: ask, run the tools it calls, give the answers back; ends at the first accepted submit, a turn with no tool call, or the limit. */
     private suspend fun agentLoop(s: Session, system: String, query: String): Agent {
         val messages = ArrayList<ChatMessage>(listOf(ChatMessage(ChatRole.SYSTEM, system), ChatMessage(ChatRole.USER, query)))
-        var usd = 0.0; var turns = 0
+        var usd = 0.0; var turns = 0; var tin = 0L; var tout = 0L
         while (turns < max && s.accepted == null) {
             val r: ModelResult = backend.chat(messages, null, tools())
-            usd += r.usd; turns++
+            usd += r.usd; turns++; tin += r.usage.inputTokens; tout += r.usage.outputTokens
             if (r.toolCalls.isEmpty()) break // an answer in plain text ends it, as in the ReAct loop
             messages += ChatMessage(ChatRole.ASSISTANT, r.text, r.toolCalls)
             for (c: ToolCall in r.toolCalls) messages += ChatMessage(ChatRole.TOOL, s.call(c.name, c.arguments), toolCallId = c.id)
         }
-        return Agent(s.accepted, s.calls, usd, turns)
+        return Agent(s.accepted, s.calls, usd, turns, tin, tout)
     }
 
     private fun structuredSystem(system: String) = system.split("Work:")[0] + words.structuredDraftIntro + PythonJson.dumps(words.draftSchema)
@@ -119,20 +129,24 @@ class CommentatorRun(
         val session = Session(commentator, slots, ps, uc, sb, pack)
         var note = "the agent submitted no script that passes"
         val calls = ArrayList<JsonObject>()
-        var usd = 0.0; var turns = 0; var replayed = false
+        var usd = 0.0; var turns = 0; var replayed = false; var failure: String? = null
 
         if (mode == CommentatorMode.TOOLS) {
             val key = cacheKey("commentator", model, buildJsonObject { put("system", system); put("query", query) })
             val known = recorder?.has("commentator", key) == true
             val run = suspend {
-                val (payload, hit) = recorder?.fetch("commentator", key) {
-                    val a = agentLoop(session, system, query)
-                    buildJsonObject { put("draft", a.draft ?: JsonNull); put("calls", JsonArray(a.calls)); put("usage_usd", a.usd); put("turns", a.turns) }
-                } ?: agentLoop(session, system, query).let { a -> buildJsonObject { put("draft", a.draft ?: JsonNull); put("calls", JsonArray(a.calls)); put("usage_usd", a.usd); put("turns", a.turns) } to false }
-                PaidResult(payload to hit, if (hit) 0.0 else (payload["usage_usd"]?.jsonPrimitive?.content?.toDoubleOrNull() ?: 0.0), hit)
+                try {
+                    val (payload, hit) = recorder?.fetch("commentator", key) { agentLoop(session, system, query).payload() } ?: (agentLoop(session, system, query).payload() to false)
+                    PaidResult(payload to hit, if (hit) 0.0 else (payload["usage_usd"]?.jsonPrimitive?.content?.toDoubleOrNull() ?: 0.0), hit)
+                } catch (e: ModelError) {
+                    // the agent stopped, perhaps after paid turns: nothing is recorded, the fallback goes on, and the run counts at its estimate (the PC's AgentFailed)
+                    failure = "the agent failed (${e.javaClass.simpleName})"
+                    PaidResult(buildJsonObject { put("draft", JsonNull); put("calls", JsonArray(session.calls)); put("usage_usd", agentEstimate()); put("turns", 0) } to false, agentEstimate(), false)
+                }
             }
             val (payload, hit) = if (ledger == null) run().value else ledger.paidCall(runId, "S5", "tool-loop", model, if (known) 0.0 else agentEstimate(), false) { run() }
             replayed = hit
+            if (failure != null) note = failure!!
             usd += if (hit) 0.0 else payload["usage_usd"]?.jsonPrimitive?.content?.toDoubleOrNull() ?: 0.0
             turns = payload["turns"]?.jsonPrimitive?.content?.toIntOrNull() ?: 0
             payload["calls"]?.jsonArray?.forEach { calls += it.jsonObject }
@@ -175,7 +189,7 @@ class CommentatorRun(
         val run = suspend {
             var accepted: JsonObject? = null
             while (turns < maxFeedbackTurns && accepted == null) {
-                val r = try { backend.chat(messages, words.draftSchema, null) } catch (e: ModelError) { if (turns == 0) throw e else break }
+                val r = backend.chat(messages, words.draftSchema, null) // a failure leaves the ledger to settle it (a timeout at its estimate), then the best draft so far is mended
                 turns++; usd += r.usd
                 val draft = r.data ?: (parse(r.text) as? JsonObject) ?: JsonObject(emptyMap())
                 val fails = commentator.failures(draft, slots, ps, uc, sb, pack)
@@ -192,8 +206,8 @@ class CommentatorRun(
         val accepted = try {
             if (ledger == null) run().value else ledger.paidCall(runId, "S5", "chat", model, round6(maxFeedbackTurns * draftEstimate()), false) { run() }
         } catch (e: ModelError) {
-            val note = "the draft call failed (${e.javaClass.simpleName})"
-            return CommentatorResult(commentator.conclude(null, note, slots, ps, uc, sb, pack), CommentatorMode.FEEDBACK, calls, turns, usd)
+            val note = "the draft call failed (${e.javaClass.simpleName}) after $turns turn(s)"
+            return CommentatorResult(commentator.conclude(best, note, slots, ps, uc, sb, pack), CommentatorMode.FEEDBACK, calls, turns, usd)
         }
         if (accepted != null) return CommentatorResult(commentator.accepted(accepted, slots, ps, uc, pack), CommentatorMode.FEEDBACK, calls, turns, usd)
         return CommentatorResult(commentator.conclude(best, "no draft passed in $turns turn(s)", slots, ps, uc, sb, pack), CommentatorMode.FEEDBACK, calls, turns, usd)

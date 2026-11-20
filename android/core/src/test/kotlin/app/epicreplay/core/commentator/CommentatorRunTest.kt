@@ -211,9 +211,37 @@ class CommentatorRunTest {
         assertEquals("ok", first.outcome.status)
         val file = File(dir, "commentator").listFiles()!!.single()
         val payload = Json.parseToJsonElement(file.readText()).jsonObject
-        assertEquals(setOf("draft", "calls", "usage_usd", "turns"), payload.keys) // the PC reads `draft` and `calls`
+        assertEquals(setOf("draft", "calls", "usage", "usage_usd", "turns"), payload.keys) // the PC reads `draft`, `calls` and (when it pays) `usage`
+        assertEquals(setOf("input_tokens", "output_tokens"), payload.getValue("usage").jsonObject.keys)
         val again = run(Scripted(withTools, mutableListOf()), CommentatorMode.TOOLS, null, Recorder(ProviderMode.REPLAY, dir))
         assertTrue(again.replayed); assertEquals(first.outcome.script, again.outcome.script)
         assertNotNull(PythonJson.dumps(JsonPrimitive("x")))
+    }
+
+    @Test
+    fun aToolThisLoopDoesNotHaveAcceptsNothingAndAFailedAgentGoesOnToTheStructuredDraftAtItsEstimate(): Unit {
+        val b = Scripted(withTools, mutableListOf(
+            toolTurn(Triple("x1", "make_it_pass", good)), // an unknown tool with a good draft
+            { throw ModelError.Timeout("deepseek-flash", "timed out") }, // then the agent times out
+            jsonTurn(good),
+        ))
+        val ledger = Ledger(InMemoryLedgerStorage(), Caps(), today = { "2026-11-20" }, now = { "t" })
+        val r = runBlocking { CommentatorRun(commentator, b, words, "deepseek-flash", ledger, null, mode = CommentatorMode.TOOLS).write(slots(), ps, uc, sb, pack()) }
+        assertEquals("degraded", r.outcome.status)
+        assertContains(r.outcome.note, "the agent failed (Timeout)")
+        assertEquals(3, b.chats.size) // two agent turns, then the structured call
+        assertContains(b.chats[1].last().content, "unknown tool make_it_pass")
+        assertTrue(ledger.runTotal("run") >= 0.0198 - 1e-6, "the agent counts at its estimate: ${ledger.runTotal("run")}") // six turns of 5000 in and 1500 out at the profile's prices
+    }
+
+    @Test
+    fun aTimeoutInTheFeedbackLoopIsSettledAndTheBestDraftSoFarIsMended(): Unit {
+        val b = Scripted(withTools, mutableListOf(jsonTurn(withText(good, 0, "Ronaldo steps up.")), { throw ModelError.Timeout("deepseek-flash", "timed out") }))
+        val ledger = Ledger(InMemoryLedgerStorage(), Caps(), today = { "2026-11-20" }, now = { "t" })
+        val r = runBlocking { CommentatorRun(commentator, b, words, "deepseek-flash", ledger, null, mode = CommentatorMode.FEEDBACK).write(slots(), ps, uc, sb, pack()) }
+        assertEquals("degraded", r.outcome.status)
+        assertContains(r.outcome.note, "the draft call failed (Timeout) after 1 turn(s)")
+        assertContains(r.outcome.note, "generic lines for l1")
+        assertTrue(ledger.runTotal("run") > 0.0, "a timeout may have been billed")
     }
 }
