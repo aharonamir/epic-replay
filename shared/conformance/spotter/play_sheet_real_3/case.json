@@ -1,0 +1,503 @@
+{
+  "area": "spotter",
+  "function": "spotter.play_sheet",
+  "language": null,
+  "description": "Real answers of the cloud model for the five sheets and the events call (3 of 6): the play sheet S3 writes.",
+  "tolerance_s": 0.001,
+  "inputs": {
+    "run_id": {
+      "value": "run-1"
+    },
+    "info": {
+      "value": {
+        "duration_s": 15.0,
+        "fps": 30.0,
+        "frames": 450,
+        "orientation": "landscape",
+        "candidates": [
+          {
+            "frame": 313,
+            "t": 10.433,
+            "score": 24.0,
+            "motion_z": 9.0,
+            "flow_z": 9.0,
+            "change_z": 3.0,
+            "sound_z": 5.0,
+            "sound_onset_t": 10.367,
+            "sound_onset_frame": 311,
+            "loud_peak_t": null
+          },
+          {
+            "frame": 289,
+            "t": 9.633,
+            "score": 18.5,
+            "motion_z": 9.0,
+            "flow_z": 9.0,
+            "change_z": 3.0,
+            "sound_z": 0.0,
+            "sound_onset_t": null,
+            "sound_onset_frame": null,
+            "loud_peak_t": null
+          },
+          {
+            "frame": 120,
+            "t": 4.0,
+            "score": 14.0,
+            "motion_z": 9.0,
+            "flow_z": 9.0,
+            "change_z": 3.0,
+            "sound_z": 5.0,
+            "sound_onset_t": 3.933,
+            "sound_onset_frame": 118,
+            "loud_peak_t": null
+          },
+          {
+            "frame": 60,
+            "t": 2.0,
+            "score": 12.2,
+            "motion_z": 9.0,
+            "flow_z": 9.0,
+            "change_z": 3.0,
+            "sound_z": 0.0,
+            "sound_onset_t": null,
+            "sound_onset_frame": null,
+            "loud_peak_t": null
+          },
+          {
+            "frame": 400,
+            "t": 13.333,
+            "score": 11.0,
+            "motion_z": 9.0,
+            "flow_z": 9.0,
+            "change_z": 3.0,
+            "sound_z": 5.0,
+            "sound_onset_t": 13.3,
+            "sound_onset_frame": 399,
+            "loud_peak_t": null
+          }
+        ],
+        "user": {
+          "activity": null,
+          "player_name": null,
+          "description": null
+        }
+      }
+    },
+    "looks": {
+      "value": [
+        {
+          "kind": "uniform",
+          "name": "o0_uniform.jpg",
+          "cells": [
+            {
+              "cell": 1,
+              "frame": 9,
+              "t": 0.3
+            },
+            {
+              "cell": 2,
+              "frame": 34,
+              "t": 1.133
+            },
+            {
+              "cell": 3,
+              "frame": 60,
+              "t": 2.0
+            },
+            {
+              "cell": 4,
+              "frame": 85,
+              "t": 2.833
+            },
+            {
+              "cell": 5,
+              "frame": 111,
+              "t": 3.7
+            },
+            {
+              "cell": 6,
+              "frame": 136,
+              "t": 4.533
+            },
+            {
+              "cell": 7,
+              "frame": 161,
+              "t": 5.367
+            },
+            {
+              "cell": 8,
+              "frame": 187,
+              "t": 6.233
+            },
+            {
+              "cell": 9,
+              "frame": 212,
+              "t": 7.067
+            }
+          ],
+          "answer": {
+            "activity": "A plastic water bottle is sitting on a concrete surface next to a white wall.",
+            "outcome": "The bottle remains stationary in the scene.",
+            "actor": "plastic water bottle",
+            "high_point_cell": 0,
+            "sure": 9
+          }
+        },
+        {
+          "kind": "uniform",
+          "name": "o1_uniform.jpg",
+          "cells": [
+            {
+              "cell": 1,
+              "frame": 238,
+              "t": 7.933
+            },
+            {
+              "cell": 2,
+              "frame": 263,
+              "t": 8.767
+            },
+            {
+              "cell": 3,
+              "frame": 289,
+              "t": 9.633
+            },
+            {
+              "cell": 4,
+              "frame": 314,
+              "t": 10.467
+            },
+            {
+              "cell": 5,
+              "frame": 339,
+              "t": 11.3
+            },
+            {
+              "cell": 6,
+              "frame": 365,
+              "t": 12.167
+            },
+            {
+              "cell": 7,
+              "frame": 390,
+              "t": 13.0
+            },
+            {
+              "cell": 8,
+              "frame": 416,
+              "t": 13.867
+            },
+            {
+              "cell": 9,
+              "frame": 441,
+              "t": 14.7
+            }
+          ],
+          "answer": {
+            "activity": "bouncing a ping pong ball with a paddle and trying to catch it in a plastic cup",
+            "outcome": "he brings the cup up quickly to catch the ball",
+            "actor": "man in a black patterned shirt and jeans",
+            "high_point_cell": 6,
+            "sure": 8
+          }
+        },
+        {
+          "kind": "candidate",
+          "name": "o2_candidate.jpg",
+          "cells": [
+            {
+              "cell": 1,
+              "frame": 268,
+              "t": 8.933
+            },
+            {
+              "cell": 2,
+              "frame": 279,
+              "t": 9.3
+            },
+            {
+              "cell": 3,
+              "frame": 290,
+              "t": 9.667
+            },
+            {
+              "cell": 4,
+              "frame": 302,
+              "t": 10.067
+            },
+            {
+              "cell": 5,
+              "frame": 313,
+              "t": 10.433
+            },
+            {
+              "cell": 6,
+              "frame": 324,
+              "t": 10.8
+            },
+            {
+              "cell": 7,
+              "frame": 336,
+              "t": 11.2
+            },
+            {
+              "cell": 8,
+              "frame": 347,
+              "t": 11.567
+            },
+            {
+              "cell": 9,
+              "frame": 358,
+              "t": 11.933
+            }
+          ],
+          "answer": {
+            "activity": "A clear plastic water bottle stands motionless on a ledge in front of a white wall.",
+            "outcome": "Nothing changes; the bottle remains upright and in the same position.",
+            "actor": "water bottle",
+            "high_point_cell": 0,
+            "sure": 8
+          }
+        },
+        {
+          "kind": "candidate",
+          "name": "o3_candidate.jpg",
+          "cells": [
+            {
+              "cell": 1,
+              "frame": 244,
+              "t": 8.133
+            },
+            {
+              "cell": 2,
+              "frame": 255,
+              "t": 8.5
+            },
+            {
+              "cell": 3,
+              "frame": 266,
+              "t": 8.867
+            },
+            {
+              "cell": 4,
+              "frame": 278,
+              "t": 9.267
+            },
+            {
+              "cell": 5,
+              "frame": 289,
+              "t": 9.633
+            },
+            {
+              "cell": 6,
+              "frame": 300,
+              "t": 10.0
+            },
+            {
+              "cell": 7,
+              "frame": 312,
+              "t": 10.4
+            },
+            {
+              "cell": 8,
+              "frame": 323,
+              "t": 10.767
+            },
+            {
+              "cell": 9,
+              "frame": 334,
+              "t": 11.133
+            }
+          ],
+          "answer": {
+            "activity": "A title card for a German Shepherd catching a ball appears",
+            "outcome": "The full title card is displayed; the actual catch is not shown",
+            "actor": "German Shepherd",
+            "high_point_cell": 0,
+            "sure": 7
+          }
+        },
+        {
+          "kind": "candidate",
+          "name": "o4_candidate.jpg",
+          "cells": [
+            {
+              "cell": 1,
+              "frame": 75,
+              "t": 2.5
+            },
+            {
+              "cell": 2,
+              "frame": 86,
+              "t": 2.867
+            },
+            {
+              "cell": 3,
+              "frame": 98,
+              "t": 3.267
+            },
+            {
+              "cell": 4,
+              "frame": 109,
+              "t": 3.633
+            },
+            {
+              "cell": 5,
+              "frame": 120,
+              "t": 4.0
+            },
+            {
+              "cell": 6,
+              "frame": 131,
+              "t": 4.367
+            },
+            {
+              "cell": 7,
+              "frame": 142,
+              "t": 4.733
+            },
+            {
+              "cell": 8,
+              "frame": 154,
+              "t": 5.133
+            },
+            {
+              "cell": 9,
+              "frame": 165,
+              "t": 5.5
+            }
+          ],
+          "answer": {
+            "activity": "A soccer goalkeeper practicing a crossing drill, followed by game footage of a player jumping for a header",
+            "outcome": "The player jumps and heads the ball during a match",
+            "actor": "Soccer players in black kits",
+            "high_point_cell": 7,
+            "sure": 8
+          }
+        }
+      ]
+    },
+    "events_look": {
+      "value": {
+        "grids": [
+          "o0_uniform.jpg",
+          "o1_uniform.jpg"
+        ],
+        "answer": {
+          "events": [
+            {
+              "first_grid": 1,
+              "first_cell": 1,
+              "last_grid": 1,
+              "last_cell": 5,
+              "actor": "orange cat",
+              "action": "sits facing the toilet-paper wall",
+              "outcome": "waits"
+            },
+            {
+              "first_grid": 1,
+              "first_cell": 6,
+              "last_grid": 1,
+              "last_cell": 7,
+              "actor": "dark cat",
+              "action": "appears above and climbs onto the toilet-paper wall",
+              "outcome": "stands on top"
+            },
+            {
+              "first_grid": 1,
+              "first_cell": 8,
+              "last_grid": 1,
+              "last_cell": 9,
+              "actor": "dark cat",
+              "action": "jumps down over the toilet-paper wall",
+              "outcome": "lands near the orange cat"
+            },
+            {
+              "first_grid": 1,
+              "first_cell": 9,
+              "last_grid": 2,
+              "last_cell": 1,
+              "actor": "dark cat",
+              "action": "walks past the orange cat toward the foreground",
+              "outcome": "moves closer to the camera"
+            },
+            {
+              "first_grid": 2,
+              "first_cell": 2,
+              "last_grid": 2,
+              "last_cell": 9,
+              "actor": "dark cat",
+              "action": "in slow motion, climbs onto and leaps over the toilet-paper wall",
+              "outcome": "clears the wall"
+            }
+          ],
+          "sure": 8,
+          "sensitive": false,
+          "sensitive_reason": ""
+        },
+        "events": [
+          {
+            "t_start": 0.3,
+            "t_end": 3.7,
+            "actor": "orange cat",
+            "action": "sits facing the toilet-paper wall",
+            "outcome": "waits"
+          },
+          {
+            "t_start": 4.533,
+            "t_end": 5.367,
+            "actor": "dark cat",
+            "action": "appears above and climbs onto the toilet-paper wall",
+            "outcome": "stands on top"
+          },
+          {
+            "t_start": 6.233,
+            "t_end": 7.067,
+            "actor": "dark cat",
+            "action": "jumps down over the toilet-paper wall",
+            "outcome": "lands near the orange cat"
+          },
+          {
+            "t_start": 7.067,
+            "t_end": 7.933,
+            "actor": "dark cat",
+            "action": "walks past the orange cat toward the foreground",
+            "outcome": "moves closer to the camera"
+          },
+          {
+            "t_start": 8.767,
+            "t_end": 14.7,
+            "actor": "dark cat",
+            "action": "in slow motion, climbs onto and leaps over the toilet-paper wall",
+            "outcome": "clears the wall"
+          }
+        ]
+      }
+    },
+    "signals": {
+      "value": {
+        "onsets_t": [
+          10.367,
+          3.933
+        ]
+      }
+    },
+    "snap_s": {
+      "value": 0.25
+    },
+    "model": {
+      "value": "deepseek-flash"
+    },
+    "clip_meta": {
+      "value": {
+        "duration_s": 15.0,
+        "fps": 30,
+        "width": 1920,
+        "height": 1080
+      }
+    }
+  },
+  "expected": {
+    "file": "expected/output.json"
+  }
+}

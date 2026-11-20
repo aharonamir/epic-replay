@@ -1,0 +1,476 @@
+[
+  [
+    {
+      "t_start": 1.133,
+      "t_end": 2.0,
+      "actor": "person in black patterned shirt, blue jeans, red shoes",
+      "action": "bounces a white ball on a black paddle while holding a clear cup",
+      "outcome": "ball stays near the paddle"
+    },
+    {
+      "t_start": 2.833,
+      "t_end": 3.7,
+      "actor": "person in black patterned shirt, blue jeans, red shoes",
+      "action": "raises the clear cup and catches the ball",
+      "outcome": "ball is caught in the cup"
+    },
+    {
+      "t_start": 4.533,
+      "t_end": 13.0,
+      "actor": "person in black patterned shirt, blue jeans, red shoes",
+      "action": "replays the paddle-and-cup catch in slow motion",
+      "outcome": "cup ends held high"
+    },
+    {
+      "t_start": 13.867,
+      "t_end": 14.7,
+      "actor": "person in black patterned shirt, blue jeans, red shoes",
+      "action": "holds the cup up as the final title appears",
+      "outcome": "video ends"
+    }
+  ],
+  [
+    {
+      "t_start": 1.133,
+      "t_end": 2.0,
+      "actor": "person in black hooded clothing",
+      "action": "drags and throws a white mannequin limb at the shop window",
+      "outcome": "window glass breaks"
+    },
+    {
+      "t_start": 2.833,
+      "t_end": 2.833,
+      "actor": "person in black clothing with yellow-striped trousers",
+      "action": "kicks a white mannequin limb/body on the pavement",
+      "outcome": "mannequin part is knocked away"
+    },
+    {
+      "t_start": 3.7,
+      "t_end": 4.533,
+      "actor": "people in dark jackets",
+      "action": "pull and force down a large glass door/panel at the storefront",
+      "outcome": "the panel lies flat on the ground"
+    },
+    {
+      "t_start": 7.933,
+      "t_end": 9.633,
+      "actor": "person in black clothing",
+      "action": "swings and throws a white object at the shattered store window",
+      "outcome": "glass shatters further"
+    },
+    {
+      "t_start": 10.467,
+      "t_end": 12.167,
+      "actor": "person in black clothing",
+      "action": "throws a red fire extinguisher into the store window",
+      "outcome": "glass bursts outward"
+    },
+    {
+      "t_start": 13.0,
+      "t_end": 14.7,
+      "actor": "group in gray and black hooded clothing",
+      "action": "bends and grabs clothing/items near the doorway",
+      "outcome": "a person in a black puffer jacket walks away"
+    }
+  ],
+  [
+    {
+      "t_start": 1.133,
+      "t_end": 3.7,
+      "actor": "title text",
+      "action": "displays the German Shepherd Skills caption",
+      "outcome": null
+    },
+    {
+      "t_start": 4.533,
+      "t_end": 5.367,
+      "actor": "German Shepherd",
+      "action": "catches the ball",
+      "outcome": null
+    },
+    {
+      "t_start": 6.233,
+      "t_end": 8.767,
+      "actor": "German Shepherd",
+      "action": "moves near the doorway with the ball",
+      "outcome": null
+    },
+    {
+      "t_start": 9.633,
+      "t_end": 11.3,
+      "actor": "German Shepherd",
+      "action": "walks toward the camera",
+      "outcome": null
+    },
+    {
+      "t_start": 12.167,
+      "t_end": 12.167,
+      "actor": "German Shepherd",
+      "action": "stands close to the camera as THANK YOU appears",
+      "outcome": "THANK YOU overlay shown"
+    },
+    {
+      "t_start": 13.0,
+      "t_end": 13.867,
+      "actor": "outro text",
+      "action": "displays THANK YOU and SUBSCRIBE messages",
+      "outcome": null
+    }
+  ],
+  [
+    {
+      "t_start": 0.3,
+      "t_end": 7.067,
+      "actor": "orange cat",
+      "action": "walks toward the stacked toilet paper wall and watches it",
+      "outcome": "stops in front of the barrier"
+    },
+    {
+      "t_start": 7.933,
+      "t_end": 8.767,
+      "actor": "dark cat",
+      "action": "appears behind the toilet paper wall on the sofa and moves to the wall edge",
+      "outcome": "prepares to climb the wall"
+    },
+    {
+      "t_start": 8.767,
+      "t_end": 12.167,
+      "actor": "dark cat",
+      "action": "climbs over the toilet paper wall and down to the floor",
+      "outcome": "reaches the orange cat's side"
+    },
+    {
+      "t_start": 12.167,
+      "t_end": 13.867,
+      "actor": "dark cat",
+      "action": "approaches the orange cat",
+      "outcome": "the cats come close and face each other"
+    },
+    {
+      "t_start": 13.867,
+      "t_end": 14.7,
+      "actor": "dark cat",
+      "action": "turns and walks past the orange cat",
+      "outcome": "moves away down the hallway"
+    }
+  ],
+  [
+    {
+      "t_start": 0.3,
+      "t_end": 1.133,
+      "actor": "pancakes",
+      "action": "cook on the hot griddle",
+      "outcome": null
+    },
+    {
+      "t_start": 2.0,
+      "t_end": 2.0,
+      "actor": "person in pink sleeve",
+      "action": "scrapes the griddle with a blue spatula",
+      "outcome": "the griddle is scraped"
+    },
+    {
+      "t_start": 2.833,
+      "t_end": 3.7,
+      "actor": "person in pink sleeve",
+      "action": "slides a metal spatula under the pancakes and flips them",
+      "outcome": "both pancakes are flipped"
+    },
+    {
+      "t_start": 4.533,
+      "t_end": 12.167,
+      "actor": "pancakes",
+      "action": "cook and brown on the griddle",
+      "outcome": null
+    },
+    {
+      "t_start": 13.0,
+      "t_end": 14.7,
+      "actor": "person in pink sleeve",
+      "action": "uses a metal spatula to remove a pancake from the griddle",
+      "outcome": "one pancake remains on the griddle"
+    }
+  ],
+  [
+    {
+      "t_start": 0.3,
+      "t_end": 1.133,
+      "actor": "goalkeeper in black kit with pink boots",
+      "action": "dives to save a ball in a solo diving drill",
+      "outcome": "ends holding the ball on the ground"
+    },
+    {
+      "t_start": 2.0,
+      "t_end": 2.833,
+      "actor": "goalkeeper in black kit with pink boots",
+      "action": "dives during a game diving phase",
+      "outcome": "ends lying on the grass after the dive"
+    },
+    {
+      "t_start": 3.7,
+      "t_end": 4.533,
+      "actor": "goalkeeper in black kit with pink boots",
+      "action": "practices catching/handling a cross in a solo crossing drill",
+      "outcome": "ends standing and holding the ball"
+    },
+    {
+      "t_start": 5.367,
+      "t_end": 6.233,
+      "actor": "players in dark and white kits",
+      "action": "contest a cross during a game crossing phase",
+      "outcome": null
+    },
+    {
+      "t_start": 7.067,
+      "t_end": 9.633,
+      "actor": "goalkeeper in black kit with pink boots",
+      "action": "holds/catches a yellow ball in a solo handling drill, then stands in a game handling phase",
+      "outcome": "ends with the goalkeeper facing play from behind"
+    },
+    {
+      "t_start": 10.467,
+      "t_end": 14.7,
+      "actor": "goalkeeper in black kit with pink boots",
+      "action": "kicks a white ball in a solo distribution drill, then distributes during a game distribution phase",
+      "outcome": "ends with the goalkeeper standing on the field and the ball in play"
+    }
+  ],
+  [
+    {
+      "t_start": 0.3,
+      "t_end": 2.0,
+      "actor": "person in black patterned shirt and blue jeans",
+      "action": "holds a paddle and reaches out as a table tennis ball appears",
+      "outcome": "ball is near the paddle"
+    },
+    {
+      "t_start": 2.833,
+      "t_end": 4.533,
+      "actor": "person in black patterned shirt and blue jeans",
+      "action": "bends low and swings the paddle to hit the ball upward",
+      "outcome": "ball rises above the paddle"
+    },
+    {
+      "t_start": 5.367,
+      "t_end": 7.067,
+      "actor": "person in black patterned shirt and blue jeans",
+      "action": "continues hitting the ball with the paddle",
+      "outcome": "ball stays airborne"
+    },
+    {
+      "t_start": 7.933,
+      "t_end": 10.467,
+      "actor": "person in black patterned shirt and blue jeans",
+      "action": "raises a clear cup toward the falling ball",
+      "outcome": "ball reaches the cup"
+    },
+    {
+      "t_start": 11.3,
+      "t_end": 14.7,
+      "actor": "person in black patterned shirt and blue jeans",
+      "action": "holds the clear cup with the ball and lifts it up",
+      "outcome": "ball stays in the cup"
+    }
+  ],
+  [
+    {
+      "t_start": 1.133,
+      "t_end": 2.0,
+      "actor": "clear water bottle with a blue label",
+      "action": "stands upright on the patio beside the wall",
+      "outcome": null
+    },
+    {
+      "t_start": 3.7,
+      "t_end": 3.7,
+      "actor": "clear water bottle with a blue label",
+      "action": "is airborne and tilted near the top of the wall",
+      "outcome": null
+    },
+    {
+      "t_start": 4.533,
+      "t_end": 5.367,
+      "actor": "clear water bottle with a blue label",
+      "action": "lands on the patio and wobbles",
+      "outcome": "settles upright"
+    },
+    {
+      "t_start": 6.233,
+      "t_end": 14.7,
+      "actor": "clear water bottle with a blue label",
+      "action": "stays standing upright on the patio",
+      "outcome": "remains upright"
+    }
+  ],
+  [
+    {
+      "t_start": 0.3,
+      "t_end": 2.0,
+      "actor": "player in black",
+      "action": "takes a free kick toward goal",
+      "outcome": "ball is airborne near the goal"
+    },
+    {
+      "t_start": 2.833,
+      "t_end": 3.7,
+      "actor": "players in white and dark blue",
+      "action": "contest a high ball in the penalty area while a goalkeeper in green waits",
+      "outcome": null
+    },
+    {
+      "t_start": 4.533,
+      "t_end": 5.367,
+      "actor": "player in pink and white",
+      "action": "takes a free kick",
+      "outcome": "ball moves toward the goal area"
+    },
+    {
+      "t_start": 6.233,
+      "t_end": 7.067,
+      "actor": "player in black",
+      "action": "takes a free kick",
+      "outcome": "ball flies toward the crowded penalty area"
+    },
+    {
+      "t_start": 7.933,
+      "t_end": 7.933,
+      "actor": "player in black",
+      "action": "prepares to take a free kick",
+      "outcome": null
+    },
+    {
+      "t_start": 8.767,
+      "t_end": 14.7,
+      "actor": "player in pink",
+      "action": "takes a free kick over a yellow wall",
+      "outcome": "ball reaches the goal area and the goalkeeper dives"
+    }
+  ],
+  [
+    {
+      "t_start": 0.3,
+      "t_end": 3.7,
+      "actor": "orange cat",
+      "action": "sits facing the toilet-paper wall",
+      "outcome": "waits"
+    },
+    {
+      "t_start": 4.533,
+      "t_end": 5.367,
+      "actor": "dark cat",
+      "action": "appears above and climbs onto the toilet-paper wall",
+      "outcome": "stands on top"
+    },
+    {
+      "t_start": 6.233,
+      "t_end": 7.067,
+      "actor": "dark cat",
+      "action": "jumps down over the toilet-paper wall",
+      "outcome": "lands near the orange cat"
+    },
+    {
+      "t_start": 7.067,
+      "t_end": 7.933,
+      "actor": "dark cat",
+      "action": "walks past the orange cat toward the foreground",
+      "outcome": "moves closer to the camera"
+    },
+    {
+      "t_start": 8.767,
+      "t_end": 14.7,
+      "actor": "dark cat",
+      "action": "in slow motion, climbs onto and leaps over the toilet-paper wall",
+      "outcome": "clears the wall"
+    }
+  ],
+  [
+    {
+      "t_start": 2.0,
+      "t_end": 11.3,
+      "actor": "person",
+      "action": "moves spatula under pancake on grate",
+      "outcome": null
+    },
+    {
+      "t_start": 2.833,
+      "t_end": 12.167,
+      "actor": "person",
+      "action": "lifts first pancake from grate",
+      "outcome": null
+    },
+    {
+      "t_start": 3.7,
+      "t_end": 13.0,
+      "actor": "person",
+      "action": "places pancake onto new grate surface",
+      "outcome": null
+    },
+    {
+      "t_start": 4.533,
+      "t_end": 14.7,
+      "actor": "person (hand only visible)",
+      "action": "places second pancake onto grate",
+      "outcome": null
+    }
+  ],
+  [
+    {
+      "t_start": 0.3,
+      "t_end": 2.833,
+      "actor": "person in blue overalls",
+      "action": "raises and holds a long pole saw up into the upper branches of a tree",
+      "outcome": "the tool is positioned in the canopy"
+    },
+    {
+      "t_start": 3.7,
+      "t_end": 8.767,
+      "actor": "person in blue overalls",
+      "action": "moves the pole saw along the tree and works through the branches",
+      "outcome": "the tool has moved from the upper branches toward the lower branches"
+    },
+    {
+      "t_start": 9.633,
+      "t_end": 13.0,
+      "actor": "person in blue overalls",
+      "action": "continues trimming along the side of the tree with the pole saw",
+      "outcome": "the person works through the lower foliage"
+    },
+    {
+      "t_start": 13.867,
+      "t_end": 14.7,
+      "actor": "person in blue overalls",
+      "action": "turns and steps sideways while holding the pole saw",
+      "outcome": "the person ends beside the tree"
+    }
+  ],
+  [
+    {
+      "t_start": 0.3,
+      "t_end": 2.833,
+      "actor": "person in grey t-shirt and shorts",
+      "action": "sits on the windowsill and shifts position",
+      "outcome": null
+    },
+    {
+      "t_start": 3.7,
+      "t_end": 6.233,
+      "actor": "person in grey t-shirt and shorts",
+      "action": "leans forward and bends down toward the window opening",
+      "outcome": null
+    },
+    {
+      "t_start": 7.067,
+      "t_end": 8.767,
+      "actor": "person in grey t-shirt and shorts",
+      "action": "sits back upright on the windowsill",
+      "outcome": null
+    },
+    {
+      "t_start": 9.633,
+      "t_end": 10.467,
+      "actor": "person in grey t-shirt and shorts",
+      "action": "tips backward and goes out through the window opening",
+      "outcome": "the window is empty in the following frames"
+    }
+  ]
+]

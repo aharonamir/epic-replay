@@ -1,0 +1,97 @@
+{
+  "play_sheet": {
+    "schema_version": "1.0",
+    "run_id": "run-1",
+    "mode": "specific",
+    "activity": {
+      "value": "",
+      "confidence": 0.0,
+      "source": "model"
+    },
+    "setting": "",
+    "actors": [],
+    "events": [
+      {
+        "id": "e1",
+        "t_start": 0.0,
+        "t_end": 14.967,
+        "actor": null,
+        "action": "",
+        "object": null,
+        "outcome": null,
+        "confidence": 0.0,
+        "source": "model"
+      },
+      {
+        "id": "e2",
+        "t_start": 10.367,
+        "t_end": 10.367,
+        "actor": null,
+        "action": "",
+        "object": null,
+        "outcome": null,
+        "confidence": 0.0,
+        "source": "model"
+      }
+    ],
+    "climax": {
+      "event_id": "e2",
+      "t": 10.367,
+      "frame": 311,
+      "method": "signal_peak",
+      "confidence": 0.0,
+      "candidates": [
+        {
+          "t": 10.367,
+          "frame": 311,
+          "reason": "S1 candidate: sudden motion and sound (score 24.0)"
+        },
+        {
+          "t": 9.633,
+          "frame": 289,
+          "reason": "S1 candidate: sudden motion (score 18.5)"
+        },
+        {
+          "t": 3.933,
+          "frame": 118,
+          "reason": "S1 candidate: sudden motion and sound (score 14.0)"
+        },
+        {
+          "t": 2.0,
+          "frame": 60,
+          "reason": "S1 candidate: sudden motion (score 12.2)"
+        },
+        {
+          "t": 13.3,
+          "frame": 399,
+          "reason": "S1 candidate: sudden motion and sound (score 11.0)"
+        }
+      ]
+    },
+    "outcome_summary": {
+      "value": "",
+      "confidence": 0.0,
+      "source": "model"
+    },
+    "focus_box": null,
+    "sensitive": {
+      "flag": false,
+      "reason": null,
+      "checked": false
+    },
+    "agreement": {
+      "passes": 1,
+      "disagreed_fields": [],
+      "escalated": false
+    },
+    "overall_confidence": 0.0,
+    "confirmed_by_user": false,
+    "models": {
+      "analysis": "deepseek-flash",
+      "refine": "none"
+    }
+  },
+  "accepted": true,
+  "errors": [],
+  "cleared": []
+}

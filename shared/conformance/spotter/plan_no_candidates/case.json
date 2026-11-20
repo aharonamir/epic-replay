@@ -1,0 +1,58 @@
+{
+  "area": "spotter",
+  "function": "spotter.plan_overview",
+  "language": null,
+  "description": "No S1 candidate: only the two even sheets.",
+  "inputs": {
+    "info": {
+      "value": {
+        "duration_s": 15.0,
+        "fps": 30.0,
+        "frames": 450,
+        "orientation": "landscape",
+        "candidates": [],
+        "user": {
+          "activity": null,
+          "player_name": null,
+          "description": null
+        }
+      }
+    }
+  },
+  "expected": {
+    "value": [
+      {
+        "kind": "uniform",
+        "frames": [
+          9,
+          34,
+          60,
+          85,
+          111,
+          136,
+          161,
+          187,
+          212
+        ],
+        "where": "These frames are spread evenly over part 1 of 2 of the video.",
+        "name": "o0_uniform.jpg"
+      },
+      {
+        "kind": "uniform",
+        "frames": [
+          238,
+          263,
+          289,
+          314,
+          339,
+          365,
+          390,
+          416,
+          441
+        ],
+        "where": "These frames are spread evenly over part 2 of 2 of the video.",
+        "name": "o1_uniform.jpg"
+      }
+    ]
+  }
+}

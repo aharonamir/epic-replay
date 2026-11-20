@@ -1,0 +1,41 @@
+[
+  {
+    "kind": "uniform",
+    "frames": [
+      9,
+      10,
+      11,
+      12
+    ],
+    "where": "These frames are spread evenly over part 1 of 2 of the video.",
+    "name": "o0_uniform.jpg"
+  },
+  {
+    "kind": "uniform",
+    "frames": [
+      13,
+      14,
+      15,
+      16,
+      17
+    ],
+    "where": "These frames are spread evenly over part 2 of 2 of the video.",
+    "name": "o1_uniform.jpg"
+  },
+  {
+    "kind": "candidate",
+    "frames": [
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19
+    ],
+    "where": "These frames cover about three seconds around a moment of sudden motion or sound.",
+    "name": "o2_candidate.jpg"
+  }
+]

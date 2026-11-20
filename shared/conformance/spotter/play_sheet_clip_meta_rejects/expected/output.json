@@ -1,0 +1,181 @@
+{
+  "play_sheet": {
+    "schema_version": "1.0",
+    "run_id": "run-1",
+    "mode": "specific",
+    "activity": {
+      "value": "a ball is struck",
+      "confidence": 0.8,
+      "source": "model"
+    },
+    "setting": "",
+    "actors": [
+      {
+        "id": "a1",
+        "descriptor": "player in black",
+        "role": "",
+        "user_name": null,
+        "followed": true
+      },
+      {
+        "id": "a2",
+        "descriptor": "players in white and dark blue",
+        "role": "",
+        "user_name": null,
+        "followed": false
+      },
+      {
+        "id": "a3",
+        "descriptor": "player in pink and white",
+        "role": "",
+        "user_name": null,
+        "followed": false
+      },
+      {
+        "id": "a4",
+        "descriptor": "player in pink",
+        "role": "",
+        "user_name": null,
+        "followed": false
+      }
+    ],
+    "events": [
+      {
+        "id": "e1",
+        "t_start": 0.3,
+        "t_end": 2.0,
+        "actor": "a1",
+        "action": "takes a free kick toward goal",
+        "object": null,
+        "outcome": "ball is airborne near the goal",
+        "confidence": 0.5,
+        "source": "model"
+      },
+      {
+        "id": "e2",
+        "t_start": 2.833,
+        "t_end": 3.7,
+        "actor": "a2",
+        "action": "contest a high ball in the penalty area while a goalkeeper in green waits",
+        "object": null,
+        "outcome": null,
+        "confidence": 0.5,
+        "source": "model"
+      },
+      {
+        "id": "e3",
+        "t_start": 4.533,
+        "t_end": 5.367,
+        "actor": "a3",
+        "action": "takes a free kick",
+        "object": null,
+        "outcome": "ball moves toward the goal area",
+        "confidence": 0.5,
+        "source": "model"
+      },
+      {
+        "id": "e4",
+        "t_start": 6.233,
+        "t_end": 7.067,
+        "actor": "a1",
+        "action": "takes a free kick",
+        "object": null,
+        "outcome": "ball flies toward the crowded penalty area",
+        "confidence": 0.5,
+        "source": "model"
+      },
+      {
+        "id": "e5",
+        "t_start": 7.933,
+        "t_end": 7.933,
+        "actor": "a1",
+        "action": "prepares to take a free kick",
+        "object": null,
+        "outcome": null,
+        "confidence": 0.5,
+        "source": "model"
+      },
+      {
+        "id": "e6",
+        "t_start": 8.767,
+        "t_end": 14.7,
+        "actor": "a4",
+        "action": "takes a free kick over a yellow wall",
+        "object": null,
+        "outcome": "ball reaches the goal area and the goalkeeper dives",
+        "confidence": 0.5,
+        "source": "model"
+      }
+    ],
+    "climax": {
+      "event_id": "e6",
+      "t": 10.367,
+      "frame": 311,
+      "method": "sheets+sound",
+      "confidence": 0.48,
+      "candidates": [
+        {
+          "t": 10.367,
+          "frame": 311,
+          "reason": "S1 candidate: sudden motion and sound (score 24.0)"
+        },
+        {
+          "t": 9.633,
+          "frame": 289,
+          "reason": "S1 candidate: sudden motion (score 18.5)"
+        },
+        {
+          "t": 3.933,
+          "frame": 118,
+          "reason": "S1 candidate: sudden motion and sound (score 14.0)"
+        },
+        {
+          "t": 2.0,
+          "frame": 60,
+          "reason": "S1 candidate: sudden motion (score 12.2)"
+        },
+        {
+          "t": 13.3,
+          "frame": 399,
+          "reason": "S1 candidate: sudden motion and sound (score 11.0)"
+        },
+        {
+          "t": 11.3,
+          "frame": 339,
+          "reason": "the overview also saw a high point (o1_uniform.jpg)"
+        }
+      ]
+    },
+    "outcome_summary": {
+      "value": "the ball flies off",
+      "confidence": 0.8,
+      "source": "model"
+    },
+    "focus_box": null,
+    "sensitive": {
+      "flag": false,
+      "reason": null,
+      "checked": true
+    },
+    "agreement": {
+      "passes": 1,
+      "disagreed_fields": [],
+      "escalated": false
+    },
+    "overall_confidence": 0.48,
+    "confirmed_by_user": false,
+    "models": {
+      "analysis": "deepseek-flash",
+      "refine": "none"
+    }
+  },
+  "accepted": false,
+  "errors": [
+    "event e3 lies outside the clip",
+    "event e4 lies outside the clip",
+    "event e5 lies outside the clip",
+    "event e6 lies outside the clip",
+    "climax time outside the clip"
+  ],
+  "cleared": []
+}

@@ -1132,9 +1132,336 @@ def _zoomed_segments(scale: float) -> list[dict]:
     return [dict(s, zoom=({**s["zoom"], "scale": scale} if s["zoom"] else None)) for s in segs]
 
 
+def _recorded_answers() -> tuple[list[dict], list[dict]]:
+    """The model's real answers in the PC's vision recordings: (overview answers, events answers), in file order."""
+    ov, ev = [], []
+    for f in sorted((paths.ROOT / "pc/tests/fixtures/recordings/vision").glob("*.json")):
+        data = json.loads(f.read_text()).get("data")
+        if isinstance(data, dict) and "events" in data:
+            ev.append(data)
+        elif isinstance(data, dict) and "high_point_cell" in data:
+            ov.append(data)
+    return ov, ev
+
+
+def spotter_cases() -> dict[str, dict]:
+    """Added in T418: the Spotter's plain code on the model's answers (agents/spotter.py, stages/s3_key_moment.py)."""
+    from epic_replay.agents import spotter
+
+    ov, ev_all = _recorded_answers()
+    ev = [
+        a for a in ev_all if not a.get("sensitive")
+    ]  # the sensitive ones are used where the case says so
+
+    def cand(f, score, sound_z=5.0, onset=None):
+        return {"frame": f, "t": round(f / 30, 3), "score": score, "motion_z": 9.0, "flow_z": 9.0, "change_z": 3.0,
+                "sound_z": sound_z, "sound_onset_t": None if onset is None else round(onset / 30, 3),
+                "sound_onset_frame": onset, "loud_peak_t": None}  # fmt: skip
+
+    CANDS = [
+        cand(313, 24.0, onset=311),
+        cand(289, 18.5, 0.0),
+        cand(120, 14.0, onset=118),
+        cand(60, 12.2, 0.0),
+        cand(400, 11.0, onset=399),
+    ]
+    meta = {"duration_s": 15.0, "fps": 30, "width": 1920, "height": 1080}
+
+    def info(frames=450, fps=30.0, cands=CANDS, user=None):
+        return {"duration_s": round(frames / fps, 3), "fps": fps, "frames": frames, "orientation": "landscape",
+                "candidates": cands, "user": user or {"activity": None, "player_name": None, "description": None}}  # fmt: skip
+
+    def sheets_of(inf):
+        """The plan's sheets with their cells, as the Spotter writes them."""
+        out = []
+        for e in spotter.plan_overview(inf):
+            fps = inf["fps"]
+            out.append({"kind": e["kind"], "name": e["name"],
+                        "cells": [{"cell": k + 1, "frame": f, "t": round(f / fps, 3)} for k, f in enumerate(e["frames"])]})  # fmt: skip
+        return out
+
+    def looks(inf, answers):
+        """Each sheet with its answer (None: left out); a longer list than sheets is cut."""
+        return [dict(sh, answer=a) if a is not None else dict(sh, answer=None, left_out="Timeout: timed out")
+                for sh, a in zip(sheets_of(inf), answers, strict=False)]  # fmt: skip
+
+    def events_look(inf, answer):
+        grids = [sh["cells"] for sh in sheets_of(inf)[:2]]
+        if answer is None:
+            return {
+                "grids": ["o0_uniform.jpg", "o1_uniform.jpg"],
+                "answer": None,
+                "events": None,
+                "left_out": "HTTPStatusError: 500",
+            }
+        return {"grids": ["o0_uniform.jpg", "o1_uniform.jpg"], "answer": answer, "events": spotter.map_events(answer, grids)}  # fmt: skip
+
+    def sheet_case(desc, inf, answers, ev_answer, signals=None, snap=0.25, clip=meta):
+        return {"area": "spotter", "function": "spotter.play_sheet", "language": None, "description": desc,
+                "tolerance_s": 0.001,
+                "inputs": {"run_id": value("run-1"), "info": value(inf), "looks": value(looks(inf, answers)),
+                           "events_look": value(events_look(inf, ev_answer)),
+                           "signals": value(signals or {"onsets_t": [round(311 / 30, 3), round(118 / 30, 3)]}),
+                           "snap_s": value(snap), "model": value("deepseek-flash"), "clip_meta": value(clip)}}  # fmt: skip
+
+    inf0 = info()
+    out: dict[str, dict] = {}
+    # the plans
+    for name, desc, inf in (
+        (
+            "plan_15s",
+            "A 15 s clip with five S1 candidates: two even sheets of nine, three candidate sheets around the top three.",
+            inf0,
+        ),
+        (
+            "plan_3s",
+            "A 3 s clip: windows under nine frames become nine consecutive frames.",
+            info(frames=90, cands=CANDS[:2]),
+        ),
+        ("plan_no_candidates", "No S1 candidate: only the two even sheets.", info(cands=[])),
+        ("plan_29_97_fps", "29.97 fps, 299 frames.", info(frames=299, fps=29.97, cands=CANDS[:3])),
+        (
+            "plan_tiny_clip",
+            "A clip of 20 frames: the even frames are fewer than eighteen and are not repeated.",
+            info(frames=20, cands=CANDS[:1]),
+        ),
+    ):
+        out[name] = {"area": "spotter", "function": "spotter.plan_overview", "language": None, "description": desc,
+                     "inputs": {"info": value(inf)}}  # fmt: skip
+    grids = [sh["cells"] for sh in sheets_of(inf0)[:2]]
+    odd = {"events": [
+        {"first_grid": 2, "first_cell": 9, "last_grid": 1, "last_cell": 1, "actor": "  a dog ", "action": " jumps ", "outcome": "  "},
+        {"first_grid": 0, "first_cell": 0, "last_grid": 5, "last_cell": 12, "actor": "a dog", "action": "runs", "outcome": "done"},
+        {"first_grid": 1, "first_cell": 3, "last_grid": 1, "last_cell": 3, "actor": "a cat", "action": "sits", "outcome": ""},
+    ]}  # fmt: skip
+    for name, desc, answers in (
+        (
+            "map_real_answers_first",
+            "Real answers of the cloud model: each event's grid and cells become times, in time order.",
+            ev[:13],
+        ),
+        ("map_real_answers_rest", "More real answers.", ev[13:]),
+        (
+            "map_edges",
+            "A cell or grid out of range is clamped, an end before its start is the start, text is stripped, an empty outcome is null, events come out sorted.",
+            [odd],
+        ),
+    ):
+        out[name] = {"area": "spotter", "function": "spotter.map_events", "language": None, "description": desc,
+                     "tolerance_s": 0.001, "inputs": {"answers": value(answers), "grids": value(grids)}}  # fmt: skip
+    sens = [
+        None,
+        {"answer": None},
+        {"answer": {"sensitive": False, "sensitive_reason": "ignored", "events": []}},
+        {"answer": {"sensitive": True, "sensitive_reason": "someone is hurt."}},
+        {"answer": {"sensitive": True, "sensitive_reason": "a teenage boy is bullied"}},
+        {"answer": {"sensitive": True, "sensitive_reason": ""}},
+        {"answer": {"sensitive": True, "sensitive_reason": "x" * 121}},
+        {"answer": {"sensitive": True, "sensitive_reason": "x" * 120}},
+        {"answer": {"sensitive": "true", "sensitive_reason": "stringly"}},
+        {"answer": {"sensitive": True}},
+        {"answer": {"sensitive": True, "sensitive_reason": "  a fight breaks out.. "}},
+    ]
+    sens += [{"answer": a} for a in ev_all if a.get("sensitive")]
+    out["sensitivity"] = {"area": "spotter", "function": "spotter.sensitivity", "language": None,
+                          "description": "The sensitivity flag from the events call: none or no answer is unchecked; a reason with a descriptor word, an empty one or one over 120 characters is replaced by the plain default; only a true boolean raises the flag.",
+                          "inputs": {"looks": value(sens)}}  # fmt: skip
+    # the play sheet, from real answers: five sheets and the events call each, drawn from the recordings
+    for k in range(6):
+        answers = [ov[(k * 29 + j * 7) % len(ov)] for j in range(5)]
+        out[f"play_sheet_real_{k + 1}"] = sheet_case(
+            f"Real answers of the cloud model for the five sheets and the events call ({k + 1} of 6): the play sheet S3 writes.",
+            inf0,
+            answers,
+            ev[(k * 4) % len(ev)],
+        )
+    best = {
+        "activity": "a ball is struck",
+        "outcome": "the ball flies off",
+        "actor": "player in a red shirt",
+        "high_point_cell": 5,
+        "sure": 8,
+    }
+    weak = dict(best, sure=4)
+    unseen = dict(best, high_point_cell=0, sure=3)
+    out["play_sheet_snaps_to_a_sound_onset"] = sheet_case(
+        "The proposed frame moves to a sound onset up to 0.25 s before it (the method says so).",
+        inf0,
+        [weak, weak, best, weak, weak],
+        ev[1],
+    )
+    out["play_sheet_a_candidate_sheet_wins_a_tie"] = sheet_case(
+        "Equal sureness: the candidate sheet wins; between sheets of one kind the earlier.",
+        inf0,
+        [best, best, best, best, best],
+        ev[2],
+    )
+    out["play_sheet_nobody_saw_the_high_point"] = sheet_case(
+        "No sheet shows the high point: the strongest S1 candidate is proposed at its sound onset.",
+        inf0,
+        [unseen] * 5,
+        ev[3],
+    )
+    out["play_sheet_every_sheet_failed"] = sheet_case(
+        "Every sheet was left out and so was the events call: the candidate is proposed, two events, the sensitivity unchecked.",
+        inf0,
+        [None] * 5,
+        None,
+    )
+    out["play_sheet_no_candidates_no_answer"] = sheet_case(
+        "Nothing answered and S1 found nothing: the middle of the clip, for the user to move.",
+        info(cands=[]),
+        [None] * 5,
+        None,
+        signals={"onsets_t": []},
+    )
+    out["play_sheet_events_call_failed"] = sheet_case(
+        "Only the events call failed: two events, the description from the sheets.",
+        inf0,
+        [weak, weak, best, weak, weak],
+        None,
+    )
+    out["play_sheet_the_user_typed_an_activity"] = sheet_case(
+        "What the user typed wins over the model's activity, and the user's name goes on the followed actor.",
+        info(user={"activity": "free kick", "player_name": "Noa", "description": None}),
+        [weak, weak, best, weak, weak],
+        ev[4],
+    )
+    out["play_sheet_a_second_high_point"] = sheet_case(
+        "A high point the overview saw 0.5 s or more from the others is listed as another moment, up to six.",
+        inf0,
+        [
+            dict(best, high_point_cell=2),
+            dict(best, high_point_cell=8),
+            best,
+            dict(best, high_point_cell=1),
+            weak,
+        ],
+        ev[5],
+    )
+    out["play_sheet_a_descriptor_breach_is_emptied"] = sheet_case(
+        "Model-written fields with an age word (the outcome, an actor) are emptied and flagged for the user, and the play sheet is accepted again.",
+        inf0,
+        [weak, weak, dict(best, outcome="a young boy scores"), weak, weak],
+        dict(
+            ev[6], events=[dict(ev[6]["events"][0], actor="a young player")] + ev[6]["events"][1:]
+        ),
+    )
+
+    # hand-made traces for the edges the real answers do not reach
+    def raw_case(desc, inf, sheets, ev_look, signals=None, clip=meta):
+        return {"area": "spotter", "function": "spotter.play_sheet", "language": None, "description": desc, "tolerance_s": 0.001,
+                "inputs": {"run_id": value("run-1"), "info": value(inf), "looks": value(sheets), "events_look": value(ev_look),
+                           "signals": value(signals or {"onsets_t": []}), "snap_s": value(0.25), "model": value("deepseek-flash"),
+                           "clip_meta": value(clip)}}  # fmt: skip
+
+    def mk_sheet(kind, name, frames, answer):
+        return {"kind": kind, "name": name, "answer": answer,
+                "cells": [{"cell": k + 1, "frame": f, "t": round(f / 30, 3)} for k, f in enumerate(frames)]}  # fmt: skip
+
+    def ans(cell, sure=8):
+        return {
+            "activity": "a kick",
+            "outcome": "it flies",
+            "actor": "player in red",
+            "high_point_cell": cell,
+            "sure": sure,
+        }
+
+    gap_sheets = [
+        mk_sheet("candidate", "o2_candidate.jpg", [300, 305, 311, 314, 318, 320, 322, 324, 326], ans(3)),
+        mk_sheet("uniform", "o0_uniform.jpg", [300, 305, 311, 314, 318, 320, 322, 324, 326], ans(4, 3)),
+        mk_sheet("uniform", "o1_uniform.jpg", [300, 305, 311, 314, 318, 325, 326, 330, 340], ans(6, 2)),
+        mk_sheet("uniform", "o3_uniform.jpg", [300, 305, 311, 314, 318, 320, 322, 324, 326], ans(9, 1)),
+    ]  # fmt: skip
+    nocand = info(cands=[])
+    out["play_sheet_other_moments_half_a_second_apart"] = raw_case(
+        "A second high point 14 frames (0.467 s) from the proposal is left out, one 15 frames (0.5 s) away is listed.",
+        nocand,
+        gap_sheets,
+        None,
+    )
+    edge_events = {"answer": {"sure": 7, "sensitive": False, "sensitive_reason": "", "events": []}, "grids": [], "events": [
+        {"t_start": 1.0, "t_end": 2.0, "actor": "a runner", "action": "starts", "outcome": None},
+        {"t_start": 9.0, "t_end": 15.001, "actor": "a runner", "action": "finishes", "outcome": "wins"}]}  # fmt: skip
+    out["play_sheet_an_event_a_millisecond_past_the_end"] = raw_case(
+        "An event that ends 0.001 s after the clip does: within the 0.002 s the rules allow.",
+        nocand,
+        [
+            mk_sheet(
+                "candidate",
+                "o2_candidate.jpg",
+                [300, 305, 311, 314, 318, 320, 322, 324, 326],
+                ans(3),
+            )
+        ],
+        edge_events,
+    )
+    out["play_sheet_a_sound_just_after_the_frame"] = raw_case(
+        "A sound onset up to 0.1 s after the proposed frame counts for the snap.",
+        nocand,
+        [
+            mk_sheet(
+                "candidate",
+                "o2_candidate.jpg",
+                [300, 305, 311, 314, 318, 320, 322, 324, 326],
+                ans(3),
+            )
+        ],
+        None,
+        signals={"onsets_t": [round(311 / 30 + 0.08, 3)]},
+    )
+    overlap = {"answer": {"sure": 7, "sensitive": False, "sensitive_reason": "", "events": []}, "grids": [], "events": [
+        {"t_start": 8.0, "t_end": 12.0, "actor": "a dog", "action": "runs", "outcome": None},
+        {"t_start": 10.0, "t_end": 12.0, "actor": "a dog", "action": "jumps", "outcome": None},
+        {"t_start": 9.0, "t_end": 12.0, "actor": "a cat", "action": "watches", "outcome": None}]}  # fmt: skip
+    out["play_sheet_the_climax_event_of_equals_is_the_latest"] = raw_case(
+        "Three events all hold the proposed moment: the climax is the one that starts last.",
+        nocand,
+        [
+            mk_sheet(
+                "candidate",
+                "o2_candidate.jpg",
+                [300, 305, 311, 314, 318, 320, 322, 324, 326],
+                ans(3),
+            )
+        ],
+        overlap,
+    )
+    breach = {"answer": {"sure": 7, "sensitive": False, "sensitive_reason": "", "events": []}, "grids": [], "events": [
+        {"t_start": 8.0, "t_end": 12.0, "actor": "a dog", "action": "chases a young boy", "outcome": "a girl laughs"}]}  # fmt: skip
+    out["play_sheet_a_breach_in_an_event_is_emptied_to_null"] = raw_case(
+        "A breach in an event's action or outcome: the action becomes an empty string, the outcome null.",
+        nocand,
+        [
+            mk_sheet(
+                "candidate",
+                "o2_candidate.jpg",
+                [300, 305, 311, 314, 318, 320, 322, 324, 326],
+                ans(3),
+            )
+        ],
+        breach,
+    )
+    out["play_sheet_a_sensitive_clip"] = sheet_case(
+        "The events call says the clip is sensitive: the flag and the reason are in the play sheet (the run stops there).",
+        inf0,
+        [best] * 5,
+        next(a for a in ev_all if a.get("sensitive")),
+    )
+    out["play_sheet_clip_meta_rejects"] = sheet_case(
+        "A clip metadata shorter than the proposed moment: the play sheet is not accepted, with the reasons.",
+        inf0,
+        [weak, weak, best, weak, weak],
+        ev[7],
+        clip={**meta, "duration_s": 4.0},
+    )
+    return out
+
+
 def all_cases() -> dict[str, dict]:
     out = {}
-    for make in (storyboard_cases, slots_cases, checks_cases, lexicon_cases, units_cases, cells_cases, cell_layout_cases, backend_cases, budget_cases, consent_cases, signals_cases, checks_more_cases, voice_cases, mix_cases, visuals_cases):  # fmt: skip
+    for make in (storyboard_cases, slots_cases, checks_cases, lexicon_cases, units_cases, cells_cases, cell_layout_cases, backend_cases, budget_cases, consent_cases, signals_cases, checks_more_cases, voice_cases, mix_cases, visuals_cases, spotter_cases):  # fmt: skip
         for name, case in make().items():
             out[f"{case['area']}/{name}"] = case
     return out

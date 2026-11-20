@@ -1,0 +1,136 @@
+{
+  "area": "spotter",
+  "function": "spotter.sensitivity",
+  "language": null,
+  "description": "The sensitivity flag from the events call: none or no answer is unchecked; a reason with a descriptor word, an empty one or one over 120 characters is replaced by the plain default; only a true boolean raises the flag.",
+  "inputs": {
+    "looks": {
+      "value": [
+        null,
+        {
+          "answer": null
+        },
+        {
+          "answer": {
+            "sensitive": false,
+            "sensitive_reason": "ignored",
+            "events": []
+          }
+        },
+        {
+          "answer": {
+            "sensitive": true,
+            "sensitive_reason": "someone is hurt."
+          }
+        },
+        {
+          "answer": {
+            "sensitive": true,
+            "sensitive_reason": "a teenage boy is bullied"
+          }
+        },
+        {
+          "answer": {
+            "sensitive": true,
+            "sensitive_reason": ""
+          }
+        },
+        {
+          "answer": {
+            "sensitive": true,
+            "sensitive_reason": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+          }
+        },
+        {
+          "answer": {
+            "sensitive": true,
+            "sensitive_reason": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+          }
+        },
+        {
+          "answer": {
+            "sensitive": "true",
+            "sensitive_reason": "stringly"
+          }
+        },
+        {
+          "answer": {
+            "sensitive": true
+          }
+        },
+        {
+          "answer": {
+            "sensitive": true,
+            "sensitive_reason": "  a fight breaks out.. "
+          }
+        },
+        {
+          "answer": {
+            "events": [
+              {
+                "first_grid": 1,
+                "first_cell": 2,
+                "last_grid": 1,
+                "last_cell": 3,
+                "actor": "person in black hooded clothing",
+                "action": "drags and throws a white mannequin limb at the shop window",
+                "outcome": "window glass breaks"
+              },
+              {
+                "first_grid": 1,
+                "first_cell": 4,
+                "last_grid": 1,
+                "last_cell": 4,
+                "actor": "person in black clothing with yellow-striped trousers",
+                "action": "kicks a white mannequin limb/body on the pavement",
+                "outcome": "mannequin part is knocked away"
+              },
+              {
+                "first_grid": 1,
+                "first_cell": 5,
+                "last_grid": 1,
+                "last_cell": 6,
+                "actor": "people in dark jackets",
+                "action": "pull and force down a large glass door/panel at the storefront",
+                "outcome": "the panel lies flat on the ground"
+              },
+              {
+                "first_grid": 2,
+                "first_cell": 1,
+                "last_grid": 2,
+                "last_cell": 3,
+                "actor": "person in black clothing",
+                "action": "swings and throws a white object at the shattered store window",
+                "outcome": "glass shatters further"
+              },
+              {
+                "first_grid": 2,
+                "first_cell": 4,
+                "last_grid": 2,
+                "last_cell": 6,
+                "actor": "person in black clothing",
+                "action": "throws a red fire extinguisher into the store window",
+                "outcome": "glass bursts outward"
+              },
+              {
+                "first_grid": 2,
+                "first_cell": 7,
+                "last_grid": 2,
+                "last_cell": 9,
+                "actor": "group in gray and black hooded clothing",
+                "action": "bends and grabs clothing/items near the doorway",
+                "outcome": "a person in a black puffer jacket walks away"
+              }
+            ],
+            "sure": 7,
+            "sensitive": true,
+            "sensitive_reason": "people smash shop windows and throw objects"
+          }
+        }
+      ]
+    }
+  },
+  "expected": {
+    "file": "expected/output.json"
+  }
+}

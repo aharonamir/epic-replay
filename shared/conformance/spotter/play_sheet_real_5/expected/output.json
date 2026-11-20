@@ -1,0 +1,139 @@
+{
+  "play_sheet": {
+    "schema_version": "1.0",
+    "run_id": "run-1",
+    "mode": "specific",
+    "activity": {
+      "value": "Cooking pancakes on a griddle",
+      "confidence": 0.9,
+      "source": "model"
+    },
+    "setting": "",
+    "actors": [
+      {
+        "id": "a1",
+        "descriptor": "on-screen text",
+        "role": "",
+        "user_name": null,
+        "followed": true
+      },
+      {
+        "id": "a2",
+        "descriptor": "dog",
+        "role": "",
+        "user_name": null,
+        "followed": false
+      }
+    ],
+    "events": [
+      {
+        "id": "e1",
+        "t_start": 1.133,
+        "t_end": 3.7,
+        "actor": "a1",
+        "action": "displays a title card about dog skills and catching a ball",
+        "object": null,
+        "outcome": "title card stays on screen",
+        "confidence": 0.8,
+        "source": "model"
+      },
+      {
+        "id": "e2",
+        "t_start": 4.533,
+        "t_end": 7.933,
+        "actor": "a2",
+        "action": "catches a ball",
+        "object": null,
+        "outcome": "ball is held in the dog's mouth",
+        "confidence": 0.8,
+        "source": "model"
+      },
+      {
+        "id": "e3",
+        "t_start": 8.767,
+        "t_end": 11.3,
+        "actor": "a2",
+        "action": "stands while holding the ball",
+        "object": null,
+        "outcome": "dog keeps holding the ball",
+        "confidence": 0.8,
+        "source": "model"
+      },
+      {
+        "id": "e4",
+        "t_start": 12.167,
+        "t_end": 14.7,
+        "actor": "a1",
+        "action": "shows THANK YOU and SUBSCRIBE",
+        "object": null,
+        "outcome": "video ends on the subscribe card",
+        "confidence": 0.8,
+        "source": "model"
+      }
+    ],
+    "climax": {
+      "event_id": "e3",
+      "t": 10.367,
+      "frame": 311,
+      "method": "sheets+sound",
+      "confidence": 0.54,
+      "candidates": [
+        {
+          "t": 10.367,
+          "frame": 311,
+          "reason": "S1 candidate: sudden motion and sound (score 24.0)"
+        },
+        {
+          "t": 9.633,
+          "frame": 289,
+          "reason": "S1 candidate: sudden motion (score 18.5)"
+        },
+        {
+          "t": 3.933,
+          "frame": 118,
+          "reason": "S1 candidate: sudden motion and sound (score 14.0)"
+        },
+        {
+          "t": 2.0,
+          "frame": 60,
+          "reason": "S1 candidate: sudden motion (score 12.2)"
+        },
+        {
+          "t": 13.3,
+          "frame": 399,
+          "reason": "S1 candidate: sudden motion and sound (score 11.0)"
+        },
+        {
+          "t": 7.067,
+          "frame": 212,
+          "reason": "the overview also saw a high point (o0_uniform.jpg)"
+        }
+      ]
+    },
+    "outcome_summary": {
+      "value": "Two golden-brown pancakes are fully cooked and resting on the griddle",
+      "confidence": 0.9,
+      "source": "model"
+    },
+    "focus_box": null,
+    "sensitive": {
+      "flag": false,
+      "reason": null,
+      "checked": true
+    },
+    "agreement": {
+      "passes": 1,
+      "disagreed_fields": [],
+      "escalated": false
+    },
+    "overall_confidence": 0.54,
+    "confirmed_by_user": false,
+    "models": {
+      "analysis": "deepseek-flash",
+      "refine": "none"
+    }
+  },
+  "accepted": true,
+  "errors": [],
+  "cleared": []
+}

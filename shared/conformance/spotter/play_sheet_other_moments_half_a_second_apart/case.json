@@ -1,0 +1,287 @@
+{
+  "area": "spotter",
+  "function": "spotter.play_sheet",
+  "language": null,
+  "description": "A second high point 14 frames (0.467 s) from the proposal is left out, one 15 frames (0.5 s) away is listed.",
+  "tolerance_s": 0.001,
+  "inputs": {
+    "run_id": {
+      "value": "run-1"
+    },
+    "info": {
+      "value": {
+        "duration_s": 15.0,
+        "fps": 30.0,
+        "frames": 450,
+        "orientation": "landscape",
+        "candidates": [],
+        "user": {
+          "activity": null,
+          "player_name": null,
+          "description": null
+        }
+      }
+    },
+    "looks": {
+      "value": [
+        {
+          "kind": "candidate",
+          "name": "o2_candidate.jpg",
+          "answer": {
+            "activity": "a kick",
+            "outcome": "it flies",
+            "actor": "player in red",
+            "high_point_cell": 3,
+            "sure": 8
+          },
+          "cells": [
+            {
+              "cell": 1,
+              "frame": 300,
+              "t": 10.0
+            },
+            {
+              "cell": 2,
+              "frame": 305,
+              "t": 10.167
+            },
+            {
+              "cell": 3,
+              "frame": 311,
+              "t": 10.367
+            },
+            {
+              "cell": 4,
+              "frame": 314,
+              "t": 10.467
+            },
+            {
+              "cell": 5,
+              "frame": 318,
+              "t": 10.6
+            },
+            {
+              "cell": 6,
+              "frame": 320,
+              "t": 10.667
+            },
+            {
+              "cell": 7,
+              "frame": 322,
+              "t": 10.733
+            },
+            {
+              "cell": 8,
+              "frame": 324,
+              "t": 10.8
+            },
+            {
+              "cell": 9,
+              "frame": 326,
+              "t": 10.867
+            }
+          ]
+        },
+        {
+          "kind": "uniform",
+          "name": "o0_uniform.jpg",
+          "answer": {
+            "activity": "a kick",
+            "outcome": "it flies",
+            "actor": "player in red",
+            "high_point_cell": 4,
+            "sure": 3
+          },
+          "cells": [
+            {
+              "cell": 1,
+              "frame": 300,
+              "t": 10.0
+            },
+            {
+              "cell": 2,
+              "frame": 305,
+              "t": 10.167
+            },
+            {
+              "cell": 3,
+              "frame": 311,
+              "t": 10.367
+            },
+            {
+              "cell": 4,
+              "frame": 314,
+              "t": 10.467
+            },
+            {
+              "cell": 5,
+              "frame": 318,
+              "t": 10.6
+            },
+            {
+              "cell": 6,
+              "frame": 320,
+              "t": 10.667
+            },
+            {
+              "cell": 7,
+              "frame": 322,
+              "t": 10.733
+            },
+            {
+              "cell": 8,
+              "frame": 324,
+              "t": 10.8
+            },
+            {
+              "cell": 9,
+              "frame": 326,
+              "t": 10.867
+            }
+          ]
+        },
+        {
+          "kind": "uniform",
+          "name": "o1_uniform.jpg",
+          "answer": {
+            "activity": "a kick",
+            "outcome": "it flies",
+            "actor": "player in red",
+            "high_point_cell": 6,
+            "sure": 2
+          },
+          "cells": [
+            {
+              "cell": 1,
+              "frame": 300,
+              "t": 10.0
+            },
+            {
+              "cell": 2,
+              "frame": 305,
+              "t": 10.167
+            },
+            {
+              "cell": 3,
+              "frame": 311,
+              "t": 10.367
+            },
+            {
+              "cell": 4,
+              "frame": 314,
+              "t": 10.467
+            },
+            {
+              "cell": 5,
+              "frame": 318,
+              "t": 10.6
+            },
+            {
+              "cell": 6,
+              "frame": 325,
+              "t": 10.833
+            },
+            {
+              "cell": 7,
+              "frame": 326,
+              "t": 10.867
+            },
+            {
+              "cell": 8,
+              "frame": 330,
+              "t": 11.0
+            },
+            {
+              "cell": 9,
+              "frame": 340,
+              "t": 11.333
+            }
+          ]
+        },
+        {
+          "kind": "uniform",
+          "name": "o3_uniform.jpg",
+          "answer": {
+            "activity": "a kick",
+            "outcome": "it flies",
+            "actor": "player in red",
+            "high_point_cell": 9,
+            "sure": 1
+          },
+          "cells": [
+            {
+              "cell": 1,
+              "frame": 300,
+              "t": 10.0
+            },
+            {
+              "cell": 2,
+              "frame": 305,
+              "t": 10.167
+            },
+            {
+              "cell": 3,
+              "frame": 311,
+              "t": 10.367
+            },
+            {
+              "cell": 4,
+              "frame": 314,
+              "t": 10.467
+            },
+            {
+              "cell": 5,
+              "frame": 318,
+              "t": 10.6
+            },
+            {
+              "cell": 6,
+              "frame": 320,
+              "t": 10.667
+            },
+            {
+              "cell": 7,
+              "frame": 322,
+              "t": 10.733
+            },
+            {
+              "cell": 8,
+              "frame": 324,
+              "t": 10.8
+            },
+            {
+              "cell": 9,
+              "frame": 326,
+              "t": 10.867
+            }
+          ]
+        }
+      ]
+    },
+    "events_look": {
+      "value": null
+    },
+    "signals": {
+      "value": {
+        "onsets_t": []
+      }
+    },
+    "snap_s": {
+      "value": 0.25
+    },
+    "model": {
+      "value": "deepseek-flash"
+    },
+    "clip_meta": {
+      "value": {
+        "duration_s": 15.0,
+        "fps": 30,
+        "width": 1920,
+        "height": 1080
+      }
+    }
+  },
+  "expected": {
+    "file": "expected/output.json"
+  }
+}

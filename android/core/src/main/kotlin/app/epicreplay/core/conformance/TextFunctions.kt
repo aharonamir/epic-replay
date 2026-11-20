@@ -26,6 +26,7 @@ object TextFunctions {
         val english = EnglishLexicon(File(shared, "lexicons/en.json").readText())
         val mandarin = MandarinLexicon(File(shared, "lexicons/zh.json").readText())
         val checks = app.epicreplay.core.checks.Checks.fromShared(shared)
+        val spotter = app.epicreplay.core.spotter.Spotter(english, File(shared, "contracts/play_sheet.schema.json").readText())
         return mapOf(
             "checks.text" to { a -> checks.checkTexts(a.getValue("language").jsonPrimitive.content, strings(a.getValue("texts")), a.getValue("known").jsonPrimitive.content, strings(a.getValue("extra"))) },
             "checks.check" to { a -> checks.check(a.getValue("script").jsonObject, a.getValue("play_sheet").jsonObject, a.getValue("user_context").jsonObject, a.getValue("pack").jsonObject) },
@@ -104,6 +105,22 @@ object TextFunctions {
             },
             "visuals.plan" to { a ->
                 app.epicreplay.core.visuals.VisualsPlan.plan(a.getValue("storyboard").jsonObject, a["focus_box"], a.getValue("src_frames").jsonPrimitive.int)
+            },
+            "spotter.plan_overview" to { a -> spotter.planOverview(a.getValue("info").jsonObject) },
+            "spotter.map_events" to { a ->
+                val grids = a.getValue("grids").jsonArray.map { g -> g.jsonArray.map { it.jsonObject } }
+                JsonArray(a.getValue("answers").jsonArray.map { JsonArray(spotter.mapEvents(it.jsonObject, grids)) })
+            },
+            "spotter.sensitivity" to { a -> JsonArray(a.getValue("looks").jsonArray.map { spotter.sensitivity(it as? JsonObject) }) },
+            "spotter.play_sheet" to { a ->
+                val m = spotter.make(
+                    a.getValue("run_id").jsonPrimitive.content, a.getValue("info").jsonObject, a.getValue("looks").jsonArray.map { it.jsonObject },
+                    a["events_look"] as? JsonObject, a.getValue("signals").jsonObject, a.getValue("snap_s").jsonPrimitive.double,
+                    a.getValue("model").jsonPrimitive.content, a.getValue("clip_meta").jsonObject,
+                )
+                buildJsonObject {
+                    put("play_sheet", m.playSheet); put("accepted", m.accepted); put("errors", JsonArray(m.errors.map(::JsonPrimitive))); put("cleared", JsonArray(m.cleared.map(::JsonPrimitive)))
+                }
             },
             "cells.layout" to { a ->
                 val l = ContactSheet.layout(a.getValue("width").jsonPrimitive.int, a.getValue("height").jsonPrimitive.int, a.getValue("count").jsonPrimitive.int)

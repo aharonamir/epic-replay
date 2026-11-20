@@ -19,6 +19,7 @@ from epic_replay import (
     conformance_backend,
     conformance_consent,
     conformance_signals,
+    conformance_spotter,
     conformance_voice,
     paths,
 )
@@ -118,6 +119,10 @@ FUNCTIONS: dict[str, Callable[..., Any]] = {
     "voice.place": conformance_voice.place,
     "mix.layers": conformance_voice.layers,
     "visuals.plan": conformance_voice.visuals_plan,
+    "spotter.plan_overview": conformance_spotter.plan_overview,
+    "spotter.map_events": conformance_spotter.map_events,
+    "spotter.sensitivity": conformance_spotter.sensitivity,
+    "spotter.play_sheet": conformance_spotter.play_sheet,
 }
 
 

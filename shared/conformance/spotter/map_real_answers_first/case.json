@@ -1,0 +1,773 @@
+{
+  "area": "spotter",
+  "function": "spotter.map_events",
+  "language": null,
+  "description": "Real answers of the cloud model: each event's grid and cells become times, in time order.",
+  "tolerance_s": 0.001,
+  "inputs": {
+    "answers": {
+      "value": [
+        {
+          "events": [
+            {
+              "first_grid": 1,
+              "first_cell": 2,
+              "last_grid": 1,
+              "last_cell": 3,
+              "actor": "person in black patterned shirt, blue jeans, red shoes",
+              "action": "bounces a white ball on a black paddle while holding a clear cup",
+              "outcome": "ball stays near the paddle"
+            },
+            {
+              "first_grid": 1,
+              "first_cell": 4,
+              "last_grid": 1,
+              "last_cell": 5,
+              "actor": "person in black patterned shirt, blue jeans, red shoes",
+              "action": "raises the clear cup and catches the ball",
+              "outcome": "ball is caught in the cup"
+            },
+            {
+              "first_grid": 1,
+              "first_cell": 6,
+              "last_grid": 2,
+              "last_cell": 7,
+              "actor": "person in black patterned shirt, blue jeans, red shoes",
+              "action": "replays the paddle-and-cup catch in slow motion",
+              "outcome": "cup ends held high"
+            },
+            {
+              "first_grid": 2,
+              "first_cell": 8,
+              "last_grid": 2,
+              "last_cell": 9,
+              "actor": "person in black patterned shirt, blue jeans, red shoes",
+              "action": "holds the cup up as the final title appears",
+              "outcome": "video ends"
+            }
+          ],
+          "sure": 7,
+          "sensitive": false,
+          "sensitive_reason": ""
+        },
+        {
+          "events": [
+            {
+              "first_grid": 1,
+              "first_cell": 2,
+              "last_grid": 1,
+              "last_cell": 3,
+              "actor": "person in black hooded clothing",
+              "action": "drags and throws a white mannequin limb at the shop window",
+              "outcome": "window glass breaks"
+            },
+            {
+              "first_grid": 1,
+              "first_cell": 4,
+              "last_grid": 1,
+              "last_cell": 4,
+              "actor": "person in black clothing with yellow-striped trousers",
+              "action": "kicks a white mannequin limb/body on the pavement",
+              "outcome": "mannequin part is knocked away"
+            },
+            {
+              "first_grid": 1,
+              "first_cell": 5,
+              "last_grid": 1,
+              "last_cell": 6,
+              "actor": "people in dark jackets",
+              "action": "pull and force down a large glass door/panel at the storefront",
+              "outcome": "the panel lies flat on the ground"
+            },
+            {
+              "first_grid": 2,
+              "first_cell": 1,
+              "last_grid": 2,
+              "last_cell": 3,
+              "actor": "person in black clothing",
+              "action": "swings and throws a white object at the shattered store window",
+              "outcome": "glass shatters further"
+            },
+            {
+              "first_grid": 2,
+              "first_cell": 4,
+              "last_grid": 2,
+              "last_cell": 6,
+              "actor": "person in black clothing",
+              "action": "throws a red fire extinguisher into the store window",
+              "outcome": "glass bursts outward"
+            },
+            {
+              "first_grid": 2,
+              "first_cell": 7,
+              "last_grid": 2,
+              "last_cell": 9,
+              "actor": "group in gray and black hooded clothing",
+              "action": "bends and grabs clothing/items near the doorway",
+              "outcome": "a person in a black puffer jacket walks away"
+            }
+          ],
+          "sure": 7,
+          "sensitive": true,
+          "sensitive_reason": "people smash shop windows and throw objects"
+        },
+        {
+          "events": [
+            {
+              "first_grid": 1,
+              "first_cell": 2,
+              "last_grid": 1,
+              "last_cell": 5,
+              "actor": "title text",
+              "action": "displays the German Shepherd Skills caption",
+              "outcome": ""
+            },
+            {
+              "first_grid": 1,
+              "first_cell": 6,
+              "last_grid": 1,
+              "last_cell": 7,
+              "actor": "German Shepherd",
+              "action": "catches the ball",
+              "outcome": ""
+            },
+            {
+              "first_grid": 1,
+              "first_cell": 8,
+              "last_grid": 2,
+              "last_cell": 2,
+              "actor": "German Shepherd",
+              "action": "moves near the doorway with the ball",
+              "outcome": ""
+            },
+            {
+              "first_grid": 2,
+              "first_cell": 3,
+              "last_grid": 2,
+              "last_cell": 5,
+              "actor": "German Shepherd",
+              "action": "walks toward the camera",
+              "outcome": ""
+            },
+            {
+              "first_grid": 2,
+              "first_cell": 6,
+              "last_grid": 2,
+              "last_cell": 6,
+              "actor": "German Shepherd",
+              "action": "stands close to the camera as THANK YOU appears",
+              "outcome": "THANK YOU overlay shown"
+            },
+            {
+              "first_grid": 2,
+              "first_cell": 7,
+              "last_grid": 2,
+              "last_cell": 8,
+              "actor": "outro text",
+              "action": "displays THANK YOU and SUBSCRIBE messages",
+              "outcome": ""
+            }
+          ],
+          "sure": 7
+        },
+        {
+          "events": [
+            {
+              "first_grid": 1,
+              "first_cell": 1,
+              "last_grid": 1,
+              "last_cell": 9,
+              "actor": "orange cat",
+              "action": "walks toward the stacked toilet paper wall and watches it",
+              "outcome": "stops in front of the barrier"
+            },
+            {
+              "first_grid": 2,
+              "first_cell": 1,
+              "last_grid": 2,
+              "last_cell": 2,
+              "actor": "dark cat",
+              "action": "appears behind the toilet paper wall on the sofa and moves to the wall edge",
+              "outcome": "prepares to climb the wall"
+            },
+            {
+              "first_grid": 2,
+              "first_cell": 2,
+              "last_grid": 2,
+              "last_cell": 6,
+              "actor": "dark cat",
+              "action": "climbs over the toilet paper wall and down to the floor",
+              "outcome": "reaches the orange cat's side"
+            },
+            {
+              "first_grid": 2,
+              "first_cell": 6,
+              "last_grid": 2,
+              "last_cell": 8,
+              "actor": "dark cat",
+              "action": "approaches the orange cat",
+              "outcome": "the cats come close and face each other"
+            },
+            {
+              "first_grid": 2,
+              "first_cell": 8,
+              "last_grid": 2,
+              "last_cell": 9,
+              "actor": "dark cat",
+              "action": "turns and walks past the orange cat",
+              "outcome": "moves away down the hallway"
+            }
+          ],
+          "sure": 8,
+          "sensitive": false,
+          "sensitive_reason": ""
+        },
+        {
+          "events": [
+            {
+              "first_grid": 1,
+              "first_cell": 1,
+              "last_grid": 1,
+              "last_cell": 2,
+              "actor": "pancakes",
+              "action": "cook on the hot griddle",
+              "outcome": ""
+            },
+            {
+              "first_grid": 1,
+              "first_cell": 3,
+              "last_grid": 1,
+              "last_cell": 3,
+              "actor": "person in pink sleeve",
+              "action": "scrapes the griddle with a blue spatula",
+              "outcome": "the griddle is scraped"
+            },
+            {
+              "first_grid": 1,
+              "first_cell": 4,
+              "last_grid": 1,
+              "last_cell": 5,
+              "actor": "person in pink sleeve",
+              "action": "slides a metal spatula under the pancakes and flips them",
+              "outcome": "both pancakes are flipped"
+            },
+            {
+              "first_grid": 1,
+              "first_cell": 6,
+              "last_grid": 2,
+              "last_cell": 6,
+              "actor": "pancakes",
+              "action": "cook and brown on the griddle",
+              "outcome": ""
+            },
+            {
+              "first_grid": 2,
+              "first_cell": 7,
+              "last_grid": 2,
+              "last_cell": 9,
+              "actor": "person in pink sleeve",
+              "action": "uses a metal spatula to remove a pancake from the griddle",
+              "outcome": "one pancake remains on the griddle"
+            }
+          ],
+          "sure": 6
+        },
+        {
+          "events": [
+            {
+              "first_grid": 1,
+              "first_cell": 1,
+              "last_grid": 1,
+              "last_cell": 2,
+              "actor": "goalkeeper in black kit with pink boots",
+              "action": "dives to save a ball in a solo diving drill",
+              "outcome": "ends holding the ball on the ground"
+            },
+            {
+              "first_grid": 1,
+              "first_cell": 3,
+              "last_grid": 1,
+              "last_cell": 4,
+              "actor": "goalkeeper in black kit with pink boots",
+              "action": "dives during a game diving phase",
+              "outcome": "ends lying on the grass after the dive"
+            },
+            {
+              "first_grid": 1,
+              "first_cell": 5,
+              "last_grid": 1,
+              "last_cell": 6,
+              "actor": "goalkeeper in black kit with pink boots",
+              "action": "practices catching/handling a cross in a solo crossing drill",
+              "outcome": "ends standing and holding the ball"
+            },
+            {
+              "first_grid": 1,
+              "first_cell": 7,
+              "last_grid": 1,
+              "last_cell": 8,
+              "actor": "players in dark and white kits",
+              "action": "contest a cross during a game crossing phase",
+              "outcome": ""
+            },
+            {
+              "first_grid": 1,
+              "first_cell": 9,
+              "last_grid": 2,
+              "last_cell": 3,
+              "actor": "goalkeeper in black kit with pink boots",
+              "action": "holds/catches a yellow ball in a solo handling drill, then stands in a game handling phase",
+              "outcome": "ends with the goalkeeper facing play from behind"
+            },
+            {
+              "first_grid": 2,
+              "first_cell": 4,
+              "last_grid": 2,
+              "last_cell": 9,
+              "actor": "goalkeeper in black kit with pink boots",
+              "action": "kicks a white ball in a solo distribution drill, then distributes during a game distribution phase",
+              "outcome": "ends with the goalkeeper standing on the field and the ball in play"
+            }
+          ],
+          "sure": 8
+        },
+        {
+          "events": [
+            {
+              "first_grid": 1,
+              "first_cell": 1,
+              "last_grid": 1,
+              "last_cell": 3,
+              "actor": "person in black patterned shirt and blue jeans",
+              "action": "holds a paddle and reaches out as a table tennis ball appears",
+              "outcome": "ball is near the paddle"
+            },
+            {
+              "first_grid": 1,
+              "first_cell": 4,
+              "last_grid": 1,
+              "last_cell": 6,
+              "actor": "person in black patterned shirt and blue jeans",
+              "action": "bends low and swings the paddle to hit the ball upward",
+              "outcome": "ball rises above the paddle"
+            },
+            {
+              "first_grid": 1,
+              "first_cell": 7,
+              "last_grid": 1,
+              "last_cell": 9,
+              "actor": "person in black patterned shirt and blue jeans",
+              "action": "continues hitting the ball with the paddle",
+              "outcome": "ball stays airborne"
+            },
+            {
+              "first_grid": 2,
+              "first_cell": 1,
+              "last_grid": 2,
+              "last_cell": 4,
+              "actor": "person in black patterned shirt and blue jeans",
+              "action": "raises a clear cup toward the falling ball",
+              "outcome": "ball reaches the cup"
+            },
+            {
+              "first_grid": 2,
+              "first_cell": 5,
+              "last_grid": 2,
+              "last_cell": 9,
+              "actor": "person in black patterned shirt and blue jeans",
+              "action": "holds the clear cup with the ball and lifts it up",
+              "outcome": "ball stays in the cup"
+            }
+          ],
+          "sure": 8,
+          "sensitive": false,
+          "sensitive_reason": ""
+        },
+        {
+          "events": [
+            {
+              "first_grid": 1,
+              "first_cell": 2,
+              "last_grid": 1,
+              "last_cell": 3,
+              "actor": "clear water bottle with a blue label",
+              "action": "stands upright on the patio beside the wall",
+              "outcome": ""
+            },
+            {
+              "first_grid": 1,
+              "first_cell": 5,
+              "last_grid": 1,
+              "last_cell": 5,
+              "actor": "clear water bottle with a blue label",
+              "action": "is airborne and tilted near the top of the wall",
+              "outcome": ""
+            },
+            {
+              "first_grid": 1,
+              "first_cell": 6,
+              "last_grid": 1,
+              "last_cell": 7,
+              "actor": "clear water bottle with a blue label",
+              "action": "lands on the patio and wobbles",
+              "outcome": "settles upright"
+            },
+            {
+              "first_grid": 1,
+              "first_cell": 8,
+              "last_grid": 2,
+              "last_cell": 9,
+              "actor": "clear water bottle with a blue label",
+              "action": "stays standing upright on the patio",
+              "outcome": "remains upright"
+            }
+          ],
+          "sure": 8,
+          "sensitive": false,
+          "sensitive_reason": ""
+        },
+        {
+          "events": [
+            {
+              "first_grid": 1,
+              "first_cell": 1,
+              "last_grid": 1,
+              "last_cell": 3,
+              "actor": "player in black",
+              "action": "takes a free kick toward goal",
+              "outcome": "ball is airborne near the goal"
+            },
+            {
+              "first_grid": 1,
+              "first_cell": 4,
+              "last_grid": 1,
+              "last_cell": 5,
+              "actor": "players in white and dark blue",
+              "action": "contest a high ball in the penalty area while a goalkeeper in green waits",
+              "outcome": ""
+            },
+            {
+              "first_grid": 1,
+              "first_cell": 6,
+              "last_grid": 1,
+              "last_cell": 7,
+              "actor": "player in pink and white",
+              "action": "takes a free kick",
+              "outcome": "ball moves toward the goal area"
+            },
+            {
+              "first_grid": 1,
+              "first_cell": 8,
+              "last_grid": 1,
+              "last_cell": 9,
+              "actor": "player in black",
+              "action": "takes a free kick",
+              "outcome": "ball flies toward the crowded penalty area"
+            },
+            {
+              "first_grid": 2,
+              "first_cell": 1,
+              "last_grid": 2,
+              "last_cell": 1,
+              "actor": "player in black",
+              "action": "prepares to take a free kick",
+              "outcome": ""
+            },
+            {
+              "first_grid": 2,
+              "first_cell": 2,
+              "last_grid": 2,
+              "last_cell": 9,
+              "actor": "player in pink",
+              "action": "takes a free kick over a yellow wall",
+              "outcome": "ball reaches the goal area and the goalkeeper dives"
+            }
+          ],
+          "sure": 5
+        },
+        {
+          "events": [
+            {
+              "first_grid": 1,
+              "first_cell": 1,
+              "last_grid": 1,
+              "last_cell": 5,
+              "actor": "orange cat",
+              "action": "sits facing the toilet-paper wall",
+              "outcome": "waits"
+            },
+            {
+              "first_grid": 1,
+              "first_cell": 6,
+              "last_grid": 1,
+              "last_cell": 7,
+              "actor": "dark cat",
+              "action": "appears above and climbs onto the toilet-paper wall",
+              "outcome": "stands on top"
+            },
+            {
+              "first_grid": 1,
+              "first_cell": 8,
+              "last_grid": 1,
+              "last_cell": 9,
+              "actor": "dark cat",
+              "action": "jumps down over the toilet-paper wall",
+              "outcome": "lands near the orange cat"
+            },
+            {
+              "first_grid": 1,
+              "first_cell": 9,
+              "last_grid": 2,
+              "last_cell": 1,
+              "actor": "dark cat",
+              "action": "walks past the orange cat toward the foreground",
+              "outcome": "moves closer to the camera"
+            },
+            {
+              "first_grid": 2,
+              "first_cell": 2,
+              "last_grid": 2,
+              "last_cell": 9,
+              "actor": "dark cat",
+              "action": "in slow motion, climbs onto and leaps over the toilet-paper wall",
+              "outcome": "clears the wall"
+            }
+          ],
+          "sure": 8,
+          "sensitive": false,
+          "sensitive_reason": ""
+        },
+        {
+          "events": [
+            {
+              "first_grid": 1,
+              "first_cell": 3,
+              "last_grid": 2,
+              "last_cell": 5,
+              "actor": "person",
+              "action": "moves spatula under pancake on grate",
+              "outcome": ""
+            },
+            {
+              "first_grid": 1,
+              "first_cell": 4,
+              "last_grid": 2,
+              "last_cell": 6,
+              "actor": "person",
+              "action": "lifts first pancake from grate",
+              "outcome": ""
+            },
+            {
+              "first_grid": 1,
+              "first_cell": 5,
+              "last_grid": 2,
+              "last_cell": 7,
+              "actor": "person",
+              "action": "places pancake onto new grate surface",
+              "outcome": ""
+            },
+            {
+              "first_grid": 1,
+              "first_cell": 6,
+              "last_grid": 2,
+              "last_cell": 9,
+              "actor": "person (hand only visible)",
+              "action": "places second pancake onto grate",
+              "outcome": ""
+            }
+          ],
+          "sure": 10,
+          "sensitive": false,
+          "sensitive_reason": ""
+        },
+        {
+          "events": [
+            {
+              "first_grid": 1,
+              "first_cell": 1,
+              "last_grid": 1,
+              "last_cell": 4,
+              "actor": "person in blue overalls",
+              "action": "raises and holds a long pole saw up into the upper branches of a tree",
+              "outcome": "the tool is positioned in the canopy"
+            },
+            {
+              "first_grid": 1,
+              "first_cell": 5,
+              "last_grid": 2,
+              "last_cell": 2,
+              "actor": "person in blue overalls",
+              "action": "moves the pole saw along the tree and works through the branches",
+              "outcome": "the tool has moved from the upper branches toward the lower branches"
+            },
+            {
+              "first_grid": 2,
+              "first_cell": 3,
+              "last_grid": 2,
+              "last_cell": 7,
+              "actor": "person in blue overalls",
+              "action": "continues trimming along the side of the tree with the pole saw",
+              "outcome": "the person works through the lower foliage"
+            },
+            {
+              "first_grid": 2,
+              "first_cell": 8,
+              "last_grid": 2,
+              "last_cell": 9,
+              "actor": "person in blue overalls",
+              "action": "turns and steps sideways while holding the pole saw",
+              "outcome": "the person ends beside the tree"
+            }
+          ],
+          "sure": 8,
+          "sensitive": false,
+          "sensitive_reason": ""
+        },
+        {
+          "events": [
+            {
+              "first_grid": 1,
+              "first_cell": 1,
+              "last_grid": 1,
+              "last_cell": 4,
+              "actor": "person in grey t-shirt and shorts",
+              "action": "sits on the windowsill and shifts position",
+              "outcome": ""
+            },
+            {
+              "first_grid": 1,
+              "first_cell": 5,
+              "last_grid": 1,
+              "last_cell": 8,
+              "actor": "person in grey t-shirt and shorts",
+              "action": "leans forward and bends down toward the window opening",
+              "outcome": ""
+            },
+            {
+              "first_grid": 1,
+              "first_cell": 9,
+              "last_grid": 2,
+              "last_cell": 2,
+              "actor": "person in grey t-shirt and shorts",
+              "action": "sits back upright on the windowsill",
+              "outcome": ""
+            },
+            {
+              "first_grid": 2,
+              "first_cell": 3,
+              "last_grid": 2,
+              "last_cell": 4,
+              "actor": "person in grey t-shirt and shorts",
+              "action": "tips backward and goes out through the window opening",
+              "outcome": "the window is empty in the following frames"
+            }
+          ],
+          "sure": 8,
+          "sensitive": false,
+          "sensitive_reason": ""
+        }
+      ]
+    },
+    "grids": {
+      "value": [
+        [
+          {
+            "cell": 1,
+            "frame": 9,
+            "t": 0.3
+          },
+          {
+            "cell": 2,
+            "frame": 34,
+            "t": 1.133
+          },
+          {
+            "cell": 3,
+            "frame": 60,
+            "t": 2.0
+          },
+          {
+            "cell": 4,
+            "frame": 85,
+            "t": 2.833
+          },
+          {
+            "cell": 5,
+            "frame": 111,
+            "t": 3.7
+          },
+          {
+            "cell": 6,
+            "frame": 136,
+            "t": 4.533
+          },
+          {
+            "cell": 7,
+            "frame": 161,
+            "t": 5.367
+          },
+          {
+            "cell": 8,
+            "frame": 187,
+            "t": 6.233
+          },
+          {
+            "cell": 9,
+            "frame": 212,
+            "t": 7.067
+          }
+        ],
+        [
+          {
+            "cell": 1,
+            "frame": 238,
+            "t": 7.933
+          },
+          {
+            "cell": 2,
+            "frame": 263,
+            "t": 8.767
+          },
+          {
+            "cell": 3,
+            "frame": 289,
+            "t": 9.633
+          },
+          {
+            "cell": 4,
+            "frame": 314,
+            "t": 10.467
+          },
+          {
+            "cell": 5,
+            "frame": 339,
+            "t": 11.3
+          },
+          {
+            "cell": 6,
+            "frame": 365,
+            "t": 12.167
+          },
+          {
+            "cell": 7,
+            "frame": 390,
+            "t": 13.0
+          },
+          {
+            "cell": 8,
+            "frame": 416,
+            "t": 13.867
+          },
+          {
+            "cell": 9,
+            "frame": 441,
+            "t": 14.7
+          }
+        ]
+      ]
+    }
+  },
+  "expected": {
+    "file": "expected/output.json"
+  }
+}

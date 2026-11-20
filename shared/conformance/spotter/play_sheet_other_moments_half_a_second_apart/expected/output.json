@@ -1,0 +1,85 @@
+{
+  "play_sheet": {
+    "schema_version": "1.0",
+    "run_id": "run-1",
+    "mode": "specific",
+    "activity": {
+      "value": "a kick",
+      "confidence": 0.8,
+      "source": "model"
+    },
+    "setting": "",
+    "actors": [
+      {
+        "id": "a1",
+        "descriptor": "player in red",
+        "role": "",
+        "user_name": null,
+        "followed": true
+      }
+    ],
+    "events": [
+      {
+        "id": "e1",
+        "t_start": 0.0,
+        "t_end": 14.967,
+        "actor": "a1",
+        "action": "a kick",
+        "object": null,
+        "outcome": null,
+        "confidence": 0.8,
+        "source": "model"
+      },
+      {
+        "id": "e2",
+        "t_start": 10.367,
+        "t_end": 10.367,
+        "actor": "a1",
+        "action": "it flies",
+        "object": null,
+        "outcome": "it flies",
+        "confidence": 0.48,
+        "source": "model"
+      }
+    ],
+    "climax": {
+      "event_id": "e2",
+      "t": 10.367,
+      "frame": 311,
+      "method": "sheets",
+      "confidence": 0.48,
+      "candidates": [
+        {
+          "t": 10.867,
+          "frame": 326,
+          "reason": "the overview also saw a high point (o3_uniform.jpg)"
+        }
+      ]
+    },
+    "outcome_summary": {
+      "value": "it flies",
+      "confidence": 0.8,
+      "source": "model"
+    },
+    "focus_box": null,
+    "sensitive": {
+      "flag": false,
+      "reason": null,
+      "checked": false
+    },
+    "agreement": {
+      "passes": 1,
+      "disagreed_fields": [],
+      "escalated": false
+    },
+    "overall_confidence": 0.48,
+    "confirmed_by_user": false,
+    "models": {
+      "analysis": "deepseek-flash",
+      "refine": "none"
+    }
+  },
+  "accepted": true,
+  "errors": [],
+  "cleared": []
+}

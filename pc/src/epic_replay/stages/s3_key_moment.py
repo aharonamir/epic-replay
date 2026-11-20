@@ -24,23 +24,33 @@ from epic_replay.stages.s2_analysis import TRACE
 PLAY_SHEET = "play_sheet.json"
 
 
-def run(ctx: RunContext) -> StageResult:
-    trace = json.loads(ctx.path(TRACE).read_text())
-    signals = json.loads(ctx.path("signals.json").read_text())
+def make(run_id: str, trace: dict, signals: dict, meta: dict, *, snap_s: float, model: str):
+    """The play sheet from the overview's answers, as S3 makes it: built, submitted, a descriptor breach
+    emptied and submitted again. Returns (sheet, verdict, the paths cleared)."""
     sheet = build_play_sheet(
-        ctx.run_dir.name,
+        run_id,
         trace["clip_info"],
         trace["sheets"],
         signals,
-        snap_s=ctx.settings.sound_snap_s,
-        model=llm.vision_endpoint(ctx.settings).model,
+        snap_s=snap_s,
+        model=model,
         events_look=trace.get("events_call"),
     )
-    meta = json.loads(ctx.path("clip_meta.json").read_text())
     verdict = submit_play_sheet(sheet, meta)
     cleared = clear_breaches(sheet) if not verdict["accepted"] else []
     if cleared:
         verdict = submit_play_sheet(sheet, meta)
+    return sheet, verdict, cleared
+
+
+def run(ctx: RunContext) -> StageResult:
+    trace = json.loads(ctx.path(TRACE).read_text())
+    signals = json.loads(ctx.path("signals.json").read_text())
+    meta = json.loads(ctx.path("clip_meta.json").read_text())
+    sheet, verdict, cleared = make(
+        ctx.run_dir.name, trace, signals, meta,
+        snap_s=ctx.settings.sound_snap_s, model=llm.vision_endpoint(ctx.settings).model,
+    )  # fmt: skip
     if not verdict["accepted"]:
         return StageResult("failed", "; ".join(verdict["errors"])[:500])
     ctx.path(PLAY_SHEET).write_text(json.dumps(sheet, indent=2) + "\n")

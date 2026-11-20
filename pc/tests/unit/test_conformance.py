@@ -29,6 +29,7 @@ AREAS = {
     "voice",
     "mix",
     "visuals",
+    "spotter",
 }  # backend, budget, consent and signals: spec 004, T408, T411 and T413
 
 
