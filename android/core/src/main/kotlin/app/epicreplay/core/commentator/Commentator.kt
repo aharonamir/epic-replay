@@ -47,7 +47,11 @@ class Commentator(private val words: CommentatorWords, private val checks: Check
     private val schema = JsonSchema.fromDefinition(scriptSchema)
     private val LINK_EPS = 0.002 // contracts.EPS
     private val keyRoles = setOf("climax", "replay_climax")
-    private val caption = Pattern.compile(words.data.getValue("caption_pattern").jsonPrimitive.content, Pattern.CASE_INSENSITIVE or Pattern.UNICODE_CASE or Pattern.UNICODE_CHARACTER_CLASS)
+    // Python's \b is Unicode-aware. The JVM needs a flag for that; Android's regex (ICU) is Unicode-aware already and refuses the flag.
+    private val caption = words.data.getValue("caption_pattern").jsonPrimitive.content.let { p ->
+        val base = Pattern.CASE_INSENSITIVE or Pattern.UNICODE_CASE
+        try { Pattern.compile(p, base or Pattern.UNICODE_CHARACTER_CLASS) } catch (e: IllegalArgumentException) { Pattern.compile(p, base) }
+    }
     private val generic = words.data.getValue("generic").jsonObject
     private val genericZh = words.data.getValue("generic_zh").jsonObject
 
