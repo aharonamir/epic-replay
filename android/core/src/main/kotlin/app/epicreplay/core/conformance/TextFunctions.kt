@@ -16,6 +16,7 @@ import kotlinx.serialization.json.int
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import kotlinx.serialization.json.put
 
 /** The functions of the conformance table that `core/` has ported so far (T412): `lexicon.scan`, `units.spoken_units`, `cells.narrow`, `cells.layout`. */
 object TextFunctions {
@@ -64,6 +65,42 @@ object TextFunctions {
             },
             "slots.build" to { a ->
                 app.epicreplay.core.style.Slots.build(a.getValue("storyboard").jsonObject, a.getValue("pack").jsonObject, (a.getValue("climax_event_id") as? JsonPrimitive)?.takeIf { it !is JsonNull }?.content)
+            },
+            "voice.word_start" to { a ->
+                JsonArray(a.getValue("calls").jsonArray.map { c ->
+                    val o = c.jsonObject
+                    val al = o["alignment"] as? JsonObject
+                    val r = app.epicreplay.core.voice.Voice.wordStart(
+                        (al?.get("chars") as? JsonPrimitive)?.content, (al?.get("starts") as? JsonArray)?.map { it.jsonPrimitive.double },
+                        o.getValue("delivery").jsonPrimitive.content, o.getValue("text").jsonPrimitive.content, o.getValue("word").jsonPrimitive.content, o.getValue("language").jsonPrimitive.content,
+                    )
+                    if (r == null) JsonNull else JsonPrimitive(r)
+                })
+            },
+            "voice.place" to { a ->
+                val ls = a.getValue("lines").jsonArray.map { l -> val o = l.jsonObject; app.epicreplay.core.voice.Line(o.getValue("id").jsonPrimitive.content, o.getValue("role").jsonPrimitive.content, o.getValue("max_duration_s").jsonPrimitive.double, o.getValue("anchor").jsonObject.getValue("timeline_t").jsonPrimitive.double) }
+                val tk = a.getValue("takes").jsonArray.map { it.jsonObject }
+                fun num(o: JsonObject, k: String) = (o[k] as? JsonPrimitive)?.takeIf { it !is JsonNull }?.double
+                val recs = ls.zip(tk).map { (l, t) ->
+                    val raw = t.getValue("raw_duration_s").jsonPrimitive.double
+                    val f = app.epicreplay.core.voice.Voice.modelledFit(raw, l.maxDurationS)
+                    app.epicreplay.core.voice.Rec(l.id, l.role, "voice/${l.id}.wav", raw, f.first, f.second)
+                }
+                val ms = tk.map { t -> app.epicreplay.core.voice.Measure(t.getValue("lead_s").jsonPrimitive.double, num(t, "onset_s"), num(t, "word_at_s")) }
+                app.epicreplay.core.voice.Voice.place(ls, recs, ms, a.getValue("delay").jsonPrimitive.double, a.getValue("end").jsonPrimitive.double) { r, room -> app.epicreplay.core.voice.Voice.modelledFit(r.rawDurationS, room) }
+                JsonArray(recs.map { r ->
+                    buildJsonObject {
+                        put("id", r.id); put("role", r.role); put("file", r.file); put("raw_duration_s", r.rawDurationS)
+                        put("speed_factor", r.speedFactor); put("duration_s", r.durationS)
+                        put("dropped", r.dropped?.let(::JsonPrimitive) ?: JsonNull)
+                        r.overS?.let { put("over_s", it) }
+                        r.hitOffsetS?.let { put("hit_offset_s", it); put("hit_source", r.hitSource!!); put("target_s", r.targetS!!) }
+                        put("timeline_start", r.timelineStart); put("timeline_end", r.timelineEnd)
+                    }
+                })
+            },
+            "mix.layers" to { a ->
+                app.epicreplay.core.mix.Mix.layers(a.getValue("storyboard").jsonObject, a.getValue("voice").jsonObject, a.getValue("pack").jsonObject, a.getValue("user_context").jsonObject, a.getValue("clip_meta").jsonObject)
             },
             "cells.layout" to { a ->
                 val l = ContactSheet.layout(a.getValue("width").jsonPrimitive.int, a.getValue("height").jsonPrimitive.int, a.getValue("count").jsonPrimitive.int)

@@ -22,15 +22,27 @@ import re
 import subprocess
 from pathlib import Path
 
+from epic_replay import contracts, paths
 from epic_replay.media import audio
 from epic_replay.stages.base import RunContext, StageResult
 from epic_replay.styles import loader
 
 MIX, MIX_JSON = "mix.wav", "mix.json"
-TARGET_LUFS, CEILING_DBTP = -14.0, -1.0
-LIMIT_MARGIN_DB = 1.0  # alimiter limits sample peaks, and AAC adds up to 0.6 dB in S10
-FMT = "aformat=sample_rates=48000:channel_layouts=stereo"
-DUCK = "sidechaincompress=threshold=0.02:ratio=8:attack=20:release=350:makeup=1"
+RULES = json.loads(
+    (paths.MIX / "rules.json").read_text("utf-8")
+)  # shared with the phone (spec 004, T416)
+assert not contracts.validate("mix_rules", RULES), "shared/mix/rules.json does not fit its schema"
+TARGET_LUFS, CEILING_DBTP = RULES["target_lufs"], RULES["ceiling_dbtp"]
+LIMIT_MARGIN_DB = RULES[
+    "limit_margin_db"
+]  # alimiter limits sample peaks, and AAC adds up to 0.6 dB in S10
+FMT = f"aformat=sample_rates={RULES['sample_rate']}:channel_layouts=stereo"
+FADE_IN_S, FADE_OUT_S = RULES["bed"]["fade_in_s"], RULES["bed"]["fade_out_s"]
+_D = RULES["duck"]
+DUCK = (
+    f"sidechaincompress=threshold={_D['threshold']}:ratio={_D['ratio']}:attack={_D['attack_ms']}"
+    f":release={_D['release_ms']}:makeup={_D['makeup']}"
+)
 
 
 def layers(sb: dict, voice: dict, pack: dict, uc: dict, meta: dict, run_dir: Path, assets: Path) -> list[dict]:  # fmt: skip
@@ -76,7 +88,7 @@ def graph(lys: list[dict], duration: float) -> tuple[list[str], str]:
         if ly["kind"] == "original":
             steps.insert(0, f"atrim={ly['in_s']}:{ly['out_s']},asetpts=PTS-STARTPTS")
         if ly.get("loop"):
-            steps.append(f"atrim=0:{duration},afade=t=in:d=0.5,afade=t=out:st={max(0.0, duration - 1)}:d=1")  # fmt: skip
+            steps.append(f"atrim=0:{duration},afade=t=in:d={FADE_IN_S},afade=t=out:st={max(0.0, duration - FADE_OUT_S)}:d={FADE_OUT_S}")  # fmt: skip
         steps.append(f"volume={ly['gain_db']}dB")
         ms = int(round(ly["start"] * 1000))
         if ms:

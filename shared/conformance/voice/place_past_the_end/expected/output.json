@@ -1,0 +1,27 @@
+[
+  {
+    "id": "l1",
+    "role": "replay_climax",
+    "file": "voice/l1.wav",
+    "raw_duration_s": 2.0,
+    "speed_factor": 1.0,
+    "duration_s": 2.0,
+    "dropped": null,
+    "hit_offset_s": 0.45,
+    "hit_source": "timing",
+    "target_s": 22.55,
+    "timeline_start": 22.1,
+    "timeline_end": 24.1
+  },
+  {
+    "id": "l2",
+    "role": "sign_off",
+    "file": "voice/l2.wav",
+    "raw_duration_s": 1.4,
+    "speed_factor": 1.0,
+    "duration_s": 1.4,
+    "dropped": "would run past the end of the video",
+    "timeline_start": 27.9,
+    "timeline_end": 29.3
+  }
+]

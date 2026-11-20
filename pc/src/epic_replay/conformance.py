@@ -15,7 +15,13 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
-from epic_replay import conformance_backend, conformance_consent, conformance_signals, paths
+from epic_replay import (
+    conformance_backend,
+    conformance_consent,
+    conformance_signals,
+    conformance_voice,
+    paths,
+)
 from epic_replay.guards import lexicon, lexicon_zh
 from epic_replay.media import contact_sheet
 from epic_replay.stages import s4_storyboard, s6_checks
@@ -108,6 +114,9 @@ FUNCTIONS: dict[str, Callable[..., Any]] = {
     "consent.blocks": conformance_consent.blocks,
     "consent.covers": conformance_consent.covers,
     "signals.scan": conformance_signals.scan,
+    "voice.word_start": conformance_voice.word_start,
+    "voice.place": conformance_voice.place,
+    "mix.layers": conformance_voice.layers,
 }
 
 

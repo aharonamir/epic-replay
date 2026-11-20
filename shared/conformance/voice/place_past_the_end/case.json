@@ -1,0 +1,58 @@
+{
+  "area": "voice",
+  "function": "voice.place",
+  "language": null,
+  "description": "A line that would end after the video is dropped; a key line never is.",
+  "tolerance_s": 0.001,
+  "inputs": {
+    "lines": {
+      "value": [
+        {
+          "id": "l1",
+          "role": "replay_climax",
+          "max_duration_s": 3.5,
+          "anchor": {
+            "type": "hit_at",
+            "timeline_t": 22.4,
+            "event_id": null
+          }
+        },
+        {
+          "id": "l2",
+          "role": "sign_off",
+          "max_duration_s": 1.6,
+          "anchor": {
+            "type": "start_at",
+            "timeline_t": 27.9,
+            "event_id": null
+          }
+        }
+      ]
+    },
+    "takes": {
+      "value": [
+        {
+          "raw_duration_s": 2.0,
+          "lead_s": 0.05,
+          "onset_s": 0.1,
+          "word_at_s": 0.5
+        },
+        {
+          "raw_duration_s": 1.4,
+          "lead_s": 0.05,
+          "onset_s": null,
+          "word_at_s": null
+        }
+      ]
+    },
+    "delay": {
+      "value": 0.15
+    },
+    "end": {
+      "value": 28.9
+    }
+  },
+  "expected": {
+    "file": "expected/output.json"
+  }
+}

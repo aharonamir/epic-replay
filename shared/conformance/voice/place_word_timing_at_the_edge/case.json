@@ -1,0 +1,57 @@
+{
+  "area": "voice",
+  "function": "voice.place",
+  "language": null,
+  "description": "A word timing exactly at the end of the trimmed take is outside it: the first onset is used.",
+  "tolerance_s": 0.001,
+  "inputs": {
+    "lines": {
+      "value": [
+        {
+          "id": "l1",
+          "role": "climax",
+          "max_duration_s": 2.0,
+          "anchor": {
+            "type": "hit_at",
+            "timeline_t": 11.433,
+            "event_id": null
+          }
+        }
+      ]
+    },
+    "takes": {
+      "value": [
+        {
+          "raw_duration_s": 1.2,
+          "lead_s": 0.3,
+          "onset_s": 0.11,
+          "word_at_s": 1.5
+        }
+      ]
+    },
+    "delay": {
+      "value": 0.15
+    },
+    "end": {
+      "value": 28.9
+    }
+  },
+  "expected": {
+    "value": [
+      {
+        "id": "l1",
+        "role": "climax",
+        "file": "voice/l1.wav",
+        "raw_duration_s": 1.2,
+        "speed_factor": 1.0,
+        "duration_s": 1.2,
+        "dropped": null,
+        "hit_offset_s": 0.11,
+        "hit_source": "onset",
+        "target_s": 11.583,
+        "timeline_start": 11.473,
+        "timeline_end": 12.673
+      }
+    ]
+  }
+}

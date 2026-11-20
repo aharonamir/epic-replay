@@ -1,0 +1,58 @@
+{
+  "area": "voice",
+  "function": "voice.place",
+  "language": null,
+  "description": "A word timing outside the take (before the trimmed start, or past its end) falls back to the first onset.",
+  "tolerance_s": 0.001,
+  "inputs": {
+    "lines": {
+      "value": [
+        {
+          "id": "l1",
+          "role": "climax",
+          "max_duration_s": 2.0,
+          "anchor": {
+            "type": "hit_at",
+            "timeline_t": 11.433,
+            "event_id": null
+          }
+        },
+        {
+          "id": "l2",
+          "role": "replay_climax",
+          "max_duration_s": 3.5,
+          "anchor": {
+            "type": "hit_at",
+            "timeline_t": 22.4,
+            "event_id": null
+          }
+        }
+      ]
+    },
+    "takes": {
+      "value": [
+        {
+          "raw_duration_s": 1.2,
+          "lead_s": 0.3,
+          "onset_s": 0.11,
+          "word_at_s": 0.1
+        },
+        {
+          "raw_duration_s": 2.0,
+          "lead_s": 0.05,
+          "onset_s": 0.2,
+          "word_at_s": 2.5
+        }
+      ]
+    },
+    "delay": {
+      "value": 0.15
+    },
+    "end": {
+      "value": 28.9
+    }
+  },
+  "expected": {
+    "file": "expected/output.json"
+  }
+}

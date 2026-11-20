@@ -1,0 +1,49 @@
+[
+  {
+    "id": "l1",
+    "role": "opening",
+    "file": "voice/l1.wav",
+    "raw_duration_s": 2.6,
+    "speed_factor": 1.0,
+    "duration_s": 2.6,
+    "dropped": null,
+    "timeline_start": 9.0,
+    "timeline_end": 11.6
+  },
+  {
+    "id": "l2",
+    "role": "build_up",
+    "file": "voice/l2.wav",
+    "raw_duration_s": 1.55,
+    "speed_factor": 1.0668,
+    "duration_s": 1.453,
+    "dropped": null,
+    "timeline_start": 9.9,
+    "timeline_end": 11.353
+  },
+  {
+    "id": "l3",
+    "role": "climax",
+    "file": "voice/l3.wav",
+    "raw_duration_s": 1.1,
+    "speed_factor": 1.0,
+    "duration_s": 1.1,
+    "dropped": null,
+    "hit_offset_s": 0.12,
+    "hit_source": "onset",
+    "target_s": 11.583,
+    "timeline_start": 11.463,
+    "timeline_end": 12.563
+  },
+  {
+    "id": "l4",
+    "role": "reaction",
+    "file": "voice/l4.wav",
+    "raw_duration_s": 0.8,
+    "speed_factor": 1.0,
+    "duration_s": 0.8,
+    "dropped": null,
+    "timeline_start": 13.683,
+    "timeline_end": 14.483
+  }
+]

@@ -760,9 +760,298 @@ def checks_more_cases() -> dict[str, dict]:
     }
 
 
+def voice_cases() -> dict[str, dict]:
+    """Added in T416: where S7 puts each take, and the word timings it reads (stages/s7_voice.py)."""
+    from epic_replay.providers.speech import tagged
+
+    def aligned(text, delivery="", cut=None):
+        sent = tagged(text, delivery)
+        return {"chars": sent, "starts": [round(i * 0.05, 3) for i in range(len(sent))]}
+
+    def call(text, word, language="en", delivery="measured, expectant", alignment="ok"):
+        al = aligned(text, delivery) if alignment == "ok" else alignment
+        return {
+            "alignment": al,
+            "delivery": delivery,
+            "text": text,
+            "word": word,
+            "language": language,
+        }
+
+    def line(i, role, t, max_s, kind="start_at", text=""):
+        return {"id": f"l{i}", "role": role, "max_duration_s": max_s,
+                "anchor": {"type": kind, "timeline_t": t, "event_id": None}}  # fmt: skip
+
+    def take(raw, lead=0.05, onset=None, word_at=None):
+        return {"raw_duration_s": raw, "lead_s": lead, "onset_s": onset, "word_at_s": word_at}
+
+    sample_lines = [
+        line(1, "opening", 1.3, 4.0), line(2, "build_up", 9.433, 1.6), line(3, "climax", 11.433, 2.0, "hit_at"),
+        line(4, "reaction", 13.683, 1.6), line(5, "replay_watch", 16.9, 3.5),
+        line(6, "replay_climax", 22.4, 3.5, "hit_at"), line(7, "sign_off", 26.7, 1.6),
+    ]  # fmt: skip
+
+    def place(desc, lines, takes, delay=0.15, end=28.9):
+        return {"area": "voice", "function": "voice.place", "language": None, "description": desc,
+                "tolerance_s": 0.001,
+                "inputs": {"lines": value(lines), "takes": value(takes), "delay": value(delay), "end": value(end)}}  # fmt: skip
+
+    def words(desc, lang, calls):
+        return {"area": "voice", "function": "voice.word_start", "language": lang, "description": desc,
+                "tolerance_s": 0.0001, "inputs": {"calls": value(calls)}}  # fmt: skip
+
+    fits = [
+        take(2.9),
+        take(0.9),
+        take(1.1, onset=0.12),
+        take(0.8),
+        take(3.2),
+        take(2.6, onset=0.2, word_at=0.62),
+        take(1.1),
+    ]
+    return {
+        "place_sample_run": place(
+            "Every take fits: the key lines land on their markers by the first onset and by a word's timing.",
+            sample_lines,
+            fits,
+        ),
+        "place_a_long_take_is_sped_up": place(
+            "A take 8 percent over its slot is played faster to fit; the key line keeps its place.",
+            sample_lines,
+            [take(3.0), take(1.7), *fits[2:]],
+        ),
+        "place_too_long_is_dropped_key_runs_over": place(
+            "A take over 12 percent too long is dropped; a key line that is too long is kept and runs over.",
+            sample_lines,
+            [
+                take(5.5),
+                take(0.9),
+                take(2.6, onset=0.12),
+                take(0.8),
+                take(3.2),
+                take(4.6, onset=0.2, word_at=0.62),
+                take(1.1),
+            ],
+        ),
+        "place_line_before_the_key_line": place(
+            "A line that would run into the key line is sped up to end 0.1 s before it, or dropped when that is not enough.",
+            [
+                line(1, "opening", 9.0, 4.0),
+                line(2, "build_up", 9.9, 1.6),
+                line(3, "climax", 11.433, 2.0, "hit_at"),
+                line(4, "reaction", 13.683, 1.6),
+            ],
+            [take(2.6), take(1.55), take(1.1, onset=0.12), take(0.8)],
+        ),
+        "place_line_after_the_key_line": place(
+            "A line that would start under the key line before it is dropped.",
+            [
+                line(1, "climax", 11.433, 2.0, "hit_at"),
+                line(2, "reaction", 12.0, 1.6),
+                line(3, "sign_off", 14.0, 1.6),
+            ],
+            [take(1.9, onset=0.1), take(1.0), take(1.0)],
+        ),
+        "place_past_the_end": place(
+            "A line that would end after the video is dropped; a key line never is.",
+            [line(1, "replay_climax", 22.4, 3.5, "hit_at"), line(2, "sign_off", 27.9, 1.6)],
+            [take(2.0, onset=0.1, word_at=0.5), take(1.4)],
+            end=28.9,
+        ),
+        "place_the_pad_is_cut": place(
+            "A take that overshoots its slot by under the encoder's 0.02 s pad after the 12 percent is cut at the slot's end and kept.",
+            [line(1, "opening", 1.3, 4.0), line(2, "sign_off", 26.7, 1.6)],
+            [take(4.5), take(1.1)],
+        ),
+        "place_word_timing_at_the_edge": place(
+            "A word timing exactly at the end of the trimmed take is outside it: the first onset is used.",
+            [line(1, "climax", 11.433, 2.0, "hit_at")],
+            [take(1.2, lead=0.3, onset=0.11, word_at=1.5)],
+        ),
+        "place_word_timing_at_the_start": place(
+            "A word timing exactly where the trimmed take starts is inside it.",
+            [line(1, "climax", 11.433, 2.0, "hit_at")],
+            [take(1.2, lead=0.3, onset=0.11, word_at=0.3)],
+        ),
+        "place_word_timing_out_of_range": place(
+            "A word timing outside the take (before the trimmed start, or past its end) falls back to the first onset.",
+            [
+                line(1, "climax", 11.433, 2.0, "hit_at"),
+                line(2, "replay_climax", 22.4, 3.5, "hit_at"),
+            ],
+            [take(1.2, lead=0.3, onset=0.11, word_at=0.1), take(2.0, onset=0.2, word_at=2.5)],
+        ),
+        "word_start_english": words(
+            "Where a word starts in the aligned take: whole words only, any case, the line's first word is left to the onset.",
+            "en",
+            [
+                call("TOP CORNER! What a strike.", "CORNER"),
+                call("TOP CORNER! What a strike.", "top"),
+                call("Noa shoots, it is in.", "shoots"),
+                call("He said she's in", "she"),
+                call("He said she's in", "she's"),
+                call("a bold move", "old"),
+                call("What a strike", "STRIKE"),
+                call("What a strike", "goal"),
+                call("What a strike", ""),
+                call("It's a goal. A goal!", "goal"),
+                call("Half past o'clock now", "clock"),
+                call('it\'s "goal" time', "goal"),
+            ],
+        ),
+        "word_start_no_usable_timing": words(
+            "No alignment, or one that is not over the text as sent, gives nothing.",
+            "en",
+            [
+                call("What a strike", "strike", alignment=None),
+                call("What a strike", "strike", alignment={"chars": "other", "starts": [0.0] * 5}),
+                call(
+                    "What a strike",
+                    "strike",
+                    alignment={
+                        "chars": tagged("What a strike", "measured, expectant"),
+                        "starts": [0.0, 0.1],
+                    },
+                ),
+                call("What a strike", "strike", delivery=""),
+                call("What a strike", "strike", delivery="shouting, full voice"),
+            ],
+        ),
+        "word_start_with_emoji": words(
+            "A character outside the Basic Multilingual Plane before the word counts as one position, in English and in Mandarin.",
+            "en",
+            [
+                call("\U0001f525 TOP CORNER \U0001f525 What a strike", "strike"),
+                call("What a \U0001f525\U0001f525 strike", "strike"),
+            ],
+        ),
+        "word_start_mandarin_with_emoji": words(
+            "The same in Mandarin: the position is counted in characters, not in UTF-16 units.",
+            "zh",
+            [call("\U0001f525进了，好球", "好球", "zh"), call("进了\U00020000好球", "好球", "zh")],
+        ),
+        "word_start_mandarin": words(
+            "Mandarin has no spaces: the word is found as a substring, and the first character leaves the work to the onset.",
+            "zh",
+            [
+                call("进了，好球", "好球", "zh"),
+                call("进了，好球", "进了", "zh"),
+                call("进了，好球", "没有", "zh"),
+                call("好球好球", "好球", "zh"),
+                call("太好了！", "好", "zh", delivery=""),
+                call("Noa进了", "进了", "zh"),
+            ],
+        ),
+    }
+
+
+def _repeat_segments() -> list[dict]:
+    """The sample storyboard's segments with a second live, transition and end card, each differing from the first."""
+    segs = json.loads((paths.SAMPLE_RUN / "storyboard.json").read_text())["segments"]
+    extra = [
+        {**s, "id": s["id"] + "b", "timeline_start": round(s["timeline_start"] + 0.5, 3), "source": s["source"] and {"in_s": 1.0, "out_s": 2.0}}
+        for s in segs if s["kind"] in ("live", "transition", "endcard")
+    ]  # fmt: skip
+    return [*segs, *extra]
+
+
+def mix_cases() -> dict[str, dict]:
+    """Added in T416: the layers S8 mixes, from the storyboard, the voice record and the pack (stages/s8_mix.py)."""
+    sb = sample("storyboard")
+    lines = [{"id": f"l{i}", "file": f"voice/l{i}.wav", "dropped": None, "timeline_start": t}
+             for i, t in enumerate([1.3, 9.433, 11.12, 13.683, 16.9, 22.2, 26.7], 1)]  # fmt: skip
+    voice = {
+        "lines": [
+            *lines[:3],
+            dict(lines[3], dropped="would start under the key line before it"),
+            *lines[4:],
+        ]
+    }
+
+    def case(desc, style, lang="en", uc=None, meta=None, storyboard=None, expected=None):
+        return {**({"expected": expected} if expected else {}), "area": "mix", "function": "mix.layers", "language": lang, "description": desc, "tolerance_s": 0.001,
+                "inputs": {"storyboard": storyboard or sb, "voice": value(voice),
+                           "pack": {"style": style, "language": lang},
+                           "user_context": sample("user_context", **({"merge_patch": uc} if uc else {})),
+                           "clip_meta": sample("clip_meta", **({"merge_patch": meta} if meta else {}))}}  # fmt: skip
+
+    return {
+        "layers_football": case(
+            "Voice lines that were not dropped, the bed, one-shots at their markers and the clip's own sound under the live segment.",
+            "football_commentator",
+        ),
+        "layers_nature_zh": case(
+            "The same for another pack in Mandarin.", "nature_documentary", "zh"
+        ),
+        "layers_news": case("The same for the third pack.", "news_reporter"),
+        "layers_original_audio_by_default": case(
+            "A user context with no `keep_original_audio` keeps the clip's own sound.",
+            "football_commentator",
+            uc={"keep_original_audio": None},
+            expected={"file": "../layers_football/expected/output.json"},
+        ),
+        "layers_repeated_segment_kinds": case(
+            "Two segments of one kind: the mix reads the last of each (a dictionary keyed by kind), unlike the slots.",
+            "football_commentator",
+            storyboard={
+                "fixture": "sample_run/storyboard.json",
+                "merge_patch": {"segments": _repeat_segments()},
+            },
+        ),
+        "layers_falsy_keep_original_audio": case(
+            "keep_original_audio 0 is false as Python reads it: no original layer.",
+            "football_commentator",
+            uc={"keep_original_audio": 0},
+            meta={"has_audio": 1},
+            expected={"file": "../layers_original_audio_off/expected/output.json"},
+        ),
+        "layers_falsy_has_audio": case(
+            "has_audio 0 is false as Python reads it: no original layer.",
+            "football_commentator",
+            uc={"keep_original_audio": 1},
+            meta={"has_audio": 0},
+            expected={"file": "../layers_original_audio_off/expected/output.json"},
+        ),
+        "layers_truthy_numbers": case(
+            "has_audio 1 and keep_original_audio 1 are true: the original layer is there.",
+            "football_commentator",
+            uc={"keep_original_audio": 1},
+            meta={"has_audio": 1},
+            expected={"file": "../layers_football/expected/output.json"},
+        ),
+        "layers_original_audio_off": case(
+            "The user turned the clip's own sound off: no original layer.",
+            "football_commentator",
+            uc={"keep_original_audio": False},
+        ),
+        "layers_clip_has_no_sound": case(
+            "The clip has no sound: no original layer, the same layers as with the user's sound turned off.",
+            "football_commentator",
+            meta={"has_audio": False},
+            expected={"file": "../layers_original_audio_off/expected/output.json"},
+        ),
+        "layers_without_a_replay_or_end_card": case(
+            "A storyboard with no transition or end card: those one-shots are left out.",
+            "football_commentator",
+            storyboard={
+                "fixture": "sample_run/storyboard.json",
+                "merge_patch": {
+                    "segments": [
+                        s
+                        for s in json.loads((paths.SAMPLE_RUN / "storyboard.json").read_text())[
+                            "segments"
+                        ]
+                        if s["kind"] in ("title", "live", "replay")
+                    ]
+                },
+            },
+        ),
+    }
+
+
 def all_cases() -> dict[str, dict]:
     out = {}
-    for make in (storyboard_cases, slots_cases, checks_cases, lexicon_cases, units_cases, cells_cases, cell_layout_cases, backend_cases, budget_cases, consent_cases, signals_cases, checks_more_cases):  # fmt: skip
+    for make in (storyboard_cases, slots_cases, checks_cases, lexicon_cases, units_cases, cells_cases, cell_layout_cases, backend_cases, budget_cases, consent_cases, signals_cases, checks_more_cases, voice_cases, mix_cases):  # fmt: skip
         for name, case in make().items():
             out[f"{case['area']}/{name}"] = case
     return out

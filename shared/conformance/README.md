@@ -15,7 +15,7 @@ shared/conformance/<area>/<case>/expected/output.json   when the output is large
 
 | Key | Meaning |
 |---|---|
-| `area` | One of the ten areas below; the folder the case sits in |
+| `area` | One of the twelve areas below; the folder the case sits in |
 | `function` | The rule under test, by the platform-neutral name in the table below |
 | `language` | `en`, `zh`, or `null` when the rule has no language |
 | `description` | What the case shows |
@@ -64,6 +64,9 @@ Compare the platform's output, as JSON, with the expected value: objects by key 
 | `cells.narrow` | `start_s`, `end_s`, `fps`, `n_frames`, `picks` | the frame numbers of each contact sheet: the first over the window, then one more for each picked cell (1 to 9) | `media.contact_sheet.sheet_frames`, `refine` |
 | `cells.layout` | `width`, `height`, `count` | the geometry of a contact sheet of `count` frames of that size: `cell_w`, `cell_h` (rounded half to even, as Python's `round`), `rows`, `width`, `height` and where and how large each cell's number is drawn (`label_x`, `label_y`, `label_scale`, `label_thickness`) | `media.contact_sheet.layout` |
 | `signals.scan` | `recipe`, `top`, `min_score` | what the signal scan finds in a synthetic clip: `has_sound`, `frames`, `cuts_t`, `onsets_t`, `loud_peaks_t` and the `candidates` scoring at least `min_score`, in time order, each `{t, sound_onset_t}`. The recipe draws the clip with integers only (below) | `stages.s1_signals.scan_signals`, on the frames and samples the recipe draws |
+| `voice.word_start` | `calls`: each `{alignment, delivery, text, word, language}` | for each call, where `word` starts in the raw take, from the provider's character timings (a number), or `null`: no alignment, one that is not over the text as sent (`[tag] ` for each comma-separated delivery tag, then the text), a word not found as a whole word (English: any case, no letter, digit, `_` or `'` beside it; Mandarin: a substring). Positions count characters, not UTF-16 units. Case is folded as Java folds it: the few extra equivalences of Python's `re.IGNORECASE` (ı, İ, ſ, the Kelvin sign) are not ported, as a hit word is an ordinary word of the script, or the line's first word | `stages.s7_voice.word_start` |
+| `voice.place` | `lines`, `takes`, `delay`, `end` | for each line the S7 record: speed factor, duration, `dropped` (or null), for a key line `hit_offset_s`, `hit_source`, `target_s` and `over_s`, then `timeline_start` and `timeline_end`. The take's length after speeding up is the audio library's on a real run; the cases use one model, written under the table | `stages.s7_voice.place` |
+| `mix.layers` | `storyboard`, `voice`, `pack`, `user_context`, `clip_meta` | the layers of the mix in order (voice lines not dropped, the bed, the one-shots, the clip's own sound), with the folders written `run/` and `assets/` | `stages.s8_mix.layers` |
 
 The matching rules behind `lexicon.scan` and `checks.text` are written out in `shared/lexicons/README.md`. The `detail` strings of the checks are English text and are part of the expected output.
 
@@ -82,6 +85,12 @@ The matching rules behind `lexicon.scan` and `checks.text` are written out in `s
 | `consent` | the words for each of the 16 pairs of places; whether a consent covers a run, for every recorded pair against every run pair; records with no places, an unknown place, an old wording, no confirmation |
 
 | `signals` | a strike with and without a thud; a thud alone; two strikes (the quieter thud is no loud peak); a hard cut; a panning camera; a thud with nothing moving (T413) |
+| `voice` | where each take goes: every take fits; a long take sped up; too long (dropped, or a key line kept and running over); a line in the key line's way; a line after it; a line past the video's end; a word timing outside the take, at its edges; the pad cut; the words' start times in English, Mandarin, past an emoji and with no usable timing (T416) |
+| `mix` | the layers for each of the three packs, in Mandarin, with the user's or the clip's sound off, as Python reads numbers as true or false, with no replay or end card, with repeated segment kinds (T416) |
+
+### The take's length after speeding up (`voice.place`)
+
+A take that plays `factor` times faster lasts `raw_duration_s / factor`, to the millisecond (rounded half to even). `factor` is 1 when the take fits its slot, else the smaller of 1.12 and `raw / max(slot - 0.01, 0.001)`, to four places. A faster take that ends up longer than the slot by at most 0.02 s (the encoder's pad) is cut at the slot's end. On a real run the audio library measures the file instead; the cases fix this model so every platform places from the same numbers. The inputs of a key line also carry `onset_s` (its first strong sound, in the fitted take) and `word_at_s` (the hit word's start in the raw take, already moved to the nearest rise, or null).
 
 ### The synthetic clip (`signals.scan`)
 

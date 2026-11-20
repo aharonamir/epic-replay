@@ -1,0 +1,30 @@
+[
+  {
+    "id": "l1",
+    "role": "climax",
+    "file": "voice/l1.wav",
+    "raw_duration_s": 1.2,
+    "speed_factor": 1.0,
+    "duration_s": 1.2,
+    "dropped": null,
+    "hit_offset_s": 0.11,
+    "hit_source": "onset",
+    "target_s": 11.583,
+    "timeline_start": 11.473,
+    "timeline_end": 12.673
+  },
+  {
+    "id": "l2",
+    "role": "replay_climax",
+    "file": "voice/l2.wav",
+    "raw_duration_s": 2.0,
+    "speed_factor": 1.0,
+    "duration_s": 2.0,
+    "dropped": null,
+    "hit_offset_s": 0.2,
+    "hit_source": "onset",
+    "target_s": 22.55,
+    "timeline_start": 22.35,
+    "timeline_end": 24.35
+  }
+]
