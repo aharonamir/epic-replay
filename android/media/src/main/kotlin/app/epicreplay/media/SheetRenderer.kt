@@ -21,7 +21,7 @@ class ClipSheetRenderer(private val path: String, private val fps: Double) : She
     private val retriever = MediaMetadataRetriever().apply { setDataSource(path) }
 
     override fun render(frames: List<Int>): RenderedSheet {
-        val got = frames.mapNotNull { f -> retriever.getFrameAtIndex(f)?.let { f to it } }
+        val got = frames.mapNotNull { f -> frameOrNull(f)?.let { f to it } }
         val cellW = ContactSheet.CELL_W
         require(got.isNotEmpty()) { "none of the frames $frames could be read from $path" }
         val first = got.first().second
@@ -51,6 +51,9 @@ class ClipSheetRenderer(private val path: String, private val fps: Double) : She
         sheet.recycle()
         return RenderedSheet(out.toByteArray(), got.mapIndexed { k, (f, _) -> RenderedSheet.Cell(k + 1, f, Math.round(f / fps * 1000) / 1000.0) })
     }
+
+    /** A frame the decoder cannot give (an index past the end throws on Android, where OpenCV returns nothing) is left out. */
+    private fun frameOrNull(f: Int): Bitmap? = try { retriever.getFrameAtIndex(f) } catch (e: IllegalArgumentException) { null }
 
     /** Halve the picture while it is more than twice the target, then filter the last step: close to OpenCV's INTER_AREA (a plain filtered draw of a 1080p frame into 448 px skips pixels). */
     private fun shrink(src: Bitmap, w: Int, h: Int): Bitmap {
