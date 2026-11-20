@@ -389,101 +389,71 @@
               "first_grid": 1,
               "first_cell": 1,
               "last_grid": 1,
-              "last_cell": 3,
-              "actor": "player in black",
-              "action": "takes a free kick toward goal",
-              "outcome": "ball is airborne near the goal"
-            },
-            {
-              "first_grid": 1,
-              "first_cell": 4,
-              "last_grid": 1,
-              "last_cell": 5,
-              "actor": "players in white and dark blue",
-              "action": "contest a high ball in the penalty area while a goalkeeper in green waits",
+              "last_cell": 4,
+              "actor": "person in grey t-shirt and shorts",
+              "action": "sits on the windowsill and shifts position",
               "outcome": ""
             },
             {
               "first_grid": 1,
-              "first_cell": 6,
+              "first_cell": 5,
               "last_grid": 1,
-              "last_cell": 7,
-              "actor": "player in pink and white",
-              "action": "takes a free kick",
-              "outcome": "ball moves toward the goal area"
+              "last_cell": 8,
+              "actor": "person in grey t-shirt and shorts",
+              "action": "leans forward and bends down toward the window opening",
+              "outcome": ""
             },
             {
               "first_grid": 1,
-              "first_cell": 8,
-              "last_grid": 1,
-              "last_cell": 9,
-              "actor": "player in black",
-              "action": "takes a free kick",
-              "outcome": "ball flies toward the crowded penalty area"
-            },
-            {
-              "first_grid": 2,
-              "first_cell": 1,
+              "first_cell": 9,
               "last_grid": 2,
-              "last_cell": 1,
-              "actor": "player in black",
-              "action": "prepares to take a free kick",
+              "last_cell": 2,
+              "actor": "person in grey t-shirt and shorts",
+              "action": "sits back upright on the windowsill",
               "outcome": ""
             },
             {
               "first_grid": 2,
-              "first_cell": 2,
+              "first_cell": 3,
               "last_grid": 2,
-              "last_cell": 9,
-              "actor": "player in pink",
-              "action": "takes a free kick over a yellow wall",
-              "outcome": "ball reaches the goal area and the goalkeeper dives"
+              "last_cell": 4,
+              "actor": "person in grey t-shirt and shorts",
+              "action": "tips backward and goes out through the window opening",
+              "outcome": "the window is empty in the following frames"
             }
           ],
-          "sure": 5
+          "sure": 8,
+          "sensitive": false,
+          "sensitive_reason": ""
         },
         "events": [
           {
             "t_start": 0.3,
-            "t_end": 2.0,
-            "actor": "player in black",
-            "action": "takes a free kick toward goal",
-            "outcome": "ball is airborne near the goal"
-          },
-          {
-            "t_start": 2.833,
-            "t_end": 3.7,
-            "actor": "players in white and dark blue",
-            "action": "contest a high ball in the penalty area while a goalkeeper in green waits",
+            "t_end": 2.833,
+            "actor": "person in grey t-shirt and shorts",
+            "action": "sits on the windowsill and shifts position",
             "outcome": null
           },
           {
-            "t_start": 4.533,
-            "t_end": 5.367,
-            "actor": "player in pink and white",
-            "action": "takes a free kick",
-            "outcome": "ball moves toward the goal area"
-          },
-          {
-            "t_start": 6.233,
-            "t_end": 7.067,
-            "actor": "player in black",
-            "action": "takes a free kick",
-            "outcome": "ball flies toward the crowded penalty area"
-          },
-          {
-            "t_start": 7.933,
-            "t_end": 7.933,
-            "actor": "player in black",
-            "action": "prepares to take a free kick",
+            "t_start": 3.7,
+            "t_end": 6.233,
+            "actor": "person in grey t-shirt and shorts",
+            "action": "leans forward and bends down toward the window opening",
             "outcome": null
           },
           {
-            "t_start": 8.767,
-            "t_end": 14.7,
-            "actor": "player in pink",
-            "action": "takes a free kick over a yellow wall",
-            "outcome": "ball reaches the goal area and the goalkeeper dives"
+            "t_start": 7.067,
+            "t_end": 8.767,
+            "actor": "person in grey t-shirt and shorts",
+            "action": "sits back upright on the windowsill",
+            "outcome": null
+          },
+          {
+            "t_start": 9.633,
+            "t_end": 10.467,
+            "actor": "person in grey t-shirt and shorts",
+            "action": "tips backward and goes out through the window opening",
+            "outcome": "the window is empty in the following frames"
           }
         ]
       }

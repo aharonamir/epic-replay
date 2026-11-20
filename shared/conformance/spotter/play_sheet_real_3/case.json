@@ -136,11 +136,11 @@
             }
           ],
           "answer": {
-            "activity": "A plastic water bottle is sitting on a concrete surface next to a white wall.",
-            "outcome": "The bottle remains stationary in the scene.",
-            "actor": "plastic water bottle",
-            "high_point_cell": 0,
-            "sure": 9
+            "activity": "basketball shooting practice: one player shoots toward the hoop while another watches",
+            "outcome": "the ball reaches the rim and appears to go in; play continues as the ball is retrieved",
+            "actor": "person in a grey top and blue jeans (shooter); person in black shirt and shorts also present",
+            "high_point_cell": 3,
+            "sure": 8
           }
         },
         {
@@ -194,10 +194,10 @@
             }
           ],
           "answer": {
-            "activity": "bouncing a ping pong ball with a paddle and trying to catch it in a plastic cup",
-            "outcome": "he brings the cup up quickly to catch the ball",
-            "actor": "man in a black patterned shirt and jeans",
-            "high_point_cell": 6,
+            "activity": "flipping pancakes on a griddle with a spatula",
+            "outcome": "the pancake is flipped and lands back on the griddle to keep cooking",
+            "actor": "a person wearing pink",
+            "high_point_cell": 5,
             "sure": 8
           }
         },
@@ -252,11 +252,11 @@
             }
           ],
           "answer": {
-            "activity": "A clear plastic water bottle stands motionless on a ledge in front of a white wall.",
-            "outcome": "Nothing changes; the bottle remains upright and in the same position.",
-            "actor": "water bottle",
-            "high_point_cell": 0,
-            "sure": 8
+            "activity": "A person in black clothing throws a long white object into a shop window during a riot, smashing the glass.",
+            "outcome": "The window shatters and the white object goes through, leaving broken glass and debris.",
+            "actor": "person in black clothing",
+            "high_point_cell": 7,
+            "sure": 9
           }
         },
         {
@@ -310,10 +310,10 @@
             }
           ],
           "answer": {
-            "activity": "A title card for a German Shepherd catching a ball appears",
-            "outcome": "The full title card is displayed; the actual catch is not shown",
-            "actor": "German Shepherd",
-            "high_point_cell": 0,
+            "activity": "corner kick in a football match",
+            "outcome": "the ball ends up in the goal and a goal is scored",
+            "actor": "footballers in yellow and pink shirts, with a light-blue goalkeeper",
+            "high_point_cell": 9,
             "sure": 7
           }
         },
@@ -368,10 +368,10 @@
             }
           ],
           "answer": {
-            "activity": "A soccer goalkeeper practicing a crossing drill, followed by game footage of a player jumping for a header",
-            "outcome": "The player jumps and heads the ball during a match",
-            "actor": "Soccer players in black kits",
-            "high_point_cell": 7,
+            "activity": "sitting on an open windowsill and leaning forward/looking down",
+            "outcome": "she remains seated on the windowsill at the end of this part",
+            "actor": "person wearing a grey t-shirt and light-colored shorts",
+            "high_point_cell": 0,
             "sure": 8
           }
         }
@@ -387,48 +387,39 @@
           "events": [
             {
               "first_grid": 1,
-              "first_cell": 1,
+              "first_cell": 2,
               "last_grid": 1,
               "last_cell": 5,
-              "actor": "orange cat",
-              "action": "sits facing the toilet-paper wall",
-              "outcome": "waits"
+              "actor": "on-screen text",
+              "action": "displays a title card about dog skills and catching a ball",
+              "outcome": "title card stays on screen"
             },
             {
               "first_grid": 1,
               "first_cell": 6,
-              "last_grid": 1,
-              "last_cell": 7,
-              "actor": "dark cat",
-              "action": "appears above and climbs onto the toilet-paper wall",
-              "outcome": "stands on top"
-            },
-            {
-              "first_grid": 1,
-              "first_cell": 8,
-              "last_grid": 1,
-              "last_cell": 9,
-              "actor": "dark cat",
-              "action": "jumps down over the toilet-paper wall",
-              "outcome": "lands near the orange cat"
-            },
-            {
-              "first_grid": 1,
-              "first_cell": 9,
               "last_grid": 2,
               "last_cell": 1,
-              "actor": "dark cat",
-              "action": "walks past the orange cat toward the foreground",
-              "outcome": "moves closer to the camera"
+              "actor": "dog",
+              "action": "catches a ball",
+              "outcome": "ball is held in the dog's mouth"
             },
             {
               "first_grid": 2,
               "first_cell": 2,
               "last_grid": 2,
+              "last_cell": 5,
+              "actor": "dog",
+              "action": "stands while holding the ball",
+              "outcome": "dog keeps holding the ball"
+            },
+            {
+              "first_grid": 2,
+              "first_cell": 6,
+              "last_grid": 2,
               "last_cell": 9,
-              "actor": "dark cat",
-              "action": "in slow motion, climbs onto and leaps over the toilet-paper wall",
-              "outcome": "clears the wall"
+              "actor": "on-screen text",
+              "action": "shows THANK YOU and SUBSCRIBE",
+              "outcome": "video ends on the subscribe card"
             }
           ],
           "sure": 8,
@@ -437,39 +428,32 @@
         },
         "events": [
           {
-            "t_start": 0.3,
+            "t_start": 1.133,
             "t_end": 3.7,
-            "actor": "orange cat",
-            "action": "sits facing the toilet-paper wall",
-            "outcome": "waits"
+            "actor": "on-screen text",
+            "action": "displays a title card about dog skills and catching a ball",
+            "outcome": "title card stays on screen"
           },
           {
             "t_start": 4.533,
-            "t_end": 5.367,
-            "actor": "dark cat",
-            "action": "appears above and climbs onto the toilet-paper wall",
-            "outcome": "stands on top"
-          },
-          {
-            "t_start": 6.233,
-            "t_end": 7.067,
-            "actor": "dark cat",
-            "action": "jumps down over the toilet-paper wall",
-            "outcome": "lands near the orange cat"
-          },
-          {
-            "t_start": 7.067,
             "t_end": 7.933,
-            "actor": "dark cat",
-            "action": "walks past the orange cat toward the foreground",
-            "outcome": "moves closer to the camera"
+            "actor": "dog",
+            "action": "catches a ball",
+            "outcome": "ball is held in the dog's mouth"
           },
           {
             "t_start": 8.767,
+            "t_end": 11.3,
+            "actor": "dog",
+            "action": "stands while holding the ball",
+            "outcome": "dog keeps holding the ball"
+          },
+          {
+            "t_start": 12.167,
             "t_end": 14.7,
-            "actor": "dark cat",
-            "action": "in slow motion, climbs onto and leaps over the toilet-paper wall",
-            "outcome": "clears the wall"
+            "actor": "on-screen text",
+            "action": "shows THANK YOU and SUBSCRIBE",
+            "outcome": "video ends on the subscribe card"
           }
         ]
       }

@@ -4,83 +4,79 @@
     "run_id": "run-1",
     "mode": "specific",
     "activity": {
-      "value": "A person is shooting a basketball on an outdoor court.",
-      "confidence": 0.8,
+      "value": "A dog jumping, twisting, and playing on a sandy beach near the ocean.",
+      "confidence": 0.9,
       "source": "model"
     },
     "setting": "",
     "actors": [
       {
         "id": "a1",
-        "descriptor": "person in dark patterned shirt and red shoes",
+        "descriptor": "person",
         "role": "",
         "user_name": null,
         "followed": true
+      },
+      {
+        "id": "a2",
+        "descriptor": "person (hand only visible)",
+        "role": "",
+        "user_name": null,
+        "followed": false
       }
     ],
     "events": [
       {
         "id": "e1",
-        "t_start": 0.3,
-        "t_end": 2.0,
+        "t_start": 2.0,
+        "t_end": 11.3,
         "actor": "a1",
-        "action": "stands holding a clear plastic cup and a paddle, then extends the paddle toward the floor",
+        "action": "moves spatula under pancake on grate",
         "object": null,
         "outcome": null,
-        "confidence": 0.7,
+        "confidence": 1.0,
         "source": "model"
       },
       {
         "id": "e2",
         "t_start": 2.833,
-        "t_end": 3.7,
+        "t_end": 12.167,
         "actor": "a1",
-        "action": "bends down and scoops or reaches for the white ball with the paddle",
+        "action": "lifts first pancake from grate",
         "object": null,
-        "outcome": "ball contacts or rests at the paddle",
-        "confidence": 0.7,
+        "outcome": null,
+        "confidence": 1.0,
         "source": "model"
       },
       {
         "id": "e3",
-        "t_start": 4.533,
-        "t_end": 7.933,
+        "t_start": 3.7,
+        "t_end": 13.0,
         "actor": "a1",
-        "action": "flips the ball upward with the paddle and watches it rise",
+        "action": "places pancake onto new grate surface",
         "object": null,
-        "outcome": "ball goes high in the air",
-        "confidence": 0.7,
+        "outcome": null,
+        "confidence": 1.0,
         "source": "model"
       },
       {
         "id": "e4",
-        "t_start": 8.767,
-        "t_end": 12.167,
-        "actor": "a1",
-        "action": "raises the clear plastic cup toward the falling ball",
-        "object": null,
-        "outcome": "ball enters the cup",
-        "confidence": 0.7,
-        "source": "model"
-      },
-      {
-        "id": "e5",
-        "t_start": 13.0,
+        "t_start": 4.533,
         "t_end": 14.7,
-        "actor": "a1",
-        "action": "holds the cup upright with the ball inside",
+        "actor": "a2",
+        "action": "places second pancake onto grate",
         "object": null,
-        "outcome": "ball stays in the cup",
-        "confidence": 0.7,
+        "outcome": null,
+        "confidence": 1.0,
         "source": "model"
       }
     ],
     "climax": {
       "event_id": "e4",
-      "t": 10.067,
-      "frame": 302,
+      "t": 8.867,
+      "frame": 266,
       "method": "sheets",
-      "confidence": 0.48,
+      "confidence": 0.54,
       "candidates": [
         {
           "t": 10.367,
@@ -106,17 +102,12 @@
           "t": 13.3,
           "frame": 399,
           "reason": "S1 candidate: sudden motion and sound (score 11.0)"
-        },
-        {
-          "t": 5.367,
-          "frame": 161,
-          "reason": "the overview also saw a high point (o0_uniform.jpg)"
         }
       ]
     },
     "outcome_summary": {
-      "value": "The shot goes through the hoop and the ball drops through the net.",
-      "confidence": 0.8,
+      "value": "The dog lands from its jump and runs off across the beach.",
+      "confidence": 0.9,
       "source": "model"
     },
     "focus_box": null,
@@ -130,7 +121,7 @@
       "disagreed_fields": [],
       "escalated": false
     },
-    "overall_confidence": 0.48,
+    "overall_confidence": 0.54,
     "confirmed_by_user": false,
     "models": {
       "analysis": "deepseek-flash",

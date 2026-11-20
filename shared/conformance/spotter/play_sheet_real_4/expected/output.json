@@ -4,70 +4,63 @@
     "run_id": "run-1",
     "mode": "specific",
     "activity": {
-      "value": "flipping pancakes on a griddle",
-      "confidence": 0.9,
+      "value": "A person is flipping pancakes on a hot plate.",
+      "confidence": 1.0,
       "source": "model"
     },
     "setting": "",
     "actors": [
       {
         "id": "a1",
-        "descriptor": "person in grey shirt",
+        "descriptor": "person in dark patterned shirt and red shoes",
         "role": "",
         "user_name": null,
         "followed": true
-      },
-      {
-        "id": "a2",
-        "descriptor": "person in black shirt",
-        "role": "",
-        "user_name": null,
-        "followed": false
       }
     ],
     "events": [
       {
         "id": "e1",
         "t_start": 0.3,
-        "t_end": 2.833,
+        "t_end": 2.0,
         "actor": "a1",
-        "action": "dribbles and shoots the basketball toward the hoop",
+        "action": "stands holding a clear plastic cup and a paddle, then extends the paddle toward the floor",
         "object": null,
-        "outcome": "the ball reaches the hoop area",
-        "confidence": 0.6,
+        "outcome": null,
+        "confidence": 0.7,
         "source": "model"
       },
       {
         "id": "e2",
-        "t_start": 3.7,
+        "t_start": 2.833,
         "t_end": 3.7,
-        "actor": "a2",
-        "action": "catches/rebounds the basketball",
+        "actor": "a1",
+        "action": "bends down and scoops or reaches for the white ball with the paddle",
         "object": null,
-        "outcome": "the person in black shirt has the ball",
-        "confidence": 0.6,
+        "outcome": "ball contacts or rests at the paddle",
+        "confidence": 0.7,
         "source": "model"
       },
       {
         "id": "e3",
         "t_start": 4.533,
-        "t_end": 10.467,
+        "t_end": 7.933,
         "actor": "a1",
-        "action": "handles the ball and shoots again",
+        "action": "flips the ball upward with the paddle and watches it rise",
         "object": null,
-        "outcome": "the ball is in the air near the hoop",
-        "confidence": 0.6,
+        "outcome": "ball goes high in the air",
+        "confidence": 0.7,
         "source": "model"
       },
       {
         "id": "e4",
-        "t_start": 11.3,
+        "t_start": 8.767,
         "t_end": 12.167,
-        "actor": "a2",
-        "action": "catches/rebounds the ball and shoots",
+        "actor": "a1",
+        "action": "raises the clear plastic cup toward the falling ball",
         "object": null,
-        "outcome": "the ball is in the air",
-        "confidence": 0.6,
+        "outcome": "ball enters the cup",
+        "confidence": 0.7,
         "source": "model"
       },
       {
@@ -75,19 +68,19 @@
         "t_start": 13.0,
         "t_end": 14.7,
         "actor": "a1",
-        "action": "regains the ball and dribbles/holds it",
+        "action": "holds the cup upright with the ball inside",
         "object": null,
-        "outcome": "the person in grey shirt has the ball",
-        "confidence": 0.6,
+        "outcome": "ball stays in the cup",
+        "confidence": 0.7,
         "source": "model"
       }
     ],
     "climax": {
-      "event_id": "e5",
-      "t": 13.0,
-      "frame": 390,
+      "event_id": "e4",
+      "t": 8.867,
+      "frame": 266,
       "method": "sheets",
-      "confidence": 0.54,
+      "confidence": 0.6,
       "candidates": [
         {
           "t": 10.367,
@@ -115,15 +108,15 @@
           "reason": "S1 candidate: sudden motion and sound (score 11.0)"
         },
         {
-          "t": 11.567,
-          "frame": 347,
-          "reason": "the overview also saw a high point (o2_candidate.jpg)"
+          "t": 1.133,
+          "frame": 34,
+          "reason": "the overview also saw a high point (o0_uniform.jpg)"
         }
       ]
     },
     "outcome_summary": {
-      "value": "both pancakes are flipped and cooking golden-brown",
-      "confidence": 0.9,
+      "value": "The pancake flips successfully without burning or falling off the pan.",
+      "confidence": 1.0,
       "source": "model"
     },
     "focus_box": null,
@@ -137,7 +130,7 @@
       "disagreed_fields": [],
       "escalated": false
     },
-    "overall_confidence": 0.54,
+    "overall_confidence": 0.6,
     "confirmed_by_user": false,
     "models": {
       "analysis": "deepseek-flash",

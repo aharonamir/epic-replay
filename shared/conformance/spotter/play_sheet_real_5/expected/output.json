@@ -4,7 +4,7 @@
     "run_id": "run-1",
     "mode": "specific",
     "activity": {
-      "value": "Cooking pancakes on a griddle",
+      "value": "skateboarding across a paved area",
       "confidence": 0.9,
       "source": "model"
     },
@@ -12,14 +12,14 @@
     "actors": [
       {
         "id": "a1",
-        "descriptor": "on-screen text",
+        "descriptor": "orange cat",
         "role": "",
         "user_name": null,
         "followed": true
       },
       {
         "id": "a2",
-        "descriptor": "dog",
+        "descriptor": "dark cat",
         "role": "",
         "user_name": null,
         "followed": false
@@ -28,54 +28,65 @@
     "events": [
       {
         "id": "e1",
-        "t_start": 1.133,
-        "t_end": 3.7,
+        "t_start": 0.3,
+        "t_end": 7.067,
         "actor": "a1",
-        "action": "displays a title card about dog skills and catching a ball",
+        "action": "walks toward the stacked toilet paper wall and watches it",
         "object": null,
-        "outcome": "title card stays on screen",
+        "outcome": "stops in front of the barrier",
         "confidence": 0.8,
         "source": "model"
       },
       {
         "id": "e2",
-        "t_start": 4.533,
-        "t_end": 7.933,
+        "t_start": 7.933,
+        "t_end": 8.767,
         "actor": "a2",
-        "action": "catches a ball",
+        "action": "appears behind the toilet paper wall on the sofa and moves to the wall edge",
         "object": null,
-        "outcome": "ball is held in the dog's mouth",
+        "outcome": "prepares to climb the wall",
         "confidence": 0.8,
         "source": "model"
       },
       {
         "id": "e3",
         "t_start": 8.767,
-        "t_end": 11.3,
+        "t_end": 12.167,
         "actor": "a2",
-        "action": "stands while holding the ball",
+        "action": "climbs over the toilet paper wall and down to the floor",
         "object": null,
-        "outcome": "dog keeps holding the ball",
+        "outcome": "reaches the orange cat's side",
         "confidence": 0.8,
         "source": "model"
       },
       {
         "id": "e4",
         "t_start": 12.167,
-        "t_end": 14.7,
-        "actor": "a1",
-        "action": "shows THANK YOU and SUBSCRIBE",
+        "t_end": 13.867,
+        "actor": "a2",
+        "action": "approaches the orange cat",
         "object": null,
-        "outcome": "video ends on the subscribe card",
+        "outcome": "the cats come close and face each other",
+        "confidence": 0.8,
+        "source": "model"
+      },
+      {
+        "id": "e5",
+        "t_start": 13.867,
+        "t_end": 14.7,
+        "actor": "a2",
+        "action": "turns and walks past the orange cat",
+        "object": null,
+        "outcome": "moves away down the hallway",
         "confidence": 0.8,
         "source": "model"
       }
     ],
     "climax": {
-      "event_id": "e3",
-      "t": 10.367,
-      "frame": 311,
-      "method": "sheets+sound",
+      "event_id": "e1",
+      "t": 0.3,
+      "frame": 9,
+      "method": "sheets",
       "confidence": 0.54,
       "candidates": [
         {
@@ -104,14 +115,14 @@
           "reason": "S1 candidate: sudden motion and sound (score 11.0)"
         },
         {
-          "t": 7.067,
-          "frame": 212,
-          "reason": "the overview also saw a high point (o0_uniform.jpg)"
+          "t": 11.3,
+          "frame": 339,
+          "reason": "the overview also saw a high point (o1_uniform.jpg)"
         }
       ]
     },
     "outcome_summary": {
-      "value": "Two golden-brown pancakes are fully cooked and resting on the griddle",
+      "value": "the skateboarder exits the frame",
       "confidence": 0.9,
       "source": "model"
     },

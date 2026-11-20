@@ -387,89 +387,73 @@
           "events": [
             {
               "first_grid": 1,
-              "first_cell": 1,
-              "last_grid": 1,
-              "last_cell": 3,
-              "actor": "person in black patterned shirt and blue jeans",
-              "action": "holds a paddle and reaches out as a table tennis ball appears",
-              "outcome": "ball is near the paddle"
+              "first_cell": 3,
+              "last_grid": 2,
+              "last_cell": 5,
+              "actor": "person",
+              "action": "moves spatula under pancake on grate",
+              "outcome": ""
             },
             {
               "first_grid": 1,
               "first_cell": 4,
-              "last_grid": 1,
+              "last_grid": 2,
               "last_cell": 6,
-              "actor": "person in black patterned shirt and blue jeans",
-              "action": "bends low and swings the paddle to hit the ball upward",
-              "outcome": "ball rises above the paddle"
+              "actor": "person",
+              "action": "lifts first pancake from grate",
+              "outcome": ""
             },
             {
               "first_grid": 1,
-              "first_cell": 7,
-              "last_grid": 1,
-              "last_cell": 9,
-              "actor": "person in black patterned shirt and blue jeans",
-              "action": "continues hitting the ball with the paddle",
-              "outcome": "ball stays airborne"
-            },
-            {
-              "first_grid": 2,
-              "first_cell": 1,
-              "last_grid": 2,
-              "last_cell": 4,
-              "actor": "person in black patterned shirt and blue jeans",
-              "action": "raises a clear cup toward the falling ball",
-              "outcome": "ball reaches the cup"
-            },
-            {
-              "first_grid": 2,
               "first_cell": 5,
               "last_grid": 2,
+              "last_cell": 7,
+              "actor": "person",
+              "action": "places pancake onto new grate surface",
+              "outcome": ""
+            },
+            {
+              "first_grid": 1,
+              "first_cell": 6,
+              "last_grid": 2,
               "last_cell": 9,
-              "actor": "person in black patterned shirt and blue jeans",
-              "action": "holds the clear cup with the ball and lifts it up",
-              "outcome": "ball stays in the cup"
+              "actor": "person (hand only visible)",
+              "action": "places second pancake onto grate",
+              "outcome": ""
             }
           ],
-          "sure": 8,
+          "sure": 10,
           "sensitive": false,
           "sensitive_reason": ""
         },
         "events": [
           {
-            "t_start": 0.3,
-            "t_end": 2.0,
-            "actor": "person in black patterned shirt and blue jeans",
-            "action": "holds a paddle and reaches out as a table tennis ball appears",
-            "outcome": "ball is near the paddle"
+            "t_start": 2.0,
+            "t_end": 11.3,
+            "actor": "person",
+            "action": "moves spatula under pancake on grate",
+            "outcome": null
           },
           {
             "t_start": 2.833,
-            "t_end": 4.533,
-            "actor": "person in black patterned shirt and blue jeans",
-            "action": "bends low and swings the paddle to hit the ball upward",
-            "outcome": "ball rises above the paddle"
+            "t_end": 12.167,
+            "actor": "person",
+            "action": "lifts first pancake from grate",
+            "outcome": null
           },
           {
-            "t_start": 5.367,
-            "t_end": 7.067,
-            "actor": "person in black patterned shirt and blue jeans",
-            "action": "continues hitting the ball with the paddle",
-            "outcome": "ball stays airborne"
+            "t_start": 3.7,
+            "t_end": 13.0,
+            "actor": "person",
+            "action": "places pancake onto new grate surface",
+            "outcome": null
           },
           {
-            "t_start": 7.933,
-            "t_end": 10.467,
-            "actor": "person in black patterned shirt and blue jeans",
-            "action": "raises a clear cup toward the falling ball",
-            "outcome": "ball reaches the cup"
-          },
-          {
-            "t_start": 11.3,
+            "t_start": 4.533,
             "t_end": 14.7,
-            "actor": "person in black patterned shirt and blue jeans",
-            "action": "holds the clear cup with the ball and lifts it up",
-            "outcome": "ball stays in the cup"
+            "actor": "person (hand only visible)",
+            "action": "places second pancake onto grate",
+            "outcome": null
           }
         ]
       }

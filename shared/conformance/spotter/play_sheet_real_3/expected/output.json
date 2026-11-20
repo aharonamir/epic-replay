@@ -4,22 +4,22 @@
     "run_id": "run-1",
     "mode": "specific",
     "activity": {
-      "value": "A soccer goalkeeper practicing a crossing drill, followed by game footage of a player jumping for a header",
-      "confidence": 0.8,
+      "value": "A person in black clothing throws a long white object into a shop window during a riot, smashing the glass.",
+      "confidence": 0.9,
       "source": "model"
     },
     "setting": "",
     "actors": [
       {
         "id": "a1",
-        "descriptor": "orange cat",
+        "descriptor": "on-screen text",
         "role": "",
         "user_name": null,
         "followed": true
       },
       {
         "id": "a2",
-        "descriptor": "dark cat",
+        "descriptor": "dog",
         "role": "",
         "user_name": null,
         "followed": false
@@ -28,66 +28,55 @@
     "events": [
       {
         "id": "e1",
-        "t_start": 0.3,
+        "t_start": 1.133,
         "t_end": 3.7,
         "actor": "a1",
-        "action": "sits facing the toilet-paper wall",
+        "action": "displays a title card about dog skills and catching a ball",
         "object": null,
-        "outcome": "waits",
+        "outcome": "title card stays on screen",
         "confidence": 0.8,
         "source": "model"
       },
       {
         "id": "e2",
         "t_start": 4.533,
-        "t_end": 5.367,
+        "t_end": 7.933,
         "actor": "a2",
-        "action": "appears above and climbs onto the toilet-paper wall",
+        "action": "catches a ball",
         "object": null,
-        "outcome": "stands on top",
+        "outcome": "ball is held in the dog's mouth",
         "confidence": 0.8,
         "source": "model"
       },
       {
         "id": "e3",
-        "t_start": 6.233,
-        "t_end": 7.067,
+        "t_start": 8.767,
+        "t_end": 11.3,
         "actor": "a2",
-        "action": "jumps down over the toilet-paper wall",
+        "action": "stands while holding the ball",
         "object": null,
-        "outcome": "lands near the orange cat",
+        "outcome": "dog keeps holding the ball",
         "confidence": 0.8,
         "source": "model"
       },
       {
         "id": "e4",
-        "t_start": 7.067,
-        "t_end": 7.933,
-        "actor": "a2",
-        "action": "walks past the orange cat toward the foreground",
-        "object": null,
-        "outcome": "moves closer to the camera",
-        "confidence": 0.8,
-        "source": "model"
-      },
-      {
-        "id": "e5",
-        "t_start": 8.767,
+        "t_start": 12.167,
         "t_end": 14.7,
-        "actor": "a2",
-        "action": "in slow motion, climbs onto and leaps over the toilet-paper wall",
+        "actor": "a1",
+        "action": "shows THANK YOU and SUBSCRIBE",
         "object": null,
-        "outcome": "clears the wall",
+        "outcome": "video ends on the subscribe card",
         "confidence": 0.8,
         "source": "model"
       }
     ],
     "climax": {
-      "event_id": "e2",
-      "t": 4.733,
-      "frame": 142,
+      "event_id": "e3",
+      "t": 11.2,
+      "frame": 336,
       "method": "sheets",
-      "confidence": 0.48,
+      "confidence": 0.54,
       "candidates": [
         {
           "t": 10.367,
@@ -113,17 +102,12 @@
           "t": 13.3,
           "frame": 399,
           "reason": "S1 candidate: sudden motion and sound (score 11.0)"
-        },
-        {
-          "t": 12.167,
-          "frame": 365,
-          "reason": "the overview also saw a high point (o1_uniform.jpg)"
         }
       ]
     },
     "outcome_summary": {
-      "value": "The player jumps and heads the ball during a match",
-      "confidence": 0.8,
+      "value": "The window shatters and the white object goes through, leaving broken glass and debris.",
+      "confidence": 0.9,
       "source": "model"
     },
     "focus_box": null,
@@ -137,7 +121,7 @@
       "disagreed_fields": [],
       "escalated": false
     },
-    "overall_confidence": 0.48,
+    "overall_confidence": 0.54,
     "confirmed_by_user": false,
     "models": {
       "analysis": "deepseek-flash",

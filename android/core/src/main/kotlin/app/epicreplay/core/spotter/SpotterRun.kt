@@ -1,7 +1,6 @@
 package app.epicreplay.core.spotter
 
 import app.epicreplay.core.models.LabeledImage
-import app.epicreplay.core.models.ModelBackend
 import app.epicreplay.core.models.ModelError
 import java.io.File
 import java.util.concurrent.atomic.AtomicInteger
@@ -25,6 +24,7 @@ class SpotterWords(private val data: JsonObject) {
     val overviewSchema: JsonObject get() = data.getValue("overview_schema").jsonObject
     val eventsQuestion: String get() = data.getValue("events_q").jsonPrimitive.content
     val eventsSchema: JsonObject get() = data.getValue("events_schema").jsonObject
+    val retryLine: String get() = data.getValue("retry_line").jsonPrimitive.content
 
     companion object {
         fun load(shared: File) = SpotterWords(Json.parseToJsonElement(File(shared, "copy/spotter.json").readText()).jsonObject)
@@ -46,9 +46,10 @@ class SpotterOutcome(val status: String, val note: String, val trace: JsonObject
 
 /**
  * S2 and S3 over a [ModelBackend] (plan 4.3 and 4.4): the five overview sheets and the events call sent together, each failure leaving
- * only its own call out, the limits in the code and not in the prompt, then the play sheet. [Spotter] holds the plain rules.
+ * only its own call out, the limits in the code and not in the prompt, then the play sheet. [Spotter] holds the plain rules and [VisionAdapter] the retry,
+ * the recordings and the caps. One instance is one stage run, as the PC's `SpotterTools` is: its call counters are for that run.
  */
-class SpotterRun(private val spotter: Spotter, private val backend: ModelBackend, private val words: SpotterWords, private val renderer: SheetRenderer) {
+class SpotterRun(private val spotter: Spotter, private val vision: VisionAdapter, private val words: SpotterWords, private val renderer: SheetRenderer) {
     private val sheetCalls = AtomicInteger()
     private val eventsCalls = AtomicInteger()
 
@@ -63,10 +64,14 @@ class SpotterRun(private val spotter: Spotter, private val backend: ModelBackend
         val kind = entry.getValue("kind"); val name = entry.getValue("name")
         refused(sheetCalls, MAX_SHEET_CALLS, "sheet")?.let { return buildJsonObject { put("kind", kind); put("name", name); put("refused", it) } }
         return try {
-            val r = backend.look(listOf(LabeledImage(null, drawn.jpeg)), words.overviewQuestion(entry.getValue("where").jsonPrimitive.content), words.overviewSchema, "high")
+            val request = buildJsonObject {
+                put("detail", "high"); put("schema", words.overviewSchema)
+                put("sheet_cells", JsonArray(drawn.cells.map { c -> buildJsonObject { put("cell", c.cell); put("frame", c.frame) } }))
+            }
+            val r = vision.ask(request, listOf(LabeledImage(null, drawn.jpeg)), words.overviewQuestion(entry.getValue("where").jsonPrimitive.content), words.overviewSchema, "high")
             buildJsonObject {
-                put("kind", kind); put("name", name); put("cells", cellsJson(drawn)); put("answer", r.data ?: JsonNull)
-                put("cost_usd", r.usd); put("latency_s", r.latencyS)
+                put("kind", kind); put("name", name); put("cells", cellsJson(drawn)); put("answer", r.data)
+                put("cost_usd", r.usd); put("latency_s", r.latencyS); put("cache_hit", r.cacheHit); put("attempts", r.attempts)
             }
         } catch (e: ModelError) {
             buildJsonObject { put("kind", kind); put("name", name); put("cells", cellsJson(drawn)); put("answer", JsonNull); put("left_out", leftOut(e)) }
@@ -77,12 +82,15 @@ class SpotterRun(private val spotter: Spotter, private val backend: ModelBackend
         refused(eventsCalls, MAX_EVENTS_CALLS, "events")?.let { return buildJsonObject { put("refused", it) } }
         val grids = JsonArray(entries.map { it.getValue("name") })
         return try {
-            val r = backend.look(drawn.mapIndexed { k, d -> LabeledImage("Grid ${k + 1}", d.jpeg) }, words.eventsQuestion, words.eventsSchema, "high")
-            val data = r.data
+            val request = buildJsonObject {
+                put("detail", "high"); put("schema", words.eventsSchema)
+                put("grids", JsonArray(drawn.map { d -> JsonArray(d.cells.map { c -> buildJsonObject { put("cell", c.cell); put("frame", c.frame) } }) }))
+            }
+            val r = vision.ask(request, drawn.mapIndexed { k, d -> LabeledImage("Grid ${k + 1}", d.jpeg) }, words.eventsQuestion, words.eventsSchema, "high")
             buildJsonObject {
-                put("grids", grids); put("answer", data ?: JsonNull)
-                put("events", if (data == null) JsonNull else JsonArray(spotter.mapEvents(data, drawn.map { d -> d.cells.map { c -> buildJsonObject { put("t", c.t) } } })))
-                put("cost_usd", r.usd); put("latency_s", r.latencyS)
+                put("grids", grids); put("answer", r.data)
+                put("events", JsonArray(spotter.mapEvents(r.data, drawn.map { d -> d.cells.map { c -> buildJsonObject { put("t", c.t) } } })))
+                put("cost_usd", r.usd); put("latency_s", r.latencyS); put("cache_hit", r.cacheHit); put("attempts", r.attempts)
             }
         } catch (e: ModelError) {
             buildJsonObject { put("grids", grids); put("answer", JsonNull); put("events", JsonNull); put("left_out", leftOut(e)) }

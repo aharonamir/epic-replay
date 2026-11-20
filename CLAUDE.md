@@ -29,3 +29,6 @@ shared/{contracts,styles,lexicons,assets,fixtures,conformance}/
 pc/{src/epic_replay,tests,tools,eval/spike}/   pc/{runs,demo}/ (local)   pc/.env (local)
 android/   specs/   docs/ (docs/archive/ = superseded notes)   eval/labels/   eval/clips/ (local)
 ```
+## Skill Usage Priority
+- **Visual and design quality takes precedence**: When Impeccable's design rules conflict with modern-web-guidance's technical recommendations, defer to Impeccable's visual intent.
+- **modern-web-guidance operates at the implementation layer**: Adopt its native API and best-practice suggestions only when they do **not compromise the visual style, motion, or layout intent already established by Impeccable**.

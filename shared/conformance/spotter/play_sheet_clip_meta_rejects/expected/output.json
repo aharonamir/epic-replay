@@ -12,103 +12,60 @@
     "actors": [
       {
         "id": "a1",
-        "descriptor": "player in black",
+        "descriptor": "person in grey t-shirt and shorts",
         "role": "",
         "user_name": null,
         "followed": true
-      },
-      {
-        "id": "a2",
-        "descriptor": "players in white and dark blue",
-        "role": "",
-        "user_name": null,
-        "followed": false
-      },
-      {
-        "id": "a3",
-        "descriptor": "player in pink and white",
-        "role": "",
-        "user_name": null,
-        "followed": false
-      },
-      {
-        "id": "a4",
-        "descriptor": "player in pink",
-        "role": "",
-        "user_name": null,
-        "followed": false
       }
     ],
     "events": [
       {
         "id": "e1",
         "t_start": 0.3,
-        "t_end": 2.0,
+        "t_end": 2.833,
         "actor": "a1",
-        "action": "takes a free kick toward goal",
+        "action": "sits on the windowsill and shifts position",
         "object": null,
-        "outcome": "ball is airborne near the goal",
-        "confidence": 0.5,
+        "outcome": null,
+        "confidence": 0.8,
         "source": "model"
       },
       {
         "id": "e2",
-        "t_start": 2.833,
-        "t_end": 3.7,
-        "actor": "a2",
-        "action": "contest a high ball in the penalty area while a goalkeeper in green waits",
+        "t_start": 3.7,
+        "t_end": 6.233,
+        "actor": "a1",
+        "action": "leans forward and bends down toward the window opening",
         "object": null,
         "outcome": null,
-        "confidence": 0.5,
+        "confidence": 0.8,
         "source": "model"
       },
       {
         "id": "e3",
-        "t_start": 4.533,
-        "t_end": 5.367,
-        "actor": "a3",
-        "action": "takes a free kick",
+        "t_start": 7.067,
+        "t_end": 8.767,
+        "actor": "a1",
+        "action": "sits back upright on the windowsill",
         "object": null,
-        "outcome": "ball moves toward the goal area",
-        "confidence": 0.5,
+        "outcome": null,
+        "confidence": 0.8,
         "source": "model"
       },
       {
         "id": "e4",
-        "t_start": 6.233,
-        "t_end": 7.067,
+        "t_start": 9.633,
+        "t_end": 10.467,
         "actor": "a1",
-        "action": "takes a free kick",
+        "action": "tips backward and goes out through the window opening",
         "object": null,
-        "outcome": "ball flies toward the crowded penalty area",
-        "confidence": 0.5,
-        "source": "model"
-      },
-      {
-        "id": "e5",
-        "t_start": 7.933,
-        "t_end": 7.933,
-        "actor": "a1",
-        "action": "prepares to take a free kick",
-        "object": null,
-        "outcome": null,
-        "confidence": 0.5,
-        "source": "model"
-      },
-      {
-        "id": "e6",
-        "t_start": 8.767,
-        "t_end": 14.7,
-        "actor": "a4",
-        "action": "takes a free kick over a yellow wall",
-        "object": null,
-        "outcome": "ball reaches the goal area and the goalkeeper dives",
-        "confidence": 0.5,
+        "outcome": "the window is empty in the following frames",
+        "confidence": 0.8,
         "source": "model"
       }
     ],
     "climax": {
-      "event_id": "e6",
+      "event_id": "e4",
       "t": 10.367,
       "frame": 311,
       "method": "sheets+sound",
@@ -171,10 +128,9 @@
   },
   "accepted": false,
   "errors": [
+    "event e2 lies outside the clip",
     "event e3 lies outside the clip",
     "event e4 lies outside the clip",
-    "event e5 lies outside the clip",
-    "event e6 lies outside the clip",
     "climax time outside the clip"
   ],
   "cleared": []

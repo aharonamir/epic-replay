@@ -19,7 +19,7 @@
       },
       {
         "id": "a2",
-        "descriptor": "clear water bottle with a blue label",
+        "descriptor": "person in blue overalls",
         "role": "",
         "user_name": null,
         "followed": false
@@ -28,51 +28,51 @@
     "events": [
       {
         "id": "e1",
-        "t_start": 1.133,
-        "t_end": 2.0,
+        "t_start": 0.3,
+        "t_end": 2.833,
         "actor": "a1",
-        "action": "stands upright on the patio beside the wall",
+        "action": "raises and holds a long pole saw up into the upper branches of a tree",
         "object": null,
-        "outcome": null,
+        "outcome": "the tool is positioned in the canopy",
         "confidence": 0.8,
         "source": "model"
       },
       {
         "id": "e2",
         "t_start": 3.7,
-        "t_end": 3.7,
+        "t_end": 8.767,
         "actor": "a2",
-        "action": "is airborne and tilted near the top of the wall",
+        "action": "moves the pole saw along the tree and works through the branches",
         "object": null,
-        "outcome": null,
+        "outcome": "the tool has moved from the upper branches toward the lower branches",
         "confidence": 0.8,
         "source": "model"
       },
       {
         "id": "e3",
-        "t_start": 4.533,
-        "t_end": 5.367,
+        "t_start": 9.633,
+        "t_end": 13.0,
         "actor": "a2",
-        "action": "lands on the patio and wobbles",
+        "action": "continues trimming along the side of the tree with the pole saw",
         "object": null,
-        "outcome": "settles upright",
+        "outcome": "the person works through the lower foliage",
         "confidence": 0.8,
         "source": "model"
       },
       {
         "id": "e4",
-        "t_start": 6.233,
+        "t_start": 13.867,
         "t_end": 14.7,
         "actor": "a2",
-        "action": "stays standing upright on the patio",
+        "action": "turns and steps sideways while holding the pole saw",
         "object": null,
-        "outcome": "remains upright",
+        "outcome": "the person ends beside the tree",
         "confidence": 0.8,
         "source": "model"
       }
     ],
     "climax": {
-      "event_id": "e4",
+      "event_id": "e3",
       "t": 10.367,
       "frame": 311,
       "method": "sheets+sound",

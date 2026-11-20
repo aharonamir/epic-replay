@@ -387,103 +387,89 @@
           "events": [
             {
               "first_grid": 1,
-              "first_cell": 2,
+              "first_cell": 1,
               "last_grid": 1,
-              "last_cell": 5,
-              "actor": "title text",
-              "action": "displays the German Shepherd Skills caption",
-              "outcome": ""
+              "last_cell": 9,
+              "actor": "orange cat",
+              "action": "walks toward the stacked toilet paper wall and watches it",
+              "outcome": "stops in front of the barrier"
             },
             {
-              "first_grid": 1,
-              "first_cell": 6,
-              "last_grid": 1,
-              "last_cell": 7,
-              "actor": "German Shepherd",
-              "action": "catches the ball",
-              "outcome": ""
-            },
-            {
-              "first_grid": 1,
-              "first_cell": 8,
+              "first_grid": 2,
+              "first_cell": 1,
               "last_grid": 2,
               "last_cell": 2,
-              "actor": "German Shepherd",
-              "action": "moves near the doorway with the ball",
-              "outcome": ""
+              "actor": "dark cat",
+              "action": "appears behind the toilet paper wall on the sofa and moves to the wall edge",
+              "outcome": "prepares to climb the wall"
             },
             {
               "first_grid": 2,
-              "first_cell": 3,
+              "first_cell": 2,
               "last_grid": 2,
-              "last_cell": 5,
-              "actor": "German Shepherd",
-              "action": "walks toward the camera",
-              "outcome": ""
+              "last_cell": 6,
+              "actor": "dark cat",
+              "action": "climbs over the toilet paper wall and down to the floor",
+              "outcome": "reaches the orange cat's side"
             },
             {
               "first_grid": 2,
               "first_cell": 6,
               "last_grid": 2,
-              "last_cell": 6,
-              "actor": "German Shepherd",
-              "action": "stands close to the camera as THANK YOU appears",
-              "outcome": "THANK YOU overlay shown"
+              "last_cell": 8,
+              "actor": "dark cat",
+              "action": "approaches the orange cat",
+              "outcome": "the cats come close and face each other"
             },
             {
               "first_grid": 2,
-              "first_cell": 7,
+              "first_cell": 8,
               "last_grid": 2,
-              "last_cell": 8,
-              "actor": "outro text",
-              "action": "displays THANK YOU and SUBSCRIBE messages",
-              "outcome": ""
+              "last_cell": 9,
+              "actor": "dark cat",
+              "action": "turns and walks past the orange cat",
+              "outcome": "moves away down the hallway"
             }
           ],
-          "sure": 7
+          "sure": 8,
+          "sensitive": false,
+          "sensitive_reason": ""
         },
         "events": [
           {
-            "t_start": 1.133,
-            "t_end": 3.7,
-            "actor": "title text",
-            "action": "displays the German Shepherd Skills caption",
-            "outcome": null
+            "t_start": 0.3,
+            "t_end": 7.067,
+            "actor": "orange cat",
+            "action": "walks toward the stacked toilet paper wall and watches it",
+            "outcome": "stops in front of the barrier"
           },
           {
-            "t_start": 4.533,
-            "t_end": 5.367,
-            "actor": "German Shepherd",
-            "action": "catches the ball",
-            "outcome": null
-          },
-          {
-            "t_start": 6.233,
+            "t_start": 7.933,
             "t_end": 8.767,
-            "actor": "German Shepherd",
-            "action": "moves near the doorway with the ball",
-            "outcome": null
+            "actor": "dark cat",
+            "action": "appears behind the toilet paper wall on the sofa and moves to the wall edge",
+            "outcome": "prepares to climb the wall"
           },
           {
-            "t_start": 9.633,
-            "t_end": 11.3,
-            "actor": "German Shepherd",
-            "action": "walks toward the camera",
-            "outcome": null
+            "t_start": 8.767,
+            "t_end": 12.167,
+            "actor": "dark cat",
+            "action": "climbs over the toilet paper wall and down to the floor",
+            "outcome": "reaches the orange cat's side"
           },
           {
             "t_start": 12.167,
-            "t_end": 12.167,
-            "actor": "German Shepherd",
-            "action": "stands close to the camera as THANK YOU appears",
-            "outcome": "THANK YOU overlay shown"
+            "t_end": 13.867,
+            "actor": "dark cat",
+            "action": "approaches the orange cat",
+            "outcome": "the cats come close and face each other"
           },
           {
-            "t_start": 13.0,
-            "t_end": 13.867,
-            "actor": "outro text",
-            "action": "displays THANK YOU and SUBSCRIBE messages",
-            "outcome": null
+            "t_start": 13.867,
+            "t_end": 14.7,
+            "actor": "dark cat",
+            "action": "turns and walks past the orange cat",
+            "outcome": "moves away down the hallway"
           }
         ]
       }

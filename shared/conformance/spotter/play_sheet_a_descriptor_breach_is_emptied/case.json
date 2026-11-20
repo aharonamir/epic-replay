@@ -387,39 +387,39 @@
           "events": [
             {
               "first_grid": 1,
-              "first_cell": 2,
+              "first_cell": 1,
               "last_grid": 1,
-              "last_cell": 3,
+              "last_cell": 4,
               "actor": "a young player",
-              "action": "stands upright on the patio beside the wall",
-              "outcome": ""
+              "action": "raises and holds a long pole saw up into the upper branches of a tree",
+              "outcome": "the tool is positioned in the canopy"
             },
             {
               "first_grid": 1,
               "first_cell": 5,
-              "last_grid": 1,
-              "last_cell": 5,
-              "actor": "clear water bottle with a blue label",
-              "action": "is airborne and tilted near the top of the wall",
-              "outcome": ""
+              "last_grid": 2,
+              "last_cell": 2,
+              "actor": "person in blue overalls",
+              "action": "moves the pole saw along the tree and works through the branches",
+              "outcome": "the tool has moved from the upper branches toward the lower branches"
             },
             {
-              "first_grid": 1,
-              "first_cell": 6,
-              "last_grid": 1,
+              "first_grid": 2,
+              "first_cell": 3,
+              "last_grid": 2,
               "last_cell": 7,
-              "actor": "clear water bottle with a blue label",
-              "action": "lands on the patio and wobbles",
-              "outcome": "settles upright"
+              "actor": "person in blue overalls",
+              "action": "continues trimming along the side of the tree with the pole saw",
+              "outcome": "the person works through the lower foliage"
             },
             {
-              "first_grid": 1,
+              "first_grid": 2,
               "first_cell": 8,
               "last_grid": 2,
               "last_cell": 9,
-              "actor": "clear water bottle with a blue label",
-              "action": "stays standing upright on the patio",
-              "outcome": "remains upright"
+              "actor": "person in blue overalls",
+              "action": "turns and steps sideways while holding the pole saw",
+              "outcome": "the person ends beside the tree"
             }
           ],
           "sure": 8,
@@ -428,32 +428,32 @@
         },
         "events": [
           {
-            "t_start": 1.133,
-            "t_end": 2.0,
+            "t_start": 0.3,
+            "t_end": 2.833,
             "actor": "a young player",
-            "action": "stands upright on the patio beside the wall",
-            "outcome": null
+            "action": "raises and holds a long pole saw up into the upper branches of a tree",
+            "outcome": "the tool is positioned in the canopy"
           },
           {
             "t_start": 3.7,
-            "t_end": 3.7,
-            "actor": "clear water bottle with a blue label",
-            "action": "is airborne and tilted near the top of the wall",
-            "outcome": null
+            "t_end": 8.767,
+            "actor": "person in blue overalls",
+            "action": "moves the pole saw along the tree and works through the branches",
+            "outcome": "the tool has moved from the upper branches toward the lower branches"
           },
           {
-            "t_start": 4.533,
-            "t_end": 5.367,
-            "actor": "clear water bottle with a blue label",
-            "action": "lands on the patio and wobbles",
-            "outcome": "settles upright"
+            "t_start": 9.633,
+            "t_end": 13.0,
+            "actor": "person in blue overalls",
+            "action": "continues trimming along the side of the tree with the pole saw",
+            "outcome": "the person works through the lower foliage"
           },
           {
-            "t_start": 6.233,
+            "t_start": 13.867,
             "t_end": 14.7,
-            "actor": "clear water bottle with a blue label",
-            "action": "stays standing upright on the patio",
-            "outcome": "remains upright"
+            "actor": "person in blue overalls",
+            "action": "turns and steps sideways while holding the pole saw",
+            "outcome": "the person ends beside the tree"
           }
         ]
       }

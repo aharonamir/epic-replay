@@ -4,7 +4,7 @@
     "run_id": "run-1",
     "mode": "specific",
     "activity": {
-      "value": "cooking flatbread on a griddle",
+      "value": "A person flips/tosses a plastic water bottle, attempting a bottle flip",
       "confidence": 0.9,
       "source": "model"
     },
@@ -12,14 +12,14 @@
     "actors": [
       {
         "id": "a1",
-        "descriptor": "goalkeeper in black kit with pink boots",
+        "descriptor": "orange cat",
         "role": "",
         "user_name": null,
         "followed": true
       },
       {
         "id": "a2",
-        "descriptor": "players in dark and white kits",
+        "descriptor": "dark cat",
         "role": "",
         "user_name": null,
         "followed": false
@@ -29,74 +29,63 @@
       {
         "id": "e1",
         "t_start": 0.3,
-        "t_end": 1.133,
+        "t_end": 3.7,
         "actor": "a1",
-        "action": "dives to save a ball in a solo diving drill",
+        "action": "sits facing the toilet-paper wall",
         "object": null,
-        "outcome": "ends holding the ball on the ground",
+        "outcome": "waits",
         "confidence": 0.8,
         "source": "model"
       },
       {
         "id": "e2",
-        "t_start": 2.0,
-        "t_end": 2.833,
-        "actor": "a1",
-        "action": "dives during a game diving phase",
+        "t_start": 4.533,
+        "t_end": 5.367,
+        "actor": "a2",
+        "action": "appears above and climbs onto the toilet-paper wall",
         "object": null,
-        "outcome": "ends lying on the grass after the dive",
+        "outcome": "stands on top",
         "confidence": 0.8,
         "source": "model"
       },
       {
         "id": "e3",
-        "t_start": 3.7,
-        "t_end": 4.533,
-        "actor": "a1",
-        "action": "practices catching/handling a cross in a solo crossing drill",
+        "t_start": 6.233,
+        "t_end": 7.067,
+        "actor": "a2",
+        "action": "jumps down over the toilet-paper wall",
         "object": null,
-        "outcome": "ends standing and holding the ball",
+        "outcome": "lands near the orange cat",
         "confidence": 0.8,
         "source": "model"
       },
       {
         "id": "e4",
-        "t_start": 5.367,
-        "t_end": 6.233,
+        "t_start": 7.067,
+        "t_end": 7.933,
         "actor": "a2",
-        "action": "contest a cross during a game crossing phase",
+        "action": "walks past the orange cat toward the foreground",
         "object": null,
-        "outcome": null,
+        "outcome": "moves closer to the camera",
         "confidence": 0.8,
         "source": "model"
       },
       {
         "id": "e5",
-        "t_start": 7.067,
-        "t_end": 9.633,
-        "actor": "a1",
-        "action": "holds/catches a yellow ball in a solo handling drill, then stands in a game handling phase",
-        "object": null,
-        "outcome": "ends with the goalkeeper facing play from behind",
-        "confidence": 0.8,
-        "source": "model"
-      },
-      {
-        "id": "e6",
-        "t_start": 10.467,
+        "t_start": 8.767,
         "t_end": 14.7,
-        "actor": "a1",
-        "action": "kicks a white ball in a solo distribution drill, then distributes during a game distribution phase",
+        "actor": "a2",
+        "action": "in slow motion, climbs onto and leaps over the toilet-paper wall",
         "object": null,
-        "outcome": "ends with the goalkeeper standing on the field and the ball in play",
+        "outcome": "clears the wall",
         "confidence": 0.8,
         "source": "model"
       }
     ],
     "climax": {
-      "event_id": "e6",
-      "t": 11.933,
-      "frame": 358,
+      "event_id": "e5",
+      "t": 10.8,
+      "frame": 324,
       "method": "sheets",
       "confidence": 0.54,
       "candidates": [
@@ -133,7 +122,7 @@
       ]
     },
     "outcome_summary": {
-      "value": "the flatbread is flipped",
+      "value": "The bottle lands upright on the ground and stays standing",
       "confidence": 0.9,
       "source": "model"
     },

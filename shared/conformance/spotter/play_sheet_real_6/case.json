@@ -136,11 +136,11 @@
             }
           ],
           "answer": {
-            "activity": "cooking naan",
-            "outcome": "lifting the flatbread off the griddle and flipping it over.",
-            "actor": "hand wearing a beige glove",
-            "high_point_cell": 7,
-            "sure": 8
+            "activity": "two people playing basketball on an outdoor court, dribbling and shooting at a hoop",
+            "outcome": "the ball is shot and becomes loose/rebounded, and play continues without a clear score shown before the clip ends",
+            "actor": "a person in black athletic clothes and a person in grey athletic clothes",
+            "high_point_cell": 0,
+            "sure": 7
           }
         },
         {
@@ -194,10 +194,10 @@
             }
           ],
           "answer": {
-            "activity": "A water bottle sits upright on a low ledge while the camera views the scene.",
-            "outcome": "The bottle remains in place and nothing else happens.",
-            "actor": "water bottle",
-            "high_point_cell": 0,
+            "activity": "shooting a basketball at an outdoor hoop",
+            "outcome": "the ball goes through the hoop and scores",
+            "actor": "the person in the grey hoodie and dark shorts",
+            "high_point_cell": 3,
             "sure": 8
           }
         },
@@ -252,10 +252,10 @@
             }
           ],
           "answer": {
-            "activity": "A person is shooting a basketball on an outdoor court.",
-            "outcome": "The shot goes through the hoop and the ball drops through the net.",
-            "actor": "person in a dark top and grey leggings",
-            "high_point_cell": 4,
+            "activity": "Flipping a water bottle",
+            "outcome": "The bottle lands upright on the ground and stays there",
+            "actor": "A person in dark clothing and a plastic water bottle",
+            "high_point_cell": 3,
             "sure": 8
           }
         },
@@ -310,12 +310,11 @@
             }
           ],
           "answer": {
-            "type": "object",
-            "activity": "bowling",
-            "outcome": "the bowler releases the ball down the lane and watches it go",
-            "actor": "person in a green shirt and black shorts",
-            "high_point_cell": 1,
-            "sure": 7
+            "activity": "A dog jumping, twisting, and playing on a sandy beach near the ocean.",
+            "outcome": "The dog lands from its jump and runs off across the beach.",
+            "actor": "Dog",
+            "high_point_cell": 3,
+            "sure": 9
           }
         },
         {
@@ -369,11 +368,11 @@
             }
           ],
           "answer": {
-            "activity": "soccer player taking a free kick",
-            "outcome": "kicks the ball towards the goal",
-            "actor": "soccer player in a yellow and blue uniform",
-            "high_point_cell": 6,
-            "sure": 8
+            "activity": "Pruning/trimming an olive tree with a long pole trimmer",
+            "outcome": "The person keeps trimming the tree through the end of the shown part; no clear branch fall or climax is visible",
+            "actor": "person in blue overalls and a hat",
+            "high_point_cell": 0,
+            "sure": 6
           }
         }
       ]
@@ -388,89 +387,73 @@
           "events": [
             {
               "first_grid": 1,
-              "first_cell": 1,
-              "last_grid": 1,
-              "last_cell": 3,
-              "actor": "person in dark patterned shirt and red shoes",
-              "action": "stands holding a clear plastic cup and a paddle, then extends the paddle toward the floor",
+              "first_cell": 3,
+              "last_grid": 2,
+              "last_cell": 5,
+              "actor": "person",
+              "action": "moves spatula under pancake on grate",
               "outcome": ""
             },
             {
               "first_grid": 1,
               "first_cell": 4,
-              "last_grid": 1,
-              "last_cell": 5,
-              "actor": "person in dark patterned shirt and red shoes",
-              "action": "bends down and scoops or reaches for the white ball with the paddle",
-              "outcome": "ball contacts or rests at the paddle"
+              "last_grid": 2,
+              "last_cell": 6,
+              "actor": "person",
+              "action": "lifts first pancake from grate",
+              "outcome": ""
+            },
+            {
+              "first_grid": 1,
+              "first_cell": 5,
+              "last_grid": 2,
+              "last_cell": 7,
+              "actor": "person",
+              "action": "places pancake onto new grate surface",
+              "outcome": ""
             },
             {
               "first_grid": 1,
               "first_cell": 6,
               "last_grid": 2,
-              "last_cell": 1,
-              "actor": "person in dark patterned shirt and red shoes",
-              "action": "flips the ball upward with the paddle and watches it rise",
-              "outcome": "ball goes high in the air"
-            },
-            {
-              "first_grid": 2,
-              "first_cell": 2,
-              "last_grid": 2,
-              "last_cell": 6,
-              "actor": "person in dark patterned shirt and red shoes",
-              "action": "raises the clear plastic cup toward the falling ball",
-              "outcome": "ball enters the cup"
-            },
-            {
-              "first_grid": 2,
-              "first_cell": 7,
-              "last_grid": 2,
               "last_cell": 9,
-              "actor": "person in dark patterned shirt and red shoes",
-              "action": "holds the cup upright with the ball inside",
-              "outcome": "ball stays in the cup"
+              "actor": "person (hand only visible)",
+              "action": "places second pancake onto grate",
+              "outcome": ""
             }
           ],
-          "sure": 7,
+          "sure": 10,
           "sensitive": false,
           "sensitive_reason": ""
         },
         "events": [
           {
-            "t_start": 0.3,
-            "t_end": 2.0,
-            "actor": "person in dark patterned shirt and red shoes",
-            "action": "stands holding a clear plastic cup and a paddle, then extends the paddle toward the floor",
+            "t_start": 2.0,
+            "t_end": 11.3,
+            "actor": "person",
+            "action": "moves spatula under pancake on grate",
             "outcome": null
           },
           {
             "t_start": 2.833,
-            "t_end": 3.7,
-            "actor": "person in dark patterned shirt and red shoes",
-            "action": "bends down and scoops or reaches for the white ball with the paddle",
-            "outcome": "ball contacts or rests at the paddle"
+            "t_end": 12.167,
+            "actor": "person",
+            "action": "lifts first pancake from grate",
+            "outcome": null
+          },
+          {
+            "t_start": 3.7,
+            "t_end": 13.0,
+            "actor": "person",
+            "action": "places pancake onto new grate surface",
+            "outcome": null
           },
           {
             "t_start": 4.533,
-            "t_end": 7.933,
-            "actor": "person in dark patterned shirt and red shoes",
-            "action": "flips the ball upward with the paddle and watches it rise",
-            "outcome": "ball goes high in the air"
-          },
-          {
-            "t_start": 8.767,
-            "t_end": 12.167,
-            "actor": "person in dark patterned shirt and red shoes",
-            "action": "raises the clear plastic cup toward the falling ball",
-            "outcome": "ball enters the cup"
-          },
-          {
-            "t_start": 13.0,
             "t_end": 14.7,
-            "actor": "person in dark patterned shirt and red shoes",
-            "action": "holds the cup upright with the ball inside",
-            "outcome": "ball stays in the cup"
+            "actor": "person (hand only visible)",
+            "action": "places second pancake onto grate",
+            "outcome": null
           }
         ]
       }

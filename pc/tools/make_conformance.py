@@ -1133,14 +1133,21 @@ def _zoomed_segments(scale: float) -> list[dict]:
 
 
 def _recorded_answers() -> tuple[list[dict], list[dict]]:
-    """The model's real answers in the PC's vision recordings: (overview answers, events answers), in file order."""
+    """The model's real answers in the PC's vision recordings that fit their schema (the adapter retries the others, so
+    S3 never sees them): (overview answers, events answers), in file order."""
+    import jsonschema
+
+    from epic_replay.agents import spotter
+
     ov, ev = [], []
     for f in sorted((paths.ROOT / "pc/tests/fixtures/recordings/vision").glob("*.json")):
         data = json.loads(f.read_text()).get("data")
         if isinstance(data, dict) and "events" in data:
-            ev.append(data)
+            if jsonschema.Draft202012Validator(spotter.EVENTS_SCHEMA).is_valid(data):
+                ev.append(data)
         elif isinstance(data, dict) and "high_point_cell" in data:
-            ov.append(data)
+            if jsonschema.Draft202012Validator(spotter.OVERVIEW_SCHEMA).is_valid(data):
+                ov.append(data)
     return ov, ev
 
 

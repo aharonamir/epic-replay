@@ -387,87 +387,73 @@
           "events": [
             {
               "first_grid": 1,
-              "first_cell": 1,
+              "first_cell": 2,
               "last_grid": 1,
-              "last_cell": 2,
-              "actor": "pancakes",
-              "action": "cook on the hot griddle",
+              "last_cell": 3,
+              "actor": "clear water bottle with a blue label",
+              "action": "stands upright on the patio beside the wall",
               "outcome": ""
             },
             {
               "first_grid": 1,
-              "first_cell": 3,
-              "last_grid": 1,
-              "last_cell": 3,
-              "actor": "person in pink sleeve",
-              "action": "scrapes the griddle with a blue spatula",
-              "outcome": "the griddle is scraped"
-            },
-            {
-              "first_grid": 1,
-              "first_cell": 4,
+              "first_cell": 5,
               "last_grid": 1,
               "last_cell": 5,
-              "actor": "person in pink sleeve",
-              "action": "slides a metal spatula under the pancakes and flips them",
-              "outcome": "both pancakes are flipped"
+              "actor": "clear water bottle with a blue label",
+              "action": "is airborne and tilted near the top of the wall",
+              "outcome": ""
             },
             {
               "first_grid": 1,
               "first_cell": 6,
-              "last_grid": 2,
-              "last_cell": 6,
-              "actor": "pancakes",
-              "action": "cook and brown on the griddle",
-              "outcome": ""
+              "last_grid": 1,
+              "last_cell": 7,
+              "actor": "clear water bottle with a blue label",
+              "action": "lands on the patio and wobbles",
+              "outcome": "settles upright"
             },
             {
-              "first_grid": 2,
-              "first_cell": 7,
+              "first_grid": 1,
+              "first_cell": 8,
               "last_grid": 2,
               "last_cell": 9,
-              "actor": "person in pink sleeve",
-              "action": "uses a metal spatula to remove a pancake from the griddle",
-              "outcome": "one pancake remains on the griddle"
+              "actor": "clear water bottle with a blue label",
+              "action": "stays standing upright on the patio",
+              "outcome": "remains upright"
             }
           ],
-          "sure": 6
+          "sure": 8,
+          "sensitive": false,
+          "sensitive_reason": ""
         },
         "events": [
           {
-            "t_start": 0.3,
-            "t_end": 1.133,
-            "actor": "pancakes",
-            "action": "cook on the hot griddle",
+            "t_start": 1.133,
+            "t_end": 2.0,
+            "actor": "clear water bottle with a blue label",
+            "action": "stands upright on the patio beside the wall",
             "outcome": null
           },
           {
-            "t_start": 2.0,
-            "t_end": 2.0,
-            "actor": "person in pink sleeve",
-            "action": "scrapes the griddle with a blue spatula",
-            "outcome": "the griddle is scraped"
-          },
-          {
-            "t_start": 2.833,
+            "t_start": 3.7,
             "t_end": 3.7,
-            "actor": "person in pink sleeve",
-            "action": "slides a metal spatula under the pancakes and flips them",
-            "outcome": "both pancakes are flipped"
+            "actor": "clear water bottle with a blue label",
+            "action": "is airborne and tilted near the top of the wall",
+            "outcome": null
           },
           {
             "t_start": 4.533,
-            "t_end": 12.167,
-            "actor": "pancakes",
-            "action": "cook and brown on the griddle",
-            "outcome": null
+            "t_end": 5.367,
+            "actor": "clear water bottle with a blue label",
+            "action": "lands on the patio and wobbles",
+            "outcome": "settles upright"
           },
           {
-            "t_start": 13.0,
+            "t_start": 6.233,
             "t_end": 14.7,
-            "actor": "person in pink sleeve",
-            "action": "uses a metal spatula to remove a pancake from the griddle",
-            "outcome": "one pancake remains on the griddle"
+            "actor": "clear water bottle with a blue label",
+            "action": "stays standing upright on the patio",
+            "outcome": "remains upright"
           }
         ]
       }

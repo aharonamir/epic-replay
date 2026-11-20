@@ -12,66 +12,62 @@
     "actors": [
       {
         "id": "a1",
-        "descriptor": "person in black patterned shirt and blue jeans",
+        "descriptor": "person",
         "role": "",
         "user_name": null,
         "followed": true
+      },
+      {
+        "id": "a2",
+        "descriptor": "person (hand only visible)",
+        "role": "",
+        "user_name": null,
+        "followed": false
       }
     ],
     "events": [
       {
         "id": "e1",
-        "t_start": 0.3,
-        "t_end": 2.0,
+        "t_start": 2.0,
+        "t_end": 11.3,
         "actor": "a1",
-        "action": "holds a paddle and reaches out as a table tennis ball appears",
+        "action": "moves spatula under pancake on grate",
         "object": null,
-        "outcome": "ball is near the paddle",
-        "confidence": 0.8,
+        "outcome": null,
+        "confidence": 1.0,
         "source": "model"
       },
       {
         "id": "e2",
         "t_start": 2.833,
-        "t_end": 4.533,
+        "t_end": 12.167,
         "actor": "a1",
-        "action": "bends low and swings the paddle to hit the ball upward",
+        "action": "lifts first pancake from grate",
         "object": null,
-        "outcome": "ball rises above the paddle",
-        "confidence": 0.8,
+        "outcome": null,
+        "confidence": 1.0,
         "source": "model"
       },
       {
         "id": "e3",
-        "t_start": 5.367,
-        "t_end": 7.067,
+        "t_start": 3.7,
+        "t_end": 13.0,
         "actor": "a1",
-        "action": "continues hitting the ball with the paddle",
+        "action": "places pancake onto new grate surface",
         "object": null,
-        "outcome": "ball stays airborne",
-        "confidence": 0.8,
+        "outcome": null,
+        "confidence": 1.0,
         "source": "model"
       },
       {
         "id": "e4",
-        "t_start": 7.933,
-        "t_end": 10.467,
-        "actor": "a1",
-        "action": "raises a clear cup toward the falling ball",
-        "object": null,
-        "outcome": "ball reaches the cup",
-        "confidence": 0.8,
-        "source": "model"
-      },
-      {
-        "id": "e5",
-        "t_start": 11.3,
+        "t_start": 4.533,
         "t_end": 14.7,
-        "actor": "a1",
-        "action": "holds the clear cup with the ball and lifts it up",
+        "actor": "a2",
+        "action": "places second pancake onto grate",
         "object": null,
-        "outcome": "ball stays in the cup",
-        "confidence": 0.8,
+        "outcome": null,
+        "confidence": 1.0,
         "source": "model"
       }
     ],

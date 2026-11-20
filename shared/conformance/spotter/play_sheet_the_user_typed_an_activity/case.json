@@ -389,101 +389,87 @@
               "first_grid": 1,
               "first_cell": 1,
               "last_grid": 1,
-              "last_cell": 2,
-              "actor": "goalkeeper in black kit with pink boots",
-              "action": "dives to save a ball in a solo diving drill",
-              "outcome": "ends holding the ball on the ground"
+              "last_cell": 5,
+              "actor": "orange cat",
+              "action": "sits facing the toilet-paper wall",
+              "outcome": "waits"
             },
             {
               "first_grid": 1,
-              "first_cell": 3,
+              "first_cell": 6,
               "last_grid": 1,
-              "last_cell": 4,
-              "actor": "goalkeeper in black kit with pink boots",
-              "action": "dives during a game diving phase",
-              "outcome": "ends lying on the grass after the dive"
+              "last_cell": 7,
+              "actor": "dark cat",
+              "action": "appears above and climbs onto the toilet-paper wall",
+              "outcome": "stands on top"
             },
             {
               "first_grid": 1,
-              "first_cell": 5,
+              "first_cell": 8,
               "last_grid": 1,
-              "last_cell": 6,
-              "actor": "goalkeeper in black kit with pink boots",
-              "action": "practices catching/handling a cross in a solo crossing drill",
-              "outcome": "ends standing and holding the ball"
-            },
-            {
-              "first_grid": 1,
-              "first_cell": 7,
-              "last_grid": 1,
-              "last_cell": 8,
-              "actor": "players in dark and white kits",
-              "action": "contest a cross during a game crossing phase",
-              "outcome": ""
+              "last_cell": 9,
+              "actor": "dark cat",
+              "action": "jumps down over the toilet-paper wall",
+              "outcome": "lands near the orange cat"
             },
             {
               "first_grid": 1,
               "first_cell": 9,
               "last_grid": 2,
-              "last_cell": 3,
-              "actor": "goalkeeper in black kit with pink boots",
-              "action": "holds/catches a yellow ball in a solo handling drill, then stands in a game handling phase",
-              "outcome": "ends with the goalkeeper facing play from behind"
+              "last_cell": 1,
+              "actor": "dark cat",
+              "action": "walks past the orange cat toward the foreground",
+              "outcome": "moves closer to the camera"
             },
             {
               "first_grid": 2,
-              "first_cell": 4,
+              "first_cell": 2,
               "last_grid": 2,
               "last_cell": 9,
-              "actor": "goalkeeper in black kit with pink boots",
-              "action": "kicks a white ball in a solo distribution drill, then distributes during a game distribution phase",
-              "outcome": "ends with the goalkeeper standing on the field and the ball in play"
+              "actor": "dark cat",
+              "action": "in slow motion, climbs onto and leaps over the toilet-paper wall",
+              "outcome": "clears the wall"
             }
           ],
-          "sure": 8
+          "sure": 8,
+          "sensitive": false,
+          "sensitive_reason": ""
         },
         "events": [
           {
             "t_start": 0.3,
-            "t_end": 1.133,
-            "actor": "goalkeeper in black kit with pink boots",
-            "action": "dives to save a ball in a solo diving drill",
-            "outcome": "ends holding the ball on the ground"
+            "t_end": 3.7,
+            "actor": "orange cat",
+            "action": "sits facing the toilet-paper wall",
+            "outcome": "waits"
           },
           {
-            "t_start": 2.0,
-            "t_end": 2.833,
-            "actor": "goalkeeper in black kit with pink boots",
-            "action": "dives during a game diving phase",
-            "outcome": "ends lying on the grass after the dive"
+            "t_start": 4.533,
+            "t_end": 5.367,
+            "actor": "dark cat",
+            "action": "appears above and climbs onto the toilet-paper wall",
+            "outcome": "stands on top"
           },
           {
-            "t_start": 3.7,
-            "t_end": 4.533,
-            "actor": "goalkeeper in black kit with pink boots",
-            "action": "practices catching/handling a cross in a solo crossing drill",
-            "outcome": "ends standing and holding the ball"
-          },
-          {
-            "t_start": 5.367,
-            "t_end": 6.233,
-            "actor": "players in dark and white kits",
-            "action": "contest a cross during a game crossing phase",
-            "outcome": null
+            "t_start": 6.233,
+            "t_end": 7.067,
+            "actor": "dark cat",
+            "action": "jumps down over the toilet-paper wall",
+            "outcome": "lands near the orange cat"
           },
           {
             "t_start": 7.067,
-            "t_end": 9.633,
-            "actor": "goalkeeper in black kit with pink boots",
-            "action": "holds/catches a yellow ball in a solo handling drill, then stands in a game handling phase",
-            "outcome": "ends with the goalkeeper facing play from behind"
+            "t_end": 7.933,
+            "actor": "dark cat",
+            "action": "walks past the orange cat toward the foreground",
+            "outcome": "moves closer to the camera"
           },
           {
-            "t_start": 10.467,
+            "t_start": 8.767,
             "t_end": 14.7,
-            "actor": "goalkeeper in black kit with pink boots",
-            "action": "kicks a white ball in a solo distribution drill, then distributes during a game distribution phase",
-            "outcome": "ends with the goalkeeper standing on the field and the ball in play"
+            "actor": "dark cat",
+            "action": "in slow motion, climbs onto and leaps over the toilet-paper wall",
+            "outcome": "clears the wall"
           }
         ]
       }

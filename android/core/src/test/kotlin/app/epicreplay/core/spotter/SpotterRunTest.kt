@@ -49,6 +49,8 @@ class SpotterRunTest {
         override suspend fun chat(messages: List<ChatMessage>, schema: JsonObject?, tools: List<ToolDef>?): ModelResult = error("the Spotter does not chat")
     }
 
+    private fun adapter(b: ModelBackend) = VisionAdapter(b, "deepseek-flash", words.retryLine)
+
     private val renderer = SheetRenderer { frames -> RenderedSheet("sheet-${frames.first()}-${frames.last()}".toByteArray(), frames.mapIndexed { k, f -> RenderedSheet.Cell(k + 1, f, Math.round(f / 30.0 * 1000) / 1000.0) }) }
 
     private fun case(name: String): Pair<File, JsonObject> { val d = File(shared, "conformance/spotter/$name"); return d to runner.load(d) }
@@ -64,7 +66,7 @@ class SpotterRunTest {
         val answers = looks.associate { l -> "sheet-${l.getValue("cells").jsonArray.first().jsonObject.getValue("frame").jsonPrimitive.content}-${l.getValue("cells").jsonArray.last().jsonObject.getValue("frame").jsonPrimitive.content}" to (l["answer"] as? JsonObject) }
         val backend = Routed({ answers[it] }) { ev?.get("answer") as? JsonObject }
         assertEquals(looks.size, byFrames.size)
-        val out = runBlocking { SpotterRun(spotter, backend, words, renderer).run("run-1", info, input(c, "signals").jsonObject, input(c, "clip_meta").jsonObject, input(c, "snap_s").jsonPrimitive.content.toDouble(), "deepseek-flash") }
+        val out = runBlocking { SpotterRun(spotter, adapter(backend), words, renderer).run("run-1", info, input(c, "signals").jsonObject, input(c, "clip_meta").jsonObject, input(c, "snap_s").jsonPrimitive.content.toDouble(), "deepseek-flash") }
         return out to runner.resolve(c.second.getValue("expected").jsonObject, c.first).jsonObject
     }
 
@@ -82,13 +84,16 @@ class SpotterRunTest {
         val c = case("play_sheet_real_1")
         val info = input(c, "info").jsonObject
         val backend = Routed({ null }) { null }
-        runBlocking { SpotterRun(spotter, backend, words, renderer).run("r", info, JsonObject(emptyMap()), input(c, "clip_meta").jsonObject, 0.25, "m") }
-        assertEquals(6, backend.calls.get())
+        runBlocking { SpotterRun(spotter, adapter(backend), words, renderer).run("r", info, JsonObject(emptyMap()), input(c, "clip_meta").jsonObject, 0.25, "m") }
+        // nobody answers, so each of the six calls is tried once more with the retry line
+        assertEquals(12, backend.calls.get())
         assertEquals(1, backend.questions.count { it == words.eventsQuestion })
+        assertEquals(1, backend.questions.count { it == words.eventsQuestion + "\n" + words.retryLine })
+        assertEquals(6, backend.questions.count { it.endsWith(words.retryLine) })
         assertEquals(setOf("high"), backend.detail.toSet())
-        assertContains(backend.questions.first { it != words.eventsQuestion }, "numbered 1 to 9")
+        assertContains(backend.questions.first { it != words.eventsQuestion && !it.endsWith(words.retryLine) }, "numbered 1 to 9")
         assertTrue(backend.questions.any { "part 1 of 2" in it } && backend.questions.any { "part 2 of 2" in it })
-        assertEquals(3, backend.questions.count { "sudden motion or sound" in it })
+        assertEquals(6, backend.questions.count { "sudden motion or sound" in it }) // three sheets, each asked twice
     }
 
     @Test
@@ -107,7 +112,7 @@ class SpotterRunTest {
             }
             override suspend fun chat(messages: List<ChatMessage>, schema: JsonObject?, tools: List<ToolDef>?) = inner.chat(messages, schema, tools)
         }
-        val out = runBlocking { SpotterRun(spotter, backend, words, renderer).run("r", info, input(c, "signals").jsonObject, input(c, "clip_meta").jsonObject, 0.25, "m") }
+        val out = runBlocking { SpotterRun(spotter, adapter(backend), words, renderer).run("r", info, input(c, "signals").jsonObject, input(c, "clip_meta").jsonObject, 0.25, "m") }
         assertEquals("ok", out.status)
         assertContains(out.note, "1 sheet(s) left out"); assertContains(out.note, "the events call was left out")
         val sheets = out.trace.getValue("sheets").jsonArray.map { it.jsonObject }
@@ -121,11 +126,11 @@ class SpotterRunTest {
         val c = case("play_sheet_every_sheet_failed")
         val info = input(c, "info").jsonObject
         val dead = Routed({ null }) { null }
-        val out = runBlocking { SpotterRun(spotter, dead, words, renderer).run("r", info, JsonObject(emptyMap()), input(c, "clip_meta").jsonObject, 0.25, "m") }
+        val out = runBlocking { SpotterRun(spotter, adapter(dead), words, renderer).run("r", info, JsonObject(emptyMap()), input(c, "clip_meta").jsonObject, 0.25, "m") }
         assertEquals("degraded", out.status)
         assertEquals("signal_peak", out.playSheet!!.getValue("climax").jsonObject.getValue("method").jsonPrimitive.content)
         val bare = JsonObject(info + ("candidates" to JsonArray(emptyList())))
-        val none = runBlocking { SpotterRun(spotter, dead, words, renderer).run("r", bare, JsonObject(emptyMap()), input(c, "clip_meta").jsonObject, 0.25, "m") }
+        val none = runBlocking { SpotterRun(spotter, adapter(dead), words, renderer).run("r", bare, JsonObject(emptyMap()), input(c, "clip_meta").jsonObject, 0.25, "m") }
         assertEquals("failed", none.status); assertEquals(null, none.playSheet); assertContains(none.note, "no candidate")
     }
 
@@ -151,11 +156,11 @@ class SpotterRunTest {
         val c = case("play_sheet_real_3")
         val info = input(c, "info").jsonObject
         val backend = Routed({ null }) { null }
-        val run = SpotterRun(spotter, backend, words, renderer)
+        val run = SpotterRun(spotter, adapter(backend), words, renderer)
         runBlocking {
             run.run("r", info, JsonObject(emptyMap()), input(c, "clip_meta").jsonObject, 0.25, "m")
             val again = run.run("r", info, JsonObject(emptyMap()), input(c, "clip_meta").jsonObject, 0.25, "m")
-            assertEquals(6, backend.calls.get())
+            assertEquals(12, backend.calls.get()) // the second run sent nothing
             assertTrue(again.trace.getValue("sheets").jsonArray.all { it.jsonObject.containsKey("refused") })
             assertContains(again.trace.getValue("events_call").jsonObject.getValue("refused").jsonPrimitive.content, "at most 1 events call")
         }

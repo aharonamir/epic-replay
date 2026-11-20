@@ -12,73 +12,55 @@
     "actors": [
       {
         "id": "a1",
-        "descriptor": "pancakes",
+        "descriptor": "clear water bottle with a blue label",
         "role": "",
         "user_name": null,
         "followed": true
-      },
-      {
-        "id": "a2",
-        "descriptor": "person in pink sleeve",
-        "role": "",
-        "user_name": null,
-        "followed": false
       }
     ],
     "events": [
       {
         "id": "e1",
-        "t_start": 0.3,
-        "t_end": 1.133,
+        "t_start": 1.133,
+        "t_end": 2.0,
         "actor": "a1",
-        "action": "cook on the hot griddle",
+        "action": "stands upright on the patio beside the wall",
         "object": null,
         "outcome": null,
-        "confidence": 0.6,
+        "confidence": 0.8,
         "source": "model"
       },
       {
         "id": "e2",
-        "t_start": 2.0,
-        "t_end": 2.0,
-        "actor": "a2",
-        "action": "scrapes the griddle with a blue spatula",
+        "t_start": 3.7,
+        "t_end": 3.7,
+        "actor": "a1",
+        "action": "is airborne and tilted near the top of the wall",
         "object": null,
-        "outcome": "the griddle is scraped",
-        "confidence": 0.6,
+        "outcome": null,
+        "confidence": 0.8,
         "source": "model"
       },
       {
         "id": "e3",
-        "t_start": 2.833,
-        "t_end": 3.7,
-        "actor": "a2",
-        "action": "slides a metal spatula under the pancakes and flips them",
+        "t_start": 4.533,
+        "t_end": 5.367,
+        "actor": "a1",
+        "action": "lands on the patio and wobbles",
         "object": null,
-        "outcome": "both pancakes are flipped",
-        "confidence": 0.6,
+        "outcome": "settles upright",
+        "confidence": 0.8,
         "source": "model"
       },
       {
         "id": "e4",
-        "t_start": 4.533,
-        "t_end": 12.167,
-        "actor": "a1",
-        "action": "cook and brown on the griddle",
-        "object": null,
-        "outcome": null,
-        "confidence": 0.6,
-        "source": "model"
-      },
-      {
-        "id": "e5",
-        "t_start": 13.0,
+        "t_start": 6.233,
         "t_end": 14.7,
-        "actor": "a2",
-        "action": "uses a metal spatula to remove a pancake from the griddle",
+        "actor": "a1",
+        "action": "stays standing upright on the patio",
         "object": null,
-        "outcome": "one pancake remains on the griddle",
-        "confidence": 0.6,
+        "outcome": "remains upright",
+        "confidence": 0.8,
         "source": "model"
       }
     ],

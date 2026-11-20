@@ -105,5 +105,6 @@
       }
     }
   },
-  "sensitive_default": "the clip may show someone hurt or upset"
+  "sensitive_default": "the clip may show someone hurt or upset",
+  "retry_line": "Fill in the fields; do not repeat the schema."
 }

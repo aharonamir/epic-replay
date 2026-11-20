@@ -97,7 +97,7 @@ class SpotterOnDeviceTest {
         val backend = graph.onDeviceBackend(p, Role.VISION, OnDeviceConfig())
         val t0 = System.nanoTime()
         val out = ClipSheetRenderer(clip.path, signals.fps).use { r ->
-            try { runBlocking { SpotterRun(spotter, backend, SpotterWords.load(root), r).run("device-run", info, sig, meta, 0.25, p.id) } } finally { backend.close() }
+            try { runBlocking { SpotterRun(spotter, app.epicreplay.core.spotter.VisionAdapter(backend, p.id, SpotterWords.load(root).retryLine), SpotterWords.load(root), r).run("device-run", info, sig, meta, 0.25, p.id) } } finally { backend.close() }
         }
         File(ctx.filesDir, "t418_metrics.txt").appendText("spotter on device: ${(System.nanoTime() - t0) / 1_000_000_000} s, status ${out.status}, note ${out.note.take(200)}\n")
         assertTrue("an unexpected status ${out.status}", out.status in setOf("ok", "degraded", "stopped", "failed"))

@@ -15,7 +15,7 @@ from pathlib import Path
 
 import jsonschema
 
-from epic_replay import config
+from epic_replay import config, paths
 from epic_replay.guards.budget import Ledger, PaidResult, paid_call
 from epic_replay.providers import client, llm, models
 from epic_replay.providers.base import CallInfo, Frame, VisionResult
@@ -33,7 +33,9 @@ TOKENS_PER_IMAGE_CEILING = 1024
 EXPECTED_OUT_TOKENS = 800
 
 # A reply that does not fit the schema is asked once more with this line (T003 spike).
-RETRY_LINE = "Fill in the fields; do not repeat the schema."
+RETRY_LINE = json.loads((paths.COPY / "spotter.json").read_text("utf-8"))[
+    "retry_line"
+]  # shared with the phone
 
 
 def _sheet_request(cells: list[dict], detail: str, schema: dict | None) -> dict:

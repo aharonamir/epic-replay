@@ -12,21 +12,14 @@
     "actors": [
       {
         "id": "a1",
-        "descriptor": "title text",
+        "descriptor": "orange cat",
         "role": "",
         "user_name": null,
         "followed": true
       },
       {
         "id": "a2",
-        "descriptor": "German Shepherd",
-        "role": "",
-        "user_name": null,
-        "followed": false
-      },
-      {
-        "id": "a3",
-        "descriptor": "outro text",
+        "descriptor": "dark cat",
         "role": "",
         "user_name": null,
         "followed": false
@@ -35,73 +28,62 @@
     "events": [
       {
         "id": "e1",
-        "t_start": 1.133,
-        "t_end": 3.7,
+        "t_start": 0.3,
+        "t_end": 7.067,
         "actor": "a1",
-        "action": "displays the German Shepherd Skills caption",
+        "action": "walks toward the stacked toilet paper wall and watches it",
         "object": null,
-        "outcome": null,
-        "confidence": 0.7,
+        "outcome": "stops in front of the barrier",
+        "confidence": 0.8,
         "source": "model"
       },
       {
         "id": "e2",
-        "t_start": 4.533,
-        "t_end": 5.367,
+        "t_start": 7.933,
+        "t_end": 8.767,
         "actor": "a2",
-        "action": "catches the ball",
+        "action": "appears behind the toilet paper wall on the sofa and moves to the wall edge",
         "object": null,
-        "outcome": null,
-        "confidence": 0.7,
+        "outcome": "prepares to climb the wall",
+        "confidence": 0.8,
         "source": "model"
       },
       {
         "id": "e3",
-        "t_start": 6.233,
-        "t_end": 8.767,
+        "t_start": 8.767,
+        "t_end": 12.167,
         "actor": "a2",
-        "action": "moves near the doorway with the ball",
+        "action": "climbs over the toilet paper wall and down to the floor",
         "object": null,
-        "outcome": null,
-        "confidence": 0.7,
+        "outcome": "reaches the orange cat's side",
+        "confidence": 0.8,
         "source": "model"
       },
       {
         "id": "e4",
-        "t_start": 9.633,
-        "t_end": 11.3,
+        "t_start": 12.167,
+        "t_end": 13.867,
         "actor": "a2",
-        "action": "walks toward the camera",
+        "action": "approaches the orange cat",
         "object": null,
-        "outcome": null,
-        "confidence": 0.7,
+        "outcome": "the cats come close and face each other",
+        "confidence": 0.8,
         "source": "model"
       },
       {
         "id": "e5",
-        "t_start": 12.167,
-        "t_end": 12.167,
+        "t_start": 13.867,
+        "t_end": 14.7,
         "actor": "a2",
-        "action": "stands close to the camera as THANK YOU appears",
+        "action": "turns and walks past the orange cat",
         "object": null,
-        "outcome": "THANK YOU overlay shown",
-        "confidence": 0.7,
-        "source": "model"
-      },
-      {
-        "id": "e6",
-        "t_start": 13.0,
-        "t_end": 13.867,
-        "actor": "a3",
-        "action": "displays THANK YOU and SUBSCRIBE messages",
-        "object": null,
-        "outcome": null,
-        "confidence": 0.7,
+        "outcome": "moves away down the hallway",
+        "confidence": 0.8,
         "source": "model"
       }
     ],
     "climax": {
-      "event_id": "e4",
+      "event_id": "e3",
       "t": 10.367,
       "frame": 311,
       "method": "sheets+sound",
