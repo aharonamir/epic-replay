@@ -102,6 +102,9 @@ object TextFunctions {
             "mix.layers" to { a ->
                 app.epicreplay.core.mix.Mix.layers(a.getValue("storyboard").jsonObject, a.getValue("voice").jsonObject, a.getValue("pack").jsonObject, a.getValue("user_context").jsonObject, a.getValue("clip_meta").jsonObject)
             },
+            "visuals.plan" to { a ->
+                app.epicreplay.core.visuals.VisualsPlan.plan(a.getValue("storyboard").jsonObject, a["focus_box"], a.getValue("src_frames").jsonPrimitive.int)
+            },
             "cells.layout" to { a ->
                 val l = ContactSheet.layout(a.getValue("width").jsonPrimitive.int, a.getValue("height").jsonPrimitive.int, a.getValue("count").jsonPrimitive.int)
                 buildJsonObject {

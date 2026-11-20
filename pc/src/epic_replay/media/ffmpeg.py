@@ -67,13 +67,20 @@ def speed(factor: float, fps: float, *, blend: bool) -> str:
     return f"{slowed},framerate=fps={fps}" if blend else f"{slowed},fps={fps}"
 
 
-def zoom(scale: float, box: dict, width: int, height: int) -> str:
-    """A fixed crop of 1/scale of the picture, centred on the box (fractions of the frame) as far
-    as the edges allow, scaled back to the full size."""
+def zoom_crop(scale: float, box: dict, width: int, height: int) -> tuple[int, int, int, int]:
+    """The crop of `zoom`: (width, height, x, y) of 1/scale of the picture, centred on the box (fractions of the
+    frame) as far as the edges allow."""
     cw, ch = even(width / scale), even(height / scale)
     cx, cy = (box["x"] + box["w"] / 2) * width, (box["y"] + box["h"] / 2) * height
     x = min(max(0, round(cx - cw / 2)), width - cw)
     y = min(max(0, round(cy - ch / 2)), height - ch)
+    return cw, ch, x, y
+
+
+def zoom(scale: float, box: dict, width: int, height: int) -> str:
+    """A fixed crop of 1/scale of the picture, centred on the box (fractions of the frame) as far
+    as the edges allow, scaled back to the full size."""
+    cw, ch, x, y = zoom_crop(scale, box, width, height)
     return f"crop={cw}:{ch}:{x}:{y},scale={width}:{height}:flags=lanczos,setsar=1"
 
 

@@ -1,0 +1,26 @@
+{
+  "area": "visuals",
+  "function": "visuals.plan",
+  "language": null,
+  "description": "A working copy of 20 frames: every source range and held frame is clamped to it.",
+  "tolerance_s": 0.001,
+  "inputs": {
+    "storyboard": {
+      "fixture": "sample_run/storyboard.json"
+    },
+    "focus_box": {
+      "value": {
+        "x": 0.08,
+        "y": 0.12,
+        "w": 0.3,
+        "h": 0.3
+      }
+    },
+    "src_frames": {
+      "value": 20
+    }
+  },
+  "expected": {
+    "file": "expected/output.json"
+  }
+}

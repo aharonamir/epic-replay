@@ -1049,9 +1049,92 @@ def mix_cases() -> dict[str, dict]:
     }
 
 
+def visuals_cases() -> dict[str, dict]:
+    """Added in T417: what S9 does with each segment, in frames (stages/s9_visuals.py `plan`)."""
+    box = {"x": 0.08, "y": 0.12, "w": 0.3, "h": 0.3}
+
+    def case(desc, storyboard, focus=box, src=450, expected=None):
+        return {**({"expected": expected} if expected else {}), "area": "visuals", "function": "visuals.plan", "language": None, "description": desc,
+                "tolerance_s": 0.001,
+                "inputs": {"storyboard": storyboard, "focus_box": value(focus), "src_frames": value(src)}}  # fmt: skip
+
+    def sb(**patch):
+        return sample("storyboard", **({"merge_patch": patch} if patch else {}))
+
+    def other(name):
+        return {"file": f"../../storyboard/{name}/expected/output.json"}
+
+    return {
+        "sample_run": case(
+            "The sample storyboard: cut, the replay at 0.25 with its zoom, held frames, frame counts that add up.",
+            sb(),
+        ),
+        "no_focus_box": case("No focus box: the replay has no zoom crop.", sb(), focus=None),
+        "climax_on_last_frame": case(
+            "The replay holds its last frame (hold_s) and still has its frame count.",
+            other("climax_on_last_frame"),
+        ),
+        "clip_3s": case(
+            "A 3 s clip: the replay window widened, the end card long.", other("clip_3s")
+        ),
+        "clip_30s": case("A 30 s clip trimmed around the climax.", other("clip_30s")),
+        "source_shorter_than_the_storyboard": case(
+            "A working copy of 20 frames: every source range and held frame is clamped to it.",
+            sb(),
+            src=20,
+        ),
+        "portrait_1080x1920": case(
+            "A portrait clip: the crop is of the portrait frame.", sb(width=1080, height=1920)
+        ),
+        "focus_box_in_a_corner": case(
+            "A focus box in the top-left corner: the crop stops at the edges, as the sample's does (its box is near the corner too).",
+            sb(),
+            focus={"x": 0.0, "y": 0.0, "w": 0.1, "h": 0.1},
+            expected={"file": "../sample_run/expected/output.json"},
+        ),
+        "focus_box_bottom_right": case(
+            "The bottom-right corner.", sb(), focus={"x": 0.9, "y": 0.9, "w": 0.1, "h": 0.1}
+        ),
+        "focus_box_in_the_middle": case(
+            "A box in the middle of the frame: the crop is centred on it.",
+            sb(),
+            focus={"x": 0.4, "y": 0.35, "w": 0.2, "h": 0.2},
+        ),
+        "crop_centre_halfway_between_pixels": case(
+            "The crop's corner falls on x.5: it is rounded half to even (98, not 99).",
+            sb(width=853, height=481, segments=_zoomed_segments(1.3)),
+            focus={"x": 0.45, "y": 0.4, "w": 0.1, "h": 0.2},
+        ),
+        "crop_size_rounds_down_to_even": case(
+            "777 x 557 at a zoom of 1.25: 621.6 and 445.6 become 620 and 444, never odd.",
+            sb(width=777, height=557),
+        ),
+        "an_empty_source_range_keeps_one_frame": case(
+            "A segment whose source range is empty (in = out) still cuts one frame.",
+            sb(segments=_empty_range_segments()),
+        ),
+        "odd_size_and_scale": case(
+            "An odd frame size and a zoom of 1.3: the crop is rounded down to even numbers, the centre half to even.",
+            sb(width=853, height=481, segments=_zoomed_segments(1.3)),
+        ),
+        "fps_25": case("25 fps: frame numbers from times, rounding half to even.", sb(fps=25)),
+        "fps_29_97": case("29.97 fps.", sb(fps=29.97)),
+    }
+
+
+def _empty_range_segments() -> list[dict]:
+    segs = json.loads((paths.SAMPLE_RUN / "storyboard.json").read_text())["segments"]
+    return [dict(s, source={"in_s": 2.0, "out_s": 2.0}) if s["kind"] == "live" else s for s in segs]
+
+
+def _zoomed_segments(scale: float) -> list[dict]:
+    segs = json.loads((paths.SAMPLE_RUN / "storyboard.json").read_text())["segments"]
+    return [dict(s, zoom=({**s["zoom"], "scale": scale} if s["zoom"] else None)) for s in segs]
+
+
 def all_cases() -> dict[str, dict]:
     out = {}
-    for make in (storyboard_cases, slots_cases, checks_cases, lexicon_cases, units_cases, cells_cases, cell_layout_cases, backend_cases, budget_cases, consent_cases, signals_cases, checks_more_cases, voice_cases, mix_cases):  # fmt: skip
+    for make in (storyboard_cases, slots_cases, checks_cases, lexicon_cases, units_cases, cells_cases, cell_layout_cases, backend_cases, budget_cases, consent_cases, signals_cases, checks_more_cases, voice_cases, mix_cases, visuals_cases):  # fmt: skip
         for name, case in make().items():
             out[f"{case['area']}/{name}"] = case
     return out

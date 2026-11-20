@@ -117,6 +117,7 @@ FUNCTIONS: dict[str, Callable[..., Any]] = {
     "voice.word_start": conformance_voice.word_start,
     "voice.place": conformance_voice.place,
     "mix.layers": conformance_voice.layers,
+    "visuals.plan": conformance_voice.visuals_plan,
 }
 
 

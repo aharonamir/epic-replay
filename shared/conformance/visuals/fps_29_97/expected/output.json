@@ -1,0 +1,49 @@
+[
+  {
+    "id": "s1",
+    "method": null,
+    "frames": 30,
+    "hold_s": 0.0,
+    "freeze_frame": 0
+  },
+  {
+    "id": "s2",
+    "method": "native",
+    "frames": 450,
+    "hold_s": 0.0,
+    "first_frame": 0,
+    "end_frame": 450,
+    "speed": 1.0,
+    "crop": null
+  },
+  {
+    "id": "s3",
+    "method": null,
+    "frames": 12,
+    "hold_s": 0.0,
+    "freeze_frame": 449
+  },
+  {
+    "id": "s4",
+    "method": "blend",
+    "frames": 299,
+    "hold_s": 0.0,
+    "first_frame": 268,
+    "end_frame": 343,
+    "speed": 0.25,
+    "crop": {
+      "scale": 1.25,
+      "w": 1536,
+      "h": 864,
+      "x": 0,
+      "y": 0
+    }
+  },
+  {
+    "id": "s5",
+    "method": null,
+    "frames": 75,
+    "hold_s": 0.0,
+    "freeze_frame": 315
+  }
+]

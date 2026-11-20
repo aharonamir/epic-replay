@@ -1,0 +1,91 @@
+{
+  "area": "visuals",
+  "function": "visuals.plan",
+  "language": null,
+  "description": "The crop's corner falls on x.5: it is rounded half to even (98, not 99).",
+  "tolerance_s": 0.001,
+  "inputs": {
+    "storyboard": {
+      "fixture": "sample_run/storyboard.json",
+      "merge_patch": {
+        "width": 853,
+        "height": 481,
+        "segments": [
+          {
+            "id": "s1",
+            "kind": "title",
+            "timeline_start": 0.0,
+            "timeline_end": 1.0,
+            "source": null,
+            "speed": null,
+            "freeze_at_s": 0.0,
+            "zoom": null
+          },
+          {
+            "id": "s2",
+            "kind": "live",
+            "timeline_start": 1.0,
+            "timeline_end": 16.0,
+            "source": {
+              "in_s": 0.0,
+              "out_s": 15.0
+            },
+            "speed": 1.0,
+            "freeze_at_s": null,
+            "zoom": null
+          },
+          {
+            "id": "s3",
+            "kind": "transition",
+            "timeline_start": 16.0,
+            "timeline_end": 16.4,
+            "source": null,
+            "speed": null,
+            "freeze_at_s": 14.967,
+            "zoom": null
+          },
+          {
+            "id": "s4",
+            "kind": "replay",
+            "timeline_start": 16.4,
+            "timeline_end": 26.4,
+            "source": {
+              "in_s": 8.933,
+              "out_s": 11.433
+            },
+            "speed": 0.25,
+            "freeze_at_s": null,
+            "zoom": {
+              "scale": 1.3,
+              "ease_in_s": 1.0
+            }
+          },
+          {
+            "id": "s5",
+            "kind": "endcard",
+            "timeline_start": 26.4,
+            "timeline_end": 28.9,
+            "source": null,
+            "speed": null,
+            "freeze_at_s": 10.5,
+            "zoom": null
+          }
+        ]
+      }
+    },
+    "focus_box": {
+      "value": {
+        "x": 0.45,
+        "y": 0.4,
+        "w": 0.1,
+        "h": 0.2
+      }
+    },
+    "src_frames": {
+      "value": 450
+    }
+  },
+  "expected": {
+    "file": "expected/output.json"
+  }
+}
