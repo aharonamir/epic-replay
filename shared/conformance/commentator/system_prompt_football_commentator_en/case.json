@@ -1,0 +1,15 @@
+{
+  "area": "commentator",
+  "function": "commentator.system_prompt",
+  "language": "en",
+  "description": "The system prompt of football_commentator for a run in English.",
+  "inputs": {
+    "pack": {
+      "style": "football_commentator",
+      "language": "en"
+    }
+  },
+  "expected": {
+    "file": "expected/output.json"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "area": "commentator",
+  "function": "commentator.system_prompt",
+  "language": "zh",
+  "description": "The system prompt of football_commentator for a run in Mandarin.",
+  "inputs": {
+    "pack": {
+      "style": "football_commentator",
+      "language": "zh"
+    }
+  },
+  "expected": {
+    "file": "expected/output.json"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "area": "commentator",
+  "function": "commentator.brief",
+  "language": "en",
+  "description": "The brief of the sample run: the events a script may use, the names the user gave, what each slot shows.",
+  "inputs": {
+    "slots": {
+      "file": "../../slots/football_commentator_en/expected/output.json"
+    },
+    "play_sheet": {
+      "fixture": "sample_run/play_sheet.json"
+    },
+    "user_context": {
+      "fixture": "sample_run/user_context.json"
+    },
+    "storyboard": {
+      "fixture": "sample_run/storyboard.json"
+    }
+  },
+  "tolerance_s": 0.001,
+  "expected": {
+    "file": "expected/output.json"
+  }
+}

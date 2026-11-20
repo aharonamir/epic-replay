@@ -1,0 +1,136 @@
+{
+  "script": {
+    "schema_version": "1.0",
+    "run_id": "fixture-freekick",
+    "language": "en",
+    "style": "football_commentator",
+    "words_per_second": 2.6,
+    "startup_s": 0.9,
+    "reaction_delay_s": 0.15,
+    "voice": {
+      "provider": "elevenlabs",
+      "voice_id": "fGIZlgPQ75MMlvQ6WxgY"
+    },
+    "headline": "PLAY OF THE DAY",
+    "lower_third": "REPLAY",
+    "lines": [
+      {
+        "id": "l1",
+        "segment_id": "s2",
+        "role": "opening",
+        "anchor": {
+          "type": "start_at",
+          "timeline_t": 1.3,
+          "event_id": null
+        },
+        "max_duration_s": 4.0,
+        "max_words": 8,
+        "text": "Here we go.",
+        "delivery": "measured, expectant",
+        "event_refs": [],
+        "generic": true
+      },
+      {
+        "id": "l2",
+        "segment_id": "s2",
+        "role": "build_up",
+        "anchor": {
+          "type": "start_at",
+          "timeline_t": 9.433,
+          "event_id": null
+        },
+        "max_duration_s": 1.6,
+        "max_words": 1,
+        "text": "Now...",
+        "delivery": "rising, quick",
+        "event_refs": [],
+        "generic": true
+      },
+      {
+        "id": "l3",
+        "segment_id": "s2",
+        "role": "climax",
+        "anchor": {
+          "type": "hit_at",
+          "timeline_t": 11.433,
+          "event_id": "e6"
+        },
+        "max_duration_s": 2.0,
+        "max_words": 2,
+        "text": "THERE!",
+        "delivery": "shouting, full voice",
+        "event_refs": [],
+        "generic": true,
+        "hit_word": "THERE"
+      },
+      {
+        "id": "l4",
+        "segment_id": "s2",
+        "role": "reaction",
+        "anchor": {
+          "type": "start_at",
+          "timeline_t": 13.683,
+          "event_id": null
+        },
+        "max_duration_s": 1.6,
+        "max_words": 1,
+        "text": "Wow.",
+        "delivery": "amazed, coming down",
+        "event_refs": [],
+        "generic": true
+      },
+      {
+        "id": "l5",
+        "segment_id": "s4",
+        "role": "replay_watch",
+        "anchor": {
+          "type": "start_at",
+          "timeline_t": 16.9,
+          "event_id": null
+        },
+        "max_duration_s": 3.5,
+        "max_words": 6,
+        "text": "Look again.",
+        "delivery": "calm, analytical",
+        "event_refs": [],
+        "generic": true
+      },
+      {
+        "id": "l6",
+        "segment_id": "s4",
+        "role": "replay_climax",
+        "anchor": {
+          "type": "hit_at",
+          "timeline_t": 22.4,
+          "event_id": "e6"
+        },
+        "max_duration_s": 3.5,
+        "max_words": 6,
+        "text": "There it is.",
+        "delivery": "warm, admiring",
+        "event_refs": [],
+        "generic": true,
+        "hit_word": "There"
+      },
+      {
+        "id": "l7",
+        "segment_id": "s5",
+        "role": "sign_off",
+        "anchor": {
+          "type": "start_at",
+          "timeline_t": 26.7,
+          "event_id": null
+        },
+        "max_duration_s": 1.6,
+        "max_words": 1,
+        "text": "Lovely.",
+        "delivery": "smiling",
+        "event_refs": [],
+        "generic": true
+      }
+    ],
+    "approved": "express"
+  },
+  "status": "degraded",
+  "note": "the agent submitted no script that passes; generic lines for l1, l2, l3, l4, l5, l6, l7"
+}

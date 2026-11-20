@@ -1,0 +1,15 @@
+{
+  "area": "commentator",
+  "function": "commentator.system_prompt",
+  "language": "en",
+  "description": "The system prompt of nature_documentary for a run in English.",
+  "inputs": {
+    "pack": {
+      "style": "nature_documentary",
+      "language": "en"
+    }
+  },
+  "expected": {
+    "file": "expected/output.json"
+  }
+}

@@ -1,0 +1,153 @@
+{
+  "activity": "football free kick",
+  "setting": "outdoor grass pitch, daylight, filmed from behind and to the right of the ball",
+  "outcome": "Direct free kick scored into the top-left corner.",
+  "key_moment_s": 10.433,
+  "key_event": "e6",
+  "named_by_user": {
+    "player_name": "Noa"
+  },
+  "user_description": null,
+  "events": [
+    {
+      "id": "e1",
+      "from_s": 0.0,
+      "to_s": 8.2,
+      "who": "Noa",
+      "action": "places the ball for a free kick just outside the penalty area",
+      "outcome": null
+    },
+    {
+      "id": "e2",
+      "from_s": 2.0,
+      "to_s": 8.2,
+      "who": "four players in blue",
+      "action": "line up as a wall",
+      "outcome": null
+    },
+    {
+      "id": "e3",
+      "from_s": 8.2,
+      "to_s": 9.6,
+      "who": "Noa",
+      "action": "takes a short run-up",
+      "outcome": null
+    },
+    {
+      "id": "e4",
+      "from_s": 9.6,
+      "to_s": 9.7,
+      "who": "Noa",
+      "action": "strikes the ball",
+      "outcome": null
+    },
+    {
+      "id": "e5",
+      "from_s": 9.7,
+      "to_s": 10.433,
+      "who": null,
+      "action": "ball flies over the wall",
+      "outcome": null
+    },
+    {
+      "id": "e6",
+      "from_s": 10.433,
+      "to_s": 10.5,
+      "who": null,
+      "action": "ball enters the goal in the top-left corner, under the crossbar",
+      "outcome": "goal"
+    },
+    {
+      "id": "e7",
+      "from_s": 10.433,
+      "to_s": 10.9,
+      "who": "goalkeeper in green",
+      "action": "does not dive",
+      "outcome": null
+    },
+    {
+      "id": "e8",
+      "from_s": 10.9,
+      "to_s": 15.0,
+      "who": "Noa",
+      "action": "runs away celebrating",
+      "outcome": null
+    }
+  ],
+  "slots": [
+    {
+      "id": "l1",
+      "role": "opening",
+      "max_words": 8,
+      "seconds": 4.0,
+      "shows_source_s": [
+        0.3,
+        4.3
+      ],
+      "segment": "live"
+    },
+    {
+      "id": "l2",
+      "role": "build_up",
+      "max_words": 1,
+      "seconds": 1.6,
+      "shows_source_s": [
+        8.43,
+        10.03
+      ],
+      "segment": "live"
+    },
+    {
+      "id": "l3",
+      "role": "climax",
+      "max_words": 2,
+      "seconds": 2.0,
+      "shows_source_s": [
+        10.43,
+        12.43
+      ],
+      "segment": "live"
+    },
+    {
+      "id": "l4",
+      "role": "reaction",
+      "max_words": 1,
+      "seconds": 1.6,
+      "shows_source_s": [
+        12.68,
+        14.28
+      ],
+      "segment": "live"
+    },
+    {
+      "id": "l5",
+      "role": "replay_watch",
+      "max_words": 6,
+      "seconds": 3.5,
+      "shows_source_s": [
+        9.06,
+        9.93
+      ],
+      "segment": "replay"
+    },
+    {
+      "id": "l6",
+      "role": "replay_climax",
+      "max_words": 6,
+      "seconds": 3.5,
+      "shows_source_s": [
+        10.43,
+        11.31
+      ],
+      "segment": "replay"
+    },
+    {
+      "id": "l7",
+      "role": "sign_off",
+      "max_words": 1,
+      "seconds": 1.6,
+      "shows_source_s": null,
+      "segment": "endcard"
+    }
+  ]
+}

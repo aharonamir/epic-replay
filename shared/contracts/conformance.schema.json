@@ -6,7 +6,7 @@
   "additionalProperties": false,
   "required": ["area", "function", "language", "description", "inputs", "expected"],
   "properties": {
-    "area": {"enum": ["storyboard", "slots", "checks", "lexicon", "units", "cells", "backend", "budget", "consent", "signals", "voice", "mix", "visuals", "spotter"]},
+    "area": {"enum": ["storyboard", "slots", "checks", "lexicon", "units", "cells", "backend", "budget", "consent", "signals", "voice", "mix", "visuals", "spotter", "commentator"]},
     "function": {
       "enum": [
         "storyboard.build", "slots.build", "checks.check", "checks.text",
@@ -14,7 +14,9 @@
         "backend.requests", "backend.recording_key", "budget.run",
         "consent.blocks", "consent.covers", "cells.layout", "signals.scan",
         "voice.word_start", "voice.place", "mix.layers", "visuals.plan",
-        "spotter.plan_overview", "spotter.map_events", "spotter.sensitivity", "spotter.play_sheet"
+        "spotter.plan_overview", "spotter.map_events", "spotter.sensitivity", "spotter.play_sheet",
+        "commentator.brief", "commentator.system_prompt", "commentator.failures", "commentator.patched",
+        "commentator.script", "commentator.generic"
       ]
     },
     "language": {"enum": ["en", "zh", null]},

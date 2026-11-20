@@ -1,0 +1,28 @@
+{
+  "area": "commentator",
+  "function": "commentator.generic",
+  "language": "en",
+  "description": "Generic mode, nature_documentary: no model, every line generic, the pack's labels for the headline and the lower third.",
+  "inputs": {
+    "slots": {
+      "file": "../../slots/nature_documentary_en/expected/output.json"
+    },
+    "play_sheet": {
+      "fixture": "sample_run/play_sheet.json"
+    },
+    "user_context": {
+      "fixture": "sample_run/user_context.json"
+    },
+    "storyboard": {
+      "fixture": "sample_run/storyboard.json"
+    },
+    "pack": {
+      "style": "nature_documentary",
+      "language": "en"
+    }
+  },
+  "tolerance_s": 0.001,
+  "expected": {
+    "file": "expected/output.json"
+  }
+}

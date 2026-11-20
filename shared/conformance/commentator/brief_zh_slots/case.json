@@ -1,0 +1,24 @@
+{
+  "area": "commentator",
+  "function": "commentator.brief",
+  "language": "zh",
+  "description": "The brief for the Mandarin slots.",
+  "inputs": {
+    "slots": {
+      "file": "../../slots/news_reporter_zh/expected/output.json"
+    },
+    "play_sheet": {
+      "fixture": "sample_run/play_sheet.json"
+    },
+    "user_context": {
+      "fixture": "sample_run/user_context.json"
+    },
+    "storyboard": {
+      "fixture": "sample_run/storyboard.json"
+    }
+  },
+  "tolerance_s": 0.001,
+  "expected": {
+    "file": "expected/output.json"
+  }
+}

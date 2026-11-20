@@ -1,0 +1,15 @@
+{
+  "area": "commentator",
+  "function": "commentator.system_prompt",
+  "language": "en",
+  "description": "The system prompt of news_reporter for a run in English.",
+  "inputs": {
+    "pack": {
+      "style": "news_reporter",
+      "language": "en"
+    }
+  },
+  "expected": {
+    "file": "expected/output.json"
+  }
+}

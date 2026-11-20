@@ -1,0 +1,630 @@
+[
+  {
+    "draft": {
+      "lines": [
+        {
+          "id": "l1",
+          "text": "Free kick, just outside the box.",
+          "delivery": "measured, expectant",
+          "event_refs": [
+            "e1",
+            "e2"
+          ]
+        },
+        {
+          "id": "l2",
+          "text": "Noa...",
+          "delivery": "rising, quick",
+          "event_refs": [
+            "e3"
+          ]
+        },
+        {
+          "id": "l3",
+          "text": "TOP CORNER!",
+          "delivery": "shouting, full voice",
+          "event_refs": [
+            "e6",
+            "e4"
+          ],
+          "hit_word": "TOP"
+        },
+        {
+          "id": "l4",
+          "text": "Unstoppable.",
+          "delivery": "amazed, coming down",
+          "event_refs": [
+            "e7"
+          ]
+        },
+        {
+          "id": "l5",
+          "text": "Watch it again. Clean strike.",
+          "delivery": "calm, analytical",
+          "event_refs": [
+            "e3",
+            "e4"
+          ]
+        },
+        {
+          "id": "l6",
+          "text": "There it is. Top corner.",
+          "delivery": "warm, admiring",
+          "event_refs": [
+            "e6"
+          ],
+          "hit_word": "There"
+        },
+        {
+          "id": "l7",
+          "text": "Magnificent.",
+          "delivery": "smiling",
+          "event_refs": []
+        }
+      ],
+      "headline": "TOP-CORNER FREE KICK",
+      "lower_third": "NOA · FREE KICK"
+    },
+    "replaced": []
+  },
+  {
+    "draft": {
+      "lines": [
+        {
+          "id": "l2",
+          "text": "Noa...",
+          "delivery": "rising, quick",
+          "event_refs": [
+            "e3"
+          ]
+        },
+        {
+          "id": "l3",
+          "text": "TOP CORNER!",
+          "delivery": "shouting, full voice",
+          "event_refs": [
+            "e6",
+            "e4"
+          ],
+          "hit_word": "TOP"
+        },
+        {
+          "id": "l4",
+          "text": "Unstoppable.",
+          "delivery": "amazed, coming down",
+          "event_refs": [
+            "e7"
+          ]
+        },
+        {
+          "id": "l5",
+          "text": "Watch it again. Clean strike.",
+          "delivery": "calm, analytical",
+          "event_refs": [
+            "e3",
+            "e4"
+          ]
+        },
+        {
+          "id": "l6",
+          "text": "There it is. Top corner.",
+          "delivery": "warm, admiring",
+          "event_refs": [
+            "e6"
+          ],
+          "hit_word": "There"
+        },
+        {
+          "id": "l7",
+          "text": "Magnificent.",
+          "delivery": "smiling",
+          "event_refs": []
+        },
+        {
+          "id": "l1",
+          "text": "Here we go.",
+          "hit_word": null
+        }
+      ],
+      "headline": "TOP-CORNER FREE KICK",
+      "lower_third": "NOA · FREE KICK"
+    },
+    "replaced": [
+      "l1"
+    ]
+  },
+  {
+    "draft": {
+      "lines": [
+        {
+          "id": "l1",
+          "text": "Free kick, just outside the box.",
+          "delivery": "measured, expectant",
+          "event_refs": [
+            "e1",
+            "e2"
+          ]
+        },
+        {
+          "id": "l2",
+          "text": "Noa...",
+          "delivery": "rising, quick",
+          "event_refs": [
+            "e3"
+          ]
+        },
+        {
+          "id": "l3",
+          "text": "TOP CORNER!",
+          "delivery": "shouting, full voice",
+          "event_refs": [
+            "e6",
+            "e4"
+          ],
+          "hit_word": "TOP"
+        },
+        {
+          "id": "l4",
+          "text": "Unstoppable.",
+          "delivery": "amazed, coming down",
+          "event_refs": [
+            "e7"
+          ]
+        },
+        {
+          "id": "l5",
+          "text": "Watch it again. Clean strike.",
+          "delivery": "calm, analytical",
+          "event_refs": [
+            "e3",
+            "e4"
+          ]
+        },
+        {
+          "id": "l6",
+          "text": "There it is. Top corner.",
+          "delivery": "warm, admiring",
+          "event_refs": [
+            "e6"
+          ],
+          "hit_word": "There"
+        },
+        {
+          "id": "l7",
+          "text": "Lovely.",
+          "hit_word": null
+        }
+      ],
+      "headline": "PLAY OF THE DAY",
+      "lower_third": "REPLAY"
+    },
+    "replaced": [
+      "l7"
+    ]
+  },
+  {
+    "draft": {
+      "lines": [
+        {
+          "id": "l2",
+          "text": "Noa...",
+          "delivery": "rising, quick",
+          "event_refs": [
+            "e3"
+          ]
+        },
+        {
+          "id": "l3",
+          "text": "TOP CORNER!",
+          "delivery": "shouting, full voice",
+          "event_refs": [
+            "e6",
+            "e4"
+          ],
+          "hit_word": "TOP"
+        },
+        {
+          "id": "l4",
+          "text": "Unstoppable.",
+          "delivery": "amazed, coming down",
+          "event_refs": [
+            "e7"
+          ]
+        },
+        {
+          "id": "l5",
+          "text": "Watch it again. Clean strike.",
+          "delivery": "calm, analytical",
+          "event_refs": [
+            "e3",
+            "e4"
+          ]
+        },
+        {
+          "id": "l6",
+          "text": "There it is. Top corner.",
+          "delivery": "warm, admiring",
+          "event_refs": [
+            "e6"
+          ],
+          "hit_word": "There"
+        },
+        {
+          "id": "l7",
+          "text": "Magnificent.",
+          "delivery": "smiling",
+          "event_refs": []
+        },
+        {
+          "id": "l1",
+          "text": "Here we go.",
+          "hit_word": null
+        }
+      ],
+      "headline": "TOP-CORNER FREE KICK",
+      "lower_third": "NOA · FREE KICK"
+    },
+    "replaced": [
+      "l1"
+    ]
+  },
+  {
+    "draft": {
+      "lines": [
+        {
+          "id": "l1",
+          "text": "Free kick, just outside the box.",
+          "delivery": "measured, expectant",
+          "event_refs": [
+            "e1",
+            "e2"
+          ]
+        },
+        {
+          "id": "l3",
+          "text": "TOP CORNER!",
+          "delivery": "shouting, full voice",
+          "event_refs": [
+            "e6",
+            "e4"
+          ],
+          "hit_word": "TOP"
+        },
+        {
+          "id": "l4",
+          "text": "Unstoppable.",
+          "delivery": "amazed, coming down",
+          "event_refs": [
+            "e7"
+          ]
+        },
+        {
+          "id": "l5",
+          "text": "Watch it again. Clean strike.",
+          "delivery": "calm, analytical",
+          "event_refs": [
+            "e3",
+            "e4"
+          ]
+        },
+        {
+          "id": "l6",
+          "text": "There it is. Top corner.",
+          "delivery": "warm, admiring",
+          "event_refs": [
+            "e6"
+          ],
+          "hit_word": "There"
+        },
+        {
+          "id": "l7",
+          "text": "Magnificent.",
+          "delivery": "smiling",
+          "event_refs": []
+        },
+        {
+          "id": "l2",
+          "text": "Now...",
+          "hit_word": null
+        }
+      ],
+      "headline": "TOP-CORNER FREE KICK",
+      "lower_third": "NOA · FREE KICK"
+    },
+    "replaced": [
+      "l2"
+    ]
+  },
+  {
+    "draft": {
+      "lines": [
+        {
+          "id": "l1",
+          "text": "Here we go.",
+          "hit_word": null
+        },
+        {
+          "id": "l2",
+          "text": "Now...",
+          "hit_word": null
+        },
+        {
+          "id": "l3",
+          "text": "THERE!",
+          "hit_word": "THERE"
+        },
+        {
+          "id": "l4",
+          "text": "Wow.",
+          "hit_word": null
+        },
+        {
+          "id": "l5",
+          "text": "Look again.",
+          "hit_word": null
+        },
+        {
+          "id": "l6",
+          "text": "There it is.",
+          "hit_word": "There"
+        },
+        {
+          "id": "l7",
+          "text": "Lovely.",
+          "hit_word": null
+        }
+      ],
+      "headline": "PLAY OF THE DAY",
+      "lower_third": "REPLAY"
+    },
+    "replaced": [
+      "l1",
+      "l2",
+      "l3",
+      "l4",
+      "l5",
+      "l6",
+      "l7"
+    ]
+  },
+  {
+    "draft": {
+      "lines": [
+        {
+          "id": "l1",
+          "text": "Here we go.",
+          "hit_word": null
+        },
+        {
+          "id": "l2",
+          "text": "Now...",
+          "hit_word": null
+        },
+        {
+          "id": "l3",
+          "text": "THERE!",
+          "hit_word": "THERE"
+        },
+        {
+          "id": "l4",
+          "text": "Wow.",
+          "hit_word": null
+        },
+        {
+          "id": "l5",
+          "text": "Look again.",
+          "hit_word": null
+        },
+        {
+          "id": "l6",
+          "text": "There it is.",
+          "hit_word": "There"
+        },
+        {
+          "id": "l7",
+          "text": "Lovely.",
+          "hit_word": null
+        }
+      ],
+      "headline": "PLAY OF THE DAY",
+      "lower_third": "REPLAY"
+    },
+    "replaced": [
+      "l1",
+      "l2",
+      "l3",
+      "l4",
+      "l5",
+      "l6",
+      "l7"
+    ]
+  },
+  {
+    "draft": {
+      "lines": [
+        {
+          "id": "l1",
+          "text": "Here we go.",
+          "hit_word": null
+        },
+        {
+          "id": "l2",
+          "text": "Now...",
+          "hit_word": null
+        },
+        {
+          "id": "l3",
+          "text": "THERE!",
+          "hit_word": "THERE"
+        },
+        {
+          "id": "l4",
+          "text": "Wow.",
+          "hit_word": null
+        },
+        {
+          "id": "l5",
+          "text": "Look again.",
+          "hit_word": null
+        },
+        {
+          "id": "l6",
+          "text": "There it is.",
+          "hit_word": "There"
+        },
+        {
+          "id": "l7",
+          "text": "Lovely.",
+          "hit_word": null
+        }
+      ],
+      "headline": "PLAY OF THE DAY",
+      "lower_third": "REPLAY"
+    },
+    "replaced": [
+      "l1",
+      "l2",
+      "l3",
+      "l4",
+      "l5",
+      "l6",
+      "l7"
+    ]
+  },
+  {
+    "draft": {
+      "lines": [
+        {
+          "id": "l1",
+          "text": "Free kick, just outside the box.",
+          "delivery": "measured, expectant",
+          "event_refs": [
+            "e1",
+            "e2"
+          ]
+        },
+        {
+          "id": "l2",
+          "text": "Noa...",
+          "delivery": "rising, quick",
+          "event_refs": [
+            "e3"
+          ]
+        },
+        {
+          "id": "l3",
+          "text": "TOP CORNER!",
+          "delivery": "shouting, full voice",
+          "event_refs": [
+            "e6",
+            "e4"
+          ],
+          "hit_word": "TOP"
+        },
+        {
+          "id": "l4",
+          "text": "Unstoppable.",
+          "delivery": "amazed, coming down",
+          "event_refs": [
+            "e7"
+          ]
+        },
+        {
+          "id": "l5",
+          "text": "Watch it again. Clean strike.",
+          "delivery": "calm, analytical",
+          "event_refs": [
+            "e3",
+            "e4"
+          ]
+        },
+        {
+          "id": "l6",
+          "text": "There it is. Top corner.",
+          "delivery": "warm, admiring",
+          "event_refs": [
+            "e6"
+          ],
+          "hit_word": "There"
+        },
+        {
+          "id": "l7",
+          "text": "Magnificent.",
+          "delivery": "smiling",
+          "event_refs": []
+        }
+      ],
+      "headline": "PLAY OF THE DAY",
+      "lower_third": "NOA · FREE KICK"
+    },
+    "replaced": []
+  },
+  {
+    "draft": {
+      "lines": [
+        {
+          "id": "l1",
+          "text": "Free kick, just outside the box.",
+          "delivery": "measured, expectant",
+          "event_refs": [
+            "e1",
+            "e2"
+          ]
+        },
+        {
+          "id": "l2",
+          "text": "Noa...",
+          "delivery": "rising, quick",
+          "event_refs": [
+            "e3"
+          ]
+        },
+        {
+          "id": "l3",
+          "text": "TOP CORNER!",
+          "delivery": "shouting, full voice",
+          "event_refs": [
+            "e6",
+            "e4"
+          ],
+          "hit_word": "TOP"
+        },
+        {
+          "id": "l4",
+          "text": "Unstoppable.",
+          "delivery": "amazed, coming down",
+          "event_refs": [
+            "e7"
+          ]
+        },
+        {
+          "id": "l5",
+          "text": "Watch it again. Clean strike.",
+          "delivery": "calm, analytical",
+          "event_refs": [
+            "e3",
+            "e4"
+          ]
+        },
+        {
+          "id": "l6",
+          "text": "There it is. Top corner.",
+          "delivery": "warm, admiring",
+          "event_refs": [
+            "e6"
+          ],
+          "hit_word": "There"
+        },
+        {
+          "id": "l7",
+          "text": "Magnificent.",
+          "delivery": "smiling",
+          "event_refs": []
+        }
+      ],
+      "headline": "PLAY OF THE DAY",
+      "lower_third": "REPLAY"
+    },
+    "replaced": []
+  }
+]

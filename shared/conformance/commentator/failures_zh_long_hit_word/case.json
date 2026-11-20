@@ -1,0 +1,177 @@
+{
+  "area": "commentator",
+  "function": "commentator.failures",
+  "language": "zh",
+  "description": "A Mandarin hit word of four characters that is in the line is still too long (one to three).",
+  "inputs": {
+    "slots": {
+      "file": "../../slots/news_reporter_zh/expected/output.json"
+    },
+    "play_sheet": {
+      "fixture": "sample_run/play_sheet.json"
+    },
+    "user_context": {
+      "fixture": "sample_run/user_context.json"
+    },
+    "storyboard": {
+      "fixture": "sample_run/storyboard.json"
+    },
+    "pack": {
+      "style": "news_reporter",
+      "language": "zh"
+    },
+    "drafts": {
+      "value": [
+        {
+          "lines": [
+            {
+              "id": "l1",
+              "text": "我们开始。",
+              "hit_word": null
+            },
+            {
+              "id": "l2",
+              "text": "来了……",
+              "hit_word": null
+            },
+            {
+              "id": "l3",
+              "text": "好球好球好球",
+              "hit_word": "好球好球"
+            },
+            {
+              "id": "l4",
+              "text": "好！",
+              "hit_word": null
+            },
+            {
+              "id": "l5",
+              "text": "再看一次。",
+              "hit_word": null
+            },
+            {
+              "id": "l6",
+              "text": "就是这里。",
+              "hit_word": "就"
+            },
+            {
+              "id": "l7",
+              "text": "真好。",
+              "hit_word": null
+            }
+          ],
+          "headline": "今晚头条",
+          "lower_third": "慢镜头"
+        },
+        {
+          "lines": [
+            {
+              "id": "l1",
+              "text": "我们开始。",
+              "hit_word": null
+            },
+            {
+              "id": "l2",
+              "text": "来了……",
+              "hit_word": null
+            },
+            {
+              "id": "l3",
+              "text": "好球好球好球",
+              "hit_word": "好球好"
+            },
+            {
+              "id": "l4",
+              "text": "好！",
+              "hit_word": null
+            },
+            {
+              "id": "l5",
+              "text": "再看一次。",
+              "hit_word": null
+            },
+            {
+              "id": "l6",
+              "text": "就是这里。",
+              "hit_word": "就"
+            },
+            {
+              "id": "l7",
+              "text": "真好。",
+              "hit_word": null
+            }
+          ],
+          "headline": "今晚头条",
+          "lower_third": "慢镜头"
+        },
+        {
+          "lines": [
+            {
+              "id": "l1",
+              "text": "我们开始。",
+              "hit_word": null
+            },
+            {
+              "id": "l2",
+              "text": "来了……",
+              "hit_word": null
+            },
+            {
+              "id": "l3",
+              "text": "好球好球好球",
+              "hit_word": "  好！ "
+            },
+            {
+              "id": "l4",
+              "text": "好！",
+              "hit_word": null
+            },
+            {
+              "id": "l5",
+              "text": "再看一次。",
+              "hit_word": null
+            },
+            {
+              "id": "l6",
+              "text": "就是这里。",
+              "hit_word": "就"
+            },
+            {
+              "id": "l7",
+              "text": "真好。",
+              "hit_word": null
+            }
+          ],
+          "headline": "今晚头条",
+          "lower_third": "慢镜头"
+        }
+      ]
+    }
+  },
+  "expected": {
+    "value": [
+      [
+        {
+          "where": "l3",
+          "detail": "hit_word must be one to three characters of the line"
+        },
+        {
+          "where": "l3",
+          "detail": "more than 5 words (6)"
+        }
+      ],
+      [
+        {
+          "where": "l3",
+          "detail": "more than 5 words (6)"
+        }
+      ],
+      [
+        {
+          "where": "l3",
+          "detail": "more than 5 words (6)"
+        }
+      ]
+    ]
+  }
+}

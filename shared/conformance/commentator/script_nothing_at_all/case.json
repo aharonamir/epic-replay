@@ -1,0 +1,34 @@
+{
+  "area": "commentator",
+  "function": "commentator.script",
+  "language": "en",
+  "description": "No agent draft and the structured call failed: every line is generic.",
+  "inputs": {
+    "slots": {
+      "file": "../../slots/football_commentator_en/expected/output.json"
+    },
+    "play_sheet": {
+      "fixture": "sample_run/play_sheet.json"
+    },
+    "user_context": {
+      "fixture": "sample_run/user_context.json"
+    },
+    "storyboard": {
+      "fixture": "sample_run/storyboard.json"
+    },
+    "pack": {
+      "style": "football_commentator",
+      "language": "en"
+    },
+    "agent_draft": {
+      "value": null
+    },
+    "structured_draft": {
+      "value": null
+    }
+  },
+  "tolerance_s": 0.001,
+  "expected": {
+    "file": "expected/output.json"
+  }
+}

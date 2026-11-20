@@ -1,0 +1,182 @@
+{
+  "_note": "What the Commentator is told and what it falls back on, word for word: the system prompt (its four fields are filled from the style pack), the changes made to it for a Mandarin run, the draft schema, the style-free lines for a slot that cannot be filled, and the limits. Both apps read this file; the PC's recordings are keyed on the system prompt (spec 004, T419).",
+  "max_iterations": 6,
+  "system_prompt": "You write the narration for a short replay video, one line per slot.\n\nPersona: {persona}\n\nStyle rules:\n{rules}\n\nWhat each line is for:\n{roles}\n\nInvented example lines, to show the register only. Do not copy them:\n{examples}\n\nRules for every line:\n- Say only what the events given to you show. Use only names and numbers that appear in the brief.\n- Never state or guess anyone's age, and never remark on anyone's body or looks. Refer to a person\n  by name, by role, or as he/him.\n- The clip can be anything; do not assume a ball, a score or an opponent unless the events say so.\n- Each line fits its slot's max_words. A slot plays while the source times in shows_source_s are\n  on screen; replay slots show the moment again in slow motion; endcard slots show a still.\n- The climax and replay_climax lines each need a hit_word: one word of the line, the word that\n  lands on the key moment, usually its first word.\n- event_refs lists the ids of the events a line is about; empty for a line that makes no claim.\n- headline (end card) and lower_third (caption under the action): at most 40 characters each.\n\nWork: draft all lines, call check_lines, fix what it reports, then call submit_script with the\nfull draft. Finish by calling submit_script; do not answer in plain text.",
+  "zh_prompt": [
+    [
+      "You write the narration for a short replay video, one line per slot.",
+      "You write the narration for a short replay video, one line per slot, in Simplified Chinese (mainland usage). The brief is in English: write from it, in Chinese. Lines, headline and lower third are all in Chinese; delivery stays in short English words."
+    ],
+    [
+      "Use only names and numbers that appear in the brief.",
+      "Use only names and numbers that appear in the brief, and no other name of any person, team or place. Keep a name exactly as the user typed it. Write numbers in Chinese numerals, never in digits."
+    ],
+    [
+      "or as he/him.",
+      "or as 他. Never write 她."
+    ],
+    [
+      "- Each line fits its slot's max_words.",
+      "- Each line fits its slot's max_words, which counts Chinese characters; punctuation is free."
+    ],
+    [
+      "one word of the line, the word that\n  lands on the key moment, usually its first word.",
+      "one to three characters of the\n  line, exactly as written there, that land on the key moment, usually its first characters."
+    ],
+    [
+      "at most 40 characters each.",
+      "at most 16 characters each."
+    ]
+  ],
+  "line_schema": {
+    "type": "object",
+    "properties": {
+      "id": {
+        "type": "string",
+        "description": "the slot id, l1, l2, ..."
+      },
+      "text": {
+        "type": "string"
+      },
+      "delivery": {
+        "type": "string",
+        "description": "short direction for the voice"
+      },
+      "hit_word": {
+        "type": "string",
+        "description": "key lines only"
+      },
+      "event_refs": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      }
+    },
+    "required": [
+      "id",
+      "text"
+    ]
+  },
+  "draft_schema": {
+    "type": "object",
+    "properties": {
+      "lines": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "description": "the slot id, l1, l2, ..."
+            },
+            "text": {
+              "type": "string"
+            },
+            "delivery": {
+              "type": "string",
+              "description": "short direction for the voice"
+            },
+            "hit_word": {
+              "type": "string",
+              "description": "key lines only"
+            },
+            "event_refs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "id",
+            "text"
+          ]
+        }
+      },
+      "headline": {
+        "type": "string"
+      },
+      "lower_third": {
+        "type": "string"
+      }
+    },
+    "required": [
+      "lines",
+      "headline",
+      "lower_third"
+    ]
+  },
+  "generic": {
+    "opening": [
+      "Here we go.",
+      "Here."
+    ],
+    "build_up": [
+      "Here it comes...",
+      "Now..."
+    ],
+    "climax": [
+      "THERE IT IS!",
+      "THERE!"
+    ],
+    "reaction": [
+      "What a moment.",
+      "Wow."
+    ],
+    "replay_watch": [
+      "Look again.",
+      "Again."
+    ],
+    "replay_climax": [
+      "There it is.",
+      "There."
+    ],
+    "sign_off": [
+      "Lovely.",
+      "Lovely."
+    ]
+  },
+  "generic_zh": {
+    "opening": [
+      "我们开始。",
+      "开始。",
+      "看！"
+    ],
+    "build_up": [
+      "来了……",
+      "来！"
+    ],
+    "climax": [
+      "就是现在！",
+      "现在！",
+      "好！"
+    ],
+    "reaction": [
+      "好一个瞬间。",
+      "好！"
+    ],
+    "replay_watch": [
+      "再看一次。",
+      "再看。",
+      "看！"
+    ],
+    "replay_climax": [
+      "就是这里。",
+      "这里。",
+      "好。"
+    ],
+    "sign_off": [
+      "真好。",
+      "好。"
+    ]
+  },
+  "zh_headline_max": 16,
+  "zh_punctuation": "！？。，、；：…·“”‘’",
+  "caption_pattern": "\\b(caption|captions|subtitle|subtitles|text|texts|title|titles|on-screen|logo|watermark|banner|lettering|typing)\\b|\\bon screen\\b",
+  "tools": {
+    "check_lines": "Check a full draft. Returns each failure.",
+    "submit_script": "Submit the full draft. Accepted only if it passes."
+  },
+  "structured_draft_intro": "Answer with one JSON object: "
+}

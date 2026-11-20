@@ -1,0 +1,159 @@
+[
+  [],
+  [
+    {
+      "where": "l7",
+      "detail": "no line for this slot"
+    },
+    {
+      "where": "script",
+      "detail": "schema lines/6/text"
+    }
+  ],
+  [
+    {
+      "where": "l3",
+      "detail": "hit_word must be one word of the line"
+    },
+    {
+      "where": "l6",
+      "detail": "hit_word must be one word of the line"
+    }
+  ],
+  [
+    {
+      "where": "l3",
+      "detail": "hit_word must be one word of the line"
+    }
+  ],
+  [],
+  [
+    {
+      "where": "l1",
+      "detail": "'Ronaldo' is not in the play sheet or the user context"
+    }
+  ],
+  [
+    {
+      "where": "l1",
+      "detail": "the number 7 is not in the play sheet or the user context"
+    }
+  ],
+  [
+    {
+      "where": "l1",
+      "detail": "'she' is a banned term"
+    }
+  ],
+  [
+    {
+      "where": "script",
+      "detail": "l1: unknown event e99"
+    },
+    {
+      "where": "l1",
+      "detail": "event e99 is not in the play sheet"
+    }
+  ],
+  [],
+  [
+    {
+      "where": "l2",
+      "detail": "more than 1 word (8)"
+    }
+  ],
+  [
+    {
+      "where": "script",
+      "detail": "schema lines/3/text"
+    }
+  ],
+  [
+    {
+      "where": "script",
+      "detail": "schema lines/3/text"
+    }
+  ],
+  [
+    {
+      "where": "headline",
+      "detail": "'RONALDO' is not in the play sheet or the user context"
+    }
+  ],
+  [],
+  [
+    {
+      "where": "l7",
+      "detail": "no line for this slot"
+    },
+    {
+      "where": "script",
+      "detail": "schema lines/6/text"
+    }
+  ],
+  [
+    {
+      "where": "l1",
+      "detail": "no line for this slot"
+    },
+    {
+      "where": "l2",
+      "detail": "no line for this slot"
+    },
+    {
+      "where": "l3",
+      "detail": "no line for this slot"
+    },
+    {
+      "where": "l4",
+      "detail": "no line for this slot"
+    },
+    {
+      "where": "l5",
+      "detail": "no line for this slot"
+    },
+    {
+      "where": "l6",
+      "detail": "no line for this slot"
+    },
+    {
+      "where": "l7",
+      "detail": "no line for this slot"
+    },
+    {
+      "where": "script",
+      "detail": "schema lines/0/text"
+    },
+    {
+      "where": "script",
+      "detail": "schema lines/1/text"
+    },
+    {
+      "where": "script",
+      "detail": "schema lines/2/text"
+    },
+    {
+      "where": "script",
+      "detail": "schema lines/3/text"
+    },
+    {
+      "where": "script",
+      "detail": "schema lines/4/text"
+    },
+    {
+      "where": "script",
+      "detail": "schema lines/5/text"
+    },
+    {
+      "where": "script",
+      "detail": "schema lines/6/text"
+    }
+  ],
+  [],
+  [
+    {
+      "where": "script",
+      "detail": "schema headline"
+    }
+  ]
+]

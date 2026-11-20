@@ -1,0 +1,28 @@
+{
+  "area": "commentator",
+  "function": "commentator.generic",
+  "language": "zh",
+  "description": "Generic mode in Mandarin.",
+  "inputs": {
+    "slots": {
+      "file": "../../slots/news_reporter_zh/expected/output.json"
+    },
+    "play_sheet": {
+      "fixture": "sample_run/play_sheet.json"
+    },
+    "user_context": {
+      "fixture": "sample_run/user_context.json"
+    },
+    "storyboard": {
+      "fixture": "sample_run/storyboard.json"
+    },
+    "pack": {
+      "style": "news_reporter",
+      "language": "zh"
+    }
+  },
+  "tolerance_s": 0.001,
+  "expected": {
+    "file": "expected/output.json"
+  }
+}
