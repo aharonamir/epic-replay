@@ -17,86 +17,22 @@ from pathlib import Path
 import httpx
 import numpy as np
 
-from epic_replay import contracts
+from epic_replay import contracts, paths
 from epic_replay.guards import lexicon
 from epic_replay.media import contact_sheet as cs
 from epic_replay.providers.vision import SchemaMisfit
 from epic_replay.stages.base import RunContext
 
-OVERVIEW_Q = (
-    "The image is a grid of up to 9 frames from one short video, in time order, numbered 1 to "
-    "9 in the top-left corner of each cell. {where} Say what is going on (any kind of moment, "
-    "not necessarily sport), how it ends, and who or what does it (clothing colour or kind of "
-    "animal only, never age or looks). If the high point of the video (the moment it is all "
-    "about) is shown in this grid, give its cell; if it is not in this grid, give 0. Say how "
-    "sure you are, 0 to 10."
-)
-WHERE_UNIFORM = "These frames are spread evenly over part {part} of {parts} of the video."
-WHERE_CANDIDATE = (
-    "These frames cover about three seconds around a moment of sudden motion or sound."
-)
-OVERVIEW_SCHEMA = {
-    "type": "object",
-    "required": ["activity", "outcome", "actor", "high_point_cell", "sure"],
-    "properties": {
-        "activity": {"type": "string"},
-        "outcome": {"type": "string"},
-        "actor": {"type": "string"},
-        "high_point_cell": {"type": "integer", "minimum": 0, "maximum": 9},
-        "sure": {"type": "integer", "minimum": 0, "maximum": 10},
-    },
-}
-
-EVENTS_Q = (
-    "The images are two grids of up to 9 frames each from one short video, in time order: "
-    "Grid 1 is the first half of the video and Grid 2 the second half. The cells are numbered "
-    "1 to 9 in the top-left corner of each cell. List the 3 to 6 things that happen, in the "
-    "order they happen (any kind of moment, not necessarily sport). For each, give the grid "
-    "and cell where it starts and where it ends, who or what does it (clothing colour or kind "
-    "of animal only, never age or looks), what they do, and how it ends if it ends there "
-    "(empty if not). Say how sure you are, 0 to 10. Then say whether the video shows anyone "
-    "hurt, a fight, someone in distress or being humiliated, or anyone undressed: sensitive "
-    "true or false, and when true the reason in a few plain words, without describing anyone's "
-    "age or body (FR-009)."
-)
-SENSITIVE_DEFAULT = "the clip may show someone hurt or upset"
-_CELL = {"type": "integer", "minimum": 1, "maximum": 9}
-_GRID = {"type": "integer", "minimum": 1, "maximum": 2}
-EVENTS_SCHEMA = {
-    "type": "object",
-    "required": ["events", "sure", "sensitive", "sensitive_reason"],
-    "properties": {
-        "sensitive": {"type": "boolean"},
-        "sensitive_reason": {"type": "string"},
-        "events": {
-            "type": "array",
-            "minItems": 3,
-            "maxItems": 6,
-            "items": {
-                "type": "object",
-                "required": [
-                    "first_grid",
-                    "first_cell",
-                    "last_grid",
-                    "last_cell",
-                    "actor",
-                    "action",
-                    "outcome",
-                ],  # fmt: skip
-                "properties": {
-                    "first_grid": _GRID,
-                    "first_cell": _CELL,
-                    "last_grid": _GRID,
-                    "last_cell": _CELL,
-                    "actor": {"type": "string"},
-                    "action": {"type": "string"},
-                    "outcome": {"type": "string"},
-                },
-            },
-        },
-        "sure": {"type": "integer", "minimum": 0, "maximum": 10},
-    },
-}
+_WORDS = json.loads(
+    (paths.COPY / "spotter.json").read_text("utf-8")
+)  # shared with the phone (spec 004, T418)
+OVERVIEW_Q = _WORDS["overview_q"]
+WHERE_UNIFORM = _WORDS["where_uniform"]
+WHERE_CANDIDATE = _WORDS["where_candidate"]
+OVERVIEW_SCHEMA = _WORDS["overview_schema"]
+EVENTS_Q = _WORDS["events_q"]
+EVENTS_SCHEMA = _WORDS["events_schema"]
+SENSITIVE_DEFAULT = _WORDS["sensitive_default"]
 
 UNIFORM_FRAMES = 18  # two overview sheets of nine
 CANDIDATE_HALF_S = 1.5
@@ -116,6 +52,25 @@ def _read(path: Path) -> dict | None:
 
 def _onset_frame(c: dict) -> int:
     return c["sound_onset_frame"] if c.get("sound_onset_frame") is not None else c["frame"]
+
+
+def plan_overview(info: dict) -> list[dict]:
+    """Two sheets spread evenly over the clip, one around each of the top three S1 candidates."""
+    fps, n = info["fps"], info["frames"]
+    dur = n / fps
+    even = cs.sheet_frames(0.3, max(0.3, dur - 0.3), fps, n)
+    even = sorted({int(round(x)) for x in np.linspace(even[0], even[-1], UNIFORM_FRAMES)})
+    halves = [even[: len(even) // 2], even[len(even) // 2 :]]
+    plan = [
+        {"kind": "uniform", "frames": f, "where": WHERE_UNIFORM.format(part=k + 1, parts=2)}
+        for k, f in enumerate(halves)
+    ]
+    for c in info["candidates"][:SHEET_CANDIDATES]:
+        frames = cs.sheet_frames(c["t"] - CANDIDATE_HALF_S, c["t"] + CANDIDATE_HALF_S, fps, n)
+        plan.append({"kind": "candidate", "frames": frames, "where": WHERE_CANDIDATE})
+    for k, sheet in enumerate(plan):
+        sheet["name"] = f"o{k}_{sheet['kind']}.jpg"
+    return plan
 
 
 class SpotterTools:
@@ -144,23 +99,7 @@ class SpotterTools:
         }
 
     def plan_overview(self, info: dict) -> list[dict]:
-        """Two sheets spread evenly over the clip, one around each of the top three S1
-        candidates."""
-        fps, n = info["fps"], info["frames"]
-        dur = n / fps
-        even = cs.sheet_frames(0.3, max(0.3, dur - 0.3), fps, n)
-        even = sorted({int(round(x)) for x in np.linspace(even[0], even[-1], UNIFORM_FRAMES)})
-        halves = [even[: len(even) // 2], even[len(even) // 2 :]]
-        plan = [
-            {"kind": "uniform", "frames": f, "where": WHERE_UNIFORM.format(part=k + 1, parts=2)}
-            for k, f in enumerate(halves)
-        ]
-        for c in info["candidates"][:SHEET_CANDIDATES]:
-            frames = cs.sheet_frames(c["t"] - CANDIDATE_HALF_S, c["t"] + CANDIDATE_HALF_S, fps, n)
-            plan.append({"kind": "candidate", "frames": frames, "where": WHERE_CANDIDATE})
-        for k, sheet in enumerate(plan):
-            sheet["name"] = f"o{k}_{sheet['kind']}.jpg"
-        return plan
+        return plan_overview(info)
 
     def sheet(self, entry: dict) -> tuple[Path, list[dict]]:
         """The sheet's image and cells, written once."""

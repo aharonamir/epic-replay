@@ -1,0 +1,137 @@
+{
+  "play_sheet": {
+    "schema_version": "1.0",
+    "run_id": "run-1",
+    "mode": "specific",
+    "activity": {
+      "value": "a ball is struck",
+      "confidence": 0.8,
+      "source": "model"
+    },
+    "setting": "",
+    "actors": [
+      {
+        "id": "a1",
+        "descriptor": "person in grey t-shirt and shorts",
+        "role": "",
+        "user_name": null,
+        "followed": true
+      }
+    ],
+    "events": [
+      {
+        "id": "e1",
+        "t_start": 0.3,
+        "t_end": 2.833,
+        "actor": "a1",
+        "action": "sits on the windowsill and shifts position",
+        "object": null,
+        "outcome": null,
+        "confidence": 0.8,
+        "source": "model"
+      },
+      {
+        "id": "e2",
+        "t_start": 3.7,
+        "t_end": 6.233,
+        "actor": "a1",
+        "action": "leans forward and bends down toward the window opening",
+        "object": null,
+        "outcome": null,
+        "confidence": 0.8,
+        "source": "model"
+      },
+      {
+        "id": "e3",
+        "t_start": 7.067,
+        "t_end": 8.767,
+        "actor": "a1",
+        "action": "sits back upright on the windowsill",
+        "object": null,
+        "outcome": null,
+        "confidence": 0.8,
+        "source": "model"
+      },
+      {
+        "id": "e4",
+        "t_start": 9.633,
+        "t_end": 10.467,
+        "actor": "a1",
+        "action": "tips backward and goes out through the window opening",
+        "object": null,
+        "outcome": "the window is empty in the following frames",
+        "confidence": 0.8,
+        "source": "model"
+      }
+    ],
+    "climax": {
+      "event_id": "e4",
+      "t": 10.367,
+      "frame": 311,
+      "method": "sheets+sound",
+      "confidence": 0.48,
+      "candidates": [
+        {
+          "t": 10.367,
+          "frame": 311,
+          "reason": "S1 candidate: sudden motion and sound (score 24.0)"
+        },
+        {
+          "t": 9.633,
+          "frame": 289,
+          "reason": "S1 candidate: sudden motion (score 18.5)"
+        },
+        {
+          "t": 3.933,
+          "frame": 118,
+          "reason": "S1 candidate: sudden motion and sound (score 14.0)"
+        },
+        {
+          "t": 2.0,
+          "frame": 60,
+          "reason": "S1 candidate: sudden motion (score 12.2)"
+        },
+        {
+          "t": 13.3,
+          "frame": 399,
+          "reason": "S1 candidate: sudden motion and sound (score 11.0)"
+        },
+        {
+          "t": 11.3,
+          "frame": 339,
+          "reason": "the overview also saw a high point (o1_uniform.jpg)"
+        }
+      ]
+    },
+    "outcome_summary": {
+      "value": "the ball flies off",
+      "confidence": 0.8,
+      "source": "model"
+    },
+    "focus_box": null,
+    "sensitive": {
+      "flag": false,
+      "reason": null,
+      "checked": true
+    },
+    "agreement": {
+      "passes": 1,
+      "disagreed_fields": [],
+      "escalated": false
+    },
+    "overall_confidence": 0.48,
+    "confirmed_by_user": false,
+    "models": {
+      "analysis": "deepseek-flash",
+      "refine": "none"
+    }
+  },
+  "accepted": false,
+  "errors": [
+    "event e2 lies outside the clip",
+    "event e3 lies outside the clip",
+    "event e4 lies outside the clip",
+    "climax time outside the clip"
+  ],
+  "cleared": []
+}

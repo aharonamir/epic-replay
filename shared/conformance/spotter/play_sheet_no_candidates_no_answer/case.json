@@ -1,0 +1,169 @@
+{
+  "area": "spotter",
+  "function": "spotter.play_sheet",
+  "language": null,
+  "description": "Nothing answered and S1 found nothing: the middle of the clip, for the user to move.",
+  "tolerance_s": 0.001,
+  "inputs": {
+    "run_id": {
+      "value": "run-1"
+    },
+    "info": {
+      "value": {
+        "duration_s": 15.0,
+        "fps": 30.0,
+        "frames": 450,
+        "orientation": "landscape",
+        "candidates": [],
+        "user": {
+          "activity": null,
+          "player_name": null,
+          "description": null
+        }
+      }
+    },
+    "looks": {
+      "value": [
+        {
+          "kind": "uniform",
+          "name": "o0_uniform.jpg",
+          "cells": [
+            {
+              "cell": 1,
+              "frame": 9,
+              "t": 0.3
+            },
+            {
+              "cell": 2,
+              "frame": 34,
+              "t": 1.133
+            },
+            {
+              "cell": 3,
+              "frame": 60,
+              "t": 2.0
+            },
+            {
+              "cell": 4,
+              "frame": 85,
+              "t": 2.833
+            },
+            {
+              "cell": 5,
+              "frame": 111,
+              "t": 3.7
+            },
+            {
+              "cell": 6,
+              "frame": 136,
+              "t": 4.533
+            },
+            {
+              "cell": 7,
+              "frame": 161,
+              "t": 5.367
+            },
+            {
+              "cell": 8,
+              "frame": 187,
+              "t": 6.233
+            },
+            {
+              "cell": 9,
+              "frame": 212,
+              "t": 7.067
+            }
+          ],
+          "answer": null,
+          "left_out": "Timeout: timed out"
+        },
+        {
+          "kind": "uniform",
+          "name": "o1_uniform.jpg",
+          "cells": [
+            {
+              "cell": 1,
+              "frame": 238,
+              "t": 7.933
+            },
+            {
+              "cell": 2,
+              "frame": 263,
+              "t": 8.767
+            },
+            {
+              "cell": 3,
+              "frame": 289,
+              "t": 9.633
+            },
+            {
+              "cell": 4,
+              "frame": 314,
+              "t": 10.467
+            },
+            {
+              "cell": 5,
+              "frame": 339,
+              "t": 11.3
+            },
+            {
+              "cell": 6,
+              "frame": 365,
+              "t": 12.167
+            },
+            {
+              "cell": 7,
+              "frame": 390,
+              "t": 13.0
+            },
+            {
+              "cell": 8,
+              "frame": 416,
+              "t": 13.867
+            },
+            {
+              "cell": 9,
+              "frame": 441,
+              "t": 14.7
+            }
+          ],
+          "answer": null,
+          "left_out": "Timeout: timed out"
+        }
+      ]
+    },
+    "events_look": {
+      "value": {
+        "grids": [
+          "o0_uniform.jpg",
+          "o1_uniform.jpg"
+        ],
+        "answer": null,
+        "events": null,
+        "left_out": "HTTPStatusError: 500"
+      }
+    },
+    "signals": {
+      "value": {
+        "onsets_t": []
+      }
+    },
+    "snap_s": {
+      "value": 0.25
+    },
+    "model": {
+      "value": "deepseek-flash"
+    },
+    "clip_meta": {
+      "value": {
+        "duration_s": 15.0,
+        "fps": 30,
+        "width": 1920,
+        "height": 1080
+      }
+    }
+  },
+  "expected": {
+    "file": "expected/output.json"
+  }
+}

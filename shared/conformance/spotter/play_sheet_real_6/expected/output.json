@@ -1,0 +1,134 @@
+{
+  "play_sheet": {
+    "schema_version": "1.0",
+    "run_id": "run-1",
+    "mode": "specific",
+    "activity": {
+      "value": "A dog jumping, twisting, and playing on a sandy beach near the ocean.",
+      "confidence": 0.9,
+      "source": "model"
+    },
+    "setting": "",
+    "actors": [
+      {
+        "id": "a1",
+        "descriptor": "person",
+        "role": "",
+        "user_name": null,
+        "followed": true
+      },
+      {
+        "id": "a2",
+        "descriptor": "person (hand only visible)",
+        "role": "",
+        "user_name": null,
+        "followed": false
+      }
+    ],
+    "events": [
+      {
+        "id": "e1",
+        "t_start": 2.0,
+        "t_end": 11.3,
+        "actor": "a1",
+        "action": "moves spatula under pancake on grate",
+        "object": null,
+        "outcome": null,
+        "confidence": 1.0,
+        "source": "model"
+      },
+      {
+        "id": "e2",
+        "t_start": 2.833,
+        "t_end": 12.167,
+        "actor": "a1",
+        "action": "lifts first pancake from grate",
+        "object": null,
+        "outcome": null,
+        "confidence": 1.0,
+        "source": "model"
+      },
+      {
+        "id": "e3",
+        "t_start": 3.7,
+        "t_end": 13.0,
+        "actor": "a1",
+        "action": "places pancake onto new grate surface",
+        "object": null,
+        "outcome": null,
+        "confidence": 1.0,
+        "source": "model"
+      },
+      {
+        "id": "e4",
+        "t_start": 4.533,
+        "t_end": 14.7,
+        "actor": "a2",
+        "action": "places second pancake onto grate",
+        "object": null,
+        "outcome": null,
+        "confidence": 1.0,
+        "source": "model"
+      }
+    ],
+    "climax": {
+      "event_id": "e4",
+      "t": 8.867,
+      "frame": 266,
+      "method": "sheets",
+      "confidence": 0.54,
+      "candidates": [
+        {
+          "t": 10.367,
+          "frame": 311,
+          "reason": "S1 candidate: sudden motion and sound (score 24.0)"
+        },
+        {
+          "t": 9.633,
+          "frame": 289,
+          "reason": "S1 candidate: sudden motion (score 18.5)"
+        },
+        {
+          "t": 3.933,
+          "frame": 118,
+          "reason": "S1 candidate: sudden motion and sound (score 14.0)"
+        },
+        {
+          "t": 2.0,
+          "frame": 60,
+          "reason": "S1 candidate: sudden motion (score 12.2)"
+        },
+        {
+          "t": 13.3,
+          "frame": 399,
+          "reason": "S1 candidate: sudden motion and sound (score 11.0)"
+        }
+      ]
+    },
+    "outcome_summary": {
+      "value": "The dog lands from its jump and runs off across the beach.",
+      "confidence": 0.9,
+      "source": "model"
+    },
+    "focus_box": null,
+    "sensitive": {
+      "flag": false,
+      "reason": null,
+      "checked": true
+    },
+    "agreement": {
+      "passes": 1,
+      "disagreed_fields": [],
+      "escalated": false
+    },
+    "overall_confidence": 0.54,
+    "confirmed_by_user": false,
+    "models": {
+      "analysis": "deepseek-flash",
+      "refine": "none"
+    }
+  },
+  "accepted": true,
+  "errors": [],
+  "cleared": []
+}

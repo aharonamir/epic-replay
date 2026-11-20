@@ -1,0 +1,427 @@
+[
+  [
+    {
+      "t_start": 1.133,
+      "t_end": 2.0,
+      "actor": "person in black patterned shirt, blue jeans, red shoes",
+      "action": "bounces a white ball on a black paddle while holding a clear cup",
+      "outcome": "ball stays near the paddle"
+    },
+    {
+      "t_start": 2.833,
+      "t_end": 3.7,
+      "actor": "person in black patterned shirt, blue jeans, red shoes",
+      "action": "raises the clear cup and catches the ball",
+      "outcome": "ball is caught in the cup"
+    },
+    {
+      "t_start": 4.533,
+      "t_end": 13.0,
+      "actor": "person in black patterned shirt, blue jeans, red shoes",
+      "action": "replays the paddle-and-cup catch in slow motion",
+      "outcome": "cup ends held high"
+    },
+    {
+      "t_start": 13.867,
+      "t_end": 14.7,
+      "actor": "person in black patterned shirt, blue jeans, red shoes",
+      "action": "holds the cup up as the final title appears",
+      "outcome": "video ends"
+    }
+  ],
+  [
+    {
+      "t_start": 0.3,
+      "t_end": 7.067,
+      "actor": "orange cat",
+      "action": "walks toward the stacked toilet paper wall and watches it",
+      "outcome": "stops in front of the barrier"
+    },
+    {
+      "t_start": 7.933,
+      "t_end": 8.767,
+      "actor": "dark cat",
+      "action": "appears behind the toilet paper wall on the sofa and moves to the wall edge",
+      "outcome": "prepares to climb the wall"
+    },
+    {
+      "t_start": 8.767,
+      "t_end": 12.167,
+      "actor": "dark cat",
+      "action": "climbs over the toilet paper wall and down to the floor",
+      "outcome": "reaches the orange cat's side"
+    },
+    {
+      "t_start": 12.167,
+      "t_end": 13.867,
+      "actor": "dark cat",
+      "action": "approaches the orange cat",
+      "outcome": "the cats come close and face each other"
+    },
+    {
+      "t_start": 13.867,
+      "t_end": 14.7,
+      "actor": "dark cat",
+      "action": "turns and walks past the orange cat",
+      "outcome": "moves away down the hallway"
+    }
+  ],
+  [
+    {
+      "t_start": 0.3,
+      "t_end": 2.0,
+      "actor": "person in black patterned shirt and blue jeans",
+      "action": "holds a paddle and reaches out as a table tennis ball appears",
+      "outcome": "ball is near the paddle"
+    },
+    {
+      "t_start": 2.833,
+      "t_end": 4.533,
+      "actor": "person in black patterned shirt and blue jeans",
+      "action": "bends low and swings the paddle to hit the ball upward",
+      "outcome": "ball rises above the paddle"
+    },
+    {
+      "t_start": 5.367,
+      "t_end": 7.067,
+      "actor": "person in black patterned shirt and blue jeans",
+      "action": "continues hitting the ball with the paddle",
+      "outcome": "ball stays airborne"
+    },
+    {
+      "t_start": 7.933,
+      "t_end": 10.467,
+      "actor": "person in black patterned shirt and blue jeans",
+      "action": "raises a clear cup toward the falling ball",
+      "outcome": "ball reaches the cup"
+    },
+    {
+      "t_start": 11.3,
+      "t_end": 14.7,
+      "actor": "person in black patterned shirt and blue jeans",
+      "action": "holds the clear cup with the ball and lifts it up",
+      "outcome": "ball stays in the cup"
+    }
+  ],
+  [
+    {
+      "t_start": 1.133,
+      "t_end": 2.0,
+      "actor": "clear water bottle with a blue label",
+      "action": "stands upright on the patio beside the wall",
+      "outcome": null
+    },
+    {
+      "t_start": 3.7,
+      "t_end": 3.7,
+      "actor": "clear water bottle with a blue label",
+      "action": "is airborne and tilted near the top of the wall",
+      "outcome": null
+    },
+    {
+      "t_start": 4.533,
+      "t_end": 5.367,
+      "actor": "clear water bottle with a blue label",
+      "action": "lands on the patio and wobbles",
+      "outcome": "settles upright"
+    },
+    {
+      "t_start": 6.233,
+      "t_end": 14.7,
+      "actor": "clear water bottle with a blue label",
+      "action": "stays standing upright on the patio",
+      "outcome": "remains upright"
+    }
+  ],
+  [
+    {
+      "t_start": 0.3,
+      "t_end": 3.7,
+      "actor": "orange cat",
+      "action": "sits facing the toilet-paper wall",
+      "outcome": "waits"
+    },
+    {
+      "t_start": 4.533,
+      "t_end": 5.367,
+      "actor": "dark cat",
+      "action": "appears above and climbs onto the toilet-paper wall",
+      "outcome": "stands on top"
+    },
+    {
+      "t_start": 6.233,
+      "t_end": 7.067,
+      "actor": "dark cat",
+      "action": "jumps down over the toilet-paper wall",
+      "outcome": "lands near the orange cat"
+    },
+    {
+      "t_start": 7.067,
+      "t_end": 7.933,
+      "actor": "dark cat",
+      "action": "walks past the orange cat toward the foreground",
+      "outcome": "moves closer to the camera"
+    },
+    {
+      "t_start": 8.767,
+      "t_end": 14.7,
+      "actor": "dark cat",
+      "action": "in slow motion, climbs onto and leaps over the toilet-paper wall",
+      "outcome": "clears the wall"
+    }
+  ],
+  [
+    {
+      "t_start": 2.0,
+      "t_end": 11.3,
+      "actor": "person",
+      "action": "moves spatula under pancake on grate",
+      "outcome": null
+    },
+    {
+      "t_start": 2.833,
+      "t_end": 12.167,
+      "actor": "person",
+      "action": "lifts first pancake from grate",
+      "outcome": null
+    },
+    {
+      "t_start": 3.7,
+      "t_end": 13.0,
+      "actor": "person",
+      "action": "places pancake onto new grate surface",
+      "outcome": null
+    },
+    {
+      "t_start": 4.533,
+      "t_end": 14.7,
+      "actor": "person (hand only visible)",
+      "action": "places second pancake onto grate",
+      "outcome": null
+    }
+  ],
+  [
+    {
+      "t_start": 0.3,
+      "t_end": 2.833,
+      "actor": "person in blue overalls",
+      "action": "raises and holds a long pole saw up into the upper branches of a tree",
+      "outcome": "the tool is positioned in the canopy"
+    },
+    {
+      "t_start": 3.7,
+      "t_end": 8.767,
+      "actor": "person in blue overalls",
+      "action": "moves the pole saw along the tree and works through the branches",
+      "outcome": "the tool has moved from the upper branches toward the lower branches"
+    },
+    {
+      "t_start": 9.633,
+      "t_end": 13.0,
+      "actor": "person in blue overalls",
+      "action": "continues trimming along the side of the tree with the pole saw",
+      "outcome": "the person works through the lower foliage"
+    },
+    {
+      "t_start": 13.867,
+      "t_end": 14.7,
+      "actor": "person in blue overalls",
+      "action": "turns and steps sideways while holding the pole saw",
+      "outcome": "the person ends beside the tree"
+    }
+  ],
+  [
+    {
+      "t_start": 0.3,
+      "t_end": 2.833,
+      "actor": "person in grey t-shirt and shorts",
+      "action": "sits on the windowsill and shifts position",
+      "outcome": null
+    },
+    {
+      "t_start": 3.7,
+      "t_end": 6.233,
+      "actor": "person in grey t-shirt and shorts",
+      "action": "leans forward and bends down toward the window opening",
+      "outcome": null
+    },
+    {
+      "t_start": 7.067,
+      "t_end": 8.767,
+      "actor": "person in grey t-shirt and shorts",
+      "action": "sits back upright on the windowsill",
+      "outcome": null
+    },
+    {
+      "t_start": 9.633,
+      "t_end": 10.467,
+      "actor": "person in grey t-shirt and shorts",
+      "action": "tips backward and goes out through the window opening",
+      "outcome": "the window is empty in the following frames"
+    }
+  ],
+  [
+    {
+      "t_start": 1.133,
+      "t_end": 3.7,
+      "actor": "on-screen text",
+      "action": "displays a title card about dog skills and catching a ball",
+      "outcome": "title card stays on screen"
+    },
+    {
+      "t_start": 4.533,
+      "t_end": 7.933,
+      "actor": "dog",
+      "action": "catches a ball",
+      "outcome": "ball is held in the dog's mouth"
+    },
+    {
+      "t_start": 8.767,
+      "t_end": 11.3,
+      "actor": "dog",
+      "action": "stands while holding the ball",
+      "outcome": "dog keeps holding the ball"
+    },
+    {
+      "t_start": 12.167,
+      "t_end": 14.7,
+      "actor": "on-screen text",
+      "action": "shows THANK YOU and SUBSCRIBE",
+      "outcome": "video ends on the subscribe card"
+    }
+  ],
+  [
+    {
+      "t_start": 1.133,
+      "t_end": 2.833,
+      "actor": "a person in a light-coloured sleeve",
+      "action": "uses a metal spatula to flip the lower pancake",
+      "outcome": "the lower pancake is turned over and looks golden"
+    },
+    {
+      "t_start": 2.833,
+      "t_end": 3.7,
+      "actor": "a person in a light-coloured sleeve",
+      "action": "uses the metal spatula to flip the upper pancake",
+      "outcome": "the upper pancake is turned over and looks golden"
+    },
+    {
+      "t_start": 3.7,
+      "t_end": 10.467,
+      "actor": "the two pancakes",
+      "action": "cook and brown on the hot griddle",
+      "outcome": "both become more deeply browned"
+    },
+    {
+      "t_start": 10.467,
+      "t_end": 12.167,
+      "actor": "the camera",
+      "action": "moves in for a close-up of one pancake",
+      "outcome": "one pancake fills the frame"
+    },
+    {
+      "t_start": 12.167,
+      "t_end": 14.7,
+      "actor": "a person in a light-coloured sleeve",
+      "action": "takes one pancake off the griddle",
+      "outcome": "only one pancake remains on the griddle"
+    }
+  ],
+  [
+    {
+      "t_start": 0.3,
+      "t_end": 7.067,
+      "actor": "person in a teal shirt",
+      "action": "walks along the hallway toward the plastic cup",
+      "outcome": "stops facing the cup"
+    },
+    {
+      "t_start": 7.933,
+      "t_end": 9.633,
+      "actor": "person in a teal shirt",
+      "action": "bends and leans forward to prepare a throw",
+      "outcome": "is ready to throw"
+    },
+    {
+      "t_start": 10.467,
+      "t_end": 13.0,
+      "actor": "small white ball",
+      "action": "is thrown toward the cup and bounces near it",
+      "outcome": "bounces away without going into the cup"
+    },
+    {
+      "t_start": 13.867,
+      "t_end": 14.7,
+      "actor": "person in a teal shirt",
+      "action": "straightens up and stands watching",
+      "outcome": "remains standing"
+    }
+  ],
+  [
+    {
+      "t_start": 0.3,
+      "t_end": 3.7,
+      "actor": "dog",
+      "action": "stands and shifts position on the sandy beach",
+      "outcome": null
+    },
+    {
+      "t_start": 4.533,
+      "t_end": 6.233,
+      "actor": "dog",
+      "action": "looks up at the ball in the sky",
+      "outcome": "ball descends toward the dog"
+    },
+    {
+      "t_start": 7.067,
+      "t_end": 10.467,
+      "actor": "dog",
+      "action": "leaps up toward the ball and twists in the air",
+      "outcome": "lands on the sand"
+    },
+    {
+      "t_start": 11.3,
+      "t_end": 14.7,
+      "actor": "dog",
+      "action": "runs along the beach and carries the ball",
+      "outcome": "keeps carrying the ball"
+    }
+  ],
+  [
+    {
+      "t_start": 0.3,
+      "t_end": 2.0,
+      "actor": "person in dark patterned shirt and red shoes",
+      "action": "stands holding a clear plastic cup and a paddle, then extends the paddle toward the floor",
+      "outcome": null
+    },
+    {
+      "t_start": 2.833,
+      "t_end": 3.7,
+      "actor": "person in dark patterned shirt and red shoes",
+      "action": "bends down and scoops or reaches for the white ball with the paddle",
+      "outcome": "ball contacts or rests at the paddle"
+    },
+    {
+      "t_start": 4.533,
+      "t_end": 7.933,
+      "actor": "person in dark patterned shirt and red shoes",
+      "action": "flips the ball upward with the paddle and watches it rise",
+      "outcome": "ball goes high in the air"
+    },
+    {
+      "t_start": 8.767,
+      "t_end": 12.167,
+      "actor": "person in dark patterned shirt and red shoes",
+      "action": "raises the clear plastic cup toward the falling ball",
+      "outcome": "ball enters the cup"
+    },
+    {
+      "t_start": 13.0,
+      "t_end": 14.7,
+      "actor": "person in dark patterned shirt and red shoes",
+      "action": "holds the cup upright with the ball inside",
+      "outcome": "ball stays in the cup"
+    }
+  ]
+]

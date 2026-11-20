@@ -1,0 +1,169 @@
+{
+  "area": "spotter",
+  "function": "spotter.map_events",
+  "language": null,
+  "description": "A cell or grid out of range is clamped, an end before its start is the start, text is stripped, an empty outcome is null, events come out sorted.",
+  "tolerance_s": 0.001,
+  "inputs": {
+    "answers": {
+      "value": [
+        {
+          "events": [
+            {
+              "first_grid": 2,
+              "first_cell": 9,
+              "last_grid": 1,
+              "last_cell": 1,
+              "actor": "  a dog ",
+              "action": " jumps ",
+              "outcome": "  "
+            },
+            {
+              "first_grid": 0,
+              "first_cell": 0,
+              "last_grid": 5,
+              "last_cell": 12,
+              "actor": "a dog",
+              "action": "runs",
+              "outcome": "done"
+            },
+            {
+              "first_grid": 1,
+              "first_cell": 3,
+              "last_grid": 1,
+              "last_cell": 3,
+              "actor": "a cat",
+              "action": "sits",
+              "outcome": ""
+            }
+          ]
+        }
+      ]
+    },
+    "grids": {
+      "value": [
+        [
+          {
+            "cell": 1,
+            "frame": 9,
+            "t": 0.3
+          },
+          {
+            "cell": 2,
+            "frame": 34,
+            "t": 1.133
+          },
+          {
+            "cell": 3,
+            "frame": 60,
+            "t": 2.0
+          },
+          {
+            "cell": 4,
+            "frame": 85,
+            "t": 2.833
+          },
+          {
+            "cell": 5,
+            "frame": 111,
+            "t": 3.7
+          },
+          {
+            "cell": 6,
+            "frame": 136,
+            "t": 4.533
+          },
+          {
+            "cell": 7,
+            "frame": 161,
+            "t": 5.367
+          },
+          {
+            "cell": 8,
+            "frame": 187,
+            "t": 6.233
+          },
+          {
+            "cell": 9,
+            "frame": 212,
+            "t": 7.067
+          }
+        ],
+        [
+          {
+            "cell": 1,
+            "frame": 238,
+            "t": 7.933
+          },
+          {
+            "cell": 2,
+            "frame": 263,
+            "t": 8.767
+          },
+          {
+            "cell": 3,
+            "frame": 289,
+            "t": 9.633
+          },
+          {
+            "cell": 4,
+            "frame": 314,
+            "t": 10.467
+          },
+          {
+            "cell": 5,
+            "frame": 339,
+            "t": 11.3
+          },
+          {
+            "cell": 6,
+            "frame": 365,
+            "t": 12.167
+          },
+          {
+            "cell": 7,
+            "frame": 390,
+            "t": 13.0
+          },
+          {
+            "cell": 8,
+            "frame": 416,
+            "t": 13.867
+          },
+          {
+            "cell": 9,
+            "frame": 441,
+            "t": 14.7
+          }
+        ]
+      ]
+    }
+  },
+  "expected": {
+    "value": [
+      [
+        {
+          "t_start": 0.3,
+          "t_end": 14.7,
+          "actor": "a dog",
+          "action": "runs",
+          "outcome": "done"
+        },
+        {
+          "t_start": 2.0,
+          "t_end": 2.0,
+          "actor": "a cat",
+          "action": "sits",
+          "outcome": null
+        },
+        {
+          "t_start": 14.7,
+          "t_end": 14.7,
+          "actor": "a dog",
+          "action": "jumps",
+          "outcome": null
+        }
+      ]
+    ]
+  }
+}

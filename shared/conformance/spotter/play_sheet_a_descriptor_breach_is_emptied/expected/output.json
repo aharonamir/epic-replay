@@ -1,0 +1,145 @@
+{
+  "play_sheet": {
+    "schema_version": "1.0",
+    "run_id": "run-1",
+    "mode": "specific",
+    "activity": {
+      "value": "a ball is struck",
+      "confidence": 0.8,
+      "source": "model"
+    },
+    "setting": "",
+    "actors": [
+      {
+        "id": "a1",
+        "descriptor": "",
+        "role": "",
+        "user_name": null,
+        "followed": true
+      },
+      {
+        "id": "a2",
+        "descriptor": "person in blue overalls",
+        "role": "",
+        "user_name": null,
+        "followed": false
+      }
+    ],
+    "events": [
+      {
+        "id": "e1",
+        "t_start": 0.3,
+        "t_end": 2.833,
+        "actor": "a1",
+        "action": "raises and holds a long pole saw up into the upper branches of a tree",
+        "object": null,
+        "outcome": "the tool is positioned in the canopy",
+        "confidence": 0.8,
+        "source": "model"
+      },
+      {
+        "id": "e2",
+        "t_start": 3.7,
+        "t_end": 8.767,
+        "actor": "a2",
+        "action": "moves the pole saw along the tree and works through the branches",
+        "object": null,
+        "outcome": "the tool has moved from the upper branches toward the lower branches",
+        "confidence": 0.8,
+        "source": "model"
+      },
+      {
+        "id": "e3",
+        "t_start": 9.633,
+        "t_end": 13.0,
+        "actor": "a2",
+        "action": "continues trimming along the side of the tree with the pole saw",
+        "object": null,
+        "outcome": "the person works through the lower foliage",
+        "confidence": 0.8,
+        "source": "model"
+      },
+      {
+        "id": "e4",
+        "t_start": 13.867,
+        "t_end": 14.7,
+        "actor": "a2",
+        "action": "turns and steps sideways while holding the pole saw",
+        "object": null,
+        "outcome": "the person ends beside the tree",
+        "confidence": 0.8,
+        "source": "model"
+      }
+    ],
+    "climax": {
+      "event_id": "e3",
+      "t": 10.367,
+      "frame": 311,
+      "method": "sheets+sound",
+      "confidence": 0.48,
+      "candidates": [
+        {
+          "t": 10.367,
+          "frame": 311,
+          "reason": "S1 candidate: sudden motion and sound (score 24.0)"
+        },
+        {
+          "t": 9.633,
+          "frame": 289,
+          "reason": "S1 candidate: sudden motion (score 18.5)"
+        },
+        {
+          "t": 3.933,
+          "frame": 118,
+          "reason": "S1 candidate: sudden motion and sound (score 14.0)"
+        },
+        {
+          "t": 2.0,
+          "frame": 60,
+          "reason": "S1 candidate: sudden motion (score 12.2)"
+        },
+        {
+          "t": 13.3,
+          "frame": 399,
+          "reason": "S1 candidate: sudden motion and sound (score 11.0)"
+        },
+        {
+          "t": 11.3,
+          "frame": 339,
+          "reason": "the overview also saw a high point (o1_uniform.jpg)"
+        }
+      ]
+    },
+    "outcome_summary": {
+      "value": "",
+      "confidence": 0.0,
+      "source": "model"
+    },
+    "focus_box": null,
+    "sensitive": {
+      "flag": false,
+      "reason": null,
+      "checked": true
+    },
+    "agreement": {
+      "passes": 1,
+      "disagreed_fields": [
+        "outcome_summary/value",
+        "actors/0/descriptor"
+      ],
+      "escalated": false
+    },
+    "overall_confidence": 0.48,
+    "confirmed_by_user": false,
+    "models": {
+      "analysis": "deepseek-flash",
+      "refine": "none"
+    }
+  },
+  "accepted": true,
+  "errors": [],
+  "cleared": [
+    "outcome_summary/value",
+    "actors/0/descriptor"
+  ]
+}

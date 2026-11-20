@@ -1,0 +1,115 @@
+{
+  "area": "spotter",
+  "function": "spotter.play_sheet",
+  "language": null,
+  "description": "A sound onset up to 0.1 s after the proposed frame counts for the snap.",
+  "tolerance_s": 0.001,
+  "inputs": {
+    "run_id": {
+      "value": "run-1"
+    },
+    "info": {
+      "value": {
+        "duration_s": 15.0,
+        "fps": 30.0,
+        "frames": 450,
+        "orientation": "landscape",
+        "candidates": [],
+        "user": {
+          "activity": null,
+          "player_name": null,
+          "description": null
+        }
+      }
+    },
+    "looks": {
+      "value": [
+        {
+          "kind": "candidate",
+          "name": "o2_candidate.jpg",
+          "answer": {
+            "activity": "a kick",
+            "outcome": "it flies",
+            "actor": "player in red",
+            "high_point_cell": 3,
+            "sure": 8
+          },
+          "cells": [
+            {
+              "cell": 1,
+              "frame": 300,
+              "t": 10.0
+            },
+            {
+              "cell": 2,
+              "frame": 305,
+              "t": 10.167
+            },
+            {
+              "cell": 3,
+              "frame": 311,
+              "t": 10.367
+            },
+            {
+              "cell": 4,
+              "frame": 314,
+              "t": 10.467
+            },
+            {
+              "cell": 5,
+              "frame": 318,
+              "t": 10.6
+            },
+            {
+              "cell": 6,
+              "frame": 320,
+              "t": 10.667
+            },
+            {
+              "cell": 7,
+              "frame": 322,
+              "t": 10.733
+            },
+            {
+              "cell": 8,
+              "frame": 324,
+              "t": 10.8
+            },
+            {
+              "cell": 9,
+              "frame": 326,
+              "t": 10.867
+            }
+          ]
+        }
+      ]
+    },
+    "events_look": {
+      "value": null
+    },
+    "signals": {
+      "value": {
+        "onsets_t": [
+          10.447
+        ]
+      }
+    },
+    "snap_s": {
+      "value": 0.25
+    },
+    "model": {
+      "value": "deepseek-flash"
+    },
+    "clip_meta": {
+      "value": {
+        "duration_s": 15.0,
+        "fps": 30,
+        "width": 1920,
+        "height": 1080
+      }
+    }
+  },
+  "expected": {
+    "file": "expected/output.json"
+  }
+}

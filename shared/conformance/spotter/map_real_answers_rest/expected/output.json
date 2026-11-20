@@ -1,0 +1,55 @@
+[
+  [
+    {
+      "t_start": 0.3,
+      "t_end": 3.7,
+      "actor": "person in black pants and grey shoes",
+      "action": "rides a skateboard along a sidewalk",
+      "outcome": "keeps rolling upright"
+    },
+    {
+      "t_start": 4.533,
+      "t_end": 7.067,
+      "actor": "person in black pants and grey shoes",
+      "action": "kicks the skateboard into a flip",
+      "outcome": "the board spins in the air"
+    },
+    {
+      "t_start": 7.933,
+      "t_end": 10.467,
+      "actor": "person in black pants and grey shoes",
+      "action": "lands on the skateboard and rides away",
+      "outcome": "rides off on the board"
+    }
+  ],
+  [
+    {
+      "t_start": 0.3,
+      "t_end": 2.0,
+      "actor": "person in a green shirt and dark shorts",
+      "action": "bowls a ball down the lane",
+      "outcome": "the ball is released down the lane"
+    },
+    {
+      "t_start": 2.833,
+      "t_end": 7.067,
+      "actor": "person in a green shirt and dark shorts",
+      "action": "stands and watches the ball travel down the lane",
+      "outcome": "remains standing while watching"
+    },
+    {
+      "t_start": 7.933,
+      "t_end": 9.633,
+      "actor": "person in a dark shirt with a white logo and dark shorts",
+      "action": "turns around from the lane toward the camera",
+      "outcome": "faces the camera"
+    },
+    {
+      "t_start": 9.633,
+      "t_end": 14.7,
+      "actor": "person in a dark shirt with a white logo and dark shorts",
+      "action": "walks toward the camera",
+      "outcome": "continues walking closer to the camera"
+    }
+  ]
+]

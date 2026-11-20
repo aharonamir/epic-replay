@@ -1,0 +1,143 @@
+{
+  "play_sheet": {
+    "schema_version": "1.0",
+    "run_id": "run-1",
+    "mode": "specific",
+    "activity": {
+      "value": "a ball is struck",
+      "confidence": 0.8,
+      "source": "model"
+    },
+    "setting": "",
+    "actors": [
+      {
+        "id": "a1",
+        "descriptor": "person in black patterned shirt and blue jeans",
+        "role": "",
+        "user_name": null,
+        "followed": true
+      }
+    ],
+    "events": [
+      {
+        "id": "e1",
+        "t_start": 0.3,
+        "t_end": 2.0,
+        "actor": "a1",
+        "action": "holds a paddle and reaches out as a table tennis ball appears",
+        "object": null,
+        "outcome": "ball is near the paddle",
+        "confidence": 0.8,
+        "source": "model"
+      },
+      {
+        "id": "e2",
+        "t_start": 2.833,
+        "t_end": 4.533,
+        "actor": "a1",
+        "action": "bends low and swings the paddle to hit the ball upward",
+        "object": null,
+        "outcome": "ball rises above the paddle",
+        "confidence": 0.8,
+        "source": "model"
+      },
+      {
+        "id": "e3",
+        "t_start": 5.367,
+        "t_end": 7.067,
+        "actor": "a1",
+        "action": "continues hitting the ball with the paddle",
+        "object": null,
+        "outcome": "ball stays airborne",
+        "confidence": 0.8,
+        "source": "model"
+      },
+      {
+        "id": "e4",
+        "t_start": 7.933,
+        "t_end": 10.467,
+        "actor": "a1",
+        "action": "raises a clear cup toward the falling ball",
+        "object": null,
+        "outcome": "ball reaches the cup",
+        "confidence": 0.8,
+        "source": "model"
+      },
+      {
+        "id": "e5",
+        "t_start": 11.3,
+        "t_end": 14.7,
+        "actor": "a1",
+        "action": "holds the clear cup with the ball and lifts it up",
+        "object": null,
+        "outcome": "ball stays in the cup",
+        "confidence": 0.8,
+        "source": "model"
+      }
+    ],
+    "climax": {
+      "event_id": "e4",
+      "t": 10.367,
+      "frame": 311,
+      "method": "sheets+sound",
+      "confidence": 0.48,
+      "candidates": [
+        {
+          "t": 10.367,
+          "frame": 311,
+          "reason": "S1 candidate: sudden motion and sound (score 24.0)"
+        },
+        {
+          "t": 9.633,
+          "frame": 289,
+          "reason": "S1 candidate: sudden motion (score 18.5)"
+        },
+        {
+          "t": 3.933,
+          "frame": 118,
+          "reason": "S1 candidate: sudden motion and sound (score 14.0)"
+        },
+        {
+          "t": 2.0,
+          "frame": 60,
+          "reason": "S1 candidate: sudden motion (score 12.2)"
+        },
+        {
+          "t": 13.3,
+          "frame": 399,
+          "reason": "S1 candidate: sudden motion and sound (score 11.0)"
+        },
+        {
+          "t": 11.3,
+          "frame": 339,
+          "reason": "the overview also saw a high point (o1_uniform.jpg)"
+        }
+      ]
+    },
+    "outcome_summary": {
+      "value": "the ball flies off",
+      "confidence": 0.8,
+      "source": "model"
+    },
+    "focus_box": null,
+    "sensitive": {
+      "flag": false,
+      "reason": null,
+      "checked": true
+    },
+    "agreement": {
+      "passes": 1,
+      "disagreed_fields": [],
+      "escalated": false
+    },
+    "overall_confidence": 0.48,
+    "confirmed_by_user": false,
+    "models": {
+      "analysis": "deepseek-flash",
+      "refine": "none"
+    }
+  },
+  "accepted": true,
+  "errors": [],
+  "cleared": []
+}

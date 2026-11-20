@@ -6,14 +6,15 @@
   "additionalProperties": false,
   "required": ["area", "function", "language", "description", "inputs", "expected"],
   "properties": {
-    "area": {"enum": ["storyboard", "slots", "checks", "lexicon", "units", "cells", "backend", "budget", "consent", "signals", "voice", "mix", "visuals"]},
+    "area": {"enum": ["storyboard", "slots", "checks", "lexicon", "units", "cells", "backend", "budget", "consent", "signals", "voice", "mix", "visuals", "spotter"]},
     "function": {
       "enum": [
         "storyboard.build", "slots.build", "checks.check", "checks.text",
         "lexicon.scan", "units.spoken_units", "cells.narrow",
         "backend.requests", "backend.recording_key", "budget.run",
         "consent.blocks", "consent.covers", "cells.layout", "signals.scan",
-        "voice.word_start", "voice.place", "mix.layers", "visuals.plan"
+        "voice.word_start", "voice.place", "mix.layers", "visuals.plan",
+        "spotter.plan_overview", "spotter.map_events", "spotter.sensitivity", "spotter.play_sheet"
       ]
     },
     "language": {"enum": ["en", "zh", null]},

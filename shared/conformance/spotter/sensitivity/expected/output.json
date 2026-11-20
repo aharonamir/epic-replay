@@ -1,0 +1,62 @@
+[
+  {
+    "flag": false,
+    "reason": null,
+    "checked": false
+  },
+  {
+    "flag": false,
+    "reason": null,
+    "checked": false
+  },
+  {
+    "flag": false,
+    "reason": null,
+    "checked": true
+  },
+  {
+    "flag": true,
+    "reason": "someone is hurt",
+    "checked": true
+  },
+  {
+    "flag": true,
+    "reason": "the clip may show someone hurt or upset",
+    "checked": true
+  },
+  {
+    "flag": true,
+    "reason": "the clip may show someone hurt or upset",
+    "checked": true
+  },
+  {
+    "flag": true,
+    "reason": "the clip may show someone hurt or upset",
+    "checked": true
+  },
+  {
+    "flag": true,
+    "reason": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "checked": true
+  },
+  {
+    "flag": false,
+    "reason": null,
+    "checked": true
+  },
+  {
+    "flag": true,
+    "reason": "the clip may show someone hurt or upset",
+    "checked": true
+  },
+  {
+    "flag": true,
+    "reason": "a fight breaks out",
+    "checked": true
+  },
+  {
+    "flag": true,
+    "reason": "people smash shop windows and throw objects",
+    "checked": true
+  }
+]

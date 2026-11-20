@@ -1,0 +1,38 @@
+{
+  "area": "spotter",
+  "function": "spotter.plan_overview",
+  "language": null,
+  "description": "A clip of 20 frames: the even frames are fewer than eighteen and are not repeated.",
+  "inputs": {
+    "info": {
+      "value": {
+        "duration_s": 0.667,
+        "fps": 30.0,
+        "frames": 20,
+        "orientation": "landscape",
+        "candidates": [
+          {
+            "frame": 313,
+            "t": 10.433,
+            "score": 24.0,
+            "motion_z": 9.0,
+            "flow_z": 9.0,
+            "change_z": 3.0,
+            "sound_z": 5.0,
+            "sound_onset_t": 10.367,
+            "sound_onset_frame": 311,
+            "loud_peak_t": null
+          }
+        ],
+        "user": {
+          "activity": null,
+          "player_name": null,
+          "description": null
+        }
+      }
+    }
+  },
+  "expected": {
+    "file": "expected/output.json"
+  }
+}

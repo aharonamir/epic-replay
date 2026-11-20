@@ -1,0 +1,192 @@
+{
+  "area": "spotter",
+  "function": "spotter.map_events",
+  "language": null,
+  "description": "More real answers.",
+  "tolerance_s": 0.001,
+  "inputs": {
+    "answers": {
+      "value": [
+        {
+          "type": "json_object",
+          "events": [
+            {
+              "first_grid": 1,
+              "first_cell": 1,
+              "last_grid": 1,
+              "last_cell": 5,
+              "actor": "person in black pants and grey shoes",
+              "action": "rides a skateboard along a sidewalk",
+              "outcome": "keeps rolling upright"
+            },
+            {
+              "first_grid": 1,
+              "first_cell": 6,
+              "last_grid": 1,
+              "last_cell": 9,
+              "actor": "person in black pants and grey shoes",
+              "action": "kicks the skateboard into a flip",
+              "outcome": "the board spins in the air"
+            },
+            {
+              "first_grid": 2,
+              "first_cell": 1,
+              "last_grid": 2,
+              "last_cell": 4,
+              "actor": "person in black pants and grey shoes",
+              "action": "lands on the skateboard and rides away",
+              "outcome": "rides off on the board"
+            }
+          ],
+          "sure": 8,
+          "sensitive": false,
+          "sensitive_reason": ""
+        },
+        {
+          "events": [
+            {
+              "first_grid": 1,
+              "first_cell": 1,
+              "last_grid": 1,
+              "last_cell": 3,
+              "actor": "person in a green shirt and dark shorts",
+              "action": "bowls a ball down the lane",
+              "outcome": "the ball is released down the lane"
+            },
+            {
+              "first_grid": 1,
+              "first_cell": 4,
+              "last_grid": 1,
+              "last_cell": 9,
+              "actor": "person in a green shirt and dark shorts",
+              "action": "stands and watches the ball travel down the lane",
+              "outcome": "remains standing while watching"
+            },
+            {
+              "first_grid": 2,
+              "first_cell": 1,
+              "last_grid": 2,
+              "last_cell": 3,
+              "actor": "person in a dark shirt with a white logo and dark shorts",
+              "action": "turns around from the lane toward the camera",
+              "outcome": "faces the camera"
+            },
+            {
+              "first_grid": 2,
+              "first_cell": 3,
+              "last_grid": 2,
+              "last_cell": 9,
+              "actor": "person in a dark shirt with a white logo and dark shorts",
+              "action": "walks toward the camera",
+              "outcome": "continues walking closer to the camera"
+            }
+          ],
+          "sure": 8,
+          "sensitive": false,
+          "sensitive_reason": ""
+        }
+      ]
+    },
+    "grids": {
+      "value": [
+        [
+          {
+            "cell": 1,
+            "frame": 9,
+            "t": 0.3
+          },
+          {
+            "cell": 2,
+            "frame": 34,
+            "t": 1.133
+          },
+          {
+            "cell": 3,
+            "frame": 60,
+            "t": 2.0
+          },
+          {
+            "cell": 4,
+            "frame": 85,
+            "t": 2.833
+          },
+          {
+            "cell": 5,
+            "frame": 111,
+            "t": 3.7
+          },
+          {
+            "cell": 6,
+            "frame": 136,
+            "t": 4.533
+          },
+          {
+            "cell": 7,
+            "frame": 161,
+            "t": 5.367
+          },
+          {
+            "cell": 8,
+            "frame": 187,
+            "t": 6.233
+          },
+          {
+            "cell": 9,
+            "frame": 212,
+            "t": 7.067
+          }
+        ],
+        [
+          {
+            "cell": 1,
+            "frame": 238,
+            "t": 7.933
+          },
+          {
+            "cell": 2,
+            "frame": 263,
+            "t": 8.767
+          },
+          {
+            "cell": 3,
+            "frame": 289,
+            "t": 9.633
+          },
+          {
+            "cell": 4,
+            "frame": 314,
+            "t": 10.467
+          },
+          {
+            "cell": 5,
+            "frame": 339,
+            "t": 11.3
+          },
+          {
+            "cell": 6,
+            "frame": 365,
+            "t": 12.167
+          },
+          {
+            "cell": 7,
+            "frame": 390,
+            "t": 13.0
+          },
+          {
+            "cell": 8,
+            "frame": 416,
+            "t": 13.867
+          },
+          {
+            "cell": 9,
+            "frame": 441,
+            "t": 14.7
+          }
+        ]
+      ]
+    }
+  },
+  "expected": {
+    "file": "expected/output.json"
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "area": "spotter",
+  "function": "spotter.plan_overview",
+  "language": null,
+  "description": "A 3 s clip: windows under nine frames become nine consecutive frames.",
+  "inputs": {
+    "info": {
+      "value": {
+        "duration_s": 3.0,
+        "fps": 30.0,
+        "frames": 90,
+        "orientation": "landscape",
+        "candidates": [
+          {
+            "frame": 313,
+            "t": 10.433,
+            "score": 24.0,
+            "motion_z": 9.0,
+            "flow_z": 9.0,
+            "change_z": 3.0,
+            "sound_z": 5.0,
+            "sound_onset_t": 10.367,
+            "sound_onset_frame": 311,
+            "loud_peak_t": null
+          },
+          {
+            "frame": 289,
+            "t": 9.633,
+            "score": 18.5,
+            "motion_z": 9.0,
+            "flow_z": 9.0,
+            "change_z": 3.0,
+            "sound_z": 0.0,
+            "sound_onset_t": null,
+            "sound_onset_frame": null,
+            "loud_peak_t": null
+          }
+        ],
+        "user": {
+          "activity": null,
+          "player_name": null,
+          "description": null
+        }
+      }
+    }
+  },
+  "expected": {
+    "file": "expected/output.json"
+  }
+}

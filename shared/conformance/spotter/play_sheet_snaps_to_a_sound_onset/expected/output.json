@@ -1,0 +1,150 @@
+{
+  "play_sheet": {
+    "schema_version": "1.0",
+    "run_id": "run-1",
+    "mode": "specific",
+    "activity": {
+      "value": "a ball is struck",
+      "confidence": 0.8,
+      "source": "model"
+    },
+    "setting": "",
+    "actors": [
+      {
+        "id": "a1",
+        "descriptor": "orange cat",
+        "role": "",
+        "user_name": null,
+        "followed": true
+      },
+      {
+        "id": "a2",
+        "descriptor": "dark cat",
+        "role": "",
+        "user_name": null,
+        "followed": false
+      }
+    ],
+    "events": [
+      {
+        "id": "e1",
+        "t_start": 0.3,
+        "t_end": 7.067,
+        "actor": "a1",
+        "action": "walks toward the stacked toilet paper wall and watches it",
+        "object": null,
+        "outcome": "stops in front of the barrier",
+        "confidence": 0.8,
+        "source": "model"
+      },
+      {
+        "id": "e2",
+        "t_start": 7.933,
+        "t_end": 8.767,
+        "actor": "a2",
+        "action": "appears behind the toilet paper wall on the sofa and moves to the wall edge",
+        "object": null,
+        "outcome": "prepares to climb the wall",
+        "confidence": 0.8,
+        "source": "model"
+      },
+      {
+        "id": "e3",
+        "t_start": 8.767,
+        "t_end": 12.167,
+        "actor": "a2",
+        "action": "climbs over the toilet paper wall and down to the floor",
+        "object": null,
+        "outcome": "reaches the orange cat's side",
+        "confidence": 0.8,
+        "source": "model"
+      },
+      {
+        "id": "e4",
+        "t_start": 12.167,
+        "t_end": 13.867,
+        "actor": "a2",
+        "action": "approaches the orange cat",
+        "object": null,
+        "outcome": "the cats come close and face each other",
+        "confidence": 0.8,
+        "source": "model"
+      },
+      {
+        "id": "e5",
+        "t_start": 13.867,
+        "t_end": 14.7,
+        "actor": "a2",
+        "action": "turns and walks past the orange cat",
+        "object": null,
+        "outcome": "moves away down the hallway",
+        "confidence": 0.8,
+        "source": "model"
+      }
+    ],
+    "climax": {
+      "event_id": "e3",
+      "t": 10.367,
+      "frame": 311,
+      "method": "sheets+sound",
+      "confidence": 0.48,
+      "candidates": [
+        {
+          "t": 10.367,
+          "frame": 311,
+          "reason": "S1 candidate: sudden motion and sound (score 24.0)"
+        },
+        {
+          "t": 9.633,
+          "frame": 289,
+          "reason": "S1 candidate: sudden motion (score 18.5)"
+        },
+        {
+          "t": 3.933,
+          "frame": 118,
+          "reason": "S1 candidate: sudden motion and sound (score 14.0)"
+        },
+        {
+          "t": 2.0,
+          "frame": 60,
+          "reason": "S1 candidate: sudden motion (score 12.2)"
+        },
+        {
+          "t": 13.3,
+          "frame": 399,
+          "reason": "S1 candidate: sudden motion and sound (score 11.0)"
+        },
+        {
+          "t": 11.3,
+          "frame": 339,
+          "reason": "the overview also saw a high point (o1_uniform.jpg)"
+        }
+      ]
+    },
+    "outcome_summary": {
+      "value": "the ball flies off",
+      "confidence": 0.8,
+      "source": "model"
+    },
+    "focus_box": null,
+    "sensitive": {
+      "flag": false,
+      "reason": null,
+      "checked": true
+    },
+    "agreement": {
+      "passes": 1,
+      "disagreed_fields": [],
+      "escalated": false
+    },
+    "overall_confidence": 0.48,
+    "confirmed_by_user": false,
+    "models": {
+      "analysis": "deepseek-flash",
+      "refine": "none"
+    }
+  },
+  "accepted": true,
+  "errors": [],
+  "cleared": []
+}

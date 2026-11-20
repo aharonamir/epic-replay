@@ -15,7 +15,7 @@ shared/conformance/<area>/<case>/expected/output.json   when the output is large
 
 | Key | Meaning |
 |---|---|
-| `area` | One of the thirteen areas below; the folder the case sits in |
+| `area` | One of the fourteen areas below; the folder the case sits in |
 | `function` | The rule under test, by the platform-neutral name in the table below |
 | `language` | `en`, `zh`, or `null` when the rule has no language |
 | `description` | What the case shows |
@@ -68,6 +68,10 @@ Compare the platform's output, as JSON, with the expected value: objects by key 
 | `voice.place` | `lines`, `takes`, `delay`, `end` | for each line the S7 record: speed factor, duration, `dropped` (or null), for a key line `hit_offset_s`, `hit_source`, `target_s` and `over_s`, then `timeline_start` and `timeline_end`. The take's length after speeding up is the audio library's on a real run; the cases use one model, written under the table | `stages.s7_voice.place` |
 | `mix.layers` | `storyboard`, `voice`, `pack`, `user_context`, `clip_meta` | the layers of the mix in order (voice lines not dropped, the bed, the one-shots, the clip's own sound), with the folders written `run/` and `assets/` | `stages.s8_mix.layers` |
 | `visuals.plan` | `storyboard`, `focus_box` (or null), `src_frames` | for each segment what S9 does, in frames: `id`, `method` (null for a held frame, `blend` below speed 1, else `native`), `frames` (the segment's length: its end's frame number less its start's), `hold_s`; a held frame has `freeze_frame`; a cut one has `first_frame`, `end_frame` (at least one frame, both within the working copy), `speed` and `crop` (null, or `scale`, `w`, `h`, `x`, `y`: a crop of 1/scale of the picture, even sizes rounded down, centred on the focus box as far as the edges allow, the centre rounded half to even). A frame number is `round(t * fps + 1e-9)`, half to even | `stages.s9_visuals.plan` |
+| `spotter.plan_overview` | `info` (`fps`, `frames`, the S1 `candidates`) | the overview's sheets: two spread evenly over the clip (the first and second halves of eighteen distinct frames) and one around each of the top three S1 candidates; each `{kind, frames, where, name}` | `agents.spotter.plan_overview` |
+| `spotter.map_events` | `answers` (events-call replies), `grids` (the cells of the two grids) | for each answer its events with each grid and cell replaced by a time (a cell or grid out of range is clamped, an end before its start is the start), text stripped, an empty outcome `null`, sorted by start | `agents.spotter.map_events` |
+| `spotter.sensitivity` | `looks` (events calls, or null) | for each the play sheet's `sensitive` flag: unchecked with no answer, raised only by a true boolean, the reason replaced by a plain one when empty, over 120 characters or against the descriptor rules | `agents.spotter.sensitivity` |
+| `spotter.play_sheet` | `run_id`, `info`, `looks`, `events_look`, `signals`, `snap_s`, `model`, `clip_meta` | what S3 makes of a trace: the `play_sheet`, whether S3 `accepted` it, the `errors` if not, and the field paths it `cleared` (a model-written field that breaks a descriptor rule is emptied for the user) | `stages.s3_key_moment.make` |
 
 The matching rules behind `lexicon.scan` and `checks.text` are written out in `shared/lexicons/README.md`. The `detail` strings of the checks are English text and are part of the expected output.
 
@@ -89,6 +93,7 @@ The matching rules behind `lexicon.scan` and `checks.text` are written out in `s
 | `voice` | where each take goes: every take fits; a long take sped up; too long (dropped, or a key line kept and running over); a line in the key line's way; a line after it; a line past the video's end; a word timing outside the take, at its edges; the pad cut; the words' start times in English, Mandarin, past an emoji and with no usable timing (T416) |
 | `mix` | the layers for each of the three packs, in Mandarin, with the user's or the clip's sound off, as Python reads numbers as true or false, with no replay or end card, with repeated segment kinds (T416) |
 | `visuals` | the sample storyboard; no focus box; a replay that holds its last frame; a 3 s and a 30 s clip; a working copy shorter than the storyboard; a portrait clip; focus boxes in the corners and the middle; an odd frame size and a zoom of 1.3, with the crop corner halfway between pixels; crop sizes rounded down to even; an empty source range; 25 and 29.97 fps (T417) |
+| `spotter` | the overview plan for a 15 s, a 3 s, a 29.97 fps and a tiny clip and one with no candidates; the events mapped (real answers of the PC's cloud model, and the edges); the sensitivity flag; the play sheet from real recorded answers (six), a sound onset to snap to, a tie between sheets, a high point nobody saw, every sheet failed, no candidate, no events call, a typed activity, other moments half a second apart, a breach emptied, a sensitive clip, a rejected one, events a millisecond past the end, equal climax events (T418) |
 
 ### The take's length after speeding up (`voice.place`)
 

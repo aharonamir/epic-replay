@@ -1,0 +1,110 @@
+{
+  "_note": "What the Spotter asks the vision model, word for word: the overview question and its schema, the events question and its schema, and the two lines that say which frames a sheet shows. Both apps read this file; the PC's recordings are keyed on these exact words (spec 004, T418).",
+  "overview_q": "The image is a grid of up to 9 frames from one short video, in time order, numbered 1 to 9 in the top-left corner of each cell. {where} Say what is going on (any kind of moment, not necessarily sport), how it ends, and who or what does it (clothing colour or kind of animal only, never age or looks). If the high point of the video (the moment it is all about) is shown in this grid, give its cell; if it is not in this grid, give 0. Say how sure you are, 0 to 10.",
+  "where_uniform": "These frames are spread evenly over part {part} of {parts} of the video.",
+  "where_candidate": "These frames cover about three seconds around a moment of sudden motion or sound.",
+  "overview_schema": {
+    "type": "object",
+    "required": [
+      "activity",
+      "outcome",
+      "actor",
+      "high_point_cell",
+      "sure"
+    ],
+    "properties": {
+      "activity": {
+        "type": "string"
+      },
+      "outcome": {
+        "type": "string"
+      },
+      "actor": {
+        "type": "string"
+      },
+      "high_point_cell": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 9
+      },
+      "sure": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 10
+      }
+    }
+  },
+  "events_q": "The images are two grids of up to 9 frames each from one short video, in time order: Grid 1 is the first half of the video and Grid 2 the second half. The cells are numbered 1 to 9 in the top-left corner of each cell. List the 3 to 6 things that happen, in the order they happen (any kind of moment, not necessarily sport). For each, give the grid and cell where it starts and where it ends, who or what does it (clothing colour or kind of animal only, never age or looks), what they do, and how it ends if it ends there (empty if not). Say how sure you are, 0 to 10. Then say whether the video shows anyone hurt, a fight, someone in distress or being humiliated, or anyone undressed: sensitive true or false, and when true the reason in a few plain words, without describing anyone's age or body (FR-009).",
+  "events_schema": {
+    "type": "object",
+    "required": [
+      "events",
+      "sure",
+      "sensitive",
+      "sensitive_reason"
+    ],
+    "properties": {
+      "sensitive": {
+        "type": "boolean"
+      },
+      "sensitive_reason": {
+        "type": "string"
+      },
+      "events": {
+        "type": "array",
+        "minItems": 3,
+        "maxItems": 6,
+        "items": {
+          "type": "object",
+          "required": [
+            "first_grid",
+            "first_cell",
+            "last_grid",
+            "last_cell",
+            "actor",
+            "action",
+            "outcome"
+          ],
+          "properties": {
+            "first_grid": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 2
+            },
+            "first_cell": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9
+            },
+            "last_grid": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 2
+            },
+            "last_cell": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9
+            },
+            "actor": {
+              "type": "string"
+            },
+            "action": {
+              "type": "string"
+            },
+            "outcome": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "sure": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 10
+      }
+    }
+  },
+  "sensitive_default": "the clip may show someone hurt or upset",
+  "retry_line": "Fill in the fields; do not repeat the schema."
+}

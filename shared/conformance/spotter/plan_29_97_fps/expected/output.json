@@ -1,0 +1,82 @@
+[
+  {
+    "kind": "uniform",
+    "frames": [
+      9,
+      26,
+      42,
+      59,
+      75,
+      92,
+      108,
+      125,
+      141
+    ],
+    "where": "These frames are spread evenly over part 1 of 2 of the video.",
+    "name": "o0_uniform.jpg"
+  },
+  {
+    "kind": "uniform",
+    "frames": [
+      158,
+      174,
+      191,
+      207,
+      224,
+      240,
+      257,
+      273,
+      290
+    ],
+    "where": "These frames are spread evenly over part 2 of 2 of the video.",
+    "name": "o1_uniform.jpg"
+  },
+  {
+    "kind": "candidate",
+    "frames": [
+      268,
+      272,
+      276,
+      279,
+      283,
+      287,
+      290,
+      294,
+      298
+    ],
+    "where": "These frames cover about three seconds around a moment of sudden motion or sound.",
+    "name": "o2_candidate.jpg"
+  },
+  {
+    "kind": "candidate",
+    "frames": [
+      244,
+      251,
+      258,
+      264,
+      271,
+      278,
+      284,
+      291,
+      298
+    ],
+    "where": "These frames cover about three seconds around a moment of sudden motion or sound.",
+    "name": "o3_candidate.jpg"
+  },
+  {
+    "kind": "candidate",
+    "frames": [
+      75,
+      86,
+      98,
+      109,
+      120,
+      131,
+      142,
+      154,
+      165
+    ],
+    "where": "These frames cover about three seconds around a moment of sudden motion or sound.",
+    "name": "o4_candidate.jpg"
+  }
+]
