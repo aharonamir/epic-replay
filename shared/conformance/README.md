@@ -15,7 +15,7 @@ shared/conformance/<area>/<case>/expected/output.json   when the output is large
 
 | Key | Meaning |
 |---|---|
-| `area` | One of the fourteen areas below; the folder the case sits in |
+| `area` | One of the fifteen areas below; the folder the case sits in |
 | `function` | The rule under test, by the platform-neutral name in the table below |
 | `language` | `en`, `zh`, or `null` when the rule has no language |
 | `description` | What the case shows |
@@ -72,6 +72,12 @@ Compare the platform's output, as JSON, with the expected value: objects by key 
 | `spotter.map_events` | `answers` (events-call replies), `grids` (the cells of the two grids) | for each answer its events with each grid and cell replaced by a time (a cell or grid out of range is clamped, an end before its start is the start), text stripped, an empty outcome `null`, sorted by start | `agents.spotter.map_events` |
 | `spotter.sensitivity` | `looks` (events calls, or null) | for each the play sheet's `sensitive` flag: unchecked with no answer, raised only by a true boolean, the reason replaced by a plain one when empty, over 120 characters or against the descriptor rules | `agents.spotter.sensitivity` |
 | `spotter.play_sheet` | `run_id`, `info`, `looks`, `events_look`, `signals`, `snap_s`, `model`, `clip_meta` | what S3 makes of a trace: the `play_sheet`, whether S3 `accepted` it, the `errors` if not, and the field paths it `cleared` (a model-written field that breaks a descriptor rule is emptied for the user) | `stages.s3_key_moment.make` |
+| `commentator.brief` | `play_sheet`, `user_context`, `storyboard`, `slots` | what the Commentator is told about the clip: the events a script may use (confidence at least 0.7 or written by the user, none about on-screen text), the names the user gave, and for each slot the source times on screen and the segment | `agents.commentator.brief` |
+| `commentator.system_prompt` | `pack` (as its language sees it) | the system prompt, from `shared/copy/commentator.json` and the pack's persona, rules, role notes and examples (the PC's recordings are keyed on it) | `agents.commentator.system_prompt` |
+| `commentator.failures` | `slots`, `play_sheet`, `user_context`, `storyboard`, `pack`, `drafts` | for each draft every failure `{where, detail}` in the order the model is told them: the draft's own rules, the script schema's errors (given as `schema <path>`, sorted: the wording of a schema library is its own), the links to the play sheet and storyboard, the S6 checks | `agents.commentator.Tools.failure_groups` |
+| `commentator.patched` | as `failures` | for each draft the draft with every failing or missing line replaced by a generic line (and the headline and lower third by the pack's labels), and the ids replaced | `agents.commentator.Tools.patched` |
+| `commentator.script` | as `failures`, `agent_draft` and `structured_draft` (each may be null) | `{script, status, note}`: the agent's draft if it passes (`ok`), else the structured draft mended (`degraded`) | `agents.commentator.accepted`, `conclude` |
+| `commentator.generic` | `slots`, `play_sheet`, `user_context`, `storyboard`, `pack` | generic mode: every line generic, the pack's labels | `agents.commentator.generic` |
 
 The matching rules behind `lexicon.scan` and `checks.text` are written out in `shared/lexicons/README.md`. The `detail` strings of the checks are English text and are part of the expected output.
 
@@ -94,6 +100,7 @@ The matching rules behind `lexicon.scan` and `checks.text` are written out in `s
 | `mix` | the layers for each of the three packs, in Mandarin, with the user's or the clip's sound off, as Python reads numbers as true or false, with no replay or end card, with repeated segment kinds (T416) |
 | `visuals` | the sample storyboard; no focus box; a replay that holds its last frame; a 3 s and a 30 s clip; a working copy shorter than the storyboard; a portrait clip; focus boxes in the corners and the middle; an odd frame size and a zoom of 1.3, with the crop corner halfway between pixels; crop sizes rounded down to even; an empty source range; 25 and 29.97 fps (T417) |
 | `spotter` | the overview plan for a 15 s, a 3 s, a 29.97 fps and a tiny clip and one with no candidates; the events mapped (real answers of the PC's cloud model, and the edges); the sensitivity flag; the play sheet from real recorded answers (six), a sound onset to snap to, a tie between sheets, a high point nobody saw, every sheet failed, no candidate, no events call, a typed activity, other moments half a second apart, a breach emptied, a sensitive clip, a rejected one, events a millisecond past the end, equal climax events (T418) |
+| `commentator` | the system prompt of each pack in English and Mandarin; the brief (with captions and unsure events left out); the failures of nineteen English and thirteen Mandarin drafts; the mending; the script from the agent's draft, the structured one, a mended one and none, and from the real drafts the PC's agent submitted in its recorded runs of the sample; the key line's anchor next to its marker; generic mode (T419) |
 
 ### The take's length after speeding up (`voice.place`)
 

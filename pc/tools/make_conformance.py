@@ -1692,6 +1692,28 @@ def commentator_cases() -> dict[str, dict]:
     out["script_not_expressed"] = case(
         "commentator.script", "A user context with express false: the script is not approved by the user in advance (approved: no).",
         {**common(uc={"express": False}), "agent_draft": value(gd), "structured_draft": value(None)}, tol=0.001)  # fmt: skip
+    # real drafts: what the agent submitted in the PC's recorded runs of the sample (recordings keyed on these exact prompts)
+    from epic_replay.providers import llm
+    from epic_replay.providers.replay import cache_key
+    from epic_replay.styles import slots as slot_rules
+
+    model = llm.agent_endpoint().model
+    for style in ("news_reporter", "nature_documentary", "football_commentator"):
+        pack = loader.resolved(packs[style], "en")
+        built = slot_rules.build(sb, pack, climax_event_id=ps["climax"].get("event_id"))
+        system = commentator.system_prompt(pack)
+        query = "Brief (data):\n" + json.dumps(commentator.brief(ps, uc, sb, built), indent=1)
+        rec = (
+            paths.ROOT
+            / "pc/tests/fixtures/recordings/commentator"
+            / f"{cache_key('commentator', model, {'system': system, 'query': query})}.json"
+        )
+        if not rec.exists():
+            continue
+        draft = json.loads(rec.read_text()).get("draft")
+        out[f"script_recorded_run_{style}"] = case(
+            "commentator.script", f"The draft the agent submitted in the PC's recorded run of the sample with {style}: it passes and is the script.",
+            {**common(style), "agent_draft": value(draft), "structured_draft": value(None)}, tol=0.001)  # fmt: skip
     for style in packs:
         out[f"generic_{style}"] = case(
             "commentator.generic",

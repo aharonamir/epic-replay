@@ -1,0 +1,95 @@
+{
+  "area": "commentator",
+  "function": "commentator.script",
+  "language": "en",
+  "description": "The draft the agent submitted in the PC's recorded run of the sample with nature_documentary: it passes and is the script.",
+  "inputs": {
+    "slots": {
+      "file": "../../slots/nature_documentary_en/expected/output.json"
+    },
+    "play_sheet": {
+      "fixture": "sample_run/play_sheet.json"
+    },
+    "user_context": {
+      "fixture": "sample_run/user_context.json"
+    },
+    "storyboard": {
+      "fixture": "sample_run/storyboard.json"
+    },
+    "pack": {
+      "style": "nature_documentary",
+      "language": "en"
+    },
+    "agent_draft": {
+      "value": {
+        "lines": [
+          {
+            "delivery": "hushed, unhurried",
+            "event_refs": [
+              "e1"
+            ],
+            "id": "l1",
+            "text": "Here, Noa sets the ball down."
+          },
+          {
+            "delivery": "barely above a breath",
+            "event_refs": [
+              "e3"
+            ],
+            "id": "l2",
+            "text": "Movement."
+          },
+          {
+            "delivery": "almost whispered",
+            "event_refs": [
+              "e6"
+            ],
+            "hit_word": "Top",
+            "id": "l3",
+            "text": "Top corner."
+          },
+          {
+            "delivery": "soft, fond",
+            "event_refs": [
+              "e8"
+            ],
+            "id": "l4",
+            "text": "Away."
+          },
+          {
+            "delivery": "gentle invitation",
+            "event_refs": [
+              "e3"
+            ],
+            "id": "l5",
+            "text": "Watch the approach once more."
+          },
+          {
+            "delivery": "quiet wonder",
+            "event_refs": [
+              "e6"
+            ],
+            "hit_word": "settles",
+            "id": "l6",
+            "text": "Ball settles under the crossbar."
+          },
+          {
+            "delivery": "warm, closing",
+            "event_refs": [],
+            "id": "l7",
+            "text": "Delight."
+          }
+        ],
+        "headline": "Noa, from just outside the area",
+        "lower_third": "Noa — free kick, top-left corner"
+      }
+    },
+    "structured_draft": {
+      "value": null
+    }
+  },
+  "tolerance_s": 0.001,
+  "expected": {
+    "file": "expected/output.json"
+  }
+}

@@ -20,9 +20,12 @@ object PythonJson {
     fun dumps(e: JsonElement): String = StringBuilder().also { write(e, it, sort = false, compact = false, ascii = true) }.toString()
 
     /** `json.dumps(x, indent=2, ensure_ascii=False)`: how a recording is written. Key order kept. */
-    fun dumpsIndented(e: JsonElement, indent: Int = 2): String = StringBuilder().also { writeIndented(e, it, indent, 0) }.toString()
+    fun dumpsIndented(e: JsonElement, indent: Int = 2): String = StringBuilder().also { writeIndented(e, it, indent, 0, false) }.toString()
 
-    private fun writeIndented(e: JsonElement, out: StringBuilder, indent: Int, level: Int) {
+    /** `json.dumps(x, indent=indent)`: the default, which writes every character above ASCII as `\uXXXX`. */
+    fun dumpsIndentedAscii(e: JsonElement, indent: Int): String = StringBuilder().also { writeIndented(e, it, indent, 0, true) }.toString()
+
+    private fun writeIndented(e: JsonElement, out: StringBuilder, indent: Int, level: Int, ascii: Boolean) {
         val pad = " ".repeat(indent * (level + 1))
         val close = " ".repeat(indent * level)
         when {
@@ -30,7 +33,7 @@ object PythonJson {
                 out.append("{\n")
                 e.entries.forEachIndexed { i, (k, v) ->
                     if (i > 0) out.append(",\n")
-                    out.append(pad); string(k, out, false); out.append(": "); writeIndented(v, out, indent, level + 1)
+                    out.append(pad); string(k, out, ascii); out.append(": "); writeIndented(v, out, indent, level + 1, ascii)
                 }
                 out.append("\n").append(close).append('}')
             }
@@ -38,11 +41,11 @@ object PythonJson {
                 out.append("[\n")
                 e.forEachIndexed { i, v ->
                     if (i > 0) out.append(",\n")
-                    out.append(pad); writeIndented(v, out, indent, level + 1)
+                    out.append(pad); writeIndented(v, out, indent, level + 1, ascii)
                 }
                 out.append("\n").append(close).append(']')
             }
-            else -> write(e, out, sort = false, compact = false, ascii = false) // scalars and empty {} and []
+            else -> write(e, out, sort = false, compact = false, ascii = ascii) // scalars and empty {} and []
         }
     }
 

@@ -1,0 +1,97 @@
+{
+  "area": "commentator",
+  "function": "commentator.script",
+  "language": "en",
+  "description": "The draft the agent submitted in the PC's recorded run of the sample with news_reporter: it passes and is the script.",
+  "inputs": {
+    "slots": {
+      "file": "../../slots/news_reporter_en/expected/output.json"
+    },
+    "play_sheet": {
+      "fixture": "sample_run/play_sheet.json"
+    },
+    "user_context": {
+      "fixture": "sample_run/user_context.json"
+    },
+    "storyboard": {
+      "fixture": "sample_run/storyboard.json"
+    },
+    "pack": {
+      "style": "news_reporter",
+      "language": "en"
+    },
+    "agent_draft": {
+      "value": {
+        "lines": [
+          {
+            "delivery": "Calm, matter-of-fact.",
+            "event_refs": [
+              "e1"
+            ],
+            "id": "l1",
+            "text": "Noa placed the ball outside the area."
+          },
+          {
+            "delivery": "Flat, unemphatic.",
+            "event_refs": [
+              "e3",
+              "e4"
+            ],
+            "id": "l2",
+            "text": "Struck."
+          },
+          {
+            "delivery": "Definite, no rise in pitch.",
+            "event_refs": [
+              "e6"
+            ],
+            "hit_word": "Goal",
+            "id": "l3",
+            "text": "Goal scored."
+          },
+          {
+            "delivery": "Dry, observational.",
+            "event_refs": [
+              "e7"
+            ],
+            "id": "l4",
+            "text": "Motionless."
+          },
+          {
+            "delivery": "Even, measured.",
+            "event_refs": [
+              "e3",
+              "e4"
+            ],
+            "id": "l5",
+            "text": "Our cameras show the strike again."
+          },
+          {
+            "delivery": "Quiet, precise.",
+            "event_refs": [
+              "e6"
+            ],
+            "hit_word": "Here",
+            "id": "l6",
+            "text": "Here, top-left, under the bar."
+          },
+          {
+            "delivery": "Brief, neutral hand-back.",
+            "event_refs": [],
+            "id": "l7",
+            "text": "Back."
+          }
+        ],
+        "headline": "Noa scores from direct free kick",
+        "lower_third": "Noa — free kick, top-left corner"
+      }
+    },
+    "structured_draft": {
+      "value": null
+    }
+  },
+  "tolerance_s": 0.001,
+  "expected": {
+    "file": "expected/output.json"
+  }
+}

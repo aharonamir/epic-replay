@@ -8,7 +8,8 @@ class LabeledImage(val label: String?, val jpeg: ByteArray)
 
 enum class ChatRole { SYSTEM, USER, ASSISTANT, TOOL }
 
-class ChatMessage(val role: ChatRole, val content: String)
+/** A message of a chat. An assistant message may carry the [toolCalls] it made, and a tool message answers one of them by [toolCallId]. */
+class ChatMessage(val role: ChatRole, val content: String, val toolCalls: List<ToolCall> = emptyList(), val toolCallId: String? = null)
 
 /** A tool the model may call; [parameters] is a JSON Schema object. Only for a profile with `supportsTools`. */
 class ToolDef(val name: String, val description: String, val parameters: JsonObject)

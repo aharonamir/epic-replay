@@ -79,7 +79,19 @@ class CloudBackend(
     override suspend fun chat(messages: List<ChatMessage>, schema: JsonObject?, tools: List<ToolDef>?): ModelResult {
         require(tools.isNullOrEmpty() || profile.supportsTools) { "model profile ${profile.id} does not support tool calls" }
         val json = buildJsonArray {
-            for (m in messages) add(buildJsonObject { put("role", m.role.name.lowercase()); put("content", m.content) })
+            for (m in messages) add(buildJsonObject {
+                put("role", m.role.name.lowercase()); put("content", m.content)
+                if (m.toolCalls.isNotEmpty()) put("tool_calls", buildJsonArray {
+                    m.toolCalls.forEach { c ->
+                        add(buildJsonObject {
+                            put("id", c.id); put("type", "function")
+                            // the arguments travel as the JSON text the model wrote, as the API has them
+                            put("function", buildJsonObject { put("name", c.name); put("arguments", (c.arguments as? JsonPrimitive)?.takeIf { it.isString }?.content ?: (c.arguments?.toString() ?: "{}")) })
+                        })
+                    }
+                })
+                if (m.toolCallId != null) put("tool_call_id", m.toolCallId)
+            })
         }
         val t = profile.timeout(role)
         // `chat` goes through the openai package, which was given a whole number of seconds as an int
