@@ -80,9 +80,12 @@ object ClipProbe {
     /** The samples' view: how long the video really is and its real average frame rate. */
     fun readable(path: String): Streams? = scan(path, samples = true)
 
-    /** The picture's rotation in degrees from the container (0, 90, 180 or 270). */
-    fun rotation(path: String): Int {
+    /**
+     * The picture's rotation in degrees (0, 90, 180 or 270). The retriever's value is the authority, because it is what the frames the app reads
+     * (`ClipFrames`) are turned by; the track's own `KEY_ROTATION` ([fallback]) is used only when the retriever says nothing.
+     */
+    fun rotation(path: String, fallback: Int = 0): Int {
         val r = MediaMetadataRetriever()
-        return try { r.setDataSource(path); r.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION)?.toIntOrNull() ?: 0 } catch (e: RuntimeException) { 0 } finally { r.release() }
+        return try { r.setDataSource(path); r.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION)?.toIntOrNull() ?: fallback } catch (e: RuntimeException) { fallback } finally { r.release() }
     }
 }

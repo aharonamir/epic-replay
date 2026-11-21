@@ -36,7 +36,7 @@ object ClipIntake {
         Intake.check(displayName, upload.length(), srcInfo)?.let { return IntakeResult("failed", it, null) }
         // what can really be read: the length of a file cut short is not the one its header promised
         val read = ClipProbe.readable(upload.path) ?: return IntakeResult("failed", "The clip could not be converted; try another file.", null)
-        val rotation = ClipProbe.rotation(upload.path)
+        val rotation = ClipProbe.rotation(upload.path, read.rotation)
         val (cw, ch) = read.codedWidth to read.codedHeight
         val (uw, uh) = if (rotation == 90 || rotation == 270) ch to cw else cw to ch
         val (ww, wh) = Intake.workSize(uw, uh)
