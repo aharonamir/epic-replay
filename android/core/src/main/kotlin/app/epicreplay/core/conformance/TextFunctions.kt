@@ -172,6 +172,9 @@ object TextFunctions {
             "intake.meta" to { a ->
                 JsonArray(a.getValue("items").jsonArray.map { i -> val o = i.jsonObject; Intake.clipMeta(o.getValue("src_info").jsonObject, o.getValue("work_info").jsonObject, o.getValue("sha256").jsonPrimitive.content) })
             },
+            "intake.work_size" to { a ->
+                JsonArray(a.getValue("sizes").jsonArray.map { s -> val (w, h) = Intake.workSize(s.jsonArray[0].jsonPrimitive.content.toInt(), s.jsonArray[1].jsonPrimitive.content.toInt()); JsonArray(listOf(JsonPrimitive(w), JsonPrimitive(h))) })
+            },
             "cells.layout" to { a ->
                 val l = ContactSheet.layout(a.getValue("width").jsonPrimitive.int, a.getValue("height").jsonPrimitive.int, a.getValue("count").jsonPrimitive.int)
                 buildJsonObject {

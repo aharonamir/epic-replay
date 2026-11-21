@@ -95,6 +95,13 @@ object Intake {
         return WORK_FPS.toDouble()
     }
 
+    /** The working copy's size for an upright picture of [width] by [height]: the height capped at 1080 lines, the width following the picture rounded to the nearest whole number and then up to an even one (FFmpeg's `scale=-2:min(ih,1080)`). */
+    fun workSize(width: Int, height: Int): Pair<Int, Int> {
+        val oh = minOf(height, 1080)
+        val ow = (2L * oh * width + height) / (2L * height) // round half up
+        return (((ow + 1) / 2) * 2).toInt() to oh
+    }
+
     /** `clip_meta.json` from what was found in the upload and in the working copy. */
     fun clipMeta(srcInfo: JsonObject, workInfo: JsonObject, sourceSha256: String): JsonObject {
         val v = video(workInfo)!!

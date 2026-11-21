@@ -15,6 +15,7 @@ import java.nio.ByteOrder
  */
 object SignalDecoder {
     const val WIDTH = 320
+    const val WORK_FPS = 30.0
 
     /** Scan the clip at [path]; frames are decoded one at a time as the scan reads them. */
     fun scan(path: String, top: Int = 3): Signals {
@@ -35,9 +36,8 @@ object SignalDecoder {
         val probe = MediaExtractor().apply { setDataSource(path) }
         val t = track(probe, "video/") ?: run { probe.release(); throw IllegalArgumentException("no video track in $path") }
         val format = probe.getTrackFormat(t)
-        val fps = if (format.containsKey(MediaFormat.KEY_FRAME_RATE)) format.getInteger(MediaFormat.KEY_FRAME_RATE).toDouble() else 30.0
         probe.release()
-        val frames = sequence {
+        val decoded = sequence<Pair<Long, Gray>> {
             val ex = MediaExtractor().apply { setDataSource(path) }
             val vt = track(ex, "video/")!!
             ex.selectTrack(vt)
@@ -60,7 +60,7 @@ object SignalDecoder {
                     if (o >= 0) {
                         if (info.size > 0) {
                             val image = codec.getOutputImage(o)
-                            if (image != null) { yield(small(image)); image.close() }
+                            if (image != null) { yield(info.presentationTimeUs to small(image)); image.close() }
                         }
                         codec.releaseOutputBuffer(o, false)
                         if (info.flags and MediaCodec.BUFFER_FLAG_END_OF_STREAM != 0) outputDone = true
@@ -68,7 +68,7 @@ object SignalDecoder {
                 }
             } finally { codec.stop(); codec.release(); ex.release() }
         }
-        return Video(fps, frames, firstPts(path))
+        return Video(WORK_FPS, app.epicreplay.core.signals.Resample.atThirtyFramesASecond(decoded), firstPts(path))
     }
 
     /** The presentation time of the first video sample, from the container. */

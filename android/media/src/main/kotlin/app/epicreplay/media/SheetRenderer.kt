@@ -5,7 +5,6 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Rect
-import android.media.MediaMetadataRetriever
 import app.epicreplay.core.sheet.ContactSheet
 import app.epicreplay.core.spotter.RenderedSheet
 import app.epicreplay.core.spotter.SheetRenderer
@@ -17,13 +16,13 @@ import java.io.ByteArrayOutputStream
  * again, as the PC's `write_sheet` does. [fps] gives each cell's time. The numbers are drawn with Android's default font, not OpenCV's Hershey one,
  * so the sheet is the same in layout and not in pixels (the model reads the cell number, not the typeface).
  */
-class ClipSheetRenderer(private val path: String, private val fps: Double) : SheetRenderer, AutoCloseable {
-    private val retriever = MediaMetadataRetriever().apply { setDataSource(path) }
+class ClipSheetRenderer(private val path: String, private val fps: Double = ClipFrames.FPS) : SheetRenderer, AutoCloseable {
+    private val frames = ClipFrames(path)
 
-    override fun render(frames: List<Int>): RenderedSheet {
-        val got = frames.mapNotNull { f -> frameOrNull(f)?.let { f to it } }
+    override fun render(wanted: List<Int>): RenderedSheet {
+        val got = wanted.mapNotNull { f -> frames.frameAt(f)?.let { f to it } }
         val cellW = ContactSheet.CELL_W
-        require(got.isNotEmpty()) { "none of the frames $frames could be read from $path" }
+        require(got.isNotEmpty()) { "none of the frames $wanted could be read from $path" }
         val first = got.first().second
         val geo = ContactSheet.layout(first.width, first.height, got.size)
         val sheet = Bitmap.createBitmap(geo.width, geo.height, Bitmap.Config.ARGB_8888)
@@ -52,9 +51,6 @@ class ClipSheetRenderer(private val path: String, private val fps: Double) : She
         return RenderedSheet(out.toByteArray(), got.mapIndexed { k, (f, _) -> RenderedSheet.Cell(k + 1, f, Math.round(f / fps * 1000) / 1000.0) })
     }
 
-    /** A frame the decoder cannot give (an index past the end throws on Android, where OpenCV returns nothing) is left out. */
-    private fun frameOrNull(f: Int): Bitmap? = try { retriever.getFrameAtIndex(f) } catch (e: IllegalArgumentException) { null }
-
     /** Halve the picture while it is more than twice the target, then filter the last step: close to OpenCV's INTER_AREA (a plain filtered draw of a 1080p frame into 448 px skips pixels). */
     private fun shrink(src: Bitmap, w: Int, h: Int): Bitmap {
         var cur = src
@@ -66,5 +62,5 @@ class ClipSheetRenderer(private val path: String, private val fps: Double) : She
         return cur
     }
 
-    override fun close() = retriever.release()
+    override fun close() = frames.close()
 }

@@ -129,6 +129,7 @@ FUNCTIONS: dict[str, Callable[..., Any]] = {
     "intake.work_check": conformance_intake.work_check,
     "intake.capture_fps": conformance_intake.capture_fps,
     "intake.meta": conformance_intake.meta,
+    "intake.work_size": conformance_intake.work_size,
     "commentator.brief": conformance_commentator.brief,
     "commentator.system_prompt": conformance_commentator.system_prompt,
     "commentator.failures": conformance_commentator.failures,
