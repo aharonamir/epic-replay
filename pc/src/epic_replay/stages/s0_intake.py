@@ -72,19 +72,53 @@ def length_ok(dur: float) -> bool:
     return MIN_S - SLACK_S <= dur <= MAX_S + SLACK_S
 
 
-def inspect(path: Path) -> tuple[str | None, dict]:
-    """(why the upload is refused, in words for the page, or None; its probe)."""
-    if path.suffix.lower() not in EXTS:
-        return "The clip must be an MP4, MOV or WebM file.", {}
-    if path.stat().st_size > MAX_BYTES:
-        return "The clip is larger than 200 MB.", {}
-    info = probe(path)
+def check(name: str, size: int, info: dict) -> str | None:
+    """Why an upload is refused, in words for the page, or None: its name's extension, its size and what ffprobe
+    found in it ({} when the file could not be read). The rules, with no file in them (conformance area `intake`)."""
+    if Path(name).suffix.lower() not in EXTS:
+        return "The clip must be an MP4, MOV or WebM file."
+    if size > MAX_BYTES:
+        return "The clip is larger than 200 MB."
     if video_stream(info) is None:
-        return "The file could not be read as a video.", info
+        return "The file could not be read as a video."
     dur = duration(info)
     if not length_ok(dur):
-        return f"The clip is {dur:.1f} s long; it must be 3 to 30 seconds.", info
-    return None, info
+        return f"The clip is {dur:.1f} s long; it must be 3 to 30 seconds."
+    return None
+
+
+def check_work(info: dict) -> str | None:
+    """Why the working copy is refused, or None: no video stream in what the conversion made, or a length
+    outside 3 to 30 s (a file cut short keeps the length its header promised)."""
+    if video_stream(info) is None:
+        return "The clip could not be converted; try another file."
+    dur = duration(info)
+    if not length_ok(dur):
+        return f"Only {dur:.1f} s of the clip could be read; it must be 3 to 30 seconds."
+    return None
+
+
+def clip_meta(src_info: dict, work_info: dict, source_sha256: str) -> dict:
+    """`clip_meta.json` from what ffprobe found in the upload and in the working copy."""
+    v = video_stream(work_info)
+    return {
+        "duration_s": round(duration(work_info), 3),
+        "width": v["width"],
+        "height": v["height"],
+        "rotation": 0,
+        "fps": WORK_FPS,
+        "capture_fps": capture_fps(video_stream(src_info)),
+        "has_audio": any(s.get("codec_type") == "audio" for s in src_info.get("streams", [])),
+        "source_sha256": source_sha256,
+    }
+
+
+def inspect(path: Path) -> tuple[str | None, dict]:
+    """(why the upload is refused, in words for the page, or None; its probe)."""
+    if path.suffix.lower() not in EXTS or path.stat().st_size > MAX_BYTES:
+        return check(path.name, path.stat().st_size, {}), {}
+    info = probe(path)
+    return check(path.name, path.stat().st_size, info), info
 
 
 def reject_reason(path: Path) -> str | None:
@@ -113,27 +147,11 @@ def run(ctx: RunContext) -> StageResult:
         capture_output=True, text=True,
     )  # fmt: skip
     info = probe(work) if conv.returncode == 0 else {}
-    v = video_stream(info)
-    if v is None:
+    why = check_work(info)
+    if why:
         work.unlink(missing_ok=True)
-        return StageResult("failed", "The clip could not be converted; try another file.")
-    dur = duration(info)
-    if not length_ok(dur):
-        work.unlink(missing_ok=True)
-        return StageResult(
-            "failed",
-            f"Only {dur:.1f} s of the clip could be read; it must be 3 to 30 seconds.",
-        )
-    meta = {
-        "duration_s": round(dur, 3),
-        "width": v["width"],
-        "height": v["height"],
-        "rotation": 0,
-        "fps": WORK_FPS,
-        "capture_fps": capture_fps(video_stream(src_info)),
-        "has_audio": has_audio,
-        "source_sha256": sha256_file(src),
-    }
+        return StageResult("failed", why)
+    meta = clip_meta(src_info, info, sha256_file(src))
     ctx.path(META).write_text(json.dumps(meta, indent=2) + "\n")
     ctx.emit({"stage": "S0", "status": "ok", "duration_s": meta["duration_s"]})
     return StageResult("ok", outputs=[WORK, META])

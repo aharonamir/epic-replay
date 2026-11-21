@@ -1,0 +1,162 @@
+{
+  "area": "intake",
+  "function": "intake.work_check",
+  "language": null,
+  "description": "The working copy: a video stream and a length of 3 to 30 s on what could be read, in other words than the upload's.",
+  "inputs": {
+    "infos": {
+      "value": [
+        {
+          "streams": [
+            {
+              "codec_type": "video",
+              "width": 320,
+              "height": 180,
+              "avg_frame_rate": "25/1",
+              "r_frame_rate": "25/1"
+            },
+            {
+              "codec_type": "audio"
+            }
+          ],
+          "format": {
+            "duration": "4.0"
+          }
+        },
+        {},
+        {
+          "streams": [
+            {
+              "codec_type": "audio"
+            }
+          ],
+          "format": {
+            "duration": "4.0"
+          }
+        },
+        {
+          "streams": [
+            {
+              "codec_type": "video",
+              "width": 320,
+              "height": 180,
+              "avg_frame_rate": "25/1",
+              "r_frame_rate": "25/1"
+            },
+            {
+              "codec_type": "audio"
+            }
+          ],
+          "format": {
+            "duration": "1.2"
+          }
+        },
+        {
+          "streams": [
+            {
+              "codec_type": "video",
+              "width": 320,
+              "height": 180,
+              "avg_frame_rate": "25/1",
+              "r_frame_rate": "25/1"
+            },
+            {
+              "codec_type": "audio"
+            }
+          ],
+          "format": {
+            "duration": "29.9"
+          }
+        },
+        {
+          "streams": [
+            {
+              "codec_type": "video",
+              "width": 320,
+              "height": 180,
+              "avg_frame_rate": "25/1",
+              "r_frame_rate": "25/1"
+            },
+            {
+              "codec_type": "audio"
+            }
+          ],
+          "format": {
+            "duration": "31.5"
+          }
+        },
+        {
+          "streams": [
+            {
+              "codec_type": "video",
+              "width": 320,
+              "height": 180,
+              "avg_frame_rate": "25/1",
+              "r_frame_rate": "25/1"
+            },
+            {
+              "codec_type": "audio"
+            }
+          ],
+          "format": {
+            "duration": "2.95"
+          }
+        },
+        {
+          "streams": [
+            {
+              "codec_type": "video",
+              "width": 320,
+              "height": 180,
+              "avg_frame_rate": "25/1",
+              "r_frame_rate": "25/1"
+            },
+            {
+              "codec_type": "audio"
+            }
+          ],
+          "format": {
+            "duration": "30.05"
+          }
+        },
+        {
+          "streams": [
+            {
+              "codec_type": "video",
+              "width": 320,
+              "height": 180,
+              "avg_frame_rate": "25/1",
+              "r_frame_rate": "25/1"
+            },
+            {
+              "codec_type": "audio"
+            }
+          ],
+          "format": {
+            "duration": "30.06"
+          }
+        },
+        {
+          "streams": [
+            {
+              "codec_type": "video",
+              "width": 320,
+              "height": 180,
+              "avg_frame_rate": "25/1",
+              "r_frame_rate": "25/1"
+            },
+            {
+              "codec_type": "audio"
+            }
+          ],
+          "format": {
+            "duration": null
+          }
+        }
+      ]
+    }
+  },
+  "expected": {
+    "file": "expected/output.json"
+  }
+}

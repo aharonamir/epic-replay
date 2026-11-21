@@ -1,0 +1,284 @@
+{
+  "area": "intake",
+  "function": "intake.check",
+  "language": null,
+  "description": "The extension, the size, the video stream and the length, in that order, each with its words for the page.",
+  "inputs": {
+    "files": {
+      "value": [
+        {
+          "name": "upload.mp4",
+          "size_bytes": 5242880,
+          "info": {
+            "streams": [
+              {
+                "codec_type": "video",
+                "width": 320,
+                "height": 180,
+                "avg_frame_rate": "25/1",
+                "r_frame_rate": "25/1"
+              },
+              {
+                "codec_type": "audio"
+              }
+            ],
+            "format": {
+              "duration": "4.000000"
+            }
+          }
+        },
+        {
+          "name": "clip.MOV",
+          "size_bytes": 5242880,
+          "info": {
+            "streams": [
+              {
+                "codec_type": "video",
+                "width": 320,
+                "height": 180,
+                "avg_frame_rate": "25/1",
+                "r_frame_rate": "25/1"
+              },
+              {
+                "codec_type": "audio"
+              }
+            ],
+            "format": {
+              "duration": "4.0"
+            }
+          }
+        },
+        {
+          "name": "a.webm",
+          "size_bytes": 1,
+          "info": {
+            "streams": [
+              {
+                "codec_type": "video",
+                "width": 320,
+                "height": 180,
+                "avg_frame_rate": "25/1",
+                "r_frame_rate": "25/1"
+              },
+              {
+                "codec_type": "audio"
+              }
+            ],
+            "format": {
+              "duration": "4.0"
+            }
+          }
+        },
+        {
+          "name": "upload.avi",
+          "size_bytes": 5242880,
+          "info": {
+            "streams": [
+              {
+                "codec_type": "video",
+                "width": 320,
+                "height": 180,
+                "avg_frame_rate": "25/1",
+                "r_frame_rate": "25/1"
+              },
+              {
+                "codec_type": "audio"
+              }
+            ],
+            "format": {
+              "duration": "4.0"
+            }
+          }
+        },
+        {
+          "name": "upload.mkv",
+          "size_bytes": 5242880,
+          "info": {
+            "streams": [
+              {
+                "codec_type": "video",
+                "width": 320,
+                "height": 180,
+                "avg_frame_rate": "25/1",
+                "r_frame_rate": "25/1"
+              },
+              {
+                "codec_type": "audio"
+              }
+            ],
+            "format": {
+              "duration": "4.0"
+            }
+          }
+        },
+        {
+          "name": "upload",
+          "size_bytes": 5242880,
+          "info": {
+            "streams": [
+              {
+                "codec_type": "video",
+                "width": 320,
+                "height": 180,
+                "avg_frame_rate": "25/1",
+                "r_frame_rate": "25/1"
+              },
+              {
+                "codec_type": "audio"
+              }
+            ],
+            "format": {
+              "duration": "4.0"
+            }
+          }
+        },
+        {
+          "name": "upload.mp4.avi",
+          "size_bytes": 5242880,
+          "info": {
+            "streams": [
+              {
+                "codec_type": "video",
+                "width": 320,
+                "height": 180,
+                "avg_frame_rate": "25/1",
+                "r_frame_rate": "25/1"
+              },
+              {
+                "codec_type": "audio"
+              }
+            ],
+            "format": {
+              "duration": "4.0"
+            }
+          }
+        },
+        {
+          "name": ".mp4",
+          "size_bytes": 5242880,
+          "info": {
+            "streams": [
+              {
+                "codec_type": "video",
+                "width": 320,
+                "height": 180,
+                "avg_frame_rate": "25/1",
+                "r_frame_rate": "25/1"
+              },
+              {
+                "codec_type": "audio"
+              }
+            ],
+            "format": {
+              "duration": "4.0"
+            }
+          }
+        },
+        {
+          "name": "upload.mp4",
+          "size_bytes": 209715200,
+          "info": {
+            "streams": [
+              {
+                "codec_type": "video",
+                "width": 320,
+                "height": 180,
+                "avg_frame_rate": "25/1",
+                "r_frame_rate": "25/1"
+              },
+              {
+                "codec_type": "audio"
+              }
+            ],
+            "format": {
+              "duration": "4.0"
+            }
+          }
+        },
+        {
+          "name": "upload.mp4",
+          "size_bytes": 209715201,
+          "info": {
+            "streams": [
+              {
+                "codec_type": "video",
+                "width": 320,
+                "height": 180,
+                "avg_frame_rate": "25/1",
+                "r_frame_rate": "25/1"
+              },
+              {
+                "codec_type": "audio"
+              }
+            ],
+            "format": {
+              "duration": "4.0"
+            }
+          }
+        },
+        {
+          "name": "upload.avi",
+          "size_bytes": 314572800,
+          "info": {
+            "streams": [
+              {
+                "codec_type": "video",
+                "width": 320,
+                "height": 180,
+                "avg_frame_rate": "25/1",
+                "r_frame_rate": "25/1"
+              },
+              {
+                "codec_type": "audio"
+              }
+            ],
+            "format": {
+              "duration": "4.0"
+            }
+          }
+        },
+        {
+          "name": "upload.mp4",
+          "size_bytes": 5242880,
+          "info": {}
+        },
+        {
+          "name": "upload.mp4",
+          "size_bytes": 5242880,
+          "info": {
+            "streams": [
+              {
+                "codec_type": "audio"
+              }
+            ],
+            "format": {
+              "duration": "4.0"
+            }
+          }
+        },
+        {
+          "name": "upload.mp4",
+          "size_bytes": 5242880,
+          "info": {
+            "streams": [],
+            "format": {
+              "duration": "4.0"
+            }
+          }
+        },
+        {
+          "name": "upload.mp4",
+          "size_bytes": 5242880,
+          "info": {
+            "format": {
+              "duration": "4.0"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "expected": {
+    "file": "expected/output.json"
+  }
+}

@@ -1,0 +1,42 @@
+[
+  {
+    "duration_s": 4.033,
+    "width": 320,
+    "height": 180,
+    "rotation": 0,
+    "fps": 30,
+    "capture_fps": 25.0,
+    "has_audio": true,
+    "source_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  {
+    "duration_s": 3.001,
+    "width": 180,
+    "height": 320,
+    "rotation": 0,
+    "fps": 30,
+    "capture_fps": 120.0,
+    "has_audio": false,
+    "source_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  {
+    "duration_s": 30.0,
+    "width": 1920,
+    "height": 1080,
+    "rotation": 0,
+    "fps": 30,
+    "capture_fps": 30,
+    "has_audio": true,
+    "source_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  {
+    "duration_s": 12.347,
+    "width": 320,
+    "height": 180,
+    "rotation": 0,
+    "fps": 30,
+    "capture_fps": 25.0,
+    "has_audio": true,
+    "source_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  }
+]

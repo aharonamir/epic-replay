@@ -1731,9 +1731,78 @@ def commentator_cases() -> dict[str, dict]:
     return out
 
 
+def intake_cases() -> dict[str, dict]:
+    """Added in T420: S0's rules on a probe (stages/s0_intake.py): what is refused and why, and the clip metadata."""
+    mb = 1024 * 1024
+
+    def stream(kind, **more):
+        return {"codec_type": kind, **more}
+
+    video = stream("video", width=320, height=180, avg_frame_rate="25/1", r_frame_rate="25/1")
+    sound = stream("audio")
+
+    def info(dur, streams=None, fmt=True):
+        out = {"streams": streams if streams is not None else [video, sound]}
+        if fmt:
+            out["format"] = {"duration": dur}
+        return out
+
+    def case(function, desc, inputs):
+        return {
+            "area": "intake",
+            "function": function,
+            "language": None,
+            "description": desc,
+            "inputs": inputs,
+        }
+
+    def f(name, size, i):
+        return {"name": name, "size_bytes": size, "info": i}
+
+    out = {}
+    out["check_what_is_refused"] = case(
+        "intake.check", "The extension, the size, the video stream and the length, in that order, each with its words for the page.",
+        {"files": value([
+            f("upload.mp4", 5 * mb, info("4.000000")), f("clip.MOV", 5 * mb, info("4.0")), f("a.webm", 1, info("4.0")),
+            f("upload.avi", 5 * mb, info("4.0")), f("upload.mkv", 5 * mb, info("4.0")), f("upload", 5 * mb, info("4.0")),
+            f("upload.mp4.avi", 5 * mb, info("4.0")), f(".mp4", 5 * mb, info("4.0")),
+            f("upload.mp4", 200 * mb, info("4.0")), f("upload.mp4", 200 * mb + 1, info("4.0")), f("upload.avi", 300 * mb, info("4.0")),
+            f("upload.mp4", 5 * mb, {}), f("upload.mp4", 5 * mb, info("4.0", streams=[sound])), f("upload.mp4", 5 * mb, info("4.0", streams=[])),
+            f("upload.mp4", 5 * mb, {"format": {"duration": "4.0"}}),
+        ])})  # fmt: skip
+    out["check_the_length"] = case(
+        "intake.check", "3 to 30 seconds with 0.05 s of slack at each end, and how a length is written in the words: one decimal.",
+        {"files": value([f("upload.mp4", mb, info(d)) for d in ["2.94", "2.95", "2.949999", "3.0", "29.99", "30.0", "30.05", "30.0500001", "30.06", "40.0", "2.0",
+                                                                "0", "0.0", None, "N/A", "abc", 12.5, 3, "1e1", " 7 "]]
+                          + [f("upload.mp4", mb, {"streams": [video], "format": {}}), f("upload.mp4", mb, {"streams": [video]})])})  # fmt: skip
+    out["check_the_words_round_half_to_even"] = case(
+        "intake.check", "The length in the words is written to one decimal, rounding half to even as Python does (0.25 is 0.2, 2.25 is 2.2, 30.25 is 30.2).",
+        {"files": value([f("upload.mp4", mb, info(d)) for d in ["0.25", "0.35", "2.25", "2.35", "30.25", "30.35", "45.05", "99.95"]])})  # fmt: skip
+    out["work_check"] = case(
+        "intake.work_check", "The working copy: a video stream and a length of 3 to 30 s on what could be read, in other words than the upload's.",
+        {"infos": value([info("4.0"), {}, info("4.0", streams=[sound]), info("1.2"), info("29.9"), info("31.5"), info("2.95"), info("30.05"), info("30.06"), info(None)])})  # fmt: skip
+    out["capture_fps"] = case(
+        "intake.capture_fps", "The upload's own frame rate: the average, else the container's, else 30; 29.97 and 120 are kept.",
+        {"streams": value([
+            {"avg_frame_rate": "30000/1001", "r_frame_rate": "30/1"}, {"avg_frame_rate": "0/0", "r_frame_rate": "240/1"},
+            {"avg_frame_rate": "0/0", "r_frame_rate": "0/0"}, {}, None, {"avg_frame_rate": "25/1"}, {"avg_frame_rate": "24000/1001"},
+            {"avg_frame_rate": "60"}, {"avg_frame_rate": "abc/1", "r_frame_rate": "50/1"}, {"avg_frame_rate": "1/3"}, {"avg_frame_rate": "-30/1", "r_frame_rate": "12/1"},
+            {"avg_frame_rate": "2997/100"}, {"avg_frame_rate": "10/0", "r_frame_rate": "15/1"}])})  # fmt: skip
+    sha = "a" * 64
+    out["meta"] = case(
+        "intake.meta", "clip_meta.json from the upload's and the working copy's probes: the length to the millisecond, the working copy's size, 30 fps, the upload's own rate and whether it had sound.",
+        {"items": value([
+            {"src_info": info("4.04", [video, sound]), "work_info": info("4.0333", [dict(video, width=320, height=180), sound]), "sha256": sha},
+            {"src_info": info("3.0", [dict(video, avg_frame_rate="120/1")]), "work_info": info("3.0005", [dict(video, width=180, height=320)]), "sha256": sha},
+            {"src_info": info("30.0", [dict(video, avg_frame_rate="0/0", r_frame_rate="0/0"), sound, sound]), "work_info": info("29.9995", [dict(video, width=1920, height=1080)]), "sha256": sha},
+            {"src_info": info("12.3456", [sound, video]), "work_info": info("12.3465", [video]), "sha256": sha},
+        ])})  # fmt: skip
+    return out
+
+
 def all_cases() -> dict[str, dict]:
     out = {}
-    for make in (storyboard_cases, slots_cases, checks_cases, lexicon_cases, units_cases, cells_cases, cell_layout_cases, backend_cases, budget_cases, consent_cases, signals_cases, checks_more_cases, voice_cases, mix_cases, visuals_cases, spotter_cases, commentator_cases):  # fmt: skip
+    for make in (storyboard_cases, slots_cases, checks_cases, lexicon_cases, units_cases, cells_cases, cell_layout_cases, backend_cases, budget_cases, consent_cases, signals_cases, checks_more_cases, voice_cases, mix_cases, visuals_cases, spotter_cases, commentator_cases, intake_cases):  # fmt: skip
         for name, case in make().items():
             out[f"{case['area']}/{name}"] = case
     return out

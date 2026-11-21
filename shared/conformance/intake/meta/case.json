@@ -1,0 +1,154 @@
+{
+  "area": "intake",
+  "function": "intake.meta",
+  "language": null,
+  "description": "clip_meta.json from the upload's and the working copy's probes: the length to the millisecond, the working copy's size, 30 fps, the upload's own rate and whether it had sound.",
+  "inputs": {
+    "items": {
+      "value": [
+        {
+          "src_info": {
+            "streams": [
+              {
+                "codec_type": "video",
+                "width": 320,
+                "height": 180,
+                "avg_frame_rate": "25/1",
+                "r_frame_rate": "25/1"
+              },
+              {
+                "codec_type": "audio"
+              }
+            ],
+            "format": {
+              "duration": "4.04"
+            }
+          },
+          "work_info": {
+            "streams": [
+              {
+                "codec_type": "video",
+                "width": 320,
+                "height": 180,
+                "avg_frame_rate": "25/1",
+                "r_frame_rate": "25/1"
+              },
+              {
+                "codec_type": "audio"
+              }
+            ],
+            "format": {
+              "duration": "4.0333"
+            }
+          },
+          "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        {
+          "src_info": {
+            "streams": [
+              {
+                "codec_type": "video",
+                "width": 320,
+                "height": 180,
+                "avg_frame_rate": "120/1",
+                "r_frame_rate": "25/1"
+              }
+            ],
+            "format": {
+              "duration": "3.0"
+            }
+          },
+          "work_info": {
+            "streams": [
+              {
+                "codec_type": "video",
+                "width": 180,
+                "height": 320,
+                "avg_frame_rate": "25/1",
+                "r_frame_rate": "25/1"
+              }
+            ],
+            "format": {
+              "duration": "3.0005"
+            }
+          },
+          "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        {
+          "src_info": {
+            "streams": [
+              {
+                "codec_type": "video",
+                "width": 320,
+                "height": 180,
+                "avg_frame_rate": "0/0",
+                "r_frame_rate": "0/0"
+              },
+              {
+                "codec_type": "audio"
+              },
+              {
+                "codec_type": "audio"
+              }
+            ],
+            "format": {
+              "duration": "30.0"
+            }
+          },
+          "work_info": {
+            "streams": [
+              {
+                "codec_type": "video",
+                "width": 1920,
+                "height": 1080,
+                "avg_frame_rate": "25/1",
+                "r_frame_rate": "25/1"
+              }
+            ],
+            "format": {
+              "duration": "29.9995"
+            }
+          },
+          "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        {
+          "src_info": {
+            "streams": [
+              {
+                "codec_type": "audio"
+              },
+              {
+                "codec_type": "video",
+                "width": 320,
+                "height": 180,
+                "avg_frame_rate": "25/1",
+                "r_frame_rate": "25/1"
+              }
+            ],
+            "format": {
+              "duration": "12.3456"
+            }
+          },
+          "work_info": {
+            "streams": [
+              {
+                "codec_type": "video",
+                "width": 320,
+                "height": 180,
+                "avg_frame_rate": "25/1",
+                "r_frame_rate": "25/1"
+              }
+            ],
+            "format": {
+              "duration": "12.3465"
+            }
+          },
+          "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      ]
+    }
+  },
+  "expected": {
+    "file": "expected/output.json"
+  }
+}
