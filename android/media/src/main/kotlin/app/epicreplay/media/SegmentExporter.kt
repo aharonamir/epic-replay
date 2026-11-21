@@ -44,32 +44,25 @@ class SegmentExportException(message: String, cause: Throwable? = null) : Except
  */
 @UnstableApi
 class SegmentExporter(private val context: Context, private val clip: File) {
+    private companion object { const val EDGE_US = 2_000L }
     private val main = Handler(Looper.getMainLooper())
 
-    /** Makes the file for one plan entry; [width] and [height] are the storyboard's. Returns when the file is written. */
+    /** Makes the file for one plan entry; [width] and [height] are the storyboard's. Returns when the file is written, and checks that it has the plan's frames. */
     suspend fun export(entry: JsonObject, width: Int, height: Int, out: File) {
         val frames = entry.getValue("frames").jsonPrimitive.int
-        val items = ArrayList<EditedMediaItem>()
         val still = ArrayList<File>()
         try {
-            if (entry["freeze_frame"] != null) {
-                items += stillItem(entry.getValue("freeze_frame").jsonPrimitive.int, frames, width, height, still)
-            } else {
-                val first = entry.getValue("first_frame").jsonPrimitive.int
-                val end = entry.getValue("end_frame").jsonPrimitive.int
-                val speed = entry.getValue("speed").jsonPrimitive.double
-                items += cutItem(first, end, speed, entry["crop"], width, height)
-                val played = Math.round((end - first) / speed).toInt() // the frames the cut makes at 30 a second
-                if (frames > played) items += stillItem(end - 1, frames - played, width, height, still) // the last frame held for the rest
-            }
-            val sequence = EditedMediaItemSequence.Builder(items).build()
-            run(Composition.Builder(sequence).build(), out)
+            val item = if (entry["freeze_frame"] != null) stillItem(entry.getValue("freeze_frame").jsonPrimitive.int, frames, width, height, still)
+            else cutItem(entry.getValue("first_frame").jsonPrimitive.int, entry.getValue("end_frame").jsonPrimitive.int, entry.getValue("speed").jsonPrimitive.double, entry["crop"], width, height, frames)
+            run(Composition.Builder(EditedMediaItemSequence.Builder(listOf(item)).build()).build(), out)
+            val made = ClipProbe.readable(out.path)?.videoSamplesUs?.size ?: 0
+            if (made != frames) { out.delete(); throw SegmentExportException("the segment ${entry.getValue("id").jsonPrimitive.content} has $made frames, the plan has $frames") }
         } finally { still.forEach { it.delete() } }
     }
 
-    private fun cutItem(first: Int, end: Int, speed: Double, crop: JsonElement?, width: Int, height: Int): EditedMediaItem {
+    private fun cutItem(first: Int, end: Int, speed: Double, crop: JsonElement?, width: Int, height: Int, frames: Int): EditedMediaItem {
         val clipping = MediaItem.ClippingConfiguration.Builder()
-            .setStartPositionUs(Math.round(first * 1e6 / 30.0)).setEndPositionUs(Math.round(end * 1e6 / 30.0)).build()
+            .setStartPositionUs(edgeUs(first)).setEndPositionUs(edgeUs(end)).build()
         val item = MediaItem.Builder().setUri(Uri.fromFile(clip)).setClippingConfiguration(clipping).build()
         val effects = ArrayList<Effect>()
         (crop as? JsonObject)?.let { c ->
@@ -77,12 +70,16 @@ class SegmentExporter(private val context: Context, private val clip: File) {
             val cw = c.getValue("w").jsonPrimitive.int; val ch = c.getValue("h").jsonPrimitive.int; val cx = c.getValue("x").jsonPrimitive.int; val cy = c.getValue("y").jsonPrimitive.int
             effects += Crop(2f * cx / width - 1f, 2f * (cx + cw) / width - 1f, 1f - 2f * (cy + ch) / height, 1f - 2f * cy / height)
         }
+        // a crop is scaled back to the storyboard's size (its shape is the storyboard's, to a pixel, so nothing is left at the sides; STRETCH_TO_FIT left half of the picture empty in 1.11.1)
         effects += Presentation.createForWidthAndHeight(width, height, Presentation.LAYOUT_SCALE_TO_FIT)
-        if (speed < 1.0) effects += FrameBlendEffect(30.0)
+        effects += FrameBlendEffect(30.0, blend = speed < 1.0, frames = frames) // 30 a second, the plan's number of them
         val b = EditedMediaItem.Builder(item).setRemoveAudio(true).setEffects(Effects(emptyList(), effects))
         if (speed != 1.0) b.setSpeed(constantSpeed(speed.toFloat()))
         return b.build()
     }
+
+    /** Where a frame number starts, in microseconds: a container writes the time of frame 2 as 66,666 and Media3 drops frames before the start, so the edge is a little early (the frame is not lost) and the frame at the end is left out all the same. */
+    private fun edgeUs(frame: Int): Long = maxOf(0L, Math.round(frame * 1e6 / 30.0) - EDGE_US)
 
     private fun constantSpeed(speed: Float) = object : SpeedProvider {
         override fun getSpeed(timeUs: Long) = speed
@@ -99,21 +96,31 @@ class SegmentExporter(private val context: Context, private val clip: File) {
         return EditedMediaItem.Builder(item).setFrameRate(30).setEffects(Effects(emptyList(), listOf(Presentation.createForWidthAndHeight(width, height, Presentation.LAYOUT_SCALE_TO_FIT)))).build()
     }
 
-    /** Runs the export on the main thread (Media3 wants a looper) and waits; the phone's encoder sometimes fails once (spike S2), so it is tried twice. */
+    /** Runs the export on the main thread (Media3 wants a looper) and waits; the phone's encoder sometimes fails once (spike S2), so it is tried twice. A cancelled call stops the export. */
     private suspend fun run(composition: Composition, out: File) {
         var last: Throwable? = null
-        repeat(2) { attempt ->
+        repeat(2) {
             out.delete()
             val done = CompletableDeferred<ExportResult>()
+            val active = java.util.concurrent.atomic.AtomicReference<Transformer?>(null)
             main.post {
-                val t = Transformer.Builder(context).addListener(object : Transformer.Listener {
-                    override fun onCompleted(composition: Composition, exportResult: ExportResult) { done.complete(exportResult) }
-                    override fun onError(composition: Composition, exportResult: ExportResult, exportException: ExportException) { done.completeExceptionally(exportException) }
-                }).build()
-                try { t.start(composition, out.path) } catch (e: Exception) { done.completeExceptionally(e) }
+                try {
+                    val t = Transformer.Builder(context).addListener(object : Transformer.Listener {
+                        override fun onCompleted(composition: Composition, exportResult: ExportResult) { done.complete(exportResult) }
+                        override fun onError(composition: Composition, exportResult: ExportResult, exportException: ExportException) { done.completeExceptionally(exportException) }
+                    }).build()
+                    active.set(t)
+                    if (done.isCancelled) return@post
+                    t.start(composition, out.path)
+                } catch (e: Exception) { done.completeExceptionally(e) }
             }
-            try { done.await(); return } catch (e: Exception) { last = e }
+            try { done.await(); return } catch (e: kotlinx.coroutines.CancellationException) {
+                main.post { active.get()?.cancel() }
+                out.delete()
+                throw e // never started again after a cancel
+            } catch (e: Exception) { last = e }
         }
+        out.delete()
         throw SegmentExportException("the segment could not be exported: ${last?.message}", last)
     }
 }

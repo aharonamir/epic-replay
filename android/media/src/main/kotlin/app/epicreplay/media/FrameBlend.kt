@@ -10,17 +10,18 @@ import androidx.media3.common.util.Size
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.effect.BaseGlShaderProgram
 import androidx.media3.effect.GlEffect
-import app.epicreplay.core.visuals.BlendSchedule
-import app.epicreplay.core.visuals.BlendStep
+import app.epicreplay.core.visuals.ClockOut
+import app.epicreplay.core.visuals.FrameClock
 
 /**
- * Turns the picture of a slowed segment into a steady [fps] a second by mixing frames (spec 004 T421; spike S2: Media3 stretches the times of a 0.25
- * segment, so a source frame comes every 133 ms and nothing fills the gaps). Between two source frames it makes the frames the PC's FFmpeg `framerate`
- * makes: the two mixed, the later one more and more ([BlendSchedule]). Put it after the speed change and the size, so it mixes the pictures that are kept.
+ * Makes the picture of a segment a steady [fps] a second whatever the source's frame rate (spec 004 T421): FFmpeg's `fps` for a cut (each picture is the
+ * nearer source frame) and `framerate` for a slowed one (the two nearest source frames mixed; spike S2: Media3 stretches the times of a 0.25 segment, so a
+ * source frame comes every 133 ms and nothing fills the gaps). With [frames] the segment has exactly that many pictures, the last one held if the source
+ * runs out (the PC's `fit`). The clock is [FrameClock]. Put it after the speed change and the size, so it mixes the pictures that are kept.
  */
 @UnstableApi
-class FrameBlendEffect(private val fps: Double = 30.0) : GlEffect {
-    override fun toGlShaderProgram(context: Context, useHdr: Boolean) = FrameBlendProgram(useHdr, fps)
+class FrameBlendEffect(private val fps: Double = 30.0, private val blend: Boolean = true, private val frames: Int? = null) : GlEffect {
+    override fun toGlShaderProgram(context: Context, useHdr: Boolean) = FrameBlendProgram(useHdr, fps, blend, frames)
 }
 
 /**
@@ -28,25 +29,21 @@ class FrameBlendEffect(private val fps: Double = 30.0) : GlEffect {
  * pool of output textures and a copy of the previous source frame; when the pool is empty it waits for the consumer to give a texture back and goes on.
  */
 @UnstableApi
-class FrameBlendProgram(private val useHdr: Boolean, private val fps: Double) : BaseGlShaderProgram(useHdr, 1) {
+class FrameBlendProgram(private val useHdr: Boolean, private val fps: Double, private val blend: Boolean, private val limit: Int?) : BaseGlShaderProgram(useHdr, 1) {
     private val program = GlProgram(VERTEX, FRAGMENT).apply { setBufferAttribute("aFramePosition", GlUtil.getNormalizedCoordinateBounds(), 4) }
     private val all = ArrayList<GlTextureInfo>()
     private val free = ArrayDeque<GlTextureInfo>()
     private var previous: GlTextureInfo? = null
-    private var previousUs = 0L
+    private var clock = FrameClock(fps, blend, limit)
     private var havePrevious = false
-    private var lastGapUs = 0L
-    private var tail: List<BlendStep> = emptyList() // the last source frame held for the rest of its gap, once the input has ended
-    private var tailNext = 0
 
-    // the input frame being turned into outputs, and how far it has got
+    // the input frame being turned into pictures, the pictures still to make, and where the stream is
     private var current: GlTextureInfo? = null
-    private var currentUs = 0L
-    private var steps: List<BlendStep> = emptyList()
-    private var next = 0
-    private var first = false
+    private var queue = ArrayDeque<ClockOut>()
+    private var firstFrame = false
     private var endPending = false
-    private var ending = false // the input is over and the tail is being written
+    private var ending = false // the input is over and the held frames are being written
+    private var pumping = false
     private var width = 0
     private var height = 0
 
@@ -57,6 +54,7 @@ class FrameBlendProgram(private val useHdr: Boolean, private val fps: Double) : 
     private fun ensure(provider: GlObjectsProvider, w: Int, h: Int) {
         if (w == width && h == height && all.isNotEmpty()) return
         releaseTextures()
+        havePrevious = false // the textures it was in are gone
         width = w; height = h
         repeat(POOL) { all += newTexture(provider, w, h) }
         free.addAll(all)
@@ -73,62 +71,62 @@ class FrameBlendProgram(private val useHdr: Boolean, private val fps: Double) : 
         program.setSamplerTexIdUniform("uTexB", b.texId, 1)
         program.setFloatUniform("uWeight", weight.toFloat())
         program.bindAttributesAndUniforms()
-        android.opengl.GLES20.glDrawArrays(android.opengl.GLES20.GL_TRIANGLE_FAN, 0, 4)
+        android.opengl.GLES20.glDrawArrays(android.opengl.GLES20.GL_TRIANGLE_STRIP, 0, 4)
         GlUtil.checkGlError()
     }
 
     override fun queueInputFrame(glObjectsProvider: GlObjectsProvider, inputTexture: GlTextureInfo, presentationTimeUs: Long) {
         try {
             ensure(glObjectsProvider, inputTexture.width, inputTexture.height)
-            current = inputTexture; currentUs = presentationTimeUs; next = 0
-            first = !havePrevious
-            steps = if (first) listOf(BlendStep(presentationTimeUs, 1.0)) else BlendSchedule.steps(previousUs, presentationTimeUs, fps)
+            current = inputTexture
+            firstFrame = !havePrevious
+            queue = ArrayDeque(clock.onFrame(presentationTimeUs))
             pump()
         } catch (e: Exception) { onError(e) }
     }
 
-    /** Makes the outputs that a free texture allows; when the input frame is done it becomes the previous one and is given back. */
+    /** Makes the pictures that a free texture allows; when the input frame has made all of its own it becomes the previous one and is given back. */
     private fun pump() {
+        if (pumping) return // a consumer that gives a texture back at once must not start the loop again
+        pumping = true
         try {
             val cur = current ?: return
-            while (next < steps.size && free.isNotEmpty()) {
+            while (queue.isNotEmpty() && free.isNotEmpty()) {
                 val out = free.removeFirst()
-                val step = steps[next]
-                if (first) draw(cur, cur, 1.0, out) else draw(previous!!, cur, step.weight, out)
+                val step = queue.removeFirst() // before the consumer is told: it may call back
+                if (firstFrame) draw(cur, cur, 1.0, out) else draw(previous!!, cur, step.weight, out)
                 getOutputListener().onOutputFrameAvailable(out, step.timeUs)
-                next++
             }
-            if (next >= steps.size) {
-                val prev = previous!!
-                draw(cur, cur, 1.0, prev) // the copy that the next gap starts from
-                if (havePrevious) lastGapUs = currentUs - previousUs
-                previousUs = currentUs; havePrevious = true
+            if (queue.isEmpty()) {
+                draw(cur, cur, 1.0, previous!!) // the copy that the next gap starts from
+                havePrevious = true
                 current = null
                 getInputListener().onInputFrameProcessed(cur)
                 getInputListener().onReadyToAcceptInputFrame()
                 if (endPending) { endPending = false; startTail() }
             }
-        } catch (e: Exception) { onError(e) }
+        } catch (e: Exception) { onError(e) } finally { pumping = false }
     }
 
-    /** At the end of the input the last source frame is held for the rest of its gap, as FFmpeg's `framerate` holds it (a gap's worth of frames in all). */
+    /** At the end of the input the last source frame is held for the pictures still wanted (the limit, or one more gap of the source). */
     private fun startTail() {
-        tail = if (havePrevious && lastGapUs > 0) BlendSchedule.steps(previousUs, previousUs + lastGapUs, fps).dropLast(1) else emptyList()
-        tailNext = 0
+        queue = ArrayDeque(clock.finish())
         pumpTail()
     }
 
     private fun pumpTail() {
+        if (pumping) return
+        pumping = true
         try {
             val prev = previous
-            while (prev != null && tailNext < tail.size && free.isNotEmpty()) {
+            while (prev != null && queue.isNotEmpty() && free.isNotEmpty()) {
                 val out = free.removeFirst()
+                val step = queue.removeFirst()
                 draw(prev, prev, 1.0, out)
-                getOutputListener().onOutputFrameAvailable(out, tail[tailNext].timeUs)
-                tailNext++
+                getOutputListener().onOutputFrameAvailable(out, step.timeUs)
             }
-            if (tailNext >= tail.size && ending) { ending = false; tail = emptyList(); resetStream(); getOutputListener().onCurrentOutputStreamEnded() }
-        } catch (e: Exception) { onError(e) }
+            if (queue.isEmpty() && ending) { ending = false; resetStream(); getOutputListener().onCurrentOutputStreamEnded() }
+        } catch (e: Exception) { onError(e) } finally { pumping = false }
     }
 
     override fun releaseOutputFrame(outputTexture: GlTextureInfo) {
@@ -137,7 +135,7 @@ class FrameBlendProgram(private val useHdr: Boolean, private val fps: Double) : 
         if (current != null) pump() else if (ending) pumpTail()
     }
 
-    private fun resetStream() { havePrevious = false; previousUs = 0L; lastGapUs = 0L; steps = emptyList(); next = 0 }
+    private fun resetStream() { havePrevious = false; clock = FrameClock(fps, blend, limit); queue = ArrayDeque() }
 
     override fun signalEndOfCurrentInputStream() {
         ending = true
@@ -145,7 +143,7 @@ class FrameBlendProgram(private val useHdr: Boolean, private val fps: Double) : 
     }
 
     override fun flush() {
-        current = null; endPending = false; ending = false; tail = emptyList(); tailNext = 0; resetStream()
+        current = null; endPending = false; ending = false; resetStream()
         free.clear(); free.addAll(all)
         getInputListener().onFlush()
         getInputListener().onReadyToAcceptInputFrame()
