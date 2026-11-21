@@ -18,4 +18,8 @@ android {
 
 dependencies {
     implementation(project(":core"))
+    // The video pipeline (spike S2, versions checked 2026-11-15): cut, speed, crop, held frames, export. The blend of the slow replay is our own effect.
+    api(libs.media3.common)
+    implementation(libs.media3.effect)
+    implementation(libs.media3.transformer)
 }
