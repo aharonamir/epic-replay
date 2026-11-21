@@ -14,6 +14,20 @@ object PyText {
     /** `\s` as a character class that means the same in `java.util.regex`. */
     const val SPACE_CLASS = "[\\t\\n\\u000B\\f\\r\\u001C-\\u0020\\u0085\\u00A0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000]"
 
+    /** `s.split()` of Python: the pieces between runs of white space, none empty. */
+    fun splitWords(s: String): List<String> {
+        val out = ArrayList<String>()
+        val cur = StringBuilder()
+        for (c in s) {
+            if (isSpace(c)) { if (cur.isNotEmpty()) { out += cur.toString(); cur.setLength(0) } } else cur.append(c)
+        }
+        if (cur.isNotEmpty()) out += cur.toString()
+        return out
+    }
+
+    /** `s[:n]` of Python: the first [n] code points. */
+    fun take(s: String, n: Int): String = if (length(s) <= n) s else s.substring(0, s.offsetByCodePoints(0, n))
+
     /** `len(s)` of Python: code points, not UTF-16 units. */
     fun length(s: String): Int = s.codePointCount(0, s.length)
 

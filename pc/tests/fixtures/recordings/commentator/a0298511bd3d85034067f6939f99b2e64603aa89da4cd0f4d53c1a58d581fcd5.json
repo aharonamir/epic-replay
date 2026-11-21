@@ -1,0 +1,85 @@
+{
+  "draft": {
+    "lines": [
+      {
+        "delivery": "hushed, unhurried",
+        "event_refs": [
+          "e1"
+        ],
+        "id": "l1",
+        "text": "Here, Noa sets the ball down."
+      },
+      {
+        "delivery": "barely above a breath",
+        "event_refs": [
+          "e3"
+        ],
+        "id": "l2",
+        "text": "Movement."
+      },
+      {
+        "delivery": "almost whispered",
+        "event_refs": [
+          "e6"
+        ],
+        "hit_word": "Top",
+        "id": "l3",
+        "text": "Top corner."
+      },
+      {
+        "delivery": "soft, fond",
+        "event_refs": [
+          "e8"
+        ],
+        "id": "l4",
+        "text": "Away."
+      },
+      {
+        "delivery": "gentle invitation",
+        "event_refs": [
+          "e3"
+        ],
+        "id": "l5",
+        "text": "Watch the approach once more."
+      },
+      {
+        "delivery": "quiet wonder",
+        "event_refs": [
+          "e6"
+        ],
+        "hit_word": "settles",
+        "id": "l6",
+        "text": "Ball settles under the crossbar."
+      },
+      {
+        "delivery": "warm, closing",
+        "event_refs": [],
+        "id": "l7",
+        "text": "Delight."
+      }
+    ],
+    "headline": "Noa, from just outside the area",
+    "lower_third": "Noa — free kick, top-left corner"
+  },
+  "calls": [
+    {
+      "tool": "check_lines",
+      "lines": 7,
+      "failures": 1
+    },
+    {
+      "tool": "check_lines",
+      "lines": 7,
+      "failures": 0
+    },
+    {
+      "tool": "submit_script",
+      "lines": 7,
+      "failures": 0
+    }
+  ],
+  "usage": {
+    "input_tokens": 9368,
+    "output_tokens": 1836
+  }
+}

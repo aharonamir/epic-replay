@@ -1,0 +1,143 @@
+{
+  "area": "commentator",
+  "function": "commentator.brief",
+  "language": "en",
+  "description": "An event that is a caption, one an actor that is a banner describes, one just under 0.7 sure are not shown; one the user wrote is, however unsure.",
+  "inputs": {
+    "slots": {
+      "file": "../../slots/football_commentator_en/expected/output.json"
+    },
+    "play_sheet": {
+      "fixture": "sample_run/play_sheet.json",
+      "merge_patch": {
+        "events": [
+          {
+            "id": "e1",
+            "t_start": 0.0,
+            "t_end": 8.2,
+            "actor": "a1",
+            "action": "places the ball for a free kick just outside the penalty area",
+            "object": "ball",
+            "outcome": null,
+            "confidence": 0.9,
+            "source": "model"
+          },
+          {
+            "id": "e2",
+            "t_start": 2.0,
+            "t_end": 8.2,
+            "actor": "a3",
+            "action": "on-screen caption says FREE KICK",
+            "object": null,
+            "outcome": null,
+            "confidence": 0.85,
+            "source": "model"
+          },
+          {
+            "id": "e3",
+            "t_start": 8.2,
+            "t_end": 9.6,
+            "actor": "a1",
+            "action": "takes a short run-up",
+            "object": null,
+            "outcome": null,
+            "confidence": 0.69,
+            "source": "model"
+          },
+          {
+            "id": "e4",
+            "t_start": 9.6,
+            "t_end": 9.7,
+            "actor": "a1",
+            "action": "strikes the ball",
+            "object": "ball",
+            "outcome": null,
+            "confidence": 0.9,
+            "source": "model"
+          },
+          {
+            "id": "e5",
+            "t_start": 9.7,
+            "t_end": 10.433,
+            "actor": "a3",
+            "action": "ball flies over the wall",
+            "object": "ball",
+            "outcome": null,
+            "confidence": 0.8,
+            "source": "model"
+          },
+          {
+            "id": "e6",
+            "t_start": 10.433,
+            "t_end": 10.5,
+            "actor": null,
+            "action": "ball enters the goal in the top-left corner, under the crossbar",
+            "object": "ball",
+            "outcome": "goal",
+            "confidence": 0.8,
+            "source": "model"
+          },
+          {
+            "id": "e7",
+            "t_start": 10.433,
+            "t_end": 10.9,
+            "actor": "a2",
+            "action": "does not dive",
+            "object": null,
+            "outcome": null,
+            "confidence": 0.1,
+            "source": "user"
+          },
+          {
+            "id": "e8",
+            "t_start": 10.9,
+            "t_end": 15.0,
+            "actor": "a1",
+            "action": "runs away celebrating",
+            "object": null,
+            "outcome": null,
+            "confidence": 0.9,
+            "source": "model"
+          }
+        ],
+        "actors": [
+          {
+            "id": "a1",
+            "descriptor": "player in a red shirt, number 10",
+            "role": "free-kick taker",
+            "user_name": "Noa",
+            "followed": true
+          },
+          {
+            "id": "a2",
+            "descriptor": "goalkeeper in green",
+            "role": "goalkeeper",
+            "user_name": null,
+            "followed": false
+          },
+          {
+            "id": "a3",
+            "descriptor": "a title banner",
+            "role": "defensive wall",
+            "user_name": null,
+            "followed": false
+          }
+        ]
+      }
+    },
+    "user_context": {
+      "fixture": "sample_run/user_context.json",
+      "merge_patch": {
+        "description": "my son's best kick",
+        "team_home": "Blue"
+      }
+    },
+    "storyboard": {
+      "fixture": "sample_run/storyboard.json"
+    }
+  },
+  "tolerance_s": 0.001,
+  "expected": {
+    "file": "expected/output.json"
+  }
+}

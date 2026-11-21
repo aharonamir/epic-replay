@@ -1,0 +1,15 @@
+{
+  "area": "commentator",
+  "function": "commentator.system_prompt",
+  "language": "zh",
+  "description": "The system prompt of news_reporter for a run in Mandarin.",
+  "inputs": {
+    "pack": {
+      "style": "news_reporter",
+      "language": "zh"
+    }
+  },
+  "expected": {
+    "file": "expected/output.json"
+  }
+}

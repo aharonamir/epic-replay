@@ -1,0 +1,136 @@
+{
+  "script": {
+    "schema_version": "1.0",
+    "run_id": "fixture-freekick",
+    "language": "zh",
+    "style": "news_reporter",
+    "words_per_second": 3.1,
+    "startup_s": 0.3,
+    "reaction_delay_s": 0.4,
+    "voice": {
+      "provider": "elevenlabs",
+      "voice_id": "pz7hOfW7kgI9kF818eDS"
+    },
+    "headline": "今晚头条",
+    "lower_third": "慢镜头",
+    "lines": [
+      {
+        "id": "l1",
+        "segment_id": "s2",
+        "role": "opening",
+        "anchor": {
+          "type": "start_at",
+          "timeline_t": 1.3,
+          "event_id": null
+        },
+        "max_duration_s": 4.0,
+        "max_words": 11,
+        "text": "我们开始。",
+        "delivery": "newsreader, even and clear",
+        "event_refs": [],
+        "generic": true
+      },
+      {
+        "id": "l2",
+        "segment_id": "s2",
+        "role": "build_up",
+        "anchor": {
+          "type": "start_at",
+          "timeline_t": 9.433,
+          "event_id": null
+        },
+        "max_duration_s": 1.6,
+        "max_words": 4,
+        "text": "来了……",
+        "delivery": "newsreader, even and clear",
+        "event_refs": [],
+        "generic": true
+      },
+      {
+        "id": "l3",
+        "segment_id": "s2",
+        "role": "climax",
+        "anchor": {
+          "type": "hit_at",
+          "timeline_t": 11.433,
+          "event_id": "e6"
+        },
+        "max_duration_s": 2.0,
+        "max_words": 5,
+        "text": "就是现在！",
+        "delivery": "newsreader, firm",
+        "event_refs": [],
+        "generic": true,
+        "hit_word": "就"
+      },
+      {
+        "id": "l4",
+        "segment_id": "s2",
+        "role": "reaction",
+        "anchor": {
+          "type": "start_at",
+          "timeline_t": 13.933,
+          "event_id": null
+        },
+        "max_duration_s": 1.6,
+        "max_words": 4,
+        "text": "好！",
+        "delivery": "newsreader, dry",
+        "event_refs": [],
+        "generic": true
+      },
+      {
+        "id": "l5",
+        "segment_id": "s4",
+        "role": "replay_watch",
+        "anchor": {
+          "type": "start_at",
+          "timeline_t": 16.9,
+          "event_id": null
+        },
+        "max_duration_s": 3.5,
+        "max_words": 9,
+        "text": "再看一次。",
+        "delivery": "newsreader, even and clear",
+        "event_refs": [],
+        "generic": true
+      },
+      {
+        "id": "l6",
+        "segment_id": "s4",
+        "role": "replay_climax",
+        "anchor": {
+          "type": "hit_at",
+          "timeline_t": 22.4,
+          "event_id": "e6"
+        },
+        "max_duration_s": 3.5,
+        "max_words": 9,
+        "text": "就是这里。",
+        "delivery": "newsreader, deliberate",
+        "event_refs": [],
+        "generic": true,
+        "hit_word": "就"
+      },
+      {
+        "id": "l7",
+        "segment_id": "s5",
+        "role": "sign_off",
+        "anchor": {
+          "type": "start_at",
+          "timeline_t": 26.7,
+          "event_id": null
+        },
+        "max_duration_s": 1.6,
+        "max_words": 4,
+        "text": "真好。",
+        "delivery": "newsreader, brisk",
+        "event_refs": [],
+        "generic": true
+      }
+    ],
+    "approved": "express"
+  },
+  "status": "ok",
+  "note": "generic mode: no claim about what happened"
+}

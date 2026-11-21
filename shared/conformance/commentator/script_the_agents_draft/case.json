@@ -1,0 +1,98 @@
+{
+  "area": "commentator",
+  "function": "commentator.script",
+  "language": "en",
+  "description": "The agent's draft passes: it is the script, status ok.",
+  "inputs": {
+    "slots": {
+      "file": "../../slots/football_commentator_en/expected/output.json"
+    },
+    "play_sheet": {
+      "fixture": "sample_run/play_sheet.json"
+    },
+    "user_context": {
+      "fixture": "sample_run/user_context.json"
+    },
+    "storyboard": {
+      "fixture": "sample_run/storyboard.json"
+    },
+    "pack": {
+      "style": "football_commentator",
+      "language": "en"
+    },
+    "agent_draft": {
+      "value": {
+        "lines": [
+          {
+            "id": "l1",
+            "text": "Free kick, just outside the box.",
+            "delivery": "measured, expectant",
+            "event_refs": [
+              "e1",
+              "e2"
+            ]
+          },
+          {
+            "id": "l2",
+            "text": "Noa...",
+            "delivery": "rising, quick",
+            "event_refs": [
+              "e3"
+            ]
+          },
+          {
+            "id": "l3",
+            "text": "TOP CORNER!",
+            "delivery": "shouting, full voice",
+            "event_refs": [
+              "e6",
+              "e4"
+            ],
+            "hit_word": "TOP"
+          },
+          {
+            "id": "l4",
+            "text": "Unstoppable.",
+            "delivery": "amazed, coming down",
+            "event_refs": [
+              "e7"
+            ]
+          },
+          {
+            "id": "l5",
+            "text": "Watch it again. Clean strike.",
+            "delivery": "calm, analytical",
+            "event_refs": [
+              "e3",
+              "e4"
+            ]
+          },
+          {
+            "id": "l6",
+            "text": "There it is. Top corner.",
+            "delivery": "warm, admiring",
+            "event_refs": [
+              "e6"
+            ],
+            "hit_word": "There"
+          },
+          {
+            "id": "l7",
+            "text": "Magnificent.",
+            "delivery": "smiling",
+            "event_refs": []
+          }
+        ],
+        "headline": "TOP-CORNER FREE KICK",
+        "lower_third": "NOA · FREE KICK"
+      }
+    },
+    "structured_draft": {
+      "value": null
+    }
+  },
+  "tolerance_s": 0.001,
+  "expected": {
+    "file": "expected/output.json"
+  }
+}

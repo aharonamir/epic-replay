@@ -1,0 +1,189 @@
+{
+  "area": "commentator",
+  "function": "commentator.failures",
+  "language": "en",
+  "description": "The same anchor 0.0025 s from its marker: the hit_at anchor is not a storyboard marker.",
+  "inputs": {
+    "slots": {
+      "value": [
+        {
+          "id": "l1",
+          "segment_id": "s2",
+          "role": "opening",
+          "anchor": {
+            "type": "start_at",
+            "timeline_t": 1.3,
+            "event_id": null
+          },
+          "max_duration_s": 4.0,
+          "max_words": 8
+        },
+        {
+          "id": "l2",
+          "segment_id": "s2",
+          "role": "build_up",
+          "anchor": {
+            "type": "start_at",
+            "timeline_t": 9.433,
+            "event_id": null
+          },
+          "max_duration_s": 1.6,
+          "max_words": 1
+        },
+        {
+          "id": "l3",
+          "segment_id": "s2",
+          "role": "climax",
+          "anchor": {
+            "type": "hit_at",
+            "timeline_t": 11.4355,
+            "event_id": "e6"
+          },
+          "max_duration_s": 2.0,
+          "max_words": 2
+        },
+        {
+          "id": "l4",
+          "segment_id": "s2",
+          "role": "reaction",
+          "anchor": {
+            "type": "start_at",
+            "timeline_t": 13.683,
+            "event_id": null
+          },
+          "max_duration_s": 1.6,
+          "max_words": 1
+        },
+        {
+          "id": "l5",
+          "segment_id": "s4",
+          "role": "replay_watch",
+          "anchor": {
+            "type": "start_at",
+            "timeline_t": 16.9,
+            "event_id": null
+          },
+          "max_duration_s": 3.5,
+          "max_words": 6
+        },
+        {
+          "id": "l6",
+          "segment_id": "s4",
+          "role": "replay_climax",
+          "anchor": {
+            "type": "hit_at",
+            "timeline_t": 22.4,
+            "event_id": "e6"
+          },
+          "max_duration_s": 3.5,
+          "max_words": 6
+        },
+        {
+          "id": "l7",
+          "segment_id": "s5",
+          "role": "sign_off",
+          "anchor": {
+            "type": "start_at",
+            "timeline_t": 26.7,
+            "event_id": null
+          },
+          "max_duration_s": 1.6,
+          "max_words": 1
+        }
+      ]
+    },
+    "play_sheet": {
+      "fixture": "sample_run/play_sheet.json"
+    },
+    "user_context": {
+      "fixture": "sample_run/user_context.json"
+    },
+    "storyboard": {
+      "fixture": "sample_run/storyboard.json"
+    },
+    "pack": {
+      "style": "football_commentator",
+      "language": "en"
+    },
+    "drafts": {
+      "value": [
+        {
+          "lines": [
+            {
+              "id": "l1",
+              "text": "Free kick, just outside the box.",
+              "delivery": "measured, expectant",
+              "event_refs": [
+                "e1",
+                "e2"
+              ]
+            },
+            {
+              "id": "l2",
+              "text": "Noa...",
+              "delivery": "rising, quick",
+              "event_refs": [
+                "e3"
+              ]
+            },
+            {
+              "id": "l3",
+              "text": "TOP CORNER!",
+              "delivery": "shouting, full voice",
+              "event_refs": [
+                "e6",
+                "e4"
+              ],
+              "hit_word": "TOP"
+            },
+            {
+              "id": "l4",
+              "text": "Unstoppable.",
+              "delivery": "amazed, coming down",
+              "event_refs": [
+                "e7"
+              ]
+            },
+            {
+              "id": "l5",
+              "text": "Watch it again. Clean strike.",
+              "delivery": "calm, analytical",
+              "event_refs": [
+                "e3",
+                "e4"
+              ]
+            },
+            {
+              "id": "l6",
+              "text": "There it is. Top corner.",
+              "delivery": "warm, admiring",
+              "event_refs": [
+                "e6"
+              ],
+              "hit_word": "There"
+            },
+            {
+              "id": "l7",
+              "text": "Magnificent.",
+              "delivery": "smiling",
+              "event_refs": []
+            }
+          ],
+          "headline": "TOP-CORNER FREE KICK",
+          "lower_third": "NOA · FREE KICK"
+        }
+      ]
+    }
+  },
+  "tolerance_s": 0.001,
+  "expected": {
+    "value": [
+      [
+        {
+          "where": "script",
+          "detail": "l3: hit_at anchor is not a storyboard marker"
+        }
+      ]
+    ]
+  }
+}

@@ -1466,9 +1466,274 @@ def spotter_cases() -> dict[str, dict]:
     return out
 
 
+def commentator_cases() -> dict[str, dict]:
+    """Added in T419: the Commentator's plain code (agents/commentator.py): what it is told, how a draft is judged and mended."""
+    from epic_replay.agents import commentator
+    from epic_replay.styles import loader
+
+    ps = json.loads((paths.SAMPLE_RUN / "play_sheet.json").read_text())
+    sb = json.loads((paths.SAMPLE_RUN / "storyboard.json").read_text())
+    uc = json.loads((paths.SAMPLE_RUN / "user_context.json").read_text())
+    script = json.loads((paths.SAMPLE_RUN / "script.json").read_text())
+    packs = loader.load()
+
+    def slots_ref(style, lang):
+        return {"file": f"../../slots/{style}_{lang}/expected/output.json"}
+
+    def good_draft(sc=script):
+        out = []
+        for ln in sc["lines"]:
+            d = {
+                "id": ln["id"],
+                "text": ln["text"],
+                "delivery": ln["delivery"],
+                "event_refs": ln["event_refs"],
+            }
+            if ln.get("hit_word"):
+                d["hit_word"] = ln["hit_word"]
+            out.append(d)
+        return {"lines": out, "headline": sc["headline"], "lower_third": sc["lower_third"]}
+
+    def with_line(d, i, **change):
+        d = json.loads(json.dumps(d))
+        d["lines"][i].update(change)
+        return d
+
+    def case(function, desc, inputs, lang="en", tol=None):
+        c = {
+            "area": "commentator",
+            "function": function,
+            "language": lang,
+            "description": desc,
+            "inputs": inputs,
+        }
+        if tol:
+            c["tolerance_s"] = tol
+        return c
+
+    def common(style="football_commentator", lang="en", **more):
+        return {"slots": slots_ref(style, lang), "play_sheet": sample("play_sheet"),
+                "user_context": sample("user_context", **({"merge_patch": more["uc"]} if "uc" in more else {})),
+                "storyboard": sample("storyboard"), "pack": {"style": style, "language": lang}}  # fmt: skip
+
+    out: dict[str, dict] = {}
+    # what it is told
+    for style in packs:
+        for lang in ("en", "zh"):
+            out[f"system_prompt_{style}_{lang}"] = case(
+                "commentator.system_prompt", f"The system prompt of {style} for a run in {'English' if lang == 'en' else 'Mandarin'}.",
+                {"pack": {"style": style, "language": lang}}, lang)  # fmt: skip
+    base = {"slots": slots_ref("football_commentator", "en"), "play_sheet": sample("play_sheet"),
+            "user_context": sample("user_context"), "storyboard": sample("storyboard")}  # fmt: skip
+    out["brief_sample_run"] = case(
+        "commentator.brief",
+        "The brief of the sample run: the events a script may use, the names the user gave, what each slot shows.",
+        base,
+        tol=0.001,
+    )
+    events = [dict(e) for e in ps["events"]]
+    events[1] = dict(events[1], action="on-screen caption says FREE KICK")
+    events[2] = dict(events[2], confidence=0.69)
+    events[6] = dict(events[6], confidence=0.1, source="user")
+    actors = [dict(a) for a in ps["actors"]]
+    actors[2] = dict(actors[2], descriptor="a title banner")
+    events[4] = dict(events[4], actor="a3")
+    out["brief_caption_and_unsure_events"] = case(
+        "commentator.brief",
+        "An event that is a caption, one an actor that is a banner describes, one just under 0.7 sure are not shown; one the user wrote is, however unsure.",
+        {**base, "play_sheet": {"fixture": "sample_run/play_sheet.json", "merge_patch": {"events": events, "actors": actors}},
+         "user_context": sample("user_context", merge_patch={"description": "my son's best kick", "team_home": "Blue"})}, tol=0.001)  # fmt: skip
+    out["brief_zh_slots"] = case(
+        "commentator.brief",
+        "The brief for the Mandarin slots.",
+        {**base, "slots": slots_ref("news_reporter", "zh")},
+        "zh",
+        tol=0.001,
+    )
+    # how a draft is judged
+    gd = good_draft()
+    drafts = {
+        "a draft that passes": gd,
+        "a slot with no line": {**gd, "lines": gd["lines"][:-1]},
+        "a key line with no hit word": {
+            **gd,
+            "lines": [{k: v for k, v in ln.items() if k != "hit_word"} for ln in gd["lines"]],
+        },
+        "a hit word not in the line": with_line(gd, 2, hit_word="BANANA"),
+        "a hit word with its punctuation": with_line(gd, 2, hit_word="top!"),
+        "an invented name": with_line(gd, 0, text="Ronaldo steps up."),
+        "an invented number": with_line(gd, 0, text="Seven men in the wall."),
+        "a banned term": with_line(gd, 0, text="She steps up."),
+        "an unknown event": with_line(gd, 0, event_refs=["e99"]),
+        "no event refs at all": with_line(gd, 0, event_refs=[]),
+        "a line over its budget": with_line(gd, 1, text="Noa takes a very long run up now"),
+        "an empty text": with_line(gd, 3, text=""),
+        "a text of spaces": with_line(gd, 3, text="   "),
+        "a headline with a name": {**gd, "headline": "RONALDO SCORES"},
+        "a repeated event ref and a number as a ref": with_line(gd, 0, event_refs=["e1", "e1", 7]),
+        "a line that is not an object": {**gd, "lines": [*gd["lines"][:6], "l7"]},
+        "no lines at all": {"lines": [], "headline": "", "lower_third": ""},
+        "a delivery of nothing": with_line(gd, 0, delivery=""),
+        "a long headline": {**gd, "headline": "X" * 41},
+    }
+    out["failures_en"] = case("commentator.failures", "Every failure of each of nineteen drafts: " + "; ".join(drafts) + ".",
+                              {**common(), "drafts": value(list(drafts.values()))})  # fmt: skip
+    # Mandarin: a passing draft is the generic lines; the rest is made from it
+    zh_tools = commentator.Tools(
+        json.loads((paths.CONFORMANCE / "slots/news_reporter_zh/expected/output.json").read_text()),
+        ps,
+        uc,
+        sb,
+        loader.resolved(packs["news_reporter"], "zh"),
+    )
+    zd, _ = zh_tools.patched({})
+    zd = json.loads(json.dumps(zd))
+
+    def zline(d, i, **c):
+        d = json.loads(json.dumps(d))
+        d["lines"][i].update(c)
+        return d
+
+    zdrafts = [zd, zline(zd, 0, text="Noa 开始。"), zline(zd, 0, text="3 开始。"), zline(zd, 0, text="開始。"), zline(zd, 0, text="start"),
+               zline(zd, 2, hit_word="没有"), zline(zd, 2, hit_word="一二三四"), zline(zd, 0, text="她开始。"), {**zd, "headline": "好" * 17},
+               {**zd, "lower_third": "好" * 16}, zline(zd, 0, text="梅西开始。"), zline(zd, 3, delivery="好！"), zline(zd, 2, delivery="quiet")]  # fmt: skip
+    out["failures_zh"] = case("commentator.failures", "Mandarin drafts: a Latin word, a digit, a Traditional character, no Chinese at all, a hit word that is not in the line or is too long, 她, a headline over 16 characters, a famous name.",
+                              {**common("news_reporter", "zh"), "drafts": value(zdrafts)}, "zh")  # fmt: skip
+    # how it is mended
+    slot_file = json.loads(
+        (paths.CONFORMANCE / "slots/football_commentator_en/expected/output.json").read_text()
+    )
+    near = [
+        dict(
+            sl, anchor=dict(sl["anchor"], timeline_t=round(sl["anchor"]["timeline_t"] + 0.0015, 4))
+        )
+        if sl["role"] == "climax"
+        else sl
+        for sl in slot_file
+    ]
+    far = [
+        dict(
+            sl, anchor=dict(sl["anchor"], timeline_t=round(sl["anchor"]["timeline_t"] + 0.0025, 4))
+        )
+        if sl["role"] == "climax"
+        else sl
+        for sl in slot_file
+    ]
+    out["failures_anchor_off_the_marker"] = case(
+        "commentator.failures", "A key line's anchor 0.0015 s from its marker is the marker (within 0.002 s); 0.0025 s away it is not.",
+        {**common(), "slots": value(near), "drafts": value([gd])}, tol=0.001)  # fmt: skip
+    out["failures_anchor_far_from_the_marker"] = case(
+        "commentator.failures", "The same anchor 0.0025 s from its marker: the hit_at anchor is not a storyboard marker.",
+        {**common(), "slots": value(far), "drafts": value([gd])}, tol=0.001)  # fmt: skip
+    zlong = zline(zd, 2, text="好球好球好球", hit_word="好球好球")
+    out["failures_zh_long_hit_word"] = case(
+        "commentator.failures", "A Mandarin hit word of four characters that is in the line is still too long (one to three).",
+        {**common("news_reporter", "zh"), "drafts": value([zlong, zline(zd, 2, text="好球好球好球", hit_word="好球好"), zline(zd, 2, text="好球好球好球", hit_word="  好！ ")])}, "zh")  # fmt: skip
+    out["patched_en"] = case("commentator.patched", "Failing lines, missing ones and a failing headline are replaced by generic lines and the pack's labels; a draft that is not an object or has no lines gets generic lines for all.",
+                             {**common(), "drafts": value([gd, drafts["an invented name"], drafts["a slot with no line"], drafts["a banned term"], drafts["a line over its budget"],
+                                                        {}, {"lines": "x"}, {"lines": [3, None], "headline": 5}, drafts["a headline with a name"], drafts["a long headline"]])})  # fmt: skip
+    out["patched_zh"] = case(
+        "commentator.patched",
+        "The same in Mandarin.",
+        {**common("news_reporter", "zh"), "drafts": value(zdrafts + [{}])},
+        "zh",
+    )
+    # what comes out
+    bad = drafts["an invented name"]
+    out["script_the_agents_draft"] = case(
+        "commentator.script",
+        "The agent's draft passes: it is the script, status ok.",
+        {**common(), "agent_draft": value(gd), "structured_draft": value(None)},
+        tol=0.001,
+    )
+    out["script_the_structured_draft"] = case(
+        "commentator.script",
+        "The agent's draft fails: the structured draft is used, status degraded.",
+        {**common(), "agent_draft": value(bad), "structured_draft": value(gd)},
+        tol=0.001,
+    )
+    out["script_a_mended_draft"] = case(
+        "commentator.script",
+        "Neither draft passes: the failing lines are generic, the rest kept.",
+        {**common(), "agent_draft": value(None), "structured_draft": value(bad)},
+        tol=0.001,
+    )
+    out["script_nothing_at_all"] = case(
+        "commentator.script",
+        "No agent draft and the structured call failed: every line is generic.",
+        {**common(), "agent_draft": value(None), "structured_draft": value(None)},
+        tol=0.001,
+    )
+    out["script_zh_mended"] = case(
+        "commentator.script",
+        "Mandarin: a draft with no Chinese in a line is mended.",
+        {
+            **common("news_reporter", "zh"),
+            "agent_draft": value(zdrafts[4]),
+            "structured_draft": value(None),
+        },
+        "zh",
+        tol=0.001,
+    )
+    zok = {
+        **zd,
+        "lines": [
+            dict(ln, delivery=d)
+            for ln, d in zip(
+                zd["lines"],
+                ["calm", "quiet", "a shout", "好！", "slow", "slow", "calm"],
+                strict=True,
+            )
+        ],
+    }
+    out["script_zh_deliveries"] = case(
+        "commentator.script", "A Mandarin draft: a climax keeps the pack's delivery, a direction that is not English words is not used, English words are.",
+        {**common("news_reporter", "zh"), "agent_draft": value(zok), "structured_draft": value(None)}, "zh", tol=0.001)  # fmt: skip
+    out["script_not_expressed"] = case(
+        "commentator.script", "A user context with express false: the script is not approved by the user in advance (approved: no).",
+        {**common(uc={"express": False}), "agent_draft": value(gd), "structured_draft": value(None)}, tol=0.001)  # fmt: skip
+    # real drafts: what the agent submitted in the PC's recorded runs of the sample (recordings keyed on these exact prompts)
+    from epic_replay.providers import llm
+    from epic_replay.providers.replay import cache_key
+    from epic_replay.styles import slots as slot_rules
+
+    model = llm.agent_endpoint().model
+    for style in ("news_reporter", "nature_documentary", "football_commentator"):
+        pack = loader.resolved(packs[style], "en")
+        built = slot_rules.build(sb, pack, climax_event_id=ps["climax"].get("event_id"))
+        system = commentator.system_prompt(pack)
+        query = "Brief (data):\n" + json.dumps(commentator.brief(ps, uc, sb, built), indent=1)
+        rec = (
+            paths.ROOT
+            / "pc/tests/fixtures/recordings/commentator"
+            / f"{cache_key('commentator', model, {'system': system, 'query': query})}.json"
+        )
+        if not rec.exists():
+            continue
+        draft = json.loads(rec.read_text()).get("draft")
+        out[f"script_recorded_run_{style}"] = case(
+            "commentator.script", f"The draft the agent submitted in the PC's recorded run of the sample with {style}: it passes and is the script.",
+            {**common(style), "agent_draft": value(draft), "structured_draft": value(None)}, tol=0.001)  # fmt: skip
+    for style in packs:
+        out[f"generic_{style}"] = case(
+            "commentator.generic",
+            f"Generic mode, {style}: no model, every line generic, the pack's labels for the headline and the lower third.",
+            common(style),
+            tol=0.001,
+        )
+    out["generic_news_reporter_zh"] = case(
+        "commentator.generic",
+        "Generic mode in Mandarin.",
+        common("news_reporter", "zh"),
+        "zh",
+        tol=0.001,
+    )
+    return out
+
+
 def all_cases() -> dict[str, dict]:
     out = {}
-    for make in (storyboard_cases, slots_cases, checks_cases, lexicon_cases, units_cases, cells_cases, cell_layout_cases, backend_cases, budget_cases, consent_cases, signals_cases, checks_more_cases, voice_cases, mix_cases, visuals_cases, spotter_cases):  # fmt: skip
+    for make in (storyboard_cases, slots_cases, checks_cases, lexicon_cases, units_cases, cells_cases, cell_layout_cases, backend_cases, budget_cases, consent_cases, signals_cases, checks_more_cases, voice_cases, mix_cases, visuals_cases, spotter_cases, commentator_cases):  # fmt: skip
         for name, case in make().items():
             out[f"{case['area']}/{name}"] = case
     return out

@@ -1,0 +1,59 @@
+[
+  [],
+  [],
+  [
+    {
+      "where": "l1",
+      "detail": "write numbers in Chinese numerals, not digits"
+    }
+  ],
+  [
+    {
+      "where": "l1",
+      "detail": "write in Simplified Chinese"
+    }
+  ],
+  [
+    {
+      "where": "l1",
+      "detail": "this line has no Chinese in it"
+    },
+    {
+      "where": "l1",
+      "detail": "'start' is not in the play sheet or the user context"
+    }
+  ],
+  [
+    {
+      "where": "l3",
+      "detail": "hit_word must be one to three characters of the line"
+    }
+  ],
+  [
+    {
+      "where": "l3",
+      "detail": "hit_word must be one to three characters of the line"
+    }
+  ],
+  [
+    {
+      "where": "l1",
+      "detail": "'她' is a banned term"
+    }
+  ],
+  [
+    {
+      "where": "headline",
+      "detail": "at most 16 characters"
+    }
+  ],
+  [],
+  [
+    {
+      "where": "l1",
+      "detail": "'梅西' is not in the play sheet or the user context"
+    }
+  ],
+  [],
+  []
+]

@@ -1,0 +1,81 @@
+{
+  "area": "commentator",
+  "function": "commentator.script",
+  "language": "zh",
+  "description": "A Mandarin draft: a climax keeps the pack's delivery, a direction that is not English words is not used, English words are.",
+  "inputs": {
+    "slots": {
+      "file": "../../slots/news_reporter_zh/expected/output.json"
+    },
+    "play_sheet": {
+      "fixture": "sample_run/play_sheet.json"
+    },
+    "user_context": {
+      "fixture": "sample_run/user_context.json"
+    },
+    "storyboard": {
+      "fixture": "sample_run/storyboard.json"
+    },
+    "pack": {
+      "style": "news_reporter",
+      "language": "zh"
+    },
+    "agent_draft": {
+      "value": {
+        "lines": [
+          {
+            "id": "l1",
+            "text": "我们开始。",
+            "hit_word": null,
+            "delivery": "calm"
+          },
+          {
+            "id": "l2",
+            "text": "来了……",
+            "hit_word": null,
+            "delivery": "quiet"
+          },
+          {
+            "id": "l3",
+            "text": "就是现在！",
+            "hit_word": "就",
+            "delivery": "a shout"
+          },
+          {
+            "id": "l4",
+            "text": "好！",
+            "hit_word": null,
+            "delivery": "好！"
+          },
+          {
+            "id": "l5",
+            "text": "再看一次。",
+            "hit_word": null,
+            "delivery": "slow"
+          },
+          {
+            "id": "l6",
+            "text": "就是这里。",
+            "hit_word": "就",
+            "delivery": "slow"
+          },
+          {
+            "id": "l7",
+            "text": "真好。",
+            "hit_word": null,
+            "delivery": "calm"
+          }
+        ],
+        "headline": "今晚头条",
+        "lower_third": "慢镜头"
+      }
+    },
+    "structured_draft": {
+      "value": null
+    }
+  },
+  "tolerance_s": 0.001,
+  "expected": {
+    "file": "expected/output.json"
+  }
+}

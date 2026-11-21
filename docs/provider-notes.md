@@ -316,3 +316,31 @@ No local model got a script past the code checks on its own: the coded fallback 
 - **SC-6: no request to any host but the local server during S2.** The log of `socket.connect` in the page's process shows, inside S2's time (the events' timestamps, a second either side), seven connections, all to `127.0.0.1:11434`, the local Ollama. Over the whole run the only host outside this computer is `api.elevenlabs.io:443`, at S7. This is a log of the Python process's connections, not a packet capture; Ollama itself runs on this machine from local files.
 - **Recorded on the result:** `render.json` and the manifest name both profiles (`qwen3-5-4b-local`, location `local`); the result page's "Time and cost" panel shows them.
 
+## The Commentator on Android: the Kotlin loop against the one structured draft (T419, 2026-11-20)
+
+The Android Commentator is a loop in Kotlin over `chat()` (spec 004 FR-021, D7), not agent-core. Three modes: **tools** (the PC's two tools `check_lines` and `submit_script`, at most six turns, then one structured draft), **feedback** (for a profile that takes no tool calls: a JSON draft whose failures are given back, three turns) and **structured** (one JSON draft, mended by code). In every mode a line that still fails is written by code (the generic lines). Inputs: the PC's sample fixture, and a second clip whose play sheet is the one the Kotlin Spotter makes from the cloud model's real recorded answers (`spotter/play_sheet_real_2`); the football pack, English.
+
+**Cloud profile (DeepSeek flash), `CommentatorMeasureTest`, opt-in and paid, cap 0.25 USD, total 0.0106 USD:**
+
+| Input | Mode | Scripts accepted as written | Lines written by code | Turns | Seconds | USD |
+|---|---|---|---|---|---|---|
+| sample | tools | yes | 0 of 7 | 2 (check, submit) | 7.8 | 0.0033 |
+| sample | structured | no (2 failures, mended) | 0 of 7 | 1 | 4.5 | 0.0014 |
+| clip 2 | tools | yes | 0 of 7 | 2 | 11.2 | 0.0041 |
+| clip 2 | structured | no (1 line replaced) | 1 of 7 | 1 | 5.3 | 0.0017 |
+
+The loop passed the checks at its first submit on both inputs and was not worse than the structured draft on either; it cost about 2.3 times as much (under half a cent a script). Two inputs: this says the Kotlin loop works against the cloud model and is no worse, not how often it passes. The PC's DeepSeek numbers (001 notes) are not repeated.
+
+**On the phone (Xiaomi 15T Pro), Gemma 4 E2B Q4_0, `CommentatorOnDeviceTest` (no tool calls, so feedback against structured):**
+
+| Input | Mode | Lines written by code | Turns | Seconds |
+|---|---|---|---|---|
+| sample | feedback | 5 of 7 | 3 | 124 |
+| sample | structured | 6 of 7 | 1 | 38 |
+| clip 2 | feedback | 4 of 7 | 3 | 104 |
+| clip 2 | structured | 5 of 7 | 1 | 34 |
+
+No on-device script passed the checks as written, in either mode, as for the same model on the PC (Gemma 4 E2B: 0 of 9 through agent-core, 34 of 60 lines by code). Giving the failures back let the model keep one more line than the one draft did, at about three times the time (104 to 124 s against 34 to 38 s). The scripts that come out pass S6 only because code wrote the rest; the lines are generic where code wrote them (FR-018 says so on the result page).
+
+**Default (D7).** The loop is not worse than the structured draft on the cloud profile or on the phone, so it is the default: tools for a profile that takes tool calls, feedback for one that does not. On the phone the gain is one line a run for about 70 to 85 extra seconds; whether that is worth the wait is the owner's call (`CommentatorMode.STRUCTURED` is one argument away).
+

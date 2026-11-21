@@ -35,14 +35,17 @@ import json
 import re
 from dataclasses import dataclass, field
 
-from epic_replay import config, contracts
+from epic_replay import config, contracts, paths
 from epic_replay.guards.budget import CapExceeded, Ledger, PaidResult, paid_call
 from epic_replay.providers import client, llm, models
 from epic_replay.providers.replay import Recorder, ReplayMiss, cache_key
 from epic_replay.stages import s6_checks
 from epic_replay.styles.slots import CJK, spoken_units
 
-MAX_ITERATIONS = 6
+_WORDS = json.loads(
+    (paths.COPY / "commentator.json").read_text("utf-8")
+)  # shared with the phone (spec 004, T419)
+MAX_ITERATIONS = _WORDS["max_iterations"]
 
 
 def prices(s: config.Settings | None = None) -> tuple[float, float]:
@@ -69,35 +72,17 @@ def gloss_estimate_usd(s: config.Settings | None = None) -> float:
 
 
 KEY_ROLES = ("climax", "replay_climax")
-CAPTION = re.compile(
-    r"\b(caption|captions|subtitle|subtitles|text|texts|title|titles|on-screen|logo|watermark|"
-    r"banner|lettering|typing)\b|\bon screen\b",
-    re.I,
-)
+CAPTION = re.compile(_WORDS["caption_pattern"], re.I)
 # Style-free lines for a slot that cannot be filled; they make no claim about the play.
 # Longest first; the first that fits the slot's word budget is used. Key lines hit on word one.
-GENERIC = {
-    "opening": ["Here we go.", "Here."],
-    "build_up": ["Here it comes...", "Now..."],
-    "climax": ["THERE IT IS!", "THERE!"],
-    "reaction": ["What a moment.", "Wow."],
-    "replay_watch": ["Look again.", "Again."],
-    "replay_climax": ["There it is.", "There."],
-    "sign_off": ["Lovely.", "Lovely."],
-}
+GENERIC = _WORDS["generic"]
 
 # The same, in Mandarin; the shortest of each fits one character. Glosses in tasks.md (Z4).
-GENERIC_ZH = {
-    "opening": ["我们开始。", "开始。", "看！"],
-    "build_up": ["来了……", "来！"],
-    "climax": ["就是现在！", "现在！", "好！"],
-    "reaction": ["好一个瞬间。", "好！"],
-    "replay_watch": ["再看一次。", "再看。", "看！"],
-    "replay_climax": ["就是这里。", "这里。", "好。"],
-    "sign_off": ["真好。", "好。"],
-}
-ZH_HEADLINE_MAX = 16  # characters: more wraps to a third line on the title card
-ZH_PUNCTUATION = "！？。，、；：…·“”‘’"
+GENERIC_ZH = _WORDS["generic_zh"]
+ZH_HEADLINE_MAX = _WORDS[
+    "zh_headline_max"
+]  # characters: more wraps to a third line on the title card
+ZH_PUNCTUATION = _WORDS["zh_punctuation"]
 
 
 def generic_line(slot: dict, language: str = "en") -> dict:
@@ -188,55 +173,18 @@ def system_prompt(pack: dict) -> str:
     roles = "\n".join(f"- {r}: {n}" for r, n in sc["role_notes"].items())
     examples = "\n".join(f"- {r}: {t}" for r, t in sc["example_lines"].items())
     rules = "\n".join(f"- {r}" for r in sc["rules"])
-    text = f"""You write the narration for a short replay video, one line per slot.
-
-Persona: {sc["persona"]}
-
-Style rules:
-{rules}
-
-What each line is for:
-{roles}
-
-Invented example lines, to show the register only. Do not copy them:
-{examples}
-
-Rules for every line:
-- Say only what the events given to you show. Use only names and numbers that appear in the brief.
-- Never state or guess anyone's age, and never remark on anyone's body or looks. Refer to a person
-  by name, by role, or as he/him.
-- The clip can be anything; do not assume a ball, a score or an opponent unless the events say so.
-- Each line fits its slot's max_words. A slot plays while the source times in shows_source_s are
-  on screen; replay slots show the moment again in slow motion; endcard slots show a still.
-- The climax and replay_climax lines each need a hit_word: one word of the line, the word that
-  lands on the key moment, usually its first word.
-- event_refs lists the ids of the events a line is about; empty for a line that makes no claim.
-- headline (end card) and lower_third (caption under the action): at most 40 characters each.
-
-Work: draft all lines, call check_lines, fix what it reports, then call submit_script with the
-full draft. Finish by calling submit_script; do not answer in plain text."""
+    text = (
+        _WORDS["system_prompt"]
+        .replace("{persona}", sc["persona"])
+        .replace("{rules}", rules)
+        .replace("{roles}", roles)
+        .replace("{examples}", examples)
+    )
     return language_prompt(text, pack.get("language", "en"))
 
 
 # Each pair replaces a sentence of the prompt above for a `zh` run (revision 9).
-ZH_PROMPT = (
-    ("You write the narration for a short replay video, one line per slot.",
-     "You write the narration for a short replay video, one line per slot, in Simplified Chinese "
-     "(mainland usage). The brief is in English: write from it, in Chinese. Lines, headline and "
-     "lower third are all in Chinese; delivery stays in short English words."),
-    ("Use only names and numbers that appear in the brief.",
-     "Use only names and numbers that appear in the brief, and no other name of any person, "
-     "team or place. Keep a name exactly as the user typed it. Write numbers in Chinese "
-     "numerals, never in digits."),
-    ("or as he/him.", "or as 他. Never write 她."),
-    ("- Each line fits its slot's max_words.",
-     "- Each line fits its slot's max_words, which counts Chinese characters; punctuation is "
-     "free."),
-    ("one word of the line, the word that\n  lands on the key moment, usually its first word.",
-     "one to three characters of the\n  line, exactly as written there, that land on the key "
-     "moment, usually its first characters."),
-    ("at most 40 characters each.", f"at most {ZH_HEADLINE_MAX} characters each."),
-)  # fmt: skip
+ZH_PROMPT = tuple(tuple(pair) for pair in _WORDS["zh_prompt"])
 
 
 def language_prompt(text: str, language: str) -> str:
@@ -248,26 +196,8 @@ def language_prompt(text: str, language: str) -> str:
     return text
 
 
-LINE_SCHEMA = {
-    "type": "object",
-    "properties": {
-        "id": {"type": "string", "description": "the slot id, l1, l2, ..."},
-        "text": {"type": "string"},
-        "delivery": {"type": "string", "description": "short direction for the voice"},
-        "hit_word": {"type": "string", "description": "key lines only"},
-        "event_refs": {"type": "array", "items": {"type": "string"}},
-    },
-    "required": ["id", "text"],
-}
-DRAFT_SCHEMA = {
-    "type": "object",
-    "properties": {
-        "lines": {"type": "array", "items": LINE_SCHEMA},
-        "headline": {"type": "string"},
-        "lower_third": {"type": "string"},
-    },
-    "required": ["lines", "headline", "lower_third"],
-}
+LINE_SCHEMA = _WORDS["line_schema"]
+DRAFT_SCHEMA = _WORDS["draft_schema"]
 
 
 def word_in(word: str, text: str, language: str = "en") -> bool:
@@ -337,33 +267,44 @@ class Tools:
             "approved": "express" if self.uc.get("express", True) else "no",
         }
 
-    def failures(self, draft: dict) -> list[dict]:
+    def failure_groups(self, draft: dict) -> dict[str, list]:
+        """Every failure of a draft, in four groups: the draft's own rules (a slot with no line, a hit word, the length of
+        a Mandarin headline), the script schema's errors (as 'path: message' strings), the links to the play sheet and the
+        storyboard, and the S6 checks."""
         script = self.assemble(draft)
-        fails = []
+        own = []
         ids = {ln.get("id") for ln in draft.get("lines", []) if isinstance(ln, dict)}
         for s in self.slots:
             if s["id"] not in ids:
-                fails.append({"where": s["id"], "detail": "no line for this slot"})
+                own.append({"where": s["id"], "detail": "no line for this slot"})
         for ln in script["lines"]:
             if not ln["text"]:
                 continue
             if ln["role"] in KEY_ROLES and not word_in(ln.get("hit_word", ""), ln["text"], self.language):  # fmt: skip
                 what = "one word" if self.language == "en" else "one to three characters"
-                fails.append({"where": ln["id"], "detail": f"hit_word must be {what} of the line"})  # fmt: skip
+                own.append({"where": ln["id"], "detail": f"hit_word must be {what} of the line"})  # fmt: skip
         if self.language == "zh":
             for name in ("headline", "lower_third"):
                 if len(script[name]) > ZH_HEADLINE_MAX:
-                    fails.append({"where": name, "detail": f"at most {ZH_HEADLINE_MAX} characters"})  # fmt: skip
-        fails += [{"where": "script", "detail": e} for e in contracts.validate("script", script)]
-        fails += [
-            {"where": "script", "detail": e}
-            for e in contracts.check_script_links(script, self.ps, self.sb)
-        ]
-        fails += [
-            {"where": f["where"], "detail": f["detail"]}
-            for f in s6_checks.check(script, self.ps, self.uc, self.pack)
-        ]
-        return fails
+                    own.append({"where": name, "detail": f"at most {ZH_HEADLINE_MAX} characters"})  # fmt: skip
+        return {
+            "own": own,
+            "schema": contracts.validate("script", script),
+            "links": contracts.check_script_links(script, self.ps, self.sb),
+            "checks": [
+                {"where": f["where"], "detail": f["detail"]}
+                for f in s6_checks.check(script, self.ps, self.uc, self.pack)
+            ],
+        }
+
+    def failures(self, draft: dict) -> list[dict]:
+        g = self.failure_groups(draft)
+        return (
+            g["own"]
+            + [{"where": "script", "detail": e} for e in g["schema"]]
+            + [{"where": "script", "detail": e} for e in g["links"]]
+            + g["checks"]
+        )
 
     def check_lines(self, lines: list, headline: str = "", lower_third: str = "") -> str:
         fails = self.failures({"lines": lines, "headline": headline, "lower_third": lower_third})
@@ -442,12 +383,8 @@ def build_agent(tools: Tools, system: str):
     )
     params = {"type": "object", "properties": DRAFT_SCHEMA["properties"], "required": ["lines"]}
     for name, fn, desc in (
-        ("check_lines", tools.check_lines, "Check a full draft. Returns each failure."),
-        (
-            "submit_script",
-            tools.submit_script,
-            "Submit the full draft. Accepted only if it passes.",
-        ),
+        ("check_lines", tools.check_lines, _WORDS["tools"]["check_lines"]),
+        ("submit_script", tools.submit_script, _WORDS["tools"]["submit_script"]),
     ):
         card = ToolCard(name=name, description=desc, input_params=params)
         agent.ability_manager.add_ability(card, LocalFunction(card, fn))
@@ -473,7 +410,7 @@ def _structured_draft(system: str, query: str) -> dict:
         llm.agent_endpoint(),
         [
             {"role": "system", "content": system.split("Work:")[0]
-             + "Answer with one JSON object: " + json.dumps(DRAFT_SCHEMA)},
+             + _WORDS["structured_draft_intro"] + json.dumps(DRAFT_SCHEMA)},
             {"role": "user", "content": query},
         ],
         schema=DRAFT_SCHEMA,
@@ -596,10 +533,10 @@ def write(
     cost = spent[-1]
     draft = payload.get("draft")
     if draft is not None and not tools.failures(draft):
-        script = tools.assemble(draft)
-        return Outcome(script, draft, "ok", f"{len(script['lines'])} lines", calls, cost)
+        return accepted(tools, draft, calls, cost)
 
     dkey = cache_key("commentator_draft", model, {"system": system, "query": query})
+    structured = None
     try:
 
         def draft_call() -> PaidResult:
@@ -611,14 +548,28 @@ def write(
             ledger, stage="S5", provider="openai-compatible", model=model,
             estimate_usd=0.0 if recorder.has("commentator_draft", dkey) else draft_estimate_usd(), fn=draft_call, billed_on=client.TIMEOUT_ERRORS,
         )  # fmt: skip
-        draft = got.get("draft") or {}
+        structured = got.get("draft") or {}
         cost += spent[-1]
-        calls.append({"tool": "structured_draft", "failures": len(tools.failures(draft))})
+        calls.append({"tool": "structured_draft", "failures": len(tools.failures(structured))})
     except (CapExceeded, ReplayMiss):
         raise
     except Exception as e:  # noqa: BLE001 - any other failure leaves the generic lines
-        draft, note = {}, f"{note}; the structured draft failed ({type(e).__name__})"
-    draft, replaced = tools.patched(draft)
+        note = f"{note}; the structured draft failed ({type(e).__name__})"
+    return conclude(tools, structured, note, calls, cost)
+
+
+def accepted(tools: Tools, draft: dict, calls: list[dict], cost: float) -> Outcome:
+    """The agent's draft passed every check: it is the script."""
+    script = tools.assemble(draft)
+    return Outcome(script, draft, "ok", f"{len(script['lines'])} lines", calls, cost)
+
+
+def conclude(
+    tools: Tools, structured: dict | None, note: str, calls: list[dict], cost: float
+) -> Outcome:
+    """No accepted draft: the structured draft (None when that call failed too) with every line that fails
+    replaced by a generic line; the stage is `degraded`."""
+    draft, replaced = tools.patched(structured or {})
     script = tools.assemble(draft)
     note += f"; generic lines for {', '.join(replaced) or 'none'}"
     return Outcome(script, draft, "degraded", note, calls, cost)

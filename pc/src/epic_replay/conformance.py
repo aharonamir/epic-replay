@@ -17,6 +17,7 @@ from typing import Any
 
 from epic_replay import (
     conformance_backend,
+    conformance_commentator,
     conformance_consent,
     conformance_signals,
     conformance_spotter,
@@ -123,6 +124,12 @@ FUNCTIONS: dict[str, Callable[..., Any]] = {
     "spotter.map_events": conformance_spotter.map_events,
     "spotter.sensitivity": conformance_spotter.sensitivity,
     "spotter.play_sheet": conformance_spotter.play_sheet,
+    "commentator.brief": conformance_commentator.brief,
+    "commentator.system_prompt": conformance_commentator.system_prompt,
+    "commentator.failures": conformance_commentator.failures,
+    "commentator.patched": conformance_commentator.patched,
+    "commentator.script": conformance_commentator.script,
+    "commentator.generic": conformance_commentator.generic,
 }
 
 

@@ -20,12 +20,19 @@ import kotlinx.serialization.json.put
 
 /** The functions of the conformance table that `core/` has ported so far (T412): `lexicon.scan`, `units.spoken_units`, `cells.narrow`, `cells.layout`. */
 object TextFunctions {
+    private data class CommentatorInputs(val slots: List<JsonObject>, val ps: JsonObject, val uc: JsonObject, val sb: JsonObject, val pack: JsonObject)
+
+    private fun commentatorInputs(a: Map<String, JsonElement>) = CommentatorInputs(
+        a.getValue("slots").jsonArray.map { it.jsonObject }, a.getValue("play_sheet").jsonObject, a.getValue("user_context").jsonObject, a.getValue("storyboard").jsonObject, a.getValue("pack").jsonObject,
+    )
+
     private fun strings(e: JsonElement) = e.jsonArray.map { it.jsonPrimitive.content }
 
     fun table(shared: File): Map<String, (Map<String, JsonElement>) -> JsonElement> {
         val english = EnglishLexicon(File(shared, "lexicons/en.json").readText())
         val mandarin = MandarinLexicon(File(shared, "lexicons/zh.json").readText())
         val checks = app.epicreplay.core.checks.Checks.fromShared(shared)
+        val commentator = app.epicreplay.core.commentator.Commentator(app.epicreplay.core.commentator.CommentatorWords.load(shared), checks, File(shared, "contracts/script.schema.json").readText())
         val spotter = app.epicreplay.core.spotter.Spotter(english, File(shared, "contracts/play_sheet.schema.json").readText())
         return mapOf(
             "checks.text" to { a -> checks.checkTexts(a.getValue("language").jsonPrimitive.content, strings(a.getValue("texts")), a.getValue("known").jsonPrimitive.content, strings(a.getValue("extra"))) },
@@ -121,6 +128,37 @@ object TextFunctions {
                 buildJsonObject {
                     put("play_sheet", m.playSheet); put("accepted", m.accepted); put("errors", JsonArray(m.errors.map(::JsonPrimitive))); put("cleared", JsonArray(m.cleared.map(::JsonPrimitive)))
                 }
+            },
+            "commentator.brief" to { a ->
+                commentator.brief(a.getValue("play_sheet").jsonObject, a.getValue("user_context").jsonObject, a.getValue("storyboard").jsonObject, a.getValue("slots").jsonArray.map { it.jsonObject })
+            },
+            "commentator.system_prompt" to { a -> JsonPrimitive(commentator.systemPrompt(a.getValue("pack").jsonObject)) },
+            "commentator.failures" to { a ->
+                val (slots, ps, uc, sb, pack) = commentatorInputs(a)
+                JsonArray(a.getValue("drafts").jsonArray.map { d ->
+                    val g = commentator.failureGroups(d.jsonObject, slots, ps, uc, sb, pack)
+                    fun script(t: String) = buildJsonObject { put("where", "script"); put("detail", t) }
+                    JsonArray(g.own + g.schema.map { it.first }.toSortedSet().map { script("schema $it") } + g.links.map(::script) + g.checks)
+                })
+            },
+            "commentator.patched" to { a ->
+                val (slots, ps, uc, sb, pack) = commentatorInputs(a)
+                JsonArray(a.getValue("drafts").jsonArray.map { d ->
+                    val (draft, replaced) = commentator.patched(d as? JsonObject, slots, ps, uc, sb, pack)
+                    buildJsonObject { put("draft", draft); put("replaced", JsonArray(replaced.map(::JsonPrimitive))) }
+                })
+            },
+            "commentator.script" to { a ->
+                val (slots, ps, uc, sb, pack) = commentatorInputs(a)
+                val agent = a["agent_draft"] as? JsonObject
+                val o = if (agent != null && commentator.failures(agent, slots, ps, uc, sb, pack).isEmpty()) commentator.accepted(agent, slots, ps, uc, pack)
+                else commentator.conclude(a["structured_draft"] as? JsonObject, "the agent submitted no script that passes", slots, ps, uc, sb, pack)
+                buildJsonObject { put("script", o.script); put("status", o.status); put("note", o.note) }
+            },
+            "commentator.generic" to { a ->
+                val (slots, ps, uc, sb, pack) = commentatorInputs(a)
+                val o = commentator.generic(slots, ps, uc, sb, pack)
+                buildJsonObject { put("script", o.script); put("status", o.status); put("note", o.note) }
             },
             "cells.layout" to { a ->
                 val l = ContactSheet.layout(a.getValue("width").jsonPrimitive.int, a.getValue("height").jsonPrimitive.int, a.getValue("count").jsonPrimitive.int)

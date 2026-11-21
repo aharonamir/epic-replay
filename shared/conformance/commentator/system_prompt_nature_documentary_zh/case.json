@@ -1,0 +1,15 @@
+{
+  "area": "commentator",
+  "function": "commentator.system_prompt",
+  "language": "zh",
+  "description": "The system prompt of nature_documentary for a run in Mandarin.",
+  "inputs": {
+    "pack": {
+      "style": "nature_documentary",
+      "language": "zh"
+    }
+  },
+  "expected": {
+    "file": "expected/output.json"
+  }
+}
