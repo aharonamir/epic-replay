@@ -92,7 +92,7 @@ class SpeechAdapter(
         }
         val known = recorder?.has("speech", k) == true
         // a live paid request always goes through the ledger: without one, only a recording already on disk may be read
-        if (ledger == null && !known) throw SpeechError("a live voice call needs the ledger that holds the caps")
+        if (ledger == null && !known && recorder?.mode != ProviderMode.REPLAY) throw SpeechError("a live voice call needs the ledger that holds the caps")
         val (payload, hit) = if (ledger == null) run().value else ledger.paidCall(runId, stage, "elevenlabs", model, if (known) 0.0 else ElevenLabs.estimateUsd(text, delivery), false) { run() }
         val pcm = if (hit) Wav.read(sidecar(k).readBytes()) else fresh!!
         val alignment = payload["alignment"] as? JsonObject
