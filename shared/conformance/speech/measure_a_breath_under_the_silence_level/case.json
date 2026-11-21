@@ -1,0 +1,48 @@
+{
+  "area": "speech",
+  "function": "audio.measure",
+  "language": null,
+  "description": "A breath at -46 dB: under -40 dB, so the trim starts at the words.",
+  "inputs": {
+    "recipe": {
+      "value": {
+        "rate": 24000,
+        "seconds": 2.0,
+        "bursts": [
+          {
+            "start_s": 0.3,
+            "dur_s": 0.25,
+            "amp": 70
+          },
+          {
+            "start_s": 0.55,
+            "dur_s": 1.0,
+            "amp": 12000
+          }
+        ]
+      }
+    },
+    "times": {
+      "value": [
+        0.55
+      ]
+    },
+    "window_s": {
+      "value": 0.15
+    }
+  },
+  "tolerance_s": 0.0005,
+  "expected": {
+    "value": {
+      "trim": [
+        12720,
+        37680
+      ],
+      "first_onset_s": 0.55,
+      "rises": [
+        0.55
+      ],
+      "blocks": 200
+    }
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "area": "speech",
+  "function": "audio.measure",
+  "language": null,
+  "description": "The same words at 48 kHz (the rate of a recording) and 22.05 kHz.",
+  "inputs": {
+    "recipe": {
+      "value": {
+        "rate": 48000,
+        "seconds": 1.5,
+        "bursts": [
+          {
+            "start_s": 0.3,
+            "dur_s": 0.8,
+            "amp": 9000
+          }
+        ]
+      }
+    },
+    "times": {
+      "value": [
+        0.3,
+        0.35
+      ]
+    },
+    "window_s": {
+      "value": 0.15
+    }
+  },
+  "tolerance_s": 0.0005,
+  "expected": {
+    "value": {
+      "trim": [
+        13440,
+        53760
+      ],
+      "first_onset_s": 0.3,
+      "rises": [
+        0.3,
+        0.3
+      ],
+      "blocks": 150
+    }
+  }
+}

@@ -96,7 +96,7 @@ object SignalDecoder {
     }
 
     /** The clip's sound as mono floats at [Audio.SR], or null when there is no audio track. */
-    fun decodeAudio(path: String): Pcm? {
+    fun decodeAudio(path: String, targetRate: Int = Audio.SR): Pcm? {
         val ex = MediaExtractor().apply { setDataSource(path) }
         val t = track(ex, "audio/")
         if (t == null) { ex.release(); return null }
@@ -138,16 +138,17 @@ object SignalDecoder {
         } finally { codec.stop(); codec.release(); ex.release() }
         val all = ShortArray(chunks.sumOf { it.size }).also { var p = 0; for (c in chunks) { c.copyInto(it, p); p += c.size } }
         val mono = FloatArray(all.size / channels) { n -> var s = 0f; for (c in 0 until channels) s += all[n * channels + c]; s / channels / 32768f }
-        return Pcm(resample(mono, rate), Math.max(0L, firstPts))
+        return Pcm(resample(mono, rate, targetRate), Math.max(0L, firstPts))
     }
 
-    /** Linear resampling to [Audio.SR]. */
-    private fun resample(x: FloatArray, rate: Int): FloatArray {
-        if (rate == Audio.SR) return x
-        val n = (x.size.toLong() * Audio.SR / rate).toInt()
+    /** Linear resampling to [target]. */
+    private fun resample(x: FloatArray, rate: Int, target: Int): FloatArray {
+        if (rate == target) return x
+        val n = (x.size.toLong() * target / rate).toInt()
         return FloatArray(n) { i ->
-            val p = i.toDouble() * rate / Audio.SR; val a = p.toInt(); val b = Math.min(x.size - 1, a + 1); val fr = (p - a).toFloat()
+            val p = i.toDouble() * rate / target; val a = p.toInt(); val b = Math.min(x.size - 1, a + 1); val fr = (p - a).toFloat()
             x[Math.min(a, x.size - 1)] * (1 - fr) + x[b] * fr
         }
     }
+
 }

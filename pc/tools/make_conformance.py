@@ -1804,9 +1804,125 @@ def intake_cases() -> dict[str, dict]:
     return out
 
 
+def speech_cases() -> dict[str, dict]:
+    """Added in T422: the voice's requests and the measures that place a take (providers/speech.py, media/audio.py)."""
+
+    def case(function, desc, inputs, tol=None):
+        c = {
+            "area": "speech",
+            "function": function,
+            "language": None,
+            "description": desc,
+            "inputs": inputs,
+        }
+        if tol:
+            c["tolerance_s"] = tol
+        return c
+
+    def take(
+        text,
+        delivery="",
+        language="en",
+        timings=False,
+        voice="fGIZlgPQ75MMlvQ6WxgY",
+        model="eleven_v3",
+        key="test-key",
+    ):
+        return {
+            "text": text,
+            "voice_id": voice,
+            "delivery": delivery,
+            "language": language,
+            "timings": timings,
+            "model": model,
+            "key": key,
+        }
+
+    out = {}
+    out["request_english"] = case(
+        "speech.request", "One take per request: the URL of the voice, the key in a header, the delivery as audio tags before the words, the estimate at 0.10 USD per 1,000 characters sent (tags included), the recording key.",
+        {"takes": value([take("Free kick, just outside the box.", "measured, expectant"), take("TOP CORNER!", "shouting, full voice", timings=True),
+                         take("Noa...", "rising, quick"), take("Magnificent.", ""), take("Nice", " calm ,, slow  "), take("Wow", ",")])})  # fmt: skip
+    out["request_language_and_characters"] = case(
+        "speech.request", "A language other than English adds `language_code`; the length is counted in characters (code points), not bytes; another model and key.",
+        {"takes": value([take("进了！", "excited", language="zh", timings=True), take("\U0001f525 goal \U0001f525", "shout", model="eleven_v4", key="other-key"),
+                         take("é\u00e9", "x"), take("a" * 500, "y"), take("Ünïcode", "a, b")])})  # fmt: skip
+    out["alignment_kept"] = case(
+        "speech.alignment", "The provider's character timings are kept as the characters joined and their start times; none, or none with times, is nothing.",
+        {"answers": value([
+            {"alignment": {"characters": ["[", "s", "]", " ", "H", "i"], "character_start_times_seconds": [0.0, 0.0, 0.05, 0.1, 0.4, 0.5], "character_end_times_seconds": [0.05, 0.05, 0.1, 0.4, 0.5, 0.6]}},
+            {"alignment": {"characters": ["a"], "character_start_times_seconds": [0.0]}}, {"alignment": None}, {}, {"alignment": {}},
+            {"alignment": {"characters": [], "character_start_times_seconds": []}}, {"alignment": {"characters": ["a"], "character_start_times_seconds": []}},
+            {"alignment": {"characters": ["a", "b"]}}, {"alignment": {"characters": ["\U0001f525", "x"], "character_start_times_seconds": [0.1, 0.2]}},
+        ])})  # fmt: skip
+
+    def sig(*bursts, seconds=2.0, rate=24000):
+        return {
+            "rate": rate,
+            "seconds": seconds,
+            "bursts": [{"start_s": a, "dur_s": d, "amp": m} for a, d, m in bursts],
+        }
+
+    def meas(desc, recipe, times=(), window=0.15):
+        return case(
+            "audio.measure",
+            desc,
+            {"recipe": value(recipe), "times": value(list(times)), "window_s": value(window)},
+            tol=0.0005,
+        )
+
+    out["measure_a_take_with_a_breath"] = meas(
+        "0.3 s of silence, a quiet breath (-26 dB), the loud words, 0.2 s of silence: the trim starts at the breath (above -40 dB) and the tail keeps the breath out of the end only below -30 dB.",
+        sig((0.3, 0.25, 600), (0.55, 1.0, 12000)),
+        times=[0.3, 0.55, 0.6, 1.5, 1.8],
+    )
+    out["measure_a_very_quiet_breath"] = meas(
+        "A breath at -35.6 dB: it is over the leading-silence level, so the trim starts there; the first strong sound is the words.",
+        sig((0.3, 0.25, 200), (0.55, 1.0, 12000), seconds=2.0),
+        times=[0.55, 0.5],
+    )
+    out["measure_a_breath_under_the_silence_level"] = meas(
+        "A breath at -46 dB: under -40 dB, so the trim starts at the words.",
+        sig((0.3, 0.25, 70), (0.55, 1.0, 12000)),
+        times=[0.55],
+    )
+    out["measure_a_room_tail"] = meas(
+        "A tail 0.6 s long at -34 dB after the words: under -30 dB, so the trim ends with the words (plus 20 ms).",
+        sig((0.3, 1.0, 12000), (1.3, 0.6, 240), seconds=2.2),
+        times=[0.3],
+    )
+    out["measure_a_silent_take"] = meas(
+        "A take of silence: the trim is empty, there is no onset, a time is left as it is.",
+        sig(seconds=1.0),
+        times=[0.4],
+    )
+    out["measure_a_take_shorter_than_a_block"] = meas(
+        "A take of 150 samples (shorter than a block of 10 ms at 24 kHz is 240): one block.",
+        sig((0.0, 0.00625, 9000), seconds=0.00625),
+        times=[0.0],
+    )
+    out["measure_two_words"] = meas(
+        "Two words 0.5 s apart: a time is moved to the nearest rise within the window, else left as it is.",
+        sig((0.2, 0.3, 11000), (0.8, 0.4, 11000), seconds=1.6),
+        times=[0.2, 0.25, 0.35, 0.5, 0.8, 0.7, 0.95, 1.2],
+        window=0.15,
+    )
+    out["measure_rates"] = meas(
+        "The same words at 48 kHz (the rate of a recording) and 22.05 kHz.",
+        sig((0.3, 0.8, 9000), seconds=1.5, rate=48000),
+        times=[0.3, 0.35],
+    )
+    out["measure_rates_22k"] = meas(
+        "22.05 kHz: a block is 220 samples.",
+        sig((0.3, 0.8, 9000), seconds=1.5, rate=22050),
+        times=[0.3, 0.35],
+    )
+    return out
+
+
 def all_cases() -> dict[str, dict]:
     out = {}
-    for make in (storyboard_cases, slots_cases, checks_cases, lexicon_cases, units_cases, cells_cases, cell_layout_cases, backend_cases, budget_cases, consent_cases, signals_cases, checks_more_cases, voice_cases, mix_cases, visuals_cases, spotter_cases, commentator_cases, intake_cases):  # fmt: skip
+    for make in (storyboard_cases, slots_cases, checks_cases, lexicon_cases, units_cases, cells_cases, cell_layout_cases, backend_cases, budget_cases, consent_cases, signals_cases, checks_more_cases, voice_cases, mix_cases, visuals_cases, spotter_cases, commentator_cases, intake_cases, speech_cases):  # fmt: skip
         for name, case in make().items():
             out[f"{case['area']}/{name}"] = case
     return out

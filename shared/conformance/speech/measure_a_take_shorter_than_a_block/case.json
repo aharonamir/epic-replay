@@ -1,0 +1,43 @@
+{
+  "area": "speech",
+  "function": "audio.measure",
+  "language": null,
+  "description": "A take of 150 samples (shorter than a block of 10 ms at 24 kHz is 240): one block.",
+  "inputs": {
+    "recipe": {
+      "value": {
+        "rate": 24000,
+        "seconds": 0.00625,
+        "bursts": [
+          {
+            "start_s": 0.0,
+            "dur_s": 0.00625,
+            "amp": 9000
+          }
+        ]
+      }
+    },
+    "times": {
+      "value": [
+        0.0
+      ]
+    },
+    "window_s": {
+      "value": 0.15
+    }
+  },
+  "tolerance_s": 0.0005,
+  "expected": {
+    "value": {
+      "trim": [
+        0,
+        150
+      ],
+      "first_onset_s": 0.0,
+      "rises": [
+        0.0
+      ],
+      "blocks": 1
+    }
+  }
+}

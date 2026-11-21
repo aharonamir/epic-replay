@@ -1,0 +1,93 @@
+[
+  {
+    "request": {
+      "method": "POST",
+      "url": "https://api.elevenlabs.io/v1/text-to-speech/fGIZlgPQ75MMlvQ6WxgY/with-timestamps?output_format=mp3_44100_128",
+      "headers": {
+        "xi-api-key": "test-key",
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "text": "[excited] 进了！",
+        "model_id": "eleven_v3",
+        "language_code": "zh"
+      },
+      "timeout_s": 60
+    },
+    "chars": 13,
+    "estimate_usd": 0.0013,
+    "recording_key": "29fbfd581eaa1f913376864012011a9747cbc61f0ffc54035aff5950b40a9b8f"
+  },
+  {
+    "request": {
+      "method": "POST",
+      "url": "https://api.elevenlabs.io/v1/text-to-speech/fGIZlgPQ75MMlvQ6WxgY?output_format=mp3_44100_128",
+      "headers": {
+        "xi-api-key": "other-key",
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "text": "[shout] 🔥 goal 🔥",
+        "model_id": "eleven_v4"
+      },
+      "timeout_s": 60
+    },
+    "chars": 16,
+    "estimate_usd": 0.0016,
+    "recording_key": "0c1f22a1b1fd5aaf512b8f28158531c4fcd30942aaa80bc0aed2cfd3697f0479"
+  },
+  {
+    "request": {
+      "method": "POST",
+      "url": "https://api.elevenlabs.io/v1/text-to-speech/fGIZlgPQ75MMlvQ6WxgY?output_format=mp3_44100_128",
+      "headers": {
+        "xi-api-key": "test-key",
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "text": "[x] éé",
+        "model_id": "eleven_v3"
+      },
+      "timeout_s": 60
+    },
+    "chars": 6,
+    "estimate_usd": 0.0006,
+    "recording_key": "eab62e5f17bc32331cedba4efcaee1fce9a8fc6d37615f579854c2519468f4c7"
+  },
+  {
+    "request": {
+      "method": "POST",
+      "url": "https://api.elevenlabs.io/v1/text-to-speech/fGIZlgPQ75MMlvQ6WxgY?output_format=mp3_44100_128",
+      "headers": {
+        "xi-api-key": "test-key",
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "text": "[y] aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "model_id": "eleven_v3"
+      },
+      "timeout_s": 60
+    },
+    "chars": 504,
+    "estimate_usd": 0.0504,
+    "recording_key": "23cfdd8b9a6d1aadfd24e13dc71799ac26d3271d7ee8e77ddf4e97c0000e75f9"
+  },
+  {
+    "request": {
+      "method": "POST",
+      "url": "https://api.elevenlabs.io/v1/text-to-speech/fGIZlgPQ75MMlvQ6WxgY?output_format=mp3_44100_128",
+      "headers": {
+        "xi-api-key": "test-key",
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "text": "[a] [b] Ünïcode",
+        "model_id": "eleven_v3"
+      },
+      "timeout_s": 60
+    },
+    "chars": 15,
+    "estimate_usd": 0.0015,
+    "recording_key": "6cdf4fb395443be3e934a9ec19ed11c0f98492e8f08c2e2a5bff948e419ec00e"
+  }
+]
