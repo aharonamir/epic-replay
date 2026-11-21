@@ -1,0 +1,183 @@
+{
+  "area": "intake",
+  "function": "intake.check",
+  "language": null,
+  "description": "The length in the words is written to one decimal, rounding half to even as Python does (0.25 is 0.2, 2.25 is 2.2, 30.25 is 30.2).",
+  "inputs": {
+    "files": {
+      "value": [
+        {
+          "name": "upload.mp4",
+          "size_bytes": 1048576,
+          "info": {
+            "streams": [
+              {
+                "codec_type": "video",
+                "width": 320,
+                "height": 180,
+                "avg_frame_rate": "25/1",
+                "r_frame_rate": "25/1"
+              },
+              {
+                "codec_type": "audio"
+              }
+            ],
+            "format": {
+              "duration": "0.25"
+            }
+          }
+        },
+        {
+          "name": "upload.mp4",
+          "size_bytes": 1048576,
+          "info": {
+            "streams": [
+              {
+                "codec_type": "video",
+                "width": 320,
+                "height": 180,
+                "avg_frame_rate": "25/1",
+                "r_frame_rate": "25/1"
+              },
+              {
+                "codec_type": "audio"
+              }
+            ],
+            "format": {
+              "duration": "0.35"
+            }
+          }
+        },
+        {
+          "name": "upload.mp4",
+          "size_bytes": 1048576,
+          "info": {
+            "streams": [
+              {
+                "codec_type": "video",
+                "width": 320,
+                "height": 180,
+                "avg_frame_rate": "25/1",
+                "r_frame_rate": "25/1"
+              },
+              {
+                "codec_type": "audio"
+              }
+            ],
+            "format": {
+              "duration": "2.25"
+            }
+          }
+        },
+        {
+          "name": "upload.mp4",
+          "size_bytes": 1048576,
+          "info": {
+            "streams": [
+              {
+                "codec_type": "video",
+                "width": 320,
+                "height": 180,
+                "avg_frame_rate": "25/1",
+                "r_frame_rate": "25/1"
+              },
+              {
+                "codec_type": "audio"
+              }
+            ],
+            "format": {
+              "duration": "2.35"
+            }
+          }
+        },
+        {
+          "name": "upload.mp4",
+          "size_bytes": 1048576,
+          "info": {
+            "streams": [
+              {
+                "codec_type": "video",
+                "width": 320,
+                "height": 180,
+                "avg_frame_rate": "25/1",
+                "r_frame_rate": "25/1"
+              },
+              {
+                "codec_type": "audio"
+              }
+            ],
+            "format": {
+              "duration": "30.25"
+            }
+          }
+        },
+        {
+          "name": "upload.mp4",
+          "size_bytes": 1048576,
+          "info": {
+            "streams": [
+              {
+                "codec_type": "video",
+                "width": 320,
+                "height": 180,
+                "avg_frame_rate": "25/1",
+                "r_frame_rate": "25/1"
+              },
+              {
+                "codec_type": "audio"
+              }
+            ],
+            "format": {
+              "duration": "30.35"
+            }
+          }
+        },
+        {
+          "name": "upload.mp4",
+          "size_bytes": 1048576,
+          "info": {
+            "streams": [
+              {
+                "codec_type": "video",
+                "width": 320,
+                "height": 180,
+                "avg_frame_rate": "25/1",
+                "r_frame_rate": "25/1"
+              },
+              {
+                "codec_type": "audio"
+              }
+            ],
+            "format": {
+              "duration": "45.05"
+            }
+          }
+        },
+        {
+          "name": "upload.mp4",
+          "size_bytes": 1048576,
+          "info": {
+            "streams": [
+              {
+                "codec_type": "video",
+                "width": 320,
+                "height": 180,
+                "avg_frame_rate": "25/1",
+                "r_frame_rate": "25/1"
+              },
+              {
+                "codec_type": "audio"
+              }
+            ],
+            "format": {
+              "duration": "99.95"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "expected": {
+    "file": "expected/output.json"
+  }
+}

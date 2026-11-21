@@ -1,5 +1,6 @@
 package app.epicreplay.core.conformance
 
+import app.epicreplay.core.intake.Intake
 import app.epicreplay.core.sheet.ContactSheet
 import app.epicreplay.core.text.EnglishLexicon
 import app.epicreplay.core.text.MandarinLexicon
@@ -159,6 +160,20 @@ object TextFunctions {
                 val (slots, ps, uc, sb, pack) = commentatorInputs(a)
                 val o = commentator.generic(slots, ps, uc, sb, pack)
                 buildJsonObject { put("script", o.script); put("status", o.status); put("note", o.note) }
+            },
+            "intake.check" to { a ->
+                JsonArray(a.getValue("files").jsonArray.map { f ->
+                    val o = f.jsonObject
+                    Intake.check(o.getValue("name").jsonPrimitive.content, o.getValue("size_bytes").jsonPrimitive.content.toLong(), o.getValue("info").jsonObject)?.let(::JsonPrimitive) ?: JsonNull
+                })
+            },
+            "intake.work_check" to { a -> JsonArray(a.getValue("infos").jsonArray.map { Intake.checkWork(it.jsonObject)?.let(::JsonPrimitive) ?: JsonNull }) },
+            "intake.capture_fps" to { a -> JsonArray(a.getValue("streams").jsonArray.map { JsonPrimitive(Intake.captureFps(it as? JsonObject)) }) },
+            "intake.meta" to { a ->
+                JsonArray(a.getValue("items").jsonArray.map { i -> val o = i.jsonObject; Intake.clipMeta(o.getValue("src_info").jsonObject, o.getValue("work_info").jsonObject, o.getValue("sha256").jsonPrimitive.content) })
+            },
+            "intake.work_size" to { a ->
+                JsonArray(a.getValue("sizes").jsonArray.map { s -> val (w, h) = Intake.workSize(s.jsonArray[0].jsonPrimitive.content.toInt(), s.jsonArray[1].jsonPrimitive.content.toInt()); JsonArray(listOf(JsonPrimitive(w), JsonPrimitive(h))) })
             },
             "cells.layout" to { a ->
                 val l = ContactSheet.layout(a.getValue("width").jsonPrimitive.int, a.getValue("height").jsonPrimitive.int, a.getValue("count").jsonPrimitive.int)
