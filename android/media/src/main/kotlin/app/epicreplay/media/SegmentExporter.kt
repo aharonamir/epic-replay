@@ -70,8 +70,8 @@ class SegmentExporter(private val context: Context, private val clip: File) {
             val cw = c.getValue("w").jsonPrimitive.int; val ch = c.getValue("h").jsonPrimitive.int; val cx = c.getValue("x").jsonPrimitive.int; val cy = c.getValue("y").jsonPrimitive.int
             effects += Crop(2f * cx / width - 1f, 2f * (cx + cw) / width - 1f, 1f - 2f * (cy + ch) / height, 1f - 2f * cy / height)
         }
-        // a crop is scaled back to the storyboard's size (its shape is the storyboard's, to a pixel, so nothing is left at the sides; STRETCH_TO_FIT left half of the picture empty in 1.11.1)
-        effects += Presentation.createForWidthAndHeight(width, height, Presentation.LAYOUT_SCALE_TO_FIT)
+        // a crop is stretched back to the storyboard's size, as the PC's `scale=W:H` does (its shape is the storyboard's up to the even rounding of the crop)
+        effects += Presentation.createForWidthAndHeight(width, height, if (crop is JsonObject) Presentation.LAYOUT_STRETCH_TO_FIT else Presentation.LAYOUT_SCALE_TO_FIT)
         effects += FrameBlendEffect(30.0, blend = speed < 1.0, frames = frames) // 30 a second, the plan's number of them
         val b = EditedMediaItem.Builder(item).setRemoveAudio(true).setEffects(Effects(emptyList(), effects))
         if (speed != 1.0) b.setSpeed(constantSpeed(speed.toFloat()))
@@ -96,27 +96,30 @@ class SegmentExporter(private val context: Context, private val clip: File) {
         return EditedMediaItem.Builder(item).setFrameRate(30).setEffects(Effects(emptyList(), listOf(Presentation.createForWidthAndHeight(width, height, Presentation.LAYOUT_SCALE_TO_FIT)))).build()
     }
 
-    /** Runs the export on the main thread (Media3 wants a looper) and waits; the phone's encoder sometimes fails once (spike S2), so it is tried twice. A cancelled call stops the export. */
+    /** Runs the export on the main thread (Media3 wants a looper) and waits; the phone's encoder sometimes fails once (spike S2), so it is tried twice. A cancelled call stops the export and returns only when it has stopped. */
     private suspend fun run(composition: Composition, out: File) {
         var last: Throwable? = null
         repeat(2) {
             out.delete()
             val done = CompletableDeferred<ExportResult>()
+            val stopped = CompletableDeferred<Unit>() // the export has been stopped, or never started
+            val cancelled = java.util.concurrent.atomic.AtomicBoolean(false)
             val active = java.util.concurrent.atomic.AtomicReference<Transformer?>(null)
             main.post {
                 try {
+                    if (cancelled.get()) return@post
                     val t = Transformer.Builder(context).addListener(object : Transformer.Listener {
                         override fun onCompleted(composition: Composition, exportResult: ExportResult) { done.complete(exportResult) }
                         override fun onError(composition: Composition, exportResult: ExportResult, exportException: ExportException) { done.completeExceptionally(exportException) }
                     }).build()
                     active.set(t)
-                    if (done.isCancelled) return@post
                     t.start(composition, out.path)
                 } catch (e: Exception) { done.completeExceptionally(e) }
             }
             try { done.await(); return } catch (e: kotlinx.coroutines.CancellationException) {
-                main.post { active.get()?.cancel() }
-                out.delete()
+                cancelled.set(true)
+                main.post { try { active.get()?.cancel() } finally { stopped.complete(Unit) } } // after a start that was already queued, on the same looper
+                kotlinx.coroutines.withContext(kotlinx.coroutines.NonCancellable) { stopped.await(); out.delete() }
                 throw e // never started again after a cancel
             } catch (e: Exception) { last = e }
         }

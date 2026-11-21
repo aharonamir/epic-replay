@@ -43,7 +43,8 @@ class FrameBlendProgram(private val useHdr: Boolean, private val fps: Double, pr
     private var firstFrame = false
     private var endPending = false
     private var ending = false // the input is over and the held frames are being written
-    private var pumping = false
+    private var draining = false
+    private var again = false
     private var width = 0
     private var height = 0
 
@@ -81,65 +82,63 @@ class FrameBlendProgram(private val useHdr: Boolean, private val fps: Double, pr
             current = inputTexture
             firstFrame = !havePrevious
             queue = ArrayDeque(clock.onFrame(presentationTimeUs))
-            pump()
+            drain()
         } catch (e: Exception) { onError(e) }
     }
 
+    /** Does the waiting work: the input frame's pictures, then (after the end of the input) the held ones. Work that a callback makes while this runs is done by the same loop. */
+    private fun drain() {
+        if (draining) { again = true; return }
+        draining = true
+        try {
+            do {
+                again = false
+                if (current != null) workInput() else if (ending) workTail()
+            } while (again)
+        } catch (e: Exception) { onError(e) } finally { draining = false }
+    }
+
     /** Makes the pictures that a free texture allows; when the input frame has made all of its own it becomes the previous one and is given back. */
-    private fun pump() {
-        if (pumping) return // a consumer that gives a texture back at once must not start the loop again
-        pumping = true
-        try {
-            val cur = current ?: return
-            while (queue.isNotEmpty() && free.isNotEmpty()) {
-                val out = free.removeFirst()
-                val step = queue.removeFirst() // before the consumer is told: it may call back
-                if (firstFrame) draw(cur, cur, 1.0, out) else draw(previous!!, cur, step.weight, out)
-                getOutputListener().onOutputFrameAvailable(out, step.timeUs)
-            }
-            if (queue.isEmpty()) {
-                draw(cur, cur, 1.0, previous!!) // the copy that the next gap starts from
-                havePrevious = true
-                current = null
-                getInputListener().onInputFrameProcessed(cur)
-                getInputListener().onReadyToAcceptInputFrame()
-                if (endPending) { endPending = false; startTail() }
-            }
-        } catch (e: Exception) { onError(e) } finally { pumping = false }
+    private fun workInput() {
+        val cur = current ?: return
+        while (queue.isNotEmpty() && free.isNotEmpty()) {
+            val out = free.removeFirst()
+            val step = queue.removeFirst() // before the consumer is told: it may call back
+            if (firstFrame) draw(cur, cur, 1.0, out) else draw(previous!!, cur, step.weight, out)
+            getOutputListener().onOutputFrameAvailable(out, step.timeUs)
+        }
+        if (queue.isEmpty()) {
+            draw(cur, cur, 1.0, previous!!) // the copy that the next gap starts from
+            havePrevious = true
+            current = null
+            getInputListener().onInputFrameProcessed(cur)
+            if (endPending) { endPending = false; queue = ArrayDeque(clock.finish()); again = true } // the held pictures
+            getInputListener().onReadyToAcceptInputFrame() // a next input queued from here is picked up by the loop
+        }
     }
 
-    /** At the end of the input the last source frame is held for the pictures still wanted (the limit, or one more gap of the source). */
-    private fun startTail() {
-        queue = ArrayDeque(clock.finish())
-        pumpTail()
-    }
-
-    private fun pumpTail() {
-        if (pumping) return
-        pumping = true
-        try {
-            val prev = previous
-            while (prev != null && queue.isNotEmpty() && free.isNotEmpty()) {
-                val out = free.removeFirst()
-                val step = queue.removeFirst()
-                draw(prev, prev, 1.0, out)
-                getOutputListener().onOutputFrameAvailable(out, step.timeUs)
-            }
-            if (queue.isEmpty() && ending) { ending = false; resetStream(); getOutputListener().onCurrentOutputStreamEnded() }
-        } catch (e: Exception) { onError(e) } finally { pumping = false }
+    private fun workTail() {
+        val prev = previous
+        while (prev != null && queue.isNotEmpty() && free.isNotEmpty()) {
+            val out = free.removeFirst()
+            val step = queue.removeFirst()
+            draw(prev, prev, 1.0, out)
+            getOutputListener().onOutputFrameAvailable(out, step.timeUs)
+        }
+        if (queue.isEmpty() && ending) { ending = false; resetStream(); getOutputListener().onCurrentOutputStreamEnded() }
     }
 
     override fun releaseOutputFrame(outputTexture: GlTextureInfo) {
         if (outputTexture !in all || outputTexture in free) return // not one of ours
         free.addLast(outputTexture)
-        if (current != null) pump() else if (ending) pumpTail()
+        drain()
     }
 
     private fun resetStream() { havePrevious = false; clock = FrameClock(fps, blend, limit); queue = ArrayDeque() }
 
     override fun signalEndOfCurrentInputStream() {
         ending = true
-        if (current != null) endPending = true else startTail()
+        if (current != null) endPending = true else { queue = ArrayDeque(clock.finish()); drain() }
     }
 
     override fun flush() {
