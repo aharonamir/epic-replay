@@ -28,17 +28,17 @@ def meta(items: list[dict]) -> list[dict]:
 def work_size(sizes: list[list[int]]) -> list[list[int]]:
     """The size of the working copy for each upright picture size: what FFmpeg makes of the conversion's own filter,
     `scale=-2:min(ih,1080)` (the height is capped at 1080 lines, the width follows the picture and is even)."""
+    import struct
     import subprocess
 
     out = []
     for w, h in sizes:
-        raw = subprocess.run(
+        png = subprocess.run(
             ["ffmpeg", "-v", "error", "-f", "lavfi", "-i", f"color=s={w}x{h}:d=0.04:r=25", "-vf", "scale=-2:min(ih\\,1080)", "-frames:v", "1",
-             "-f", "image2pipe", "-vcodec", "rawvideo", "-pix_fmt", "yuv420p", "-"],
+             "-f", "image2pipe", "-vcodec", "png", "-"],
             capture_output=True, check=True,
         ).stdout  # fmt: skip
-        new_h = min(h, 1080)
         out.append(
-            [len(raw) * 2 // 3 // new_h, new_h]
-        )  # a raw yuv420p frame is w * h * 3 / 2 bytes
+            list(struct.unpack(">II", png[16:24]))
+        )  # the PNG header says the picture's width and height
     return out
