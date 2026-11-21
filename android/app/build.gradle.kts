@@ -132,7 +132,7 @@ abstract class PrepareTestAssets : DefaultTask() {
     @TaskAction
     fun run() {
         fs.sync {
-            from(shared) { include("conformance/signals/**", "fixtures/signals/**", "fixtures/sample_run/**", "conformance/spotter/play_sheet_real_2/**", "fixtures/intake/**") }
+            from(shared) { include("conformance/signals/**", "fixtures/signals/**", "fixtures/sample_run/**", "conformance/spotter/play_sheet_real_2/**", "fixtures/intake/**", "fixtures/visuals/**") }
             into(outputDir)
         }
     }
