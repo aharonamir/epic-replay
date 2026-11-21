@@ -20,8 +20,14 @@ object Wav {
         while (pos + 8 <= bytes.size) {
             val id = String(bytes, pos, 4); val size = b.getInt(pos + 4)
             val body = pos + 8
-            if (id == "fmt ") { channels = b.getShort(body + 2).toInt(); rate = b.getInt(body + 4); bits = b.getShort(body + 14).toInt() }
+            require(size >= 0 && body.toLong() + size <= bytes.size || id == "data") { "the WAV file is cut short" }
+            if (id == "fmt ") {
+                require(size >= 16) { "the WAV format chunk is too short" }
+                channels = b.getShort(body + 2).toInt(); rate = b.getInt(body + 4); bits = b.getShort(body + 14).toInt()
+                require(channels >= 1 && rate > 0) { "the WAV file has no channels or no rate" }
+            }
             if (id == "data") {
+                require(rate > 0 && channels >= 1) { "the data comes before the format" }
                 require(bits == 16) { "only 16-bit WAV is read" }
                 val len = minOf(size.toLong() and 0xFFFFFFFFL, (bytes.size - body).toLong()).toInt()
                 val frames = len / 2 / channels

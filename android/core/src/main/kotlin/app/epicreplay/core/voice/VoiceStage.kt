@@ -26,7 +26,7 @@ import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
 
-/** What S7 gave: the status as the PC names it, a note, `voice.json`, and the fitted take of each line (48 kHz mono, by line id). */
+/** What S7 gave (the caller, T424's run, writes `voice.json` and each take's `voice/<id>.wav` and emits the stage event, as the PC's runner does): the status as the PC names it, a note, `voice.json`, and the fitted take of each line (48 kHz mono, by line id). */
 class VoiceOutcome(val status: String, val note: String, val doc: JsonObject?, val takes: Map<String, Pcm>)
 
 /**

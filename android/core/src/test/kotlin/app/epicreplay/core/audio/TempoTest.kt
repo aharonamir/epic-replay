@@ -41,3 +41,14 @@ class TempoTest {
         assertEquals(sr / 2 / 1.1, first.toDouble(), sr * 0.03)
     }
 }
+
+class WavReadTest {
+    @Test
+    fun aCutOrMalformedFileIsRefusedNotMisread() {
+        val ok = Wav.write(Pcm(FloatArray(100) { 0.1f }, 48000))
+        kotlin.test.assertEquals(100, Wav.read(ok).samples.size)
+        for (cut in listOf(14, 20, 30)) kotlin.test.assertFailsWith<IllegalArgumentException> { Wav.read(ok.copyOf(cut)) }
+        val noChannels = ok.copyOf(); noChannels[22] = 0
+        kotlin.test.assertFailsWith<IllegalArgumentException> { Wav.read(noChannels) }
+    }
+}
