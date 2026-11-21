@@ -8,7 +8,6 @@ them in replay mode, so nothing is sent and nothing is paid; the result is what 
 
 from __future__ import annotations
 
-import json
 import shutil
 import tempfile
 from dataclasses import replace
