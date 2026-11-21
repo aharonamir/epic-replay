@@ -63,10 +63,16 @@ object Intake {
 
     fun lengthOk(dur: Double) = MIN_S - SLACK_S <= dur && dur <= MAX_S + SLACK_S
 
-    /** Why an upload is refused, in words for the page, or null: its name's extension, its size, its video stream and its length, in that order. */
-    fun check(name: String, sizeBytes: Long, info: JsonObject): String? {
+    /** The first two rules, which need no look inside the file: its name's extension and its size. */
+    fun checkName(name: String, sizeBytes: Long): String? {
         if (suffix(name) !in EXTS) return "The clip must be an MP4, MOV or WebM file."
         if (sizeBytes > MAX_BYTES) return "The clip is larger than 200 MB."
+        return null
+    }
+
+    /** Why an upload is refused, in words for the page, or null: its name's extension, its size, its video stream and its length, in that order. */
+    fun check(name: String, sizeBytes: Long, info: JsonObject): String? {
+        checkName(name, sizeBytes)?.let { return it }
         if (video(info) == null) return "The file could not be read as a video."
         val dur = duration(info)
         if (!lengthOk(dur)) return "The clip is ${PyMath.fixed1(dur)} s long; it must be 3 to 30 seconds."

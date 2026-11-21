@@ -30,6 +30,7 @@ object ClipIntake {
     }
 
     fun run(upload: File, displayName: String, runDir: File): IntakeResult {
+        Intake.checkName(displayName, upload.length())?.let { return IntakeResult("failed", it, null) } // before the file is opened, as on the PC
         val probed = ClipProbe.probe(upload.path)
         val srcInfo = probed?.info ?: JsonObject(emptyMap())
         Intake.check(displayName, upload.length(), srcInfo)?.let { return IntakeResult("failed", it, null) }

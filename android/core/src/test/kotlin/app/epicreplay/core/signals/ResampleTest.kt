@@ -25,6 +25,8 @@ class ResampleTest {
         assertEquals(50, out.toSet().size)
         assertEquals(0, out.first()); assertEquals(49, out.last())
         assertEquals(out.sorted(), out) // never backwards
+        // each frame takes the slot nearest its time (40 ms is slot 1.2, 120 ms is 3.6 so slot 4) and a missing slot repeats the one before
+        assertEquals(listOf(0, 1, 2, 2, 3, 4, 5, 6, 7, 7, 8), out.take(11))
     }
 
     @Test

@@ -20,7 +20,10 @@ object ClipProbe {
 
     private fun seconds(us: Long) = "%.6f".format(java.util.Locale.ROOT, us / 1e6)
 
-    private fun scan(path: String, samples: Boolean): Streams? {
+    /** A file the decoders cannot read gives null, never an exception: whatever the extractor throws while reading is an unreadable file. */
+    private fun scan(path: String, samples: Boolean): Streams? = try { scanOrThrow(path, samples) } catch (e: RuntimeException) { null } catch (e: IOException) { null }
+
+    private fun scanOrThrow(path: String, samples: Boolean): Streams? {
         val ex = MediaExtractor()
         try {
             ex.setDataSource(path)

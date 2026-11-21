@@ -114,11 +114,15 @@ def clip_meta(src_info: dict, work_info: dict, source_sha256: str) -> dict:
 
 
 def inspect(path: Path) -> tuple[str | None, dict]:
-    """(why the upload is refused, in words for the page, or None; its probe)."""
-    if path.suffix.lower() not in EXTS or path.stat().st_size > MAX_BYTES:
-        return check(path.name, path.stat().st_size, {}), {}
+    """(why the upload is refused, in words for the page, or None; its probe). The extension and the size are
+    checked before the file is opened."""
+    if path.suffix.lower() not in EXTS:
+        return check(path.name, 0, {}), {}
+    size = path.stat().st_size
+    if size > MAX_BYTES:
+        return check(path.name, size, {}), {}
     info = probe(path)
-    return check(path.name, path.stat().st_size, info), info
+    return check(path.name, size, info), info
 
 
 def reject_reason(path: Path) -> str | None:

@@ -5,20 +5,20 @@ object Resample {
     const val WORK_FPS = 30.0
 
     /**
-     * Each frame comes with its time in microseconds. Output frame k is the latest frame whose time, to the millisecond and counted from the first
-     * frame, is not after k/30 s: a clip with more frames a second loses some, one with fewer repeats some, and a gap repeats the frame before it.
-     * The last frame is held for one more step (the average one).
+     * Each frame comes with its time in microseconds. As FFmpeg's `fps=30` does (round to the nearest), a frame takes the output slot nearest its time,
+     * counted from the first frame, and holds it until the next frame's slot; of two frames that round to one slot the later is kept. A clip with more
+     * frames a second loses some, one with fewer repeats some, and a gap repeats the frame before it. The last frame is held for one more step (the average one).
      */
     fun atThirtyFramesASecond(decoded: Sequence<Pair<Long, Gray>>): Sequence<Gray> = sequence {
-        fun outMs(k: Int) = Math.round(k * 1000.0 / WORK_FPS)
-        var prev: Gray? = null; var first = 0L; var k = 0; var lastMs = 0L; var n = 0
+        // the nearest slot, half rounding up as FFmpeg's does; a microsecond of slack, since a container's times are whole microseconds and 83333 is 83333.33 really
+        fun slot(us: Double) = Math.floor((us * WORK_FPS + 500_000.0 + WORK_FPS) / 1_000_000.0).toInt()
+        var prev: Gray? = null; var first = 0L; var k = 0; var lastMs = 0.0; var n = 0 // lastMs in microseconds
         for ((pts, g) in decoded) {
             if (prev == null) first = pts
-            val ms = Math.round((pts - first) / 1000.0)
-            if (prev != null) while (outMs(k) < ms) { yield(prev); k++ }
+            val ms = (pts - first).toDouble()
+            if (prev != null) while (k < slot(ms)) { yield(prev); k++ }
             prev = g; lastMs = ms; n++
         }
-        // the last frame is held for one more step: the clip's average one, less half a millisecond so a clip already at 30 a second keeps its count
-        if (prev != null) { val step = if (n > 1) lastMs.toDouble() / (n - 1) else 1000.0 / WORK_FPS; while (outMs(k) < lastMs + step - 0.5) { yield(prev); k++ } }
+        if (prev != null) { val step = if (n > 1) lastMs / (n - 1) else 1_000_000.0 / WORK_FPS; while (k < slot(lastMs + step)) { yield(prev); k++ } }
     }
 }
