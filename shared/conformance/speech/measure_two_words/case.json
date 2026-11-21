@@ -1,0 +1,62 @@
+{
+  "area": "speech",
+  "function": "audio.measure",
+  "language": null,
+  "description": "Two words 0.5 s apart: a time is moved to the nearest rise within the window, else left as it is.",
+  "inputs": {
+    "recipe": {
+      "value": {
+        "rate": 24000,
+        "seconds": 1.6,
+        "bursts": [
+          {
+            "start_s": 0.2,
+            "dur_s": 0.3,
+            "amp": 11000
+          },
+          {
+            "start_s": 0.8,
+            "dur_s": 0.4,
+            "amp": 11000
+          }
+        ]
+      }
+    },
+    "times": {
+      "value": [
+        0.2,
+        0.25,
+        0.35,
+        0.5,
+        0.8,
+        0.7,
+        0.95,
+        1.2
+      ]
+    },
+    "window_s": {
+      "value": 0.15
+    }
+  },
+  "tolerance_s": 0.0005,
+  "expected": {
+    "value": {
+      "trim": [
+        4320,
+        29280
+      ],
+      "first_onset_s": 0.2,
+      "rises": [
+        0.2,
+        0.2,
+        0.2,
+        0.5,
+        0.8,
+        0.8,
+        0.8,
+        1.2
+      ],
+      "blocks": 160
+    }
+  }
+}

@@ -1,7 +1,9 @@
 package app.epicreplay.core.conformance
 
+import app.epicreplay.core.audio.AudioAnalysis
 import app.epicreplay.core.intake.Intake
 import app.epicreplay.core.sheet.ContactSheet
+import app.epicreplay.core.voice.ElevenLabs
 import app.epicreplay.core.text.EnglishLexicon
 import app.epicreplay.core.text.MandarinLexicon
 import app.epicreplay.core.text.SpokenUnits
@@ -175,6 +177,44 @@ object TextFunctions {
             "intake.work_size" to { a ->
                 JsonArray(a.getValue("sizes").jsonArray.map { s -> val (w, h) = Intake.workSize(s.jsonArray[0].jsonPrimitive.content.toInt(), s.jsonArray[1].jsonPrimitive.content.toInt()); JsonArray(listOf(JsonPrimitive(w), JsonPrimitive(h))) })
             },
+            "audio.measure" to { a ->
+                val r = a.getValue("recipe").jsonObject
+                val sr = r.getValue("rate").jsonPrimitive.int
+                val n = Math.round(r.getValue("seconds").jsonPrimitive.double * sr).toInt()
+                val ints = LongArray(n)
+                var state = 987654321L
+                for (b in r.getValue("bursts").jsonArray) {
+                    val o = b.jsonObject
+                    val start = Math.round(o.getValue("start_s").jsonPrimitive.double * sr).toInt()
+                    val end = minOf(n, Math.round((o.getValue("start_s").jsonPrimitive.double + o.getValue("dur_s").jsonPrimitive.double) * sr).toInt())
+                    val amp = o.getValue("amp").jsonPrimitive.int
+                    for (i in start until end) {
+                        state = (state * 1664525L + 1013904223L) and 0xFFFFFFFFL
+                        ints[i] = Math.floorDiv((((state shr 16) and 0xFFFF) - 32768) * amp, 32768L)
+                    }
+                }
+                val y = FloatArray(n) { (ints[it].coerceIn(-32768, 32767) / 32768.0).toFloat() }
+                val (ta, tb) = AudioAnalysis.trimBounds(y, sr)
+                val window = a.getValue("window_s").jsonPrimitive.double
+                buildJsonObject {
+                    put("trim", JsonArray(listOf(JsonPrimitive(ta), JsonPrimitive(tb))))
+                    put("first_onset_s", AudioAnalysis.firstOnset(y, sr))
+                    put("rises", JsonArray(a.getValue("times").jsonArray.map { JsonPrimitive(AudioAnalysis.snapToRise(y, sr, it.jsonPrimitive.double, window)) }))
+                    put("blocks", AudioAnalysis.blockRms(y, sr).size)
+                }
+            },
+            "speech.request" to { a ->
+                JsonArray(a.getValue("takes").jsonArray.map { t ->
+                    val o = t.jsonObject
+                    val text = o.getValue("text").jsonPrimitive.content; val delivery = o.getValue("delivery").jsonPrimitive.content
+                    val voice = o.getValue("voice_id").jsonPrimitive.content; val language = o.getValue("language").jsonPrimitive.content
+                    buildJsonObject {
+                        put("request", ElevenLabs.request(text, voice, delivery, o.getValue("model").jsonPrimitive.content, o.getValue("key").jsonPrimitive.content, o.getValue("timings").jsonPrimitive.content == "true", language))
+                        put("chars", ElevenLabs.chars(text, delivery)); put("estimate_usd", ElevenLabs.estimateUsd(text, delivery)); put("recording_key", ElevenLabs.recordingKey(text, voice, delivery, language))
+                    }
+                })
+            },
+            "speech.alignment" to { a -> JsonArray(a.getValue("answers").jsonArray.map { ElevenLabs.alignment(it.jsonObject) ?: JsonNull }) },
             "cells.layout" to { a ->
                 val l = ContactSheet.layout(a.getValue("width").jsonPrimitive.int, a.getValue("height").jsonPrimitive.int, a.getValue("count").jsonPrimitive.int)
                 buildJsonObject {

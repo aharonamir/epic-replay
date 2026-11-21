@@ -1,0 +1,60 @@
+{
+  "area": "speech",
+  "function": "speech.request",
+  "language": null,
+  "description": "A language other than English adds `language_code`; the length is counted in characters (code points), not bytes; another model and key.",
+  "inputs": {
+    "takes": {
+      "value": [
+        {
+          "text": "进了！",
+          "voice_id": "fGIZlgPQ75MMlvQ6WxgY",
+          "delivery": "excited",
+          "language": "zh",
+          "timings": true,
+          "model": "eleven_v3",
+          "key": "test-key"
+        },
+        {
+          "text": "🔥 goal 🔥",
+          "voice_id": "fGIZlgPQ75MMlvQ6WxgY",
+          "delivery": "shout",
+          "language": "en",
+          "timings": false,
+          "model": "eleven_v4",
+          "key": "other-key"
+        },
+        {
+          "text": "éé",
+          "voice_id": "fGIZlgPQ75MMlvQ6WxgY",
+          "delivery": "x",
+          "language": "en",
+          "timings": false,
+          "model": "eleven_v3",
+          "key": "test-key"
+        },
+        {
+          "text": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "voice_id": "fGIZlgPQ75MMlvQ6WxgY",
+          "delivery": "y",
+          "language": "en",
+          "timings": false,
+          "model": "eleven_v3",
+          "key": "test-key"
+        },
+        {
+          "text": "Ünïcode",
+          "voice_id": "fGIZlgPQ75MMlvQ6WxgY",
+          "delivery": "a, b",
+          "language": "en",
+          "timings": false,
+          "model": "eleven_v3",
+          "key": "test-key"
+        }
+      ]
+    }
+  },
+  "expected": {
+    "file": "expected/output.json"
+  }
+}

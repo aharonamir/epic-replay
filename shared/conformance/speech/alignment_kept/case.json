@@ -1,0 +1,125 @@
+{
+  "area": "speech",
+  "function": "speech.alignment",
+  "language": null,
+  "description": "The provider's character timings are kept as the characters joined and their start times; none, or none with times, is nothing.",
+  "inputs": {
+    "answers": {
+      "value": [
+        {
+          "alignment": {
+            "characters": [
+              "[",
+              "s",
+              "]",
+              " ",
+              "H",
+              "i"
+            ],
+            "character_start_times_seconds": [
+              0.0,
+              0.0,
+              0.05,
+              0.1,
+              0.4,
+              0.5
+            ],
+            "character_end_times_seconds": [
+              0.05,
+              0.05,
+              0.1,
+              0.4,
+              0.5,
+              0.6
+            ]
+          }
+        },
+        {
+          "alignment": {
+            "characters": [
+              "a"
+            ],
+            "character_start_times_seconds": [
+              0.0
+            ]
+          }
+        },
+        {
+          "alignment": null
+        },
+        {},
+        {
+          "alignment": {}
+        },
+        {
+          "alignment": {
+            "characters": [],
+            "character_start_times_seconds": []
+          }
+        },
+        {
+          "alignment": {
+            "characters": [
+              "a"
+            ],
+            "character_start_times_seconds": []
+          }
+        },
+        {
+          "alignment": {
+            "characters": [
+              "a",
+              "b"
+            ]
+          }
+        },
+        {
+          "alignment": {
+            "characters": [
+              "🔥",
+              "x"
+            ],
+            "character_start_times_seconds": [
+              0.1,
+              0.2
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "expected": {
+    "value": [
+      {
+        "chars": "[s] Hi",
+        "starts": [
+          0.0,
+          0.0,
+          0.05,
+          0.1,
+          0.4,
+          0.5
+        ]
+      },
+      {
+        "chars": "a",
+        "starts": [
+          0.0
+        ]
+      },
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      {
+        "chars": "🔥x",
+        "starts": [
+          0.1,
+          0.2
+        ]
+      }
+    ]
+  }
+}

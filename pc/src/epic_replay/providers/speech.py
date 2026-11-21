@@ -47,6 +47,21 @@ def tagged(text: str, delivery: str) -> str:
     return "".join(f"[{t}] " for t in tags) + text
 
 
+def eleven_request(text: str, voice_id: str, delivery: str, model: str, key: str, timings: bool = False,
+                   language: str = "en") -> dict:  # fmt: skip
+    """The HTTP request for one take: its URL, headers and JSON body (the conformance case `speech.request`)."""
+    body = {"text": tagged(text, delivery), "model_id": model}
+    if language != "en":
+        body["language_code"] = language
+    return {
+        "method": "POST",
+        "url": (ELEVEN_TIMED_URL if timings else ELEVEN_URL).format(voice_id=voice_id),
+        "headers": {"xi-api-key": key, "Content-Type": "application/json"},
+        "body": body,
+        "timeout_s": TIMEOUT_S,
+    }
+
+
 def to_wav(src: Path, out: Path) -> float:
     """Convert to 48 kHz mono 16-bit WAV; returns the duration."""
     out.parent.mkdir(parents=True, exist_ok=True)
@@ -91,14 +106,11 @@ class SpeechAdapter:
     ) -> dict:
         if not self.s.elevenlabs_api_key:
             raise RuntimeError("ELEVENLABS_API_KEY is not set")
-        body = {"text": tagged(text, delivery), "model_id": self.s.elevenlabs_model}
-        if language != "en":
-            body["language_code"] = language
-        r = httpx.post(
-            (ELEVEN_TIMED_URL if timings else ELEVEN_URL).format(voice_id=voice_id),
-            headers={"xi-api-key": self.s.elevenlabs_api_key, "Content-Type": "application/json"},
-            json=body, timeout=TIMEOUT_S,
+        req = eleven_request(
+            text, voice_id, delivery, self.s.elevenlabs_model, self.s.elevenlabs_api_key, timings, language
         )  # fmt: skip
+        body = req["body"]
+        r = httpx.post(req["url"], headers=req["headers"], json=body, timeout=TIMEOUT_S)
         if r.status_code != 200:
             raise RuntimeError(f"ElevenLabs {r.status_code}: {r.text[:200]}")
         alignment = None
