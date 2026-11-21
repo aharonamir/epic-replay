@@ -2,7 +2,7 @@
   "area": "intake",
   "function": "intake.work_size",
   "language": null,
-  "description": "The working copy's size for an upright picture: the height capped at 1080 lines, the width following the picture and even (measured with FFmpeg's own scale filter).",
+  "description": "The working copy's size for an upright picture: the height capped at 1080 lines, the width following the picture and even (measured with FFmpeg's own scale filter). Only pictures that FFmpeg 6 and 8 size alike are here: an odd picture that needs no scaling (853 by 480) is made 852 wide by one and 854 by the other; clips are even.",
   "inputs": {
     "sizes": {
       "value": [
@@ -27,16 +27,8 @@
           720
         ],
         [
-          853,
-          480
-        ],
-        [
           854,
           480
-        ],
-        [
-          1281,
-          721
         ],
         [
           1000,
@@ -122,14 +114,6 @@
       [
         854,
         480
-      ],
-      [
-        854,
-        480
-      ],
-      [
-        1282,
-        721
       ],
       [
         1000,

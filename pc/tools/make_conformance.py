@@ -1789,8 +1789,8 @@ def intake_cases() -> dict[str, dict]:
             {"avg_frame_rate": "60"}, {"avg_frame_rate": "abc/1", "r_frame_rate": "50/1"}, {"avg_frame_rate": "1/3"}, {"avg_frame_rate": "-30/1", "r_frame_rate": "12/1"},
             {"avg_frame_rate": "2997/100"}, {"avg_frame_rate": "10/0", "r_frame_rate": "15/1"}])})  # fmt: skip
     out["work_size"] = case(
-        "intake.work_size", "The working copy's size for an upright picture: the height capped at 1080 lines, the width following the picture and even (measured with FFmpeg's own scale filter).",
-        {"sizes": value([[1920, 1080], [1080, 1920], [3840, 2160], [2160, 3840], [1280, 720], [853, 480], [854, 480], [1281, 721], [1000, 1081], [1001, 1081],
+        "intake.work_size", "The working copy's size for an upright picture: the height capped at 1080 lines, the width following the picture and even (measured with FFmpeg's own scale filter). Only pictures that FFmpeg 6 and 8 size alike are here: an odd picture that needs no scaling (853 by 480) is made 852 wide by one and 854 by the other; clips are even.",
+        {"sizes": value([[1920, 1080], [1080, 1920], [3840, 2160], [2160, 3840], [1280, 720], [854, 480], [1000, 1081], [1001, 1081],
                          [4032, 3024], [3024, 4032], [1440, 1080], [1081, 1081], [320, 180], [180, 320], [64, 36], [2, 2], [1919, 1081], [1366, 768], [2560, 1440], [607, 1081]])})  # fmt: skip
     sha = "a" * 64
     out["meta"] = case(
