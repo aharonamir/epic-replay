@@ -35,6 +35,9 @@ class IconResourcesTest {
         val a = fromSvg(svg("icon-a-dark.svg"))
         assertEquals(a.paths, fromXml(xml("drawable/ic_splash.xml")))
         assertEquals(a.paths.take(1), fromXml(xml("drawable/ic_mark.xml")))
+        // the mark spans x 38.4 to 69.6 and y 26 to 46 of the 108 canvas: shown 30 by 20 dp from a 31.2 by 20 box moved to its corner
+        val mark = xml("drawable/ic_mark.xml")
+        for (a in listOf("""android:width="30dp"""", """android:height="20dp"""", """android:viewportWidth="31.2"""", """android:viewportHeight="20"""", """android:translateX="-38.4"""", """android:translateY="-26.0"""")) assertTrue(a in mark, "ic_mark.xml has $a")
         val colours = xml("values/ic_brand_colors.xml")
         assertTrue("""name="ic_launcher_background">${fromSvg(svg("icon-c-yellow.svg")).background}<""" in colours)
         assertTrue("""name="ic_splash_background">${a.background}<""" in colours)
