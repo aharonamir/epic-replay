@@ -71,9 +71,17 @@ def test_a_hung_chromium_is_killed_with_its_children_in_bounded_time(tmp_path, m
     with pytest.raises(Exception, match="timed out"):
         render.render(TEXTS, G, (640, 360), tmp_path)
     assert time.monotonic() - t0 < 5
-    stat = Path(f"/proc/{pid_file.read_text().strip()}/stat")
-    for _ in range(50):  # killed: gone, or a zombie until it is reaped
-        if not stat.exists() or stat.read_text().rsplit(")", 1)[1].split()[0] == "Z":
+    pid = pid_file.read_text().strip()
+    assert pid, "the grandchild's pid was written"
+
+    def gone() -> bool:  # gone, or a zombie until it is reaped; it may vanish between two looks
+        try:
+            return Path(f"/proc/{pid}/stat").read_text().rsplit(")", 1)[1].split()[0] == "Z"
+        except (FileNotFoundError, ProcessLookupError):
+            return True
+
+    for _ in range(50):
+        if gone():
             break
         time.sleep(0.1)
     else:

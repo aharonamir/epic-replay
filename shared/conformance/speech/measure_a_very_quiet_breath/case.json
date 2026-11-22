@@ -1,0 +1,50 @@
+{
+  "area": "speech",
+  "function": "audio.measure",
+  "language": null,
+  "description": "A breath at -35.6 dB: it is over the leading-silence level, so the trim starts there; the first strong sound is the words.",
+  "inputs": {
+    "recipe": {
+      "value": {
+        "rate": 24000,
+        "seconds": 2.0,
+        "bursts": [
+          {
+            "start_s": 0.3,
+            "dur_s": 0.25,
+            "amp": 200
+          },
+          {
+            "start_s": 0.55,
+            "dur_s": 1.0,
+            "amp": 12000
+          }
+        ]
+      }
+    },
+    "times": {
+      "value": [
+        0.55,
+        0.5
+      ]
+    },
+    "window_s": {
+      "value": 0.15
+    }
+  },
+  "tolerance_s": 0.0005,
+  "expected": {
+    "value": {
+      "trim": [
+        6720,
+        37680
+      ],
+      "first_onset_s": 0.55,
+      "rises": [
+        0.55,
+        0.55
+      ],
+      "blocks": 200
+    }
+  }
+}

@@ -1,0 +1,69 @@
+{
+  "area": "speech",
+  "function": "speech.request",
+  "language": null,
+  "description": "One take per request: the URL of the voice, the key in a header, the delivery as audio tags before the words, the estimate at 0.10 USD per 1,000 characters sent (tags included), the recording key.",
+  "inputs": {
+    "takes": {
+      "value": [
+        {
+          "text": "Free kick, just outside the box.",
+          "voice_id": "fGIZlgPQ75MMlvQ6WxgY",
+          "delivery": "measured, expectant",
+          "language": "en",
+          "timings": false,
+          "model": "eleven_v3",
+          "key": "test-key"
+        },
+        {
+          "text": "TOP CORNER!",
+          "voice_id": "fGIZlgPQ75MMlvQ6WxgY",
+          "delivery": "shouting, full voice",
+          "language": "en",
+          "timings": true,
+          "model": "eleven_v3",
+          "key": "test-key"
+        },
+        {
+          "text": "Noa...",
+          "voice_id": "fGIZlgPQ75MMlvQ6WxgY",
+          "delivery": "rising, quick",
+          "language": "en",
+          "timings": false,
+          "model": "eleven_v3",
+          "key": "test-key"
+        },
+        {
+          "text": "Magnificent.",
+          "voice_id": "fGIZlgPQ75MMlvQ6WxgY",
+          "delivery": "",
+          "language": "en",
+          "timings": false,
+          "model": "eleven_v3",
+          "key": "test-key"
+        },
+        {
+          "text": "Nice",
+          "voice_id": "fGIZlgPQ75MMlvQ6WxgY",
+          "delivery": " calm ,, slow  ",
+          "language": "en",
+          "timings": false,
+          "model": "eleven_v3",
+          "key": "test-key"
+        },
+        {
+          "text": "Wow",
+          "voice_id": "fGIZlgPQ75MMlvQ6WxgY",
+          "delivery": ",",
+          "language": "en",
+          "timings": false,
+          "model": "eleven_v3",
+          "key": "test-key"
+        }
+      ]
+    }
+  },
+  "expected": {
+    "file": "expected/output.json"
+  }
+}

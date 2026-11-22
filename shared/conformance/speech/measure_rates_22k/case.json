@@ -1,0 +1,45 @@
+{
+  "area": "speech",
+  "function": "audio.measure",
+  "language": null,
+  "description": "22.05 kHz: a block is 220 samples.",
+  "inputs": {
+    "recipe": {
+      "value": {
+        "rate": 22050,
+        "seconds": 1.5,
+        "bursts": [
+          {
+            "start_s": 0.3,
+            "dur_s": 0.8,
+            "amp": 9000
+          }
+        ]
+      }
+    },
+    "times": {
+      "value": [
+        0.3,
+        0.35
+      ]
+    },
+    "window_s": {
+      "value": 0.15
+    }
+  },
+  "tolerance_s": 0.0005,
+  "expected": {
+    "value": {
+      "trim": [
+        6159,
+        24861
+      ],
+      "first_onset_s": 0.3,
+      "rises": [
+        0.3,
+        0.3
+      ],
+      "blocks": 150
+    }
+  }
+}

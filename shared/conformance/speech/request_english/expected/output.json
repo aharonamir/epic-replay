@@ -1,0 +1,110 @@
+[
+  {
+    "request": {
+      "method": "POST",
+      "url": "https://api.elevenlabs.io/v1/text-to-speech/fGIZlgPQ75MMlvQ6WxgY?output_format=mp3_44100_128",
+      "headers": {
+        "xi-api-key": "test-key",
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "text": "[measured] [expectant] Free kick, just outside the box.",
+        "model_id": "eleven_v3"
+      },
+      "timeout_s": 60
+    },
+    "chars": 55,
+    "estimate_usd": 0.0055,
+    "recording_key": "97ebf8a0fcdbaa93e51f80344fe56ec194241789eba8c403a29b93fef421ba16"
+  },
+  {
+    "request": {
+      "method": "POST",
+      "url": "https://api.elevenlabs.io/v1/text-to-speech/fGIZlgPQ75MMlvQ6WxgY/with-timestamps?output_format=mp3_44100_128",
+      "headers": {
+        "xi-api-key": "test-key",
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "text": "[shouting] [full voice] TOP CORNER!",
+        "model_id": "eleven_v3"
+      },
+      "timeout_s": 60
+    },
+    "chars": 35,
+    "estimate_usd": 0.0035,
+    "recording_key": "94103a9de97608d4bc72d960dcad13053e7ada73f183077216f93bf299f39518"
+  },
+  {
+    "request": {
+      "method": "POST",
+      "url": "https://api.elevenlabs.io/v1/text-to-speech/fGIZlgPQ75MMlvQ6WxgY?output_format=mp3_44100_128",
+      "headers": {
+        "xi-api-key": "test-key",
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "text": "[rising] [quick] Noa...",
+        "model_id": "eleven_v3"
+      },
+      "timeout_s": 60
+    },
+    "chars": 23,
+    "estimate_usd": 0.0023,
+    "recording_key": "b0f0bee921650aa185995f68e2b32eacf8e2ae9546a11b0b8e64cc24a25fa8e6"
+  },
+  {
+    "request": {
+      "method": "POST",
+      "url": "https://api.elevenlabs.io/v1/text-to-speech/fGIZlgPQ75MMlvQ6WxgY?output_format=mp3_44100_128",
+      "headers": {
+        "xi-api-key": "test-key",
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "text": "Magnificent.",
+        "model_id": "eleven_v3"
+      },
+      "timeout_s": 60
+    },
+    "chars": 12,
+    "estimate_usd": 0.0012,
+    "recording_key": "fdf0a40c72198b8662bdf4ed0935d8a691b119fd30ddb2a348489188526e4e9b"
+  },
+  {
+    "request": {
+      "method": "POST",
+      "url": "https://api.elevenlabs.io/v1/text-to-speech/fGIZlgPQ75MMlvQ6WxgY?output_format=mp3_44100_128",
+      "headers": {
+        "xi-api-key": "test-key",
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "text": "[calm] [slow] Nice",
+        "model_id": "eleven_v3"
+      },
+      "timeout_s": 60
+    },
+    "chars": 18,
+    "estimate_usd": 0.0018,
+    "recording_key": "6cc3dc3f8b73c1720b12e2d095cc1fddb9c74bf25ccaee3f248a15c6ee763ff6"
+  },
+  {
+    "request": {
+      "method": "POST",
+      "url": "https://api.elevenlabs.io/v1/text-to-speech/fGIZlgPQ75MMlvQ6WxgY?output_format=mp3_44100_128",
+      "headers": {
+        "xi-api-key": "test-key",
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "text": "Wow",
+        "model_id": "eleven_v3"
+      },
+      "timeout_s": 60
+    },
+    "chars": 3,
+    "estimate_usd": 0.0003,
+    "recording_key": "446eb033af092b7e84d26976f6c8f589b049a9bc4e2092fa1dcb6b9f1c1cc833"
+  }
+]
