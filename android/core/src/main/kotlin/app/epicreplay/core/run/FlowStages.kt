@@ -67,9 +67,16 @@ object FlowStages {
         }))
     }
 
+    /** A Spotter run and what it holds open (the contact sheets' decoder), closed when S2 is over. */
+    class SpotterHandle(val run: SpotterRun, val closeable: AutoCloseable? = null)
+
     /** S2 (`s2_analysis.run`): the sheets and the events call over the chosen vision model; [run] is null when no vision model is chosen. */
-    fun analysis(run: (File) -> SpotterRun?, model: () -> String, snapS: Double) = StageRunner { ctx ->
-        val spotter = run(ctx.dir) ?: return@StageRunner StageResult("failed", "no vision model is chosen")
+    fun analysis(run: (File) -> SpotterHandle?, model: () -> String, snapS: Double) = StageRunner { ctx ->
+        val handle = run(ctx.dir) ?: return@StageRunner StageResult("failed", "no vision model is chosen")
+        try { analyse(ctx, handle.run, model, snapS) } finally { handle.closeable?.close() }
+    }
+
+    private suspend fun analyse(ctx: RunContext, spotter: SpotterRun, model: () -> String, snapS: Double): StageResult {
         val meta = read(ctx, "clip_meta.json"); val signals = read(ctx, "signals.json"); val uc = RunFiles.read(File(ctx.dir, "user_context.json")) ?: JsonObject(emptyMap())
         val w = meta.getValue("width").jsonPrimitive.content.toInt(); val h = meta.getValue("height").jsonPrimitive.content.toInt()
         val info = buildJsonObject {
@@ -82,7 +89,7 @@ object FlowStages {
         write(ctx, "spotter_trace.json", out.trace, ascii = false)
         val looks = out.trace.getValue("sheets").jsonArray.map { it.jsonObject }
         val answered = looks.filter { (it["answer"] as? JsonObject)?.isNotEmpty() == true }
-        if (answered.isNotEmpty()) {
+        return if (answered.isNotEmpty()) {
             var note = if (answered.size < looks.size) "${looks.size - answered.size} sheet(s) left out" else ""
             val events = out.trace["events_call"] as? JsonObject
             if (events?.get("events") == null || events["events"] is JsonNull) note = (if (note.isNotEmpty()) "$note; " else "") + "the events call was left out"
@@ -116,6 +123,7 @@ object FlowStages {
      * (null when none is chosen). The Mandarin English gloss of the PC (`gloss_en.json`, review text) is not made on the phone.
      */
     fun script(styles: StylePacks, commentator: Commentator, loop: (File) -> CommentatorRun?) = StageRunner { ctx ->
+        File(ctx.dir, "gloss_en.json").delete() // the PC's gloss of a Mandarin script is not made on the phone, and an old one must not stay beside a new script
         val ps = read(ctx, "play_sheet.json"); val sb = read(ctx, "storyboard.json"); val uc = read(ctx, "user_context.json")
         val pack = packOf(styles, uc)
         val slots = Slots.build(sb, pack, (ps.getValue("climax").jsonObject["event_id"] as? JsonPrimitive)?.takeIf { it !is JsonNull }?.content).map { it.jsonObject }

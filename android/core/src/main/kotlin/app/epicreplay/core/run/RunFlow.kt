@@ -71,6 +71,17 @@ object FlowOrder {
     }
 }
 
+/** The models a run started with, read back from its manifest (spec 004 FR-006: a run already started keeps the profiles it started with, whatever the choice is now). */
+object RunStack {
+    /** The vision and text profiles named in the manifest's `stack.models`, or null when there is none or a profile is no longer offered (the caller then says so rather than use another). */
+    fun saved(manifest: JsonObject?, profiles: Map<String, app.epicreplay.core.models.Profile>): app.epicreplay.core.setup.ModelsUsed? {
+        val models = (manifest?.get("stack") as? JsonObject)?.get("models") as? JsonObject ?: return null
+        fun profile(role: String) = ((models[role] as? JsonObject)?.get("profile") as? JsonPrimitive)?.takeIf { it !is JsonNull }?.content?.let { profiles[it] }
+        val vision = profile("vision") ?: return null; val text = profile("text") ?: return null
+        return app.epicreplay.core.setup.ModelsUsed(vision, text)
+    }
+}
+
 object RunFiles {
     fun read(f: File): JsonObject? = try { Json.parseToJsonElement(f.readText()).jsonObject } catch (e: Exception) { null }
 

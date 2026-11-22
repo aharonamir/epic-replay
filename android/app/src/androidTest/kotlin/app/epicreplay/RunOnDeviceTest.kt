@@ -99,6 +99,7 @@ class RunOnDeviceTest {
     /** First half of the kill test: starts the run and ends the process after S6 is recorded (this test is expected to be reported as a crash). */
     @Test
     fun startThenDie() {
+        org.junit.Assume.assumeTrue("ends the process: run it with -e t424_kill true (android/tools/t424_kill_test.sh does)", InstrumentationRegistry.getArguments().getString("t424_kill") == "true")
         val d = fixtureRun("killed")
         val job = GlobalScope.launch { launcher().flow(d).run(FlowOrder.held(d)) }
         val until = System.currentTimeMillis() + 120_000
@@ -111,7 +112,7 @@ class RunOnDeviceTest {
     @Test
     fun resumeAfterDeath() {
         val d = File(runs, "killed")
-        assertTrue("run startThenDie first", File(d, "manifest.json").isFile)
+        org.junit.Assume.assumeTrue("needs the run startThenDie left (android/tools/t424_kill_test.sh)", File(d, "manifest.json").isFile && InstrumentationRegistry.getArguments().getString("t424_kill") == "true")
         File(recordings, "speech").mkdirs()
         if (testAssets.list("recordings/speech")!!.isNotEmpty() && !File(recordings, "speech").list().orEmpty().any()) for (n in testAssets.list("recordings/speech")!!) copyAsset("recordings/speech/$n", File(recordings, "speech/$n"))
         val before = statuses(d)

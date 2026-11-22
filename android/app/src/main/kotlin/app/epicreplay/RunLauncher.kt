@@ -13,7 +13,10 @@ import app.epicreplay.core.models.Profile
 import app.epicreplay.core.models.Role
 import app.epicreplay.core.models.ServerProfile
 import app.epicreplay.core.record.ProviderMode
+import app.epicreplay.core.run.FlowStages
+import app.epicreplay.core.run.RunFiles
 import app.epicreplay.core.run.RunFlow
+import app.epicreplay.core.run.RunStack
 import app.epicreplay.core.setup.ModelsUsed
 import app.epicreplay.core.spotter.Spotter
 import app.epicreplay.core.spotter.SpotterRun
@@ -59,10 +62,11 @@ class RunLauncher(private val graph: AppGraph, private val context: Context, pri
     /** Whether a user context's consent covers the models the run goes to. */
     fun consentCovers(uc: JsonObject, models: ModelsUsed?): Boolean = models != null && ConsentCopy(text("copy/consent.json")).covers((uc["consent"] as? JsonObject) ?: JsonObject(emptyMap()), models.vision.location, models.text.location)
 
-    /** The flow of the run in [dir], over the models chosen now. */
+    /** The flow of the run in [dir]: over the models the run started with when it has a manifest (FR-006), else over the models chosen now. */
     fun flow(dir: File, apiKey: () -> app.epicreplay.core.secrets.Secret? = { graph.secrets.get(app.epicreplay.core.secrets.KeyKind.ELEVENLABS) }): RunFlow {
         val root = shared
-        val models = models()
+        val saved = RunFiles.read(File(dir, RunFlow.MANIFEST))
+        val models = chosen ?: (if (saved != null) RunStack.saved(saved, graph.profiles.profiles) ?: throw IllegalStateException("the models this run started with are no longer offered") else models())
         val words = CommentatorWords.load(root)
         val checks = Checks.fromShared(root)
         val scriptSchema = File(root, "contracts/script.schema.json").readText()
@@ -78,8 +82,8 @@ class RunLauncher(private val graph: AppGraph, private val context: Context, pri
                 val v = models?.vision ?: return@PhoneEnv null
                 val estimate = (v as? ServerProfile)?.callCeilingUsd ?: 0.0
                 val meta = app.epicreplay.core.run.RunFiles.read(File(run, "clip_meta.json"))!!
-                SpotterRun(spotter, VisionAdapter(graph.backendFor(v, Role.VISION), modelName(v), spotterWords.retryLine, estimate, graph.ledger, recorder, run.name), spotterWords,
-                    ClipSheetRenderer(File(run, "work.mp4").path, (meta["fps"] as? kotlinx.serialization.json.JsonPrimitive)?.content?.toDoubleOrNull() ?: 30.0))
+                val renderer = ClipSheetRenderer(File(run, "work.mp4").path, (meta["fps"] as? kotlinx.serialization.json.JsonPrimitive)?.content?.toDoubleOrNull() ?: 30.0)
+                FlowStages.SpotterHandle(SpotterRun(spotter, VisionAdapter(graph.backendFor(v, Role.VISION), modelName(v), spotterWords.retryLine, estimate, graph.ledger, recorder, run.name), spotterWords, renderer), renderer)
             },
             commentatorLoop = { run -> models?.text?.let { t -> CommentatorRun(commentator, graph.backendFor(t, Role.TEXT), words, modelName(t), graph.ledger, recorder, run.name) } },
             speech = { voice(dir, apiKey) },

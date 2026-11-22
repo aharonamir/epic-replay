@@ -45,7 +45,7 @@ class PhoneEnv(
     val fonts: OverlayFonts,
     val models: ModelsUsed?,
     val visionModel: () -> String,
-    val spotterRun: (File) -> SpotterRun?,
+    val spotterRun: (File) -> FlowStages.SpotterHandle?,
     val commentatorLoop: (File) -> CommentatorRun?,
     val speech: () -> Speech?,
     val minOutputS: Double = 20.0,
