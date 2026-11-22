@@ -222,13 +222,20 @@ object TextFunctions {
             },
             "compose.overlays" to { a ->
                 val times = a.getValue("times").jsonArray.map { it.jsonPrimitive.double }
-                JsonArray(OverlayPlan.specs(a.getValue("storyboard").jsonObject, a.getValue("script").jsonObject, a.getValue("pack").jsonObject).map { s ->
-                    buildJsonObject {
-                        put("kind", s.kind); put("text", buildJsonObject { s.text.forEach { (k, v) -> put(k, v) } })
-                        put("start", s.start); put("end", s.end); put("fade_s", s.fadeS)
-                        put("alpha", JsonArray(times.map { JsonPrimitive(PyMath.round(s.alpha(it), 6)) }))
-                    }
-                })
+                val g = a.getValue("pack").jsonObject.getValue("graphics").jsonObject
+                val accent = g.getValue("accent").jsonPrimitive.content
+                buildJsonObject {
+                    put("colours", buildJsonObject {
+                        put("accent", accent); put("accent_text", (g["accent_text"] as? JsonPrimitive)?.content?.ifEmpty { null } ?: accent); put("on_accent", OverlayPlan.onAccent(accent))
+                    })
+                    put("overlays", JsonArray(OverlayPlan.specs(a.getValue("storyboard").jsonObject, a.getValue("script").jsonObject, a.getValue("pack").jsonObject).map { s ->
+                        buildJsonObject {
+                            put("kind", s.kind); put("text", buildJsonObject { s.text.forEach { (k, v) -> put(k, v) } })
+                            put("start", s.start); put("end", s.end); put("fade_s", s.fadeS)
+                            put("alpha", JsonArray(times.map { JsonPrimitive(PyMath.round(s.alpha(it), 6)) }))
+                        }
+                    }))
+                }
             },
             "compose.landed" to { a ->
                 val (o, sr) = DrawnSignal.draw(a.getValue("output").jsonObject)

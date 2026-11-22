@@ -28,6 +28,13 @@ object OverlayPlan {
 
     private fun str(e: JsonElement?, default: String): String = (e as? JsonPrimitive)?.takeIf { e !is JsonNull }?.content ?: default
 
+    /** Dark or white text, whichever reads better on the [accent] colour (`graphics/render.py on_accent`, as contracts/design.md): the contrast with either, by WCAG relative luminance. */
+    fun onAccent(accent: String): String {
+        fun lin(i: Int): Double { val c = accent.trimStart('#').substring(i, i + 2).toInt(16) / 255.0; return if (c <= 0.03928) c / 12.92 else Math.pow((c + 0.055) / 1.055, 2.4) }
+        val lum = 0.2126 * lin(0) + 0.7152 * lin(2) + 0.0722 * lin(4)
+        return if ((lum + 0.05) / 0.05 > 1.05 / (lum + 0.05)) "#121416" else "#FFFFFF"
+    }
+
     fun specs(sb: JsonObject, script: JsonObject, pack: JsonObject): List<OverlaySpec> {
         val labels = pack.getValue("script").jsonObject.getValue("labels").jsonObject
         val headline = str(script["headline"], "")

@@ -47,39 +47,46 @@
     }
   },
   "expected": {
-    "value": [
-      {
-        "kind": "replay_bug",
-        "text": {
-          "label": "REPLAY"
-        },
-        "start": 16.4,
-        "end": 16.5,
-        "fade_s": 0.033333333333333805,
-        "alpha": [
-          0.0,
-          0.0,
-          1.0,
-          0.0,
-          0.0
-        ]
+    "value": {
+      "colours": {
+        "accent": "#FFD23F",
+        "accent_text": "#FFD23F",
+        "on_accent": "#121416"
       },
-      {
-        "kind": "ai_label",
-        "text": {
-          "label": "AI COMMENTARY"
+      "overlays": [
+        {
+          "kind": "replay_bug",
+          "text": {
+            "label": "REPLAY"
+          },
+          "start": 16.4,
+          "end": 16.5,
+          "fade_s": 0.033333333333333805,
+          "alpha": [
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ]
         },
-        "start": 0.0,
-        "end": 28.9,
-        "fade_s": 0.2,
-        "alpha": [
-          0.0,
-          1.0,
-          1.0,
-          1.0,
-          1.0
-        ]
-      }
-    ]
+        {
+          "kind": "ai_label",
+          "text": {
+            "label": "AI COMMENTARY"
+          },
+          "start": 0.0,
+          "end": 28.9,
+          "fade_s": 0.2,
+          "alpha": [
+            0.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ]
+        }
+      ]
+    }
   }
 }

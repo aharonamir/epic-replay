@@ -14,6 +14,7 @@ from pathlib import Path
 import numpy as np
 
 from epic_replay.conformance_speech import signal
+from epic_replay.graphics import render as html
 from epic_replay.media import audio
 from epic_replay.stages import s8_mix, s10_compose
 
@@ -79,11 +80,19 @@ def render(layers: list[dict], duration_s: float, windows: list[list[float]]) ->
     }
 
 
-def overlays(storyboard: dict, script: dict, pack: dict, times: list[float]) -> list[dict]:
-    return [
-        {**spec, "alpha": [round(s10_compose.overlay_alpha(spec, t), 6) for t in times]}
-        for spec in s10_compose.overlay_specs(storyboard, script, pack)
-    ]
+def overlays(storyboard: dict, script: dict, pack: dict, times: list[float]) -> dict:
+    g = pack["graphics"]
+    return {
+        "colours": {
+            "accent": g["accent"],
+            "accent_text": g.get("accent_text") or g["accent"],
+            "on_accent": html.on_accent(g["accent"]),
+        },
+        "overlays": [
+            {**spec, "alpha": [round(s10_compose.overlay_alpha(spec, t), 6) for t in times]}
+            for spec in s10_compose.overlay_specs(storyboard, script, pack)
+        ],
+    }
 
 
 def landed(output: dict, take: dict, offset_s: float, planned_start_s: float) -> float:

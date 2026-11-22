@@ -96,7 +96,9 @@ object SignalDecoder {
     }
 
     /** The clip's sound as mono floats at [Audio.SR], or null when there is no audio track. */
-    fun decodeAudio(path: String, targetRate: Int = Audio.SR): Pcm? {
+    private class Raw(val interleaved: ShortArray, val rate: Int, val channels: Int, val firstPts: Long)
+
+    private fun decodeRaw(path: String): Raw? {
         val ex = MediaExtractor().apply { setDataSource(path) }
         val t = track(ex, "audio/")
         if (t == null) { ex.release(); return null }
@@ -137,8 +139,21 @@ object SignalDecoder {
             }
         } finally { codec.stop(); codec.release(); ex.release() }
         val all = ShortArray(chunks.sumOf { it.size }).also { var p = 0; for (c in chunks) { c.copyInto(it, p); p += c.size } }
-        val mono = FloatArray(all.size / channels) { n -> var s = 0f; for (c in 0 until channels) s += all[n * channels + c]; s / channels / 32768f }
-        return Pcm(resample(mono, rate, targetRate), Math.max(0L, firstPts))
+        return Raw(all, rate, channels, firstPts)
+    }
+
+    /** The first audio track as mono at [targetRate] (the channels averaged), with the presentation time of its first sample. */
+    fun decodeAudio(path: String, targetRate: Int = Audio.SR): Pcm? {
+        val r = decodeRaw(path) ?: return null
+        val mono = FloatArray(r.interleaved.size / r.channels) { n -> var s = 0f; for (c in 0 until r.channels) s += r.interleaved[n * r.channels + c]; s / r.channels / 32768f }
+        return Pcm(resample(mono, r.rate, targetRate), Math.max(0L, r.firstPts))
+    }
+
+    /** The first audio track with its channels kept apart (one or two; more are cut to the first two) at [targetRate], or null when there is none. */
+    fun decodeChannels(path: String, targetRate: Int): List<FloatArray>? {
+        val r = decodeRaw(path) ?: return null
+        val keep = minOf(2, r.channels)
+        return List(keep) { c -> resample(FloatArray(r.interleaved.size / r.channels) { n -> r.interleaved[n * r.channels + c] / 32768f }, r.rate, targetRate) }
     }
 
     /** Linear resampling to [target]. */
