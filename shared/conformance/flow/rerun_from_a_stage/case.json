@@ -1,0 +1,37 @@
+{
+  "area": "flow",
+  "function": "flow.run",
+  "language": null,
+  "description": "A finished run re-run from S5: the outputs of S5 and the stages after it are deleted and forgotten, S0 to S9 are kept; the next start runs S5, S6, S7, S8 and S10.",
+  "inputs": {
+    "user_context": {
+      "fixture": "sample_run/user_context.json"
+    },
+    "play_sheet": {
+      "fixture": "sample_run/play_sheet.json"
+    },
+    "present": {
+      "value": [
+        "clip_meta.json",
+        "work.mp4",
+        "play_sheet.json",
+        "storyboard.json",
+        "script.json"
+      ]
+    },
+    "seed_held": {
+      "value": true
+    },
+    "rounds": {
+      "value": [
+        {},
+        {
+          "rerun": "S5"
+        }
+      ]
+    }
+  },
+  "expected": {
+    "file": "expected/output.json"
+  }
+}

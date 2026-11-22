@@ -1,0 +1,42 @@
+{
+  "area": "flow",
+  "function": "flow.run",
+  "language": null,
+  "description": "S7 fails: the run ends `failed` with its note; the next start does not repeat the stages that were done and tries S7 again (a stage that was tried and failed runs again whatever it left behind).",
+  "inputs": {
+    "user_context": {
+      "fixture": "sample_run/user_context.json"
+    },
+    "play_sheet": {
+      "fixture": "sample_run/play_sheet.json"
+    },
+    "present": {
+      "value": [
+        "clip_meta.json",
+        "work.mp4",
+        "play_sheet.json",
+        "storyboard.json",
+        "script.json"
+      ]
+    },
+    "seed_held": {
+      "value": true
+    },
+    "rounds": {
+      "value": [
+        {
+          "script": {
+            "S7": {
+              "status": "failed",
+              "note": "The voice could not be made"
+            }
+          }
+        },
+        {}
+      ]
+    }
+  },
+  "expected": {
+    "file": "expected/output.json"
+  }
+}

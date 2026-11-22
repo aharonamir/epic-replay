@@ -36,7 +36,7 @@ class VoiceLiveTest {
         val dir = File("build/measure-voice-recordings").apply { mkdirs() }
         val ledger = Ledger(InMemoryLedgerStorage(), Caps(runUsd = 0.02, dayUsd = 20.0, preCheckpointUsd = 5.0), today = { "measure" }, now = { "t" })
         // the answer is MP3 and the JVM has no decoder: the take's samples are not what is checked here
-        val speech = SpeechAdapter(JavaHttpTransport(), { apiKey }, "eleven_v3", { Pcm(FloatArray(4800), 48000) }, ledger, Recorder(ProviderMode.RECORD, dir), "measure")
+        val speech = SpeechAdapter(JavaHttpTransport(), { app.epicreplay.core.secrets.Secret(apiKey) }, "eleven_v3", { Pcm(FloatArray(4800), 48000) }, ledger, Recorder(ProviderMode.RECORD, dir), "measure")
         val text = "Top corner!"; val delivery = "shouting, full voice"
         val take = runBlocking { speech.synthesise(text, "fGIZlgPQ75MMlvQ6WxgY", delivery, "en", true) }
         val al = assertNotNull(take.alignment, "the answer has character timings")

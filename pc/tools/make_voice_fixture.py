@@ -8,6 +8,7 @@ them in replay mode, so nothing is sent and nothing is paid; the result is what 
 
 from __future__ import annotations
 
+import json
 import shutil
 import tempfile
 from dataclasses import replace
@@ -15,7 +16,7 @@ from pathlib import Path
 
 from epic_replay import config, paths
 from epic_replay.guards.budget import Ledger
-from epic_replay.providers.replay import Recorder
+from epic_replay.providers.replay import Recorder, cache_key
 from epic_replay.providers.speech import SpeechAdapter
 from epic_replay.stages import s7_voice
 from epic_replay.stages.base import RunContext
@@ -53,6 +54,24 @@ def main() -> None:
         )  # the fitted takes the placement describes: what S8 mixes (spec 004, T423)
         shutil.rmtree(takes, ignore_errors=True)
         shutil.copytree(d / "voice", takes, ignore=shutil.ignore_patterns("raw"))
+        # the recordings the replay reads, by key: the device test copies these (and only these) from the PC's folder into its assets
+        script = json.loads((paths.SAMPLE_RUN / "script.json").read_text())
+        keys = [
+            cache_key(
+                "speech",
+                "elevenlabs",
+                {
+                    "text": ln["text"],
+                    "voice_id": script["voice"]["voice_id"],
+                    "delivery": ln["delivery"],
+                    "language": script.get("language", "en"),
+                },
+            )
+            for ln in script["lines"]
+        ]
+        (out.parent / "sample_run_recordings.json").write_text(
+            json.dumps(sorted(set(keys)), indent=2) + "\n"
+        )
     print("wrote", out)
 
 

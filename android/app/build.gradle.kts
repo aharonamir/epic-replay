@@ -126,20 +126,28 @@ abstract class PrepareSharedAssets : DefaultTask() {
 /** The conformance cases of the signal scan and the clip they are drawn as, for the on-device tests only (never in the app). */
 abstract class PrepareTestAssets : DefaultTask() {
     @get:InputDirectory @get:PathSensitive(PathSensitivity.RELATIVE) abstract val shared: DirectoryProperty
+    @get:InputDirectory @get:PathSensitive(PathSensitivity.RELATIVE) abstract val recordings: DirectoryProperty
     @get:OutputDirectory abstract val outputDir: DirectoryProperty
     @get:Inject abstract val fs: FileSystemOperations
 
     @TaskAction
     fun run() {
+        val keys = (groovy.json.JsonSlurper().parse(shared.get().file("fixtures/voice/sample_run_recordings.json").asFile) as List<*>).map { it.toString() }
         fs.sync {
-            from(shared) { include("conformance/signals/**", "fixtures/signals/**", "fixtures/sample_run/**", "conformance/spotter/play_sheet_real_2/**", "fixtures/intake/**", "fixtures/visuals/**", "fixtures/voice/**") }
+            from(shared) { include("conformance/signals/**", "fixtures/signals/**", "fixtures/sample_run/**", "conformance/spotter/play_sheet_real_2/**", "fixtures/intake/**", "fixtures/visuals/**", "fixtures/voice/**", "fixtures/clip/**") }
             into(outputDir)
+        }
+        // the PC's recorded takes of the sample run, named in the fixture list: a replay of the voice on the phone needs no network
+        fs.copy {
+            from(recordings) { include(keys.flatMap { listOf("$it.json", "$it.wav") }) }
+            into(outputDir.get().dir("recordings/speech"))
         }
     }
 }
 
 val prepareTestAssets by tasks.registering(PrepareTestAssets::class) {
     shared.set(rootProject.layout.projectDirectory.dir("../shared"))
+    recordings.set(rootProject.layout.projectDirectory.dir("../pc/tests/fixtures/recordings/speech"))
     outputDir.set(layout.buildDirectory.dir("generated/test-assets"))
 }
 

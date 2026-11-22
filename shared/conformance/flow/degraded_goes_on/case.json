@@ -1,0 +1,45 @@
+{
+  "area": "flow",
+  "function": "flow.run",
+  "language": null,
+  "description": "A stage that ends `degraded` lets the flow go on, and is recorded as degraded with its note.",
+  "inputs": {
+    "user_context": {
+      "fixture": "sample_run/user_context.json"
+    },
+    "play_sheet": {
+      "fixture": "sample_run/play_sheet.json"
+    },
+    "present": {
+      "value": [
+        "clip_meta.json",
+        "work.mp4",
+        "play_sheet.json",
+        "storyboard.json",
+        "script.json"
+      ]
+    },
+    "seed_held": {
+      "value": true
+    },
+    "rounds": {
+      "value": [
+        {
+          "script": {
+            "S6": {
+              "status": "degraded",
+              "note": "one line rewritten"
+            },
+            "S8": {
+              "status": "degraded",
+              "note": "measured -12.9 LUFS"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "expected": {
+    "file": "expected/output.json"
+  }
+}

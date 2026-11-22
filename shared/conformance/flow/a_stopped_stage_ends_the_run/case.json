@@ -1,0 +1,42 @@
+{
+  "area": "flow",
+  "function": "flow.run",
+  "language": null,
+  "description": "S9 stops: the run ends `stopped` with the note, nothing after S9 runs, and the next start tries S9 again.",
+  "inputs": {
+    "user_context": {
+      "fixture": "sample_run/user_context.json"
+    },
+    "play_sheet": {
+      "fixture": "sample_run/play_sheet.json"
+    },
+    "present": {
+      "value": [
+        "clip_meta.json",
+        "work.mp4",
+        "play_sheet.json",
+        "storyboard.json",
+        "script.json"
+      ]
+    },
+    "seed_held": {
+      "value": true
+    },
+    "rounds": {
+      "value": [
+        {
+          "script": {
+            "S9": {
+              "status": "stopped",
+              "note": "cancelled"
+            }
+          }
+        },
+        {}
+      ]
+    }
+  },
+  "expected": {
+    "file": "expected/output.json"
+  }
+}

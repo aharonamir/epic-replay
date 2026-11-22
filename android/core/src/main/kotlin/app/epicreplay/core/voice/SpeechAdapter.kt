@@ -9,6 +9,7 @@ import app.epicreplay.core.net.HttpRequest
 import app.epicreplay.core.net.HttpTransport
 import app.epicreplay.core.record.ProviderMode
 import app.epicreplay.core.record.Recorder
+import app.epicreplay.core.secrets.Secret
 import java.io.File
 import java.util.Base64
 import kotlinx.serialization.json.Json
@@ -44,7 +45,7 @@ class SpeechError(message: String) : Exception(message)
  */
 class SpeechAdapter(
     private val transport: HttpTransport,
-    private val key: () -> String?,
+    private val key: () -> Secret?,
     private val model: String,
     private val converter: AudioConverter,
     private val ledger: Ledger? = null,
@@ -55,7 +56,7 @@ class SpeechAdapter(
     private fun sidecar(k: String): File = recorder!!.path("speech", k).let { File(it.parentFile, it.nameWithoutExtension + ".wav") }
 
     private suspend fun live(text: String, voiceId: String, delivery: String, language: String, timings: Boolean): Pair<JsonObject, Pcm> {
-        val apiKey = key() ?: throw SpeechError("ELEVENLABS_API_KEY is not set")
+        val apiKey = key()?.reveal() ?: throw SpeechError("the ElevenLabs key is not set")
         val req = ElevenLabs.request(text, voiceId, delivery, model, apiKey, timings, language)
         val body = req.getValue("body").jsonObject.toString().toByteArray(Charsets.UTF_8)
         val headers = req.getValue("headers").jsonObject.mapValues { it.value.jsonPrimitive.content }

@@ -1,0 +1,34 @@
+{
+  "area": "flow",
+  "function": "flow.run",
+  "language": null,
+  "description": "A folder holding the outputs of S0, S3 (and so S1, S2), the card, S4 and S5 records them as seeded and runs S9, S6, S7, S8 and S10.",
+  "inputs": {
+    "user_context": {
+      "fixture": "sample_run/user_context.json"
+    },
+    "play_sheet": {
+      "fixture": "sample_run/play_sheet.json"
+    },
+    "present": {
+      "value": [
+        "clip_meta.json",
+        "work.mp4",
+        "play_sheet.json",
+        "storyboard.json",
+        "script.json"
+      ]
+    },
+    "seed_held": {
+      "value": true
+    },
+    "rounds": {
+      "value": [
+        {}
+      ]
+    }
+  },
+  "expected": {
+    "file": "expected/output.json"
+  }
+}

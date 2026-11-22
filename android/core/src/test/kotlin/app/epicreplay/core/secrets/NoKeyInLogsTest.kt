@@ -23,7 +23,7 @@ class NoKeyInLogsTest {
     private val logging = Regex("""\bLog\.\w+\(|\bprintln\(|\bprint\(|printStackTrace|\bTimber\.|android\.util\.Log|System\.(out|err)|\bLogger\b""")
     // Files that hold a key or the text a user types as one: the store, the controller, the key-entry screen.
     private val sensitiveMarkers = listOf("Secret", "reveal()", "KeysController", "SecretStore", "KeyKind", "PasswordVisualTransformation")
-    private val allowedReveal = setOf("Secret.kt", "SecretStore.kt", "CloudBackend.kt", "Http.kt") // CloudBackend: the Authorization header; Http.kt: cutting the key out of a failure message (T408)
+    private val allowedReveal = setOf("Secret.kt", "SecretStore.kt", "CloudBackend.kt", "Http.kt", "SpeechAdapter.kt") // CloudBackend: the Authorization header; Http.kt: cutting the key out of a failure message (T408); SpeechAdapter: the xi-api-key header of ElevenLabs and the cut of the key out of an error (T422)
 
     @Test
     fun theScanSeesTheSources() {

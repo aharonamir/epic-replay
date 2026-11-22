@@ -1,0 +1,87 @@
+{
+  "area": "flow",
+  "function": "flow.run",
+  "language": null,
+  "description": "A consent given to an earlier text version stops the run at S2.",
+  "inputs": {
+    "user_context": {
+      "fixture": "sample_run/user_context.json",
+      "merge_patch": {
+        "consent": {
+          "text_version": "3"
+        }
+      }
+    },
+    "play_sheet": {
+      "fixture": "sample_run/play_sheet.json",
+      "merge_patch": {
+        "confirmed_by_user": false
+      }
+    },
+    "present": {
+      "value": []
+    },
+    "seed_held": {
+      "value": false
+    },
+    "rounds": {
+      "value": [
+        {}
+      ]
+    }
+  },
+  "expected": {
+    "value": {
+      "rounds": [
+        {
+          "status": "stopped",
+          "ran": [
+            "S0",
+            "S1"
+          ],
+          "stages": [
+            [
+              "S0",
+              "ok",
+              ""
+            ],
+            [
+              "S1",
+              "ok",
+              ""
+            ],
+            [
+              "S2",
+              "stopped",
+              "consent is required before S2"
+            ]
+          ],
+          "events": [
+            [
+              "S0",
+              "started"
+            ],
+            [
+              "S0",
+              "finished"
+            ],
+            [
+              "S1",
+              "started"
+            ],
+            [
+              "S1",
+              "finished"
+            ]
+          ],
+          "files": [
+            "clip_meta.json",
+            "signals.json",
+            "user_context.json",
+            "work.mp4"
+          ]
+        }
+      ]
+    }
+  }
+}
