@@ -37,7 +37,7 @@ class AndroidMixAudio(private val assets: AssetManager, private val runDir: File
     override fun load(file: String): List<FloatArray> = when {
         file == "run/work.mp4" -> SignalDecoder.decodeChannels(File(runDir, "work.mp4").path, rate) ?: emptyList()
         file.startsWith("run/") -> wav(File(runDir, file.removePrefix("run/")).readBytes(), file)
-        file.startsWith("assets/") -> wav(assets.open(file.removePrefix("assets/")).use { it.readBytes() }, file)
+        file.startsWith("assets/") -> wav(assets.open(file).use { it.readBytes() }, file)
         else -> throw IllegalArgumentException("unknown layer file $file")
     }
 }

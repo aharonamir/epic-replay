@@ -21,9 +21,9 @@ import kotlinx.serialization.json.jsonPrimitive
 class OverlayFonts(val heavyItalic: Typeface, val bold: Typeface, val data: Typeface) {
     companion object {
         fun load(assets: AssetManager): OverlayFonts = OverlayFonts(
-            Typeface.createFromAsset(assets, "fonts/sofia-sans-extra-condensed-latin-900-italic.ttf"),
-            Typeface.createFromAsset(assets, "fonts/sofia-sans-extra-condensed-latin-700-normal.ttf"),
-            Typeface.createFromAsset(assets, "fonts/jetbrains-mono-latin-400-normal.ttf"),
+            Typeface.createFromAsset(assets, "assets/fonts/sofia-sans-extra-condensed-latin-900-italic.ttf"),
+            Typeface.createFromAsset(assets, "assets/fonts/sofia-sans-extra-condensed-latin-700-normal.ttf"),
+            Typeface.createFromAsset(assets, "assets/fonts/jetbrains-mono-latin-400-normal.ttf"),
         )
     }
 }

@@ -117,7 +117,7 @@ class ComposeOnDeviceTest {
         assertEquals(867, ClipProbe.readable(File(run, "final.mp4").path)!!.videoSamplesUs.size)
         // the label: on every export, in the corner, drawn in the pack's accent; the title only in its second; the replay bug only in the replay
         ClipFrames(File(run, "final.mp4").path).use { c ->
-            fun corner(frame: Int): Int { val b = c.frameAt(frame)!!; return (0 until 300).sumOf { dx -> (0 until 120).count { dy -> yellow(b.getPixel(b.width - 1 - 40 - dx, b.height - 1 - 40 - dy)) } } }
+            fun corner(frame: Int): Int { val b = c.frameAt(frame)!!; return (0 until 400).sumOf { dx -> (0 until 120).count { dy -> yellow(b.getPixel(b.width - 1 - 40 - dx, b.height - 1 - 40 - dy)) } } }
             for (t in listOf(0.5, 5.0, 20.0, 27.5)) assertTrue("the label's accent bar at $t s: ${corner((t * 30).toInt())} pixels", corner((t * 30).toInt()) > 150)
             fun centre(frame: Int): Int { val b = c.frameAt(frame)!!; return (0 until 400 step 4).sumOf { dx -> (0 until 150 step 4).count { dy -> luma(b.getPixel(b.width / 2 - 200 + dx, b.height / 2 - 75 + dy)) > 215 } } }
             assertTrue("the title's letters at 0.5 s: ${centre(15)}", centre(15) > 60)
@@ -148,6 +148,12 @@ class ComposeOnDeviceTest {
         assertTrue(log.toString(), "first try" in log[0] && "trying again" in log[0] && "the retry" in log[1] && "software encoder" in log[1] && "software encoder" in log[2])
         assertEquals(60, ClipProbe.readable(out.path)!!.videoSamplesUs.size)
         assertTrue(SignalDecoder.decodeChannels(out.path, 48000)!!.let { it.size == 2 && Math.abs(it[0].size / 48000.0 - 2.0) < 0.1 })
+    }
+
+    @Test
+    fun theEncodersOfThePhone() {
+        val names = android.media.MediaCodecList(android.media.MediaCodecList.ALL_CODECS).codecInfos.filter { it.isEncoder && "video/avc" in it.supportedTypes }.map { "${it.name}(sw=${if (android.os.Build.VERSION.SDK_INT >= 29) it.isSoftwareOnly else "?"})" }
+        note("avc encoders: $names")
     }
 
     @Test

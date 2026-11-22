@@ -68,7 +68,6 @@ class Composer(private val context: Context, hardwareCodecs: ((String) -> List<M
         return Result(encoder, last)
     }
 
-    private fun software(mime: String): ImmutableList<MediaCodecInfo> = ImmutableList.copyOf(EncoderSelector.DEFAULT.selectEncoderInfos(mime).filter { it.name.startsWith("c2.android.") || it.name.startsWith("OMX.google.") })
 
     private suspend fun once(segments: List<File>, mix: File, overlays: List<Pair<OverlaySpec, Bitmap>>, out: File, choice: EncoderChoice): ExportResult {
         out.delete()
@@ -77,7 +76,7 @@ class Composer(private val context: Context, hardwareCodecs: ((String) -> List<M
         val effects = Effects(emptyList(), if (overlays.isEmpty()) emptyList() else listOf(OverlayEffect(ImmutableList.copyOf<TextureOverlay>(overlays.map { (spec, bmp) -> FadingOverlay(bmp, spec) }))))
         val composition = Composition.Builder(listOf(video, sound)).setEffects(effects).build()
         val encoders = DefaultEncoderFactory.Builder(context).setEnableFallback(false)
-            .setVideoEncoderSelector(if (choice == EncoderChoice.SOFTWARE) EncoderSelector { software(it) } else hardwareSelector).build()
+            .setVideoEncoderSelector(if (choice == EncoderChoice.SOFTWARE) EncoderSelector { Encoders.software(it) } else hardwareSelector).build()
         val done = CompletableDeferred<ExportResult>()
         val stopped = CompletableDeferred<Unit>()
         val cancelled = AtomicBoolean(false)
@@ -106,4 +105,15 @@ class Composer(private val context: Context, hardwareCodecs: ((String) -> List<M
             throw ExportFailure(e.message ?: e.javaClass.simpleName, e)
         }
     }
+}
+
+/** The phone's software video encoders, asked of the codec list itself (Media3's default selector leaves them out when the phone has a hardware one). */
+@UnstableApi
+internal object Encoders {
+    fun software(mime: String): ImmutableList<MediaCodecInfo> = ImmutableList.copyOf(
+        android.media.MediaCodecList(android.media.MediaCodecList.ALL_CODECS).codecInfos.filter { it.isEncoder && mime in it.supportedTypes && (it.name.startsWith("c2.android.") || it.name.startsWith("OMX.google.")) },
+    )
+
+    /** An encoder factory that takes only the software encoders. */
+    fun softwareFactory(context: Context): DefaultEncoderFactory = DefaultEncoderFactory.Builder(context).setEnableFallback(false).setVideoEncoderSelector(EncoderSelector { software(it) }).build()
 }
