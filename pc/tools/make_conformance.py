@@ -1922,7 +1922,7 @@ def speech_cases() -> dict[str, dict]:
 
 def all_cases() -> dict[str, dict]:
     out = {}
-    for make in (storyboard_cases, slots_cases, checks_cases, lexicon_cases, units_cases, cells_cases, cell_layout_cases, backend_cases, budget_cases, consent_cases, signals_cases, checks_more_cases, voice_cases, mix_cases, visuals_cases, spotter_cases, commentator_cases, intake_cases, speech_cases, compose_cases, flow_cases):  # fmt: skip
+    for make in (storyboard_cases, slots_cases, checks_cases, lexicon_cases, units_cases, cells_cases, cell_layout_cases, backend_cases, budget_cases, consent_cases, signals_cases, checks_more_cases, voice_cases, mix_cases, visuals_cases, spotter_cases, commentator_cases, intake_cases, speech_cases, compose_cases, flow_cases, card_cases):  # fmt: skip
         for name, case in make().items():
             out[f"{case['area']}/{name}"] = case
     return out
@@ -2268,6 +2268,142 @@ def flow_cases() -> dict[str, dict]:
         [{}, {"rerun": "S5"}],
         present=fixture_files,
         seed_held=True,
+    )
+    return out
+
+
+def card_cases() -> dict[str, dict]:
+    """Added in T425: what the play card does with the user's answers (flow/runner.py `answer`, `to_check`, `nearest_event`, `rest_cost_usd`)."""
+
+    def sheet(change=None):
+        """The sample play sheet as an input; `change` edits a copy (a merge patch cannot reach into an array)."""
+        ps = json.loads((paths.SAMPLE_RUN / "play_sheet.json").read_text())
+        if change:
+            change(ps)
+        return value(ps)
+
+    def event(ps, eid):
+        return next(e for e in ps["events"] if e["id"] == eid)
+
+    def base(frame=313, edits=None, context=None, generic=False, change=None, desc=""):
+        psref = sheet(change)
+        ucref = {"fixture": "sample_run/user_context.json"}
+        return {
+            "area": "card", "function": "card.answer", "language": None, "description": desc,
+            "inputs": {"play_sheet": psref, "user_context": ucref, "clip_meta": {"fixture": "sample_run/clip_meta.json"}, "frame": value(frame),
+                       "edits": value(edits or {}), "context": value(context or {}), "generic": value(generic)},
+        }  # fmt: skip
+
+    def unsure(ps):  # e5 is a model event below the highlight line: an item to check
+        event(ps, "e5")["confidence"] = 0.5
+
+    out = {}
+    out["the_key_moment_only"] = base(
+        289,
+        desc="The user picks a candidate: the climax takes its frame and its time (frame over fps), the method becomes `user`, the confidence 1.0 and the sheet is confirmed.",
+    )
+    out["a_frame_past_the_clip_is_refused"] = base(
+        450,
+        desc="A frame after the last of the clip (450 frames at 30 a second: 0 to 449) is refused with the range, and nothing is written.",
+    )
+    out["a_negative_frame_is_refused"] = base(
+        -1, desc="A frame before the first is refused the same way."
+    )
+    out["keep_and_remove_events"] = base(edits={"events": [{"id": "e5", "keep": True}, {"id": "e2", "keep": False}]}, change=unsure,
+        desc="`keep: true` makes an event the user's (`source: user`); `keep: false` removes it; the others stay as they were.")  # fmt: skip
+    out["removing_the_key_moments_event_moves_it_to_the_nearest"] = base(frame=300, edits={"events": [{"id": "e6", "keep": False}]},
+        desc="The key moment's own event is removed: the climax's `event_id` becomes the nearest kept event to the moment (an event that holds it first, then the later start).")  # fmt: skip
+    out["removing_every_event_is_refused"] = base(
+        edits={"events": [{"id": f"e{i}", "keep": False} for i in range(1, 9)]},
+        desc="At least one event must be kept.",
+    )
+    out["an_unknown_event_is_refused"] = base(
+        edits={"events": [{"id": "e99", "keep": True}]},
+        desc="Each event edit is {id, keep} with an event of this play sheet.",
+    )
+    out["a_keep_that_is_not_a_boolean_is_refused"] = base(
+        edits={"events": [{"id": "e1", "keep": "yes"}]}, desc="`keep` is true or false."
+    )
+    out["the_outcome_sentence_is_the_key_events_outcome_too"] = base(edits={"outcome_summary": "  Scored from the free kick.  "},
+        desc="The outcome sentence is trimmed, marked the user's with confidence 1.0, and is also the outcome of the key moment's event.")  # fmt: skip
+    out["the_activity_is_edited"] = base(
+        edits={"activity": "football set piece"},
+        desc="The activity is a sentence of 1 to 80 characters, marked the user's.",
+    )
+    out["an_activity_over_80_characters_is_refused"] = base(
+        edits={"activity": "x" * 81},
+        desc="Longer than 80 characters: refused, naming the field and the limit.",
+    )
+    out["an_empty_outcome_is_refused"] = base(
+        edits={"outcome_summary": "   "}, desc="An empty sentence is refused (1 to 160 characters)."
+    )
+    out["the_followed_actor_changes"] = base(
+        edits={"followed_actor": "a2"},
+        desc="The followed actor is another actor of the sheet: `followed` moves to it.",
+    )
+    out["an_unknown_actor_is_refused"] = base(
+        edits={"followed_actor": "a9"}, desc="An actor that is not in the sheet is refused."
+    )
+    out["the_players_name_goes_to_the_followed_actor"] = base(context={"player_name": "Lee", "score": " 2-1 "},
+        desc="Context fields go into the user context, trimmed; a name also becomes the followed actor's `user_name`; an empty one is null.")  # fmt: skip
+    out["context_of_another_kind_is_refused"] = base(
+        context={"favourite_colour": "red"},
+        desc="Only the player, the two teams and the score are taken.",
+    )
+    out["a_context_field_over_40_characters_is_refused"] = base(
+        context={"team_home": "y" * 41}, desc="At most 40 characters each."
+    )
+    out["not_at_all_makes_a_generic_play_sheet"] = base(
+        generic=True,
+        desc="`Not at all` then `Narrate without saying what happened`: the sheet keeps what the model saw and is marked `mode: generic`.",
+    )
+    out["an_answer_that_fails_writes_nothing_of_the_edits_before_it"] = base(edits={"activity": "fine", "followed_actor": "a9"},
+        desc="A refused edit leaves everything as it was, the valid edit before it too (the function returns only the error).")  # fmt: skip
+
+    def items(desc, change=None):
+        return {
+            "area": "card",
+            "function": "card.items",
+            "language": None,
+            "description": desc,
+            "inputs": {"play_sheet": sheet(change)},
+        }
+
+    def two_unsure(ps):
+        event(ps, "e5")["confidence"] = 0.5
+        event(ps, "e2")["confidence"] = 0.69
+
+    def between(ps):
+        ps["climax"]["t"] = 9.65
+        event(ps, "e3").update(t_start=8.2, t_end=9.6)
+        event(ps, "e4").update(t_start=9.7, t_end=9.7)
+
+    out["items_to_check"] = items(
+        "The events the card asks about are the model's and below 0.7 (the user's are not asked about again); the key moment's event is the one that holds the moment.",
+        two_unsure,
+    )
+    out["items_when_nothing_is_unsure"] = items(
+        "With every model event at 0.7 or over, nothing is asked."
+    )
+    out["items_the_nearest_event_to_a_moment_between_events"] = items(
+        "A moment that no event holds: the nearest event (by distance), the later start on a tie.",
+        between,
+    )
+
+    def cost(desc, style, language):
+        return {"area": "card", "function": "card.rest_cost", "language": language, "description": desc,
+                "inputs": {"clip_meta": {"fixture": "sample_run/clip_meta.json"}, "pack": {"style": style, "language": language}}}  # fmt: skip
+
+    out["rest_cost_english"] = cost(
+        "The cost of the rest of the run: the Commentator's ceiling plus the voice for as many words as the clip's length holds at the pack's rate (6.5 characters a word at 0.10 USD per 1,000).",
+        "football_commentator",
+        "en",
+    )
+    out["rest_cost_mandarin"] = cost(
+        "In Mandarin a unit is a character: one character each.", "football_commentator", "zh"
+    )
+    out["rest_cost_of_another_pack"] = cost(
+        "The voice's words a second differ by pack.", "nature_documentary", "en"
     )
     return out
 

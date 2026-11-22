@@ -196,6 +196,22 @@ object TextFunctions {
                 }
             },
             "flow.run" to { a -> app.epicreplay.core.run.FlowHarness.run(JsonObject(a), File(System.getProperty("shared.dir"))) },
+            "card.answer" to { a ->
+                try {
+                    val r = app.epicreplay.core.card.PlayCard.answer(a.getValue("play_sheet").jsonObject, a.getValue("user_context").jsonObject, a.getValue("clip_meta").jsonObject, a.getValue("frame").jsonPrimitive.int, a.getValue("edits").jsonObject, a.getValue("context").jsonObject, a.getValue("generic").jsonPrimitive.content == "true")
+                    buildJsonObject { put("play_sheet", r.playSheet); put("user_context", r.userContext) }
+                } catch (e: IllegalArgumentException) { buildJsonObject { put("error", e.message ?: "") } }
+            },
+            "card.items" to { a ->
+                val ps = a.getValue("play_sheet").jsonObject
+                buildJsonObject { put("to_check", JsonArray(app.epicreplay.core.card.PlayCard.toCheck(ps).map { JsonPrimitive(it) })); put("nearest", app.epicreplay.core.card.PlayCard.nearestEvent(ps)) }
+            },
+            "card.rest_cost" to { a ->
+                val shared = File(System.getProperty("shared.dir"))
+                val files = File(shared, "models").listFiles { f -> f.extension == "json" }!!.sortedBy { it.name }.map { app.epicreplay.core.models.ProfileFile(it.name, it.readText()) }
+                val loaded = app.epicreplay.core.models.ProfileLoader(File(shared, "contracts/model_profile.schema.json").readText(), app.epicreplay.core.models.Platform.PC).load(files)
+                JsonPrimitive(app.epicreplay.core.card.PlayCard.restCostUsd(a.getValue("clip_meta").jsonObject, a.getValue("pack").jsonObject, loaded.profiles.getValue("deepseek-flash")))
+            },
             "audio.loudness" to { a ->
                 val (y, sr) = DrawnSignal.draw(a.getValue("recipe").jsonObject)
                 val ch = if (a.getValue("channels").jsonPrimitive.int == 1) listOf(y) else listOf(y, y)
