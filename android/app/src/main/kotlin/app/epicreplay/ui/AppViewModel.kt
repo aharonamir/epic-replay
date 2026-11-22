@@ -28,7 +28,9 @@ import app.epicreplay.media.ClipFrames
 import java.io.File
 import java.time.Instant
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
@@ -48,7 +50,12 @@ class AppViewModel(private val graph: AppGraph, private val context: Context, la
     val cards: List<NarratorCard> = StartForm.narrators(styles)
     val launcher = launcher ?: RunLauncher(graph, context)
     val runsDir: File = (runsDirOverride ?: File(context.filesDir, "runs")).apply { mkdirs() }
-    val session = RunSession(runsDir, words, viewModelScope, { this.launcher.flow(it) }, { RunSession.typicalOf(runsDir) })
+    // the run's work (a copy of the clip, the scan of its frames, the video's export) never runs on the main thread: it would freeze the screen
+    private val runScope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + Dispatchers.Default)
+    val session = RunSession(runsDir, words, runScope, { this.launcher.flow(it) }, { RunSession.typicalOf(runsDir) })
+    private val _starting = MutableStateFlow(false)
+    /** True from "Make my replay" until the run's folder exists and its manifest can be read. */
+    val starting: StateFlow<Boolean> = _starting
 
     private val _clip = MutableStateFlow<Pair<File, String>?>(null)
     val clip: StateFlow<Pair<File, String>?> = _clip
@@ -85,9 +92,13 @@ class AppViewModel(private val graph: AppGraph, private val context: Context, la
         val models = launcher.models() ?: return
         val card = cards.first { it.id == input.narrator }
         val record = ConsentRecord(Instant.now().toString().substringBefore('.') + "Z", consentCopy.textVersion, models.vision.location, models.text.location).toJson()
-        val dir = session.create(file, StartForm.userContext(input, card, record))
-        _onStart.value = false
-        session.start(dir)
+        _onStart.value = false; _starting.value = true // the screen moves on at once; the copy of the clip and the first stages happen off the main thread
+        runScope.launch {
+            try {
+                val dir = session.create(file, StartForm.userContext(input, card, record))
+                session.start(dir)
+            } finally { _starting.value = false }
+        }
     }
 
     /** From the run in hand back to the start screen (the run, if unfinished, stays in its folder and is picked up when the app is opened). */
@@ -104,10 +115,11 @@ class AppViewModel(private val graph: AppGraph, private val context: Context, la
     }
 
     /** The card's pictures: frames of the run's working copy by number; closed when the card leaves the screen. */
-    class ClipFrameSource(path: String) : FrameSource, AutoCloseable {
-        private val clip = ClipFrames(path)
-        override suspend fun frame(n: Int): ImageBitmap? = withContext(Dispatchers.IO) { clip.frameAt(n)?.asImageBitmap() }
-        override fun close() = clip.close()
+    class ClipFrameSource(private val path: String) : FrameSource, AutoCloseable {
+        private val clip by lazy { ClipFrames(path) } // opened on first use, off the main thread
+        override suspend fun frame(n: Int): ImageBitmap? = withContext(Dispatchers.IO) { opened = true; clip.frameAt(n)?.asImageBitmap() }
+        private var opened = false
+        override fun close() { if (opened) clip.close() }
     }
 
     fun frames(dir: File): ClipFrameSource = ClipFrameSource(File(dir, "work.mp4").path)
@@ -119,5 +131,5 @@ class AppViewModel(private val graph: AppGraph, private val context: Context, la
         return accentOf((g?.get("accent") as kotlinx.serialization.json.JsonPrimitive).content, (g["accent_text"] as? kotlinx.serialization.json.JsonPrimitive)?.content)
     }
 
-    override fun onCleared() { session.pause() }
+    override fun onCleared() { session.pause(); runScope.cancel() }
 }

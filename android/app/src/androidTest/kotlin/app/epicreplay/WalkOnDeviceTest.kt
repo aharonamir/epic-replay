@@ -91,6 +91,16 @@ class WalkOnDeviceTest {
         val clip = File(work, "strike.mp4").also { f -> tests.open("fixtures/clip/work_15s_1080p.mp4").use { i -> f.outputStream().use { i.copyTo(it) } } }
         vm.useClip(clip, "strike.mp4")
 
+        // the screen must stay alive while the run works: a runnable posted to the main thread every 100 ms is never late by more than 1.5 s (the owner's phone froze on "Make my replay": ANR)
+        val worst = java.util.concurrent.atomic.AtomicLong(); val watching = java.util.concurrent.atomic.AtomicBoolean(true)
+        val watchdog = Thread {
+            val main = android.os.Handler(android.os.Looper.getMainLooper())
+            while (watching.get()) {
+                val sent = System.nanoTime(); val seen = java.util.concurrent.CountDownLatch(1)
+                main.post { worst.accumulateAndGet((System.nanoTime() - sent) / 1_000_000, ::maxOf); seen.countDown() }
+                seen.await(); Thread.sleep(100)
+            }
+        }.also { it.start() }
         rule.setContent { AppRoot(vm, { true }, { }) }
         rule.onNodeWithTag("consent").performScrollTo().performClick()
         rule.onNodeWithTag("narrator_news_reporter").performScrollTo().performClick()
@@ -116,12 +126,14 @@ class WalkOnDeviceTest {
         val render = RunFiles.read(File(done.dir, "render.json"))!!
         val frames = ClipProbe.readable(File(done.dir, "final.mp4").path)!!.videoSamplesUs.size
         assertEquals(Math.round(render.getValue("duration_s").jsonPrimitive.content.toDouble() * 30).toInt(), frames)
+        watching.set(false); watchdog.join()
+        assertTrue("the main thread was blocked for ${worst.get()} ms", worst.get() < 1500)
         assertEquals("news_reporter", RunFiles.read(File(done.dir, "manifest.json"))!!.getValue("style").jsonPrimitive.content)
         assertTrue("the vision model was asked for the sheets and the events: ${vision.calls.get()}", vision.calls.get() >= 3)
         assertTrue("the text model was asked: ${textModel.calls.size}", textModel.calls.isNotEmpty())
         // its replies were not scripts, so the coded fallback wrote the lines and the run says so
         assertEquals("degraded", RunFiles.read(File(done.dir, "commentator_trace.json"))!!.getValue("status").jsonPrimitive.content)
-        File(ctx.filesDir, "t425_metrics.txt").appendText("walk: ${done.state.steps.map { "${it.n}:${it.durationS}s" }}, cost ${done.state.costUsd}, frames $frames, vision calls ${vision.calls.get()}, script status ${RunFiles.read(File(done.dir, "commentator_trace.json"))?.get("status")}\n")
+        File(ctx.filesDir, "t425_metrics.txt").appendText("walk: main thread latest ${worst.get()} ms, ${done.state.steps.map { "${it.n}:${it.durationS}s" }}, cost ${done.state.costUsd}, frames $frames, vision calls ${vision.calls.get()}, script status ${RunFiles.read(File(done.dir, "commentator_trace.json"))?.get("status")}\n")
     }
 }
 
