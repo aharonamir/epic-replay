@@ -35,7 +35,7 @@ import app.epicreplay.core.ui.StepView
  * words, and the eight steps with their state and seconds. At step 4 the play card opens in place ([card]); a stopped run says what happened and offers another clip.
  */
 @Composable
-fun ProgressScreen(state: RunState, words: PageWords, onAnother: () -> Unit, modifier: Modifier = Modifier, card: @Composable () -> Unit = {}) {
+fun ProgressScreen(state: RunState, words: PageWords, onAnother: () -> Unit, modifier: Modifier = Modifier, voiceKey: Boolean = false, onRetry: (() -> Unit)? = null, onAddKey: (() -> Unit)? = null, card: @Composable () -> Unit = {}) {
     val accent = LocalAccent.current
     Column(modifier.verticalScroll(rememberScrollState()).padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.Bottom) {
@@ -58,10 +58,14 @@ fun ProgressScreen(state: RunState, words: PageWords, onAnother: () -> Unit, mod
             (if (atCard) words.yourTurn else state.message ?: state.timeLeft).uppercase(), style = MaterialTheme.typography.headlineMedium,
             color = if (state.message != null) Ink.dangerText else Ink.text, modifier = Modifier.testTag("status_line"),
         )
+        if (voiceKey) Text(words.stopped("voice_key"), style = MaterialTheme.typography.bodyLarge, modifier = Modifier.testTag("voice_key_note"))
         for (s in state.steps) {
             StepRow(s, words)
             if (s.n == 4 && atCard) card()
         }
+        if (voiceKey && onAddKey != null) Button(onClick = onAddKey, modifier = Modifier.fillMaxWidth().height(56.dp).testTag("add_key"), colors = ButtonDefaults.buttonColors(containerColor = accent.fill, contentColor = accent.onAccent)) { Text(words.stopped("add_key").uppercase(), style = MaterialTheme.typography.titleMedium) }
+        // a run that broke keeps everything it finished: trying again goes on from the stage that failed
+        if (state.status == "failed" && onRetry != null) androidx.compose.material3.OutlinedButton(onClick = onRetry, modifier = Modifier.fillMaxWidth().height(56.dp).testTag("retry")) { Text(words.stopped("retry").uppercase(), style = MaterialTheme.typography.titleMedium) }
         if (state.status in setOf("stopped", "failed")) Button(onClick = onAnother, modifier = Modifier.fillMaxWidth().height(56.dp).testTag("another"), colors = ButtonDefaults.buttonColors(containerColor = accent.fill, contentColor = accent.onAccent)) { Text(words.stopped("again").uppercase(), style = MaterialTheme.typography.titleMedium) }
         Spacer(Modifier.height(32.dp))
     }

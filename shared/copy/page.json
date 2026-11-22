@@ -122,6 +122,9 @@
     "cap": "We've reached today's limit for this demo.",
     "rejected": "You stopped it at the play card. Nothing was narrated.",
     "failed": "Something broke while {step}. Your clip is safe.",
-    "again": "Choose another clip"
+    "again": "Choose another clip",
+    "retry": "Try again",
+    "voice_key": "The voice needs an ElevenLabs key. Add it, then try again.",
+    "add_key": "Add the key"
   }
 }

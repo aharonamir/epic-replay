@@ -8,6 +8,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.ui.platform.testTag
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.background
@@ -32,7 +34,7 @@ import kotlinx.coroutines.launch
  */
 @UnstableApi
 @Composable
-fun AppRoot(vm: AppViewModel, isReady: () -> Boolean, firstRun: @Composable (onContinue: () -> Unit) -> Unit, modifier: Modifier = Modifier) {
+fun AppRoot(vm: AppViewModel, isReady: () -> Boolean, keys: app.epicreplay.core.secrets.KeysController, firstRun: @Composable (onContinue: () -> Unit) -> Unit, modifier: Modifier = Modifier) {
     var ready by remember { mutableStateOf(isReady()) }
     var choosing by remember { mutableStateOf<app.epicreplay.core.ui.NarratorCard?>(null) }
     val view by vm.session.view.collectAsState()
@@ -41,6 +43,9 @@ fun AppRoot(vm: AppViewModel, isReady: () -> Boolean, firstRun: @Composable (onC
     val clip by vm.clip.collectAsState()
     val problem by vm.clipProblem.collectAsState()
     val scope = rememberCoroutineScope()
+    var keysTick by remember { mutableStateOf(0) }
+    var showKeys by remember { mutableStateOf(false) }
+    val voiceKeyMissing = remember(keysTick) { keys.rows().first { it.kind == app.epicreplay.core.secrets.KeyKind.ELEVENLABS }.status != app.epicreplay.core.secrets.KeyStatus.PRESENT }
     val pick = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri -> if (uri != null) scope.launch { vm.chooseClip(uri) } }
     val film = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { r -> if (r.resultCode == Activity.RESULT_OK) r.data?.data?.let { scope.launch { vm.chooseClip(it) } } }
     val accent = if (onStart) (choosing?.let { accentOf(it.accent, null) } ?: DefaultAccent) else vm.accent(view)
@@ -48,14 +53,19 @@ fun AppRoot(vm: AppViewModel, isReady: () -> Boolean, firstRun: @Composable (onC
         androidx.compose.material3.Surface(color = Ink.ground, modifier = modifier.fillMaxSize()) { Column(Modifier.statusBarsPadding().navigationBarsPadding()) {
             AppHeader()
             when {
+                showKeys -> Column {
+                    KeysSection(keys, onChanged = { keysTick++ })
+                    androidx.compose.material3.Button(onClick = { showKeys = false }, modifier = Modifier.padding(16.dp).androidx_fill().testTagKeys()) { Text("Done") }
+                }
                 !ready -> firstRun { ready = true }
                 !onStart && view == null && starting -> androidx.compose.material3.Text("MAKING YOUR REPLAY", style = androidx.compose.material3.MaterialTheme.typography.headlineMedium, modifier = Modifier.padding(16.dp))
                 onStart || view == null -> StartScreen(
                     vm.cards, vm.words, vm.consentCopy.consentText, vm.providerLine(), clip?.second, problem,
                     StartActions({ pick.launch("video/*") }, { film.launch(Intent(MediaStore.ACTION_VIDEO_CAPTURE)) }, ), { choosing = it }, vm::make,
+                    voiceKeyMissing = voiceKeyMissing, onAddKey = { showKeys = true },
                 )
                 view!!.state.status == "done" && view!!.state.hasVideo -> ResultScreen(java.io.File(view!!.dir, "final.mp4"), vm::another)
-                else -> RunScreen(vm, view!!)
+                else -> RunScreen(vm, view!!) { showKeys = true }
             }
         } }
     }
@@ -63,8 +73,8 @@ fun AppRoot(vm: AppViewModel, isReady: () -> Boolean, firstRun: @Composable (onC
 
 @UnstableApi
 @Composable
-private fun RunScreen(vm: AppViewModel, view: RunView) {
-    ProgressScreen(view.state, vm.words, vm::another) {
+private fun RunScreen(vm: AppViewModel, view: RunView, onAddKey: () -> Unit) {
+    ProgressScreen(view.state, vm.words, vm::another, voiceKey = view.needsVoiceKey, onRetry = { vm.session.start(view.dir) }, onAddKey = onAddKey) {
         if (view.atCard) {
             val frames = remember(view.dir) { vm.frames(view.dir) }
             androidx.compose.runtime.DisposableEffect(view.dir) { onDispose { frames.close() } }
@@ -76,3 +86,6 @@ private fun RunScreen(vm: AppViewModel, view: RunView) {
     }
 }
 
+
+private fun Modifier.androidx_fill() = this.fillMaxWidth()
+private fun Modifier.testTagKeys() = this.testTag("keys_done")

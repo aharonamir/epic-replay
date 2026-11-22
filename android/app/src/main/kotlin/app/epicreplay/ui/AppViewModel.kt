@@ -102,7 +102,7 @@ class AppViewModel(private val graph: AppGraph, private val context: Context, la
     }
 
     /** From the run in hand back to the start screen (the run, if unfinished, stays in its folder and is picked up when the app is opened). */
-    fun another() { session.pause(); _clip.value = null; _clipProblem.value = null; _onStart.value = true }
+    fun another() { session.pause(); session.view.value?.takeIf { it.state.status in setOf("failed", "stopped") }?.let { session.dismiss(it.dir) }; _clip.value = null; _clipProblem.value = null; _onStart.value = true }
 
     /** The line under the consent box: where the frames and the text go, from the models chosen (shared/copy/consent.json). */
     fun providerLine(): String = launcher.models()?.let { m -> consentCopy.blocks(m.vision.location, m.vision.label, m.text.location, m.text.label).joinToString(" ") } ?: ""

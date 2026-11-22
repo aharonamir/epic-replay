@@ -201,6 +201,27 @@ class ScreensTest {
         shot("card")
         frames.close()
     }
+
+    @Test
+    fun aMissingVoiceKeyIsSaidBeforeTheRunAndAFailedRunOffersToTryAgainFromWhereItBroke() {
+        var key = 0; var retried = 0
+        rule.setContent { EpicTheme { StartScreen(cards, words, consent.consentText, "x", "strike.mp4", null, StartActions({}, {}), {}, {}, voiceKeyMissing = true, onAddKey = { key++ }) } }
+        rule.onNodeWithTag("voice_key_missing").performScrollTo().assertTextContains("ElevenLabs key", substring = true)
+        rule.onNodeWithTag("consent").performScrollTo().performClick()
+        rule.onNodeWithTag("make").performScrollTo().assertIsNotEnabled() // a clip and the consent are not enough without the voice
+        rule.onNodeWithTag("add_key").performScrollTo().performClick(); assertEquals(1, key)
+    }
+
+    @Test
+    fun aRunThatFailedAtTheVoiceSaysSoAndOffersTheKeyAndTryAgain() {
+        val failed = Json.parseToJsonElement("""{"status":"failed","style":null,"language":"en","stages":[{"stage":"S0","status":"ok","duration_s":1.0,"note":""},{"stage":"S7","status":"failed","duration_s":1.0,"note":"The voice could not be made (SpeechError: the ElevenLabs key is not set)"}]}""").jsonObject
+        var retried = 0; var key = 0
+        rule.setContent { EpicTheme { ProgressScreen(RunState.of(failed, emptyMap(), words, true, false), words, {}, voiceKey = true, onRetry = { retried++ }, onAddKey = { key++ }) } }
+        rule.onNodeWithTag("status_line").assertTextContains("RECORDING THE VOICE", substring = true)
+        rule.onNodeWithTag("voice_key_note").assertTextContains("ElevenLabs key", substring = true)
+        rule.onNodeWithTag("add_key").performScrollTo().performClick(); rule.onNodeWithTag("retry").performScrollTo().performClick()
+        assertEquals(1, key); assertEquals(1, retried)
+    }
 }
 
 private fun androidx.compose.ui.test.SemanticsNodeInteractionCollection.assertCountEquals0() = assertCountEquals(0)

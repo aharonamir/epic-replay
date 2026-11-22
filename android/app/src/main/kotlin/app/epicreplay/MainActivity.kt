@@ -47,7 +47,7 @@ class MainActivity : ComponentActivity() {
         )
         val vm by viewModels<app.epicreplay.ui.AppViewModel> { object : androidx.lifecycle.ViewModelProvider.Factory { @Suppress("UNCHECKED_CAST") override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T = app.epicreplay.ui.AppViewModel(graph, applicationContext) as T } }
         setContent {
-            app.epicreplay.ui.AppRoot(vm, { graph.setup.step() is app.epicreplay.core.setup.SetupStep.Ready }, { onContinue ->
+            app.epicreplay.ui.AppRoot(vm, { graph.setup.step() is app.epicreplay.core.setup.SetupStep.Ready }, graph.keys, { onContinue ->
                 FirstRunScreen(graph.setup, graph.keys, actions, Modifier, onContinue)
             })
         }

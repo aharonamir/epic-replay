@@ -23,7 +23,10 @@ import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 
 /** What the screens show of the run in hand: the progress state, the play sheet and the clip's facts when the run waits at the card, and whether the flow is running now. */
-class RunView(val dir: File, val state: RunState, val playSheet: JsonObject?, val clipMeta: JsonObject?, val working: Boolean) {
+class RunView(val dir: File, val state: RunState, val playSheet: JsonObject?, val clipMeta: JsonObject?, val working: Boolean, val stoppedNote: String? = null) {
+    /** The run stopped because the voice has no key: the user can add one and go on from there. */
+    val needsVoiceKey: Boolean get() = stoppedNote?.contains("key is not set") == true
+
     val runId: String get() = dir.name
     val atCard: Boolean get() = state.status == "waiting_play_card" && playSheet != null && clipMeta != null
 }
@@ -55,7 +58,8 @@ class RunSession(private val runsDir: File, private val words: PageWords, privat
     fun refresh(dir: File) {
         val manifest = RunFiles.read(File(dir, RunFlow.MANIFEST)) ?: return
         val st = RunState.of(manifest, typical(), words, File(dir, "clip_meta.json").exists(), File(dir, "final.mp4").exists())
-        _view.value = RunView(dir, st, RunFiles.read(File(dir, "play_sheet.json")).takeIf { st.status == "waiting_play_card" }, RunFiles.read(File(dir, "clip_meta.json")), job?.isActive == true)
+        _view.value = RunView(dir, st, RunFiles.read(File(dir, "play_sheet.json")).takeIf { st.status == "waiting_play_card" }, RunFiles.read(File(dir, "clip_meta.json")), job?.isActive == true,
+            manifest.getValue("stages").jsonArray.map { it.jsonObject }.firstOrNull { it.getValue("status").jsonPrimitive.content in setOf("failed", "stopped") }?.get("note")?.jsonPrimitive?.content)
     }
 
     /** Runs (or goes on with) the flow of [dir] and keeps the view up to date until it ends. [seeded] are stages whose outputs were put there on purpose (a fixture). */
@@ -99,11 +103,15 @@ class RunSession(private val runsDir: File, private val words: PageWords, privat
     /** "Stop here" at the card, or "No, stop here" to the question about the people in the clip: the run ends `stopped` with [note]. */
     fun stopAtCard(dir: File, note: String) { flowFor(dir).stopAt(FlowOrder.CHECKPOINT_A, note); refresh(dir) }
 
-    /** The newest run that is not finished (running, or waiting at the card), for the app to pick up when it is opened again. */
-    fun latestOpen(): File? = runsDir.listFiles { f -> f.isDirectory && File(f, RunFlow.MANIFEST).isFile }?.sortedByDescending { it.name }
-        ?.firstOrNull { RunFiles.read(File(it, RunFlow.MANIFEST))?.getValue("status")?.jsonPrimitive?.content in setOf("running", "waiting_play_card") }
+    /** The newest run that is not finished (running, waiting at the card, or broken and not dismissed), for the app to pick up when it is opened again: a broken one shows its message and can be tried again. */
+    fun latestOpen(): File? = runsDir.listFiles { f -> f.isDirectory && File(f, RunFlow.MANIFEST).isFile && !File(f, DISMISSED).exists() }?.sortedByDescending { it.name }
+        ?.firstOrNull { RunFiles.read(File(it, RunFlow.MANIFEST))?.getValue("status")?.jsonPrimitive?.content in setOf("running", "waiting_play_card", "failed") }
+
+    /** The user is done with a run that broke (they chose another clip): the app does not open it again. The folder and its files stay. */
+    fun dismiss(dir: File) { File(dir, DISMISSED).writeText("") }
 
     companion object {
+        const val DISMISSED = ".dismissed"
         const val USER_STOP = "you said someone in it may not be fine"
         const val REJECTED = "stopped at the play card"
 

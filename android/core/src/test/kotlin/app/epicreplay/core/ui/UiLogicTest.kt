@@ -142,6 +142,7 @@ class UiLogicTest {
         val v = session.view.value!!
         assertEquals("stopped", v.state.status); assertEquals(words.stopped("rejected"), v.state.message)
         // typical: each stage's median over the runs' ok and degraded records
+        assertNull(session.latestOpen()) // stopped by the user: not opened again
         assertTrue(RunSession.typicalOf(runs).keys.containsAll(listOf("S0", "S1", "S2", "S3")))
         assertFalse(RunSession.typicalOf(runs).containsKey("A"))
     }
@@ -190,5 +191,19 @@ class RunSessionConcurrencyTest {
         withTimeout(30_000) { while (session.view.value?.atCard != true || session.view.value?.working == true) kotlinx.coroutines.delay(20) }
         assertEquals(1, most.get(), "never two flows at once")
         assertTrue(started.get() >= 1)
+    }
+}
+
+class BrokenRunTest {
+    private val shared = File(System.getProperty("shared.dir"))
+    @Test
+    fun aBrokenRunIsOpenedAgainUntilTheUserDismissesIt() {
+        val runs = java.nio.file.Files.createTempDirectory("runs").toFile()
+        val d = File(runs, "r_20260101_000000_aaaaaa").apply { mkdirs() }
+        File(d, "manifest.json").writeText("""{"run_id":"r","status":"failed","stages":[],"stack":{}}""")
+        val session = RunSession(runs, PageWords.load(shared), kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.Default), { error("not used") })
+        assertEquals(d, session.latestOpen())
+        session.dismiss(d); assertNull(session.latestOpen())
+        assertTrue(File(d, "manifest.json").isFile) // nothing of the run is removed
     }
 }

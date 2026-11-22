@@ -101,7 +101,10 @@ class WalkOnDeviceTest {
                 seen.await(); Thread.sleep(100)
             }
         }.also { it.start() }
-        rule.setContent { AppRoot(vm, { true }, { }) }
+        // a store of its own with a made-up voice key (nothing is sent: the voice is a fake), so the owner's real keys are neither read nor needed
+        val testSecrets = app.epicreplay.core.secrets.SecretStore(File(work, "secrets"), app.epicreplay.core.secrets.AesGcmCipher { app.epicreplay.secrets.AndroidKeystoreKey.get() })
+        testSecrets.put(app.epicreplay.core.secrets.KeyKind.ELEVENLABS, app.epicreplay.core.secrets.Secret("test-voice-key-not-real"))
+        rule.setContent { AppRoot(vm, { true }, app.epicreplay.core.secrets.KeysController(testSecrets), { }) }
         rule.onNodeWithTag("consent").performScrollTo().performClick()
         rule.onNodeWithTag("narrator_news_reporter").performScrollTo().performClick()
         rule.onNodeWithTag("make").performScrollTo().performClick()
