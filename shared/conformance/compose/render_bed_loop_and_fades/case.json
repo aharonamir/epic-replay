@@ -1,0 +1,71 @@
+{
+  "area": "compose",
+  "function": "mix.render",
+  "language": null,
+  "description": "A bed shorter than the video, alone: looped to the length, faded in over 0.5 s and out over the last second, then brought to -14 LUFS.",
+  "inputs": {
+    "layers": {
+      "value": [
+        {
+          "kind": "bed",
+          "start": 0.0,
+          "gain_db": -18.0,
+          "recipe": {
+            "rate": 48000,
+            "seconds": 1,
+            "bursts": [
+              {
+                "start_s": 0,
+                "dur_s": 1,
+                "amp": 7000
+              }
+            ]
+          },
+          "loop": true
+        }
+      ]
+    },
+    "duration_s": {
+      "value": 3.5
+    },
+    "windows": {
+      "value": [
+        [
+          0.0,
+          0.25
+        ],
+        [
+          0.25,
+          0.5
+        ],
+        [
+          1.0,
+          2.0
+        ],
+        [
+          2.6,
+          2.7
+        ],
+        [
+          3.2,
+          3.4
+        ]
+      ]
+    }
+  },
+  "tolerance_s": 1.0,
+  "expected": {
+    "value": {
+      "lufs": -14.0,
+      "peak_dbfs": -9.1,
+      "duration_s": 3.5,
+      "window_db": [
+        -30.3,
+        -21.7,
+        -19.2,
+        -20.5,
+        -32.7
+      ]
+    }
+  }
+}

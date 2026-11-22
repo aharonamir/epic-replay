@@ -1,0 +1,36 @@
+{
+  "area": "compose",
+  "function": "audio.loudness",
+  "language": null,
+  "description": "Noise with silence before, between and after (the absolute gate at -70 LUFS).",
+  "inputs": {
+    "recipe": {
+      "value": {
+        "rate": 48000,
+        "seconds": 10,
+        "bursts": [
+          {
+            "start_s": 1,
+            "dur_s": 2,
+            "amp": 5000
+          },
+          {
+            "start_s": 5,
+            "dur_s": 2,
+            "amp": 5000
+          }
+        ]
+      }
+    },
+    "channels": {
+      "value": 1
+    }
+  },
+  "tolerance_s": 0.1,
+  "expected": {
+    "value": {
+      "lufs": -18.6,
+      "peak_dbfs": -11.0
+    }
+  }
+}

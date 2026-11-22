@@ -107,7 +107,7 @@ abstract class PrepareSharedAssets : DefaultTask() {
         fs.delete { delete(out) } // nothing stale survives a change in shared/
         fs.copy {
             from(shared) {
-                include("models/**", "styles/**", "lexicons/**", "copy/**", "contracts/**")
+                include("models/**", "styles/**", "lexicons/**", "copy/**", "contracts/**", "mix/**")
                 include("assets/sfx/**", "assets/music/**", "assets/samples/**", "assets/LICENCES.md")
             }
             into(out)
@@ -132,7 +132,7 @@ abstract class PrepareTestAssets : DefaultTask() {
     @TaskAction
     fun run() {
         fs.sync {
-            from(shared) { include("conformance/signals/**", "fixtures/signals/**", "fixtures/sample_run/**", "conformance/spotter/play_sheet_real_2/**", "fixtures/intake/**", "fixtures/visuals/**", "fixtures/voice/take_44100_128.mp3") }
+            from(shared) { include("conformance/signals/**", "fixtures/signals/**", "fixtures/sample_run/**", "conformance/spotter/play_sheet_real_2/**", "fixtures/intake/**", "fixtures/visuals/**", "fixtures/voice/**") }
             into(outputDir)
         }
     }

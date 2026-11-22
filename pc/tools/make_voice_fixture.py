@@ -1,4 +1,4 @@
-"""`shared/fixtures/voice/sample_run_voice.json`: S7's output for the sample run, made by replaying the PC's recorded takes (spec 004, T422).
+"""`shared/fixtures/voice/sample_run_voice.json` and `sample_run_takes/`: S7's output for the sample run, made by replaying the PC's recorded takes (spec 004, T422).
 
     python tools/make_voice_fixture.py          # from pc/
 
@@ -48,6 +48,11 @@ def main() -> None:
         )  # not in sample_run/: a file there seeds S7 as done in the fixture runs
         out.parent.mkdir(parents=True, exist_ok=True)
         out.write_text((d / "voice.json").read_text())
+        takes = (
+            out.parent / "sample_run_takes"
+        )  # the fitted takes the placement describes: what S8 mixes (spec 004, T423)
+        shutil.rmtree(takes, ignore_errors=True)
+        shutil.copytree(d / "voice", takes, ignore=shutil.ignore_patterns("raw"))
     print("wrote", out)
 
 

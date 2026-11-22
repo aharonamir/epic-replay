@@ -1,0 +1,44 @@
+{
+  "area": "compose",
+  "function": "compose.landed",
+  "language": null,
+  "description": "A take 0.3 s before its plan: found at its real start.",
+  "inputs": {
+    "output": {
+      "value": {
+        "rate": 48000,
+        "seconds": 10,
+        "bursts": [
+          {
+            "start_s": 0,
+            "dur_s": 10,
+            "amp": 3000
+          }
+        ]
+      }
+    },
+    "take": {
+      "value": {
+        "rate": 48000,
+        "seconds": 1.5,
+        "bursts": [
+          {
+            "start_s": 0,
+            "dur_s": 1.5,
+            "amp": 12000
+          }
+        ]
+      }
+    },
+    "offset_s": {
+      "value": 2.7
+    },
+    "planned_start_s": {
+      "value": 3.0
+    }
+  },
+  "tolerance_s": 0.0005,
+  "expected": {
+    "value": 2.7
+  }
+}

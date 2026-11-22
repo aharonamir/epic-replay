@@ -1,0 +1,65 @@
+{
+  "area": "compose",
+  "function": "mix.render",
+  "language": null,
+  "description": "One voice line alone, no bed: normalised, with silence before and after (several lines with no bed are left out of the cases: FFmpeg 8's `amix` sometimes ends such a mix early, see docs/provider-notes.md).",
+  "inputs": {
+    "layers": {
+      "value": [
+        {
+          "kind": "voice",
+          "start": 1.0,
+          "gain_db": 0.0,
+          "recipe": {
+            "rate": 48000,
+            "seconds": 1.5,
+            "bursts": [
+              {
+                "start_s": 0,
+                "dur_s": 1.5,
+                "amp": 9000
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "duration_s": {
+      "value": 7.0
+    },
+    "windows": {
+      "value": [
+        [
+          0.0,
+          0.9
+        ],
+        [
+          1.1,
+          2.4
+        ],
+        [
+          2.8,
+          3.8
+        ],
+        [
+          4.1,
+          5.4
+        ]
+      ]
+    }
+  },
+  "tolerance_s": 1.0,
+  "expected": {
+    "value": {
+      "lufs": -14.0,
+      "peak_dbfs": -9.3,
+      "duration_s": 7.0,
+      "window_db": [
+        -180.0,
+        -19.4,
+        -180.0,
+        -180.0
+      ]
+    }
+  }
+}

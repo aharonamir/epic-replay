@@ -96,7 +96,9 @@ object SignalDecoder {
     }
 
     /** The clip's sound as mono floats at [Audio.SR], or null when there is no audio track. */
-    fun decodeAudio(path: String, targetRate: Int = Audio.SR): Pcm? {
+    private class Raw(val interleaved: ShortArray, val rate: Int, val channels: Int, val firstPts: Long)
+
+    private fun decodeRaw(path: String): Raw? {
         val ex = MediaExtractor().apply { setDataSource(path) }
         val t = track(ex, "audio/")
         if (t == null) { ex.release(); return null }
@@ -105,6 +107,7 @@ object SignalDecoder {
         val codec = MediaCodec.createDecoderByType(f.getString(MediaFormat.KEY_MIME)!!)
         codec.configure(f, null, null, 0); codec.start()
         val chunks = ArrayList<ShortArray>()
+        var encoding = android.media.AudioFormat.ENCODING_PCM_16BIT
         var rate = f.getInteger(MediaFormat.KEY_SAMPLE_RATE); var channels = f.getInteger(MediaFormat.KEY_CHANNEL_COUNT)
         var firstPts = -1L
         try {
@@ -123,13 +126,18 @@ object SignalDecoder {
                 if (o == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
                     val nf = codec.outputFormat
                     rate = nf.getInteger(MediaFormat.KEY_SAMPLE_RATE); channels = nf.getInteger(MediaFormat.KEY_CHANNEL_COUNT)
+                    if (nf.containsKey(MediaFormat.KEY_PCM_ENCODING)) encoding = nf.getInteger(MediaFormat.KEY_PCM_ENCODING)
                 } else if (o >= 0) {
                     if (info.size > 0) {
                         if (firstPts < 0) firstPts = info.presentationTimeUs
                         val raw = codec.getOutputBuffer(o)!!
                         raw.position(info.offset); raw.limit(info.offset + info.size)
-                        val s = raw.order(ByteOrder.nativeOrder()).asShortBuffer()
-                        chunks.add(ShortArray(info.size / 2).also { s.get(it) })
+                        raw.order(ByteOrder.nativeOrder())
+                        chunks.add(when (encoding) { // the decoder's own format: 16-bit unless it says otherwise
+                            android.media.AudioFormat.ENCODING_PCM_FLOAT -> raw.asFloatBuffer().let { f -> ShortArray(info.size / 4) { (f.get().coerceIn(-1f, 1f) * 32767f).toInt().toShort() } }
+                            android.media.AudioFormat.ENCODING_PCM_8BIT -> ShortArray(info.size) { (((raw.get().toInt() and 0xFF) - 128) shl 8).toShort() }
+                            else -> raw.asShortBuffer().let { sb -> ShortArray(info.size / 2).also { sb.get(it) } }
+                        })
                     }
                     codec.releaseOutputBuffer(o, false)
                     if (info.flags and MediaCodec.BUFFER_FLAG_END_OF_STREAM != 0) outputDone = true
@@ -137,8 +145,30 @@ object SignalDecoder {
             }
         } finally { codec.stop(); codec.release(); ex.release() }
         val all = ShortArray(chunks.sumOf { it.size }).also { var p = 0; for (c in chunks) { c.copyInto(it, p); p += c.size } }
-        val mono = FloatArray(all.size / channels) { n -> var s = 0f; for (c in 0 until channels) s += all[n * channels + c]; s / channels / 32768f }
-        return Pcm(resample(mono, rate, targetRate), Math.max(0L, firstPts))
+        return Raw(all, rate, channels, firstPts)
+    }
+
+    /** The first audio track as mono at [targetRate] (the channels averaged), with the presentation time of its first sample. */
+    fun decodeAudio(path: String, targetRate: Int = Audio.SR): Pcm? {
+        val r = decodeRaw(path) ?: return null
+        val mono = FloatArray(r.interleaved.size / r.channels) { n -> var s = 0f; for (c in 0 until r.channels) s += r.interleaved[n * r.channels + c]; s / r.channels / 32768f }
+        return Pcm(resample(mono, r.rate, targetRate), Math.max(0L, r.firstPts))
+    }
+
+    /**
+     * The first audio track as one channel (mono) or two (stereo) at [targetRate], or null when there is none. More than two channels are mixed down: 5.1 as FFmpeg's
+     * default does (the front pair, the centre and the back pair at 0.707 each, the effects channel left out, the sum scaled so it cannot clip); any other count as the average of all.
+     */
+    fun decodeChannels(path: String, targetRate: Int): List<FloatArray>? {
+        val r = decodeRaw(path) ?: return null
+        val n = r.interleaved.size / r.channels
+        fun ch(c: Int, i: Int) = r.interleaved[i * r.channels + c] / 32768f
+        val out: List<FloatArray> = when {
+            r.channels <= 2 -> List(r.channels) { c -> FloatArray(n) { ch(c, it) } }
+            r.channels == 6 -> { val k = 0.7071068f; val norm = 1f / (1f + 2 * k); listOf(FloatArray(n) { (ch(0, it) + k * ch(2, it) + k * ch(4, it)) * norm }, FloatArray(n) { (ch(1, it) + k * ch(2, it) + k * ch(5, it)) * norm }) }
+            else -> { val m = FloatArray(n) { i -> var s = 0f; for (c in 0 until r.channels) s += ch(c, i); s / r.channels }; listOf(m, m.copyOf()) }
+        }
+        return out.map { resample(it, r.rate, targetRate) }
     }
 
     /** Linear resampling to [target]. */

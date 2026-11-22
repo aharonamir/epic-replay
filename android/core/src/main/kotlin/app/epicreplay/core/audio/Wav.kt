@@ -43,6 +43,33 @@ object Wav {
         throw IllegalArgumentException("no data in the WAV file")
     }
 
+    /** Reads a 16-bit PCM WAV with its channels kept apart (one list entry for each), and its rate. */
+    fun readChannels(bytes: ByteArray): Pair<List<FloatArray>, Int> {
+        val b = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN)
+        require(bytes.size >= 12 && String(bytes, 0, 4) == "RIFF" && String(bytes, 8, 4) == "WAVE") { "not a WAV file" }
+        var pos = 12
+        var rate = 0; var channels = 0; var bits = 0
+        while (pos + 8 <= bytes.size) {
+            val id = String(bytes, pos, 4); val size = b.getInt(pos + 4)
+            val body = pos + 8
+            require(size >= 0 && body.toLong() + size <= bytes.size || id == "data") { "the WAV file is cut short" }
+            if (id == "fmt ") {
+                require(size >= 16) { "the WAV format chunk is too short" }
+                channels = b.getShort(body + 2).toInt(); rate = b.getInt(body + 4); bits = b.getShort(body + 14).toInt()
+                require(channels >= 1 && rate > 0) { "the WAV file has no channels or no rate" }
+            }
+            if (id == "data") {
+                require(rate > 0 && channels >= 1) { "the data comes before the format" }
+                require(bits == 16) { "only 16-bit WAV is read" }
+                val len = minOf(size.toLong() and 0xFFFFFFFFL, (bytes.size - body).toLong()).toInt()
+                val frames = len / 2 / channels
+                return List(channels) { c -> FloatArray(frames) { f -> b.getShort(body + (f * channels + c) * 2) / 32768f } } to rate
+            }
+            pos = body + size + (size and 1)
+        }
+        throw IllegalArgumentException("no data in the WAV file")
+    }
+
     /** Writes mono 16-bit PCM, the samples clipped to -1 to 1 and cut toward zero as NumPy's `astype('<i2')` does. */
     fun write(pcm: Pcm): ByteArray {
         val n = pcm.samples.size
@@ -51,6 +78,17 @@ object Wav {
         b.put("fmt ".toByteArray()).putInt(16).putShort(1).putShort(1).putInt(pcm.sampleRate).putInt(pcm.sampleRate * 2).putShort(2).putShort(16)
         b.put("data".toByteArray()).putInt(n * 2)
         for (s in pcm.samples) b.putShort((s.coerceIn(-1f, 1f) * 32767f).toInt().toShort())
+        return b.array()
+    }
+
+    /** Writes 16-bit PCM of [channels] (equal lengths), interleaved, the samples clipped and cut toward zero as [write] does. */
+    fun writeChannels(channels: List<FloatArray>, sampleRate: Int): ByteArray {
+        val n = channels[0].size; val k = channels.size
+        val b = ByteBuffer.allocate(44 + n * k * 2).order(ByteOrder.LITTLE_ENDIAN)
+        b.put("RIFF".toByteArray()).putInt(36 + n * k * 2).put("WAVE".toByteArray())
+        b.put("fmt ".toByteArray()).putInt(16).putShort(1).putShort(k.toShort()).putInt(sampleRate).putInt(sampleRate * 2 * k).putShort((2 * k).toShort()).putShort(16)
+        b.put("data".toByteArray()).putInt(n * k * 2)
+        for (i in 0 until n) for (c in channels) b.putShort((c[i].coerceIn(-1f, 1f) * 32767f).toInt().toShort())
         return b.array()
     }
 }

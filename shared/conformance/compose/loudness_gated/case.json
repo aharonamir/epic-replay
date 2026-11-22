@@ -1,0 +1,36 @@
+{
+  "area": "compose",
+  "function": "audio.loudness",
+  "language": null,
+  "description": "A loud part and a part 26 dB under it: the meter's gates leave the quiet part out of the integrated value.",
+  "inputs": {
+    "recipe": {
+      "value": {
+        "rate": 48000,
+        "seconds": 8,
+        "bursts": [
+          {
+            "start_s": 0,
+            "dur_s": 2,
+            "amp": 12000
+          },
+          {
+            "start_s": 3,
+            "dur_s": 3,
+            "amp": 600
+          }
+        ]
+      }
+    },
+    "channels": {
+      "value": 1
+    }
+  },
+  "tolerance_s": 0.1,
+  "expected": {
+    "value": {
+      "lufs": -10.7,
+      "peak_dbfs": -3.4
+    }
+  }
+}

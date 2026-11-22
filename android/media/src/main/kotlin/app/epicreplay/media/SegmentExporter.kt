@@ -96,10 +96,10 @@ class SegmentExporter(private val context: Context, private val clip: File) {
         return EditedMediaItem.Builder(item).setFrameRate(30).setEffects(Effects(emptyList(), listOf(Presentation.createForWidthAndHeight(width, height, Presentation.LAYOUT_SCALE_TO_FIT)))).build()
     }
 
-    /** Runs the export on the main thread (Media3 wants a looper) and waits; the phone's encoder sometimes fails once (spike S2), so it is tried twice. A cancelled call stops the export and returns only when it has stopped. */
+    /** Runs the export on the main thread (Media3 wants a looper) and waits; the phone's encoder sometimes fails (spike S2), so it is tried twice and then the software encoder. A cancelled call stops the export and returns only when it has stopped. */
     private suspend fun run(composition: Composition, out: File) {
         var last: Throwable? = null
-        repeat(2) {
+        for (attempt in 0..2) { // the phone's encoder, once more, then the software one (spike S2: the hardware encoder sometimes gives a sample the muxer refuses)
             out.delete()
             val done = CompletableDeferred<ExportResult>()
             val stopped = CompletableDeferred<Unit>() // the export has been stopped, or never started
@@ -108,7 +108,7 @@ class SegmentExporter(private val context: Context, private val clip: File) {
             main.post {
                 try {
                     if (cancelled.get()) return@post
-                    val t = Transformer.Builder(context).addListener(object : Transformer.Listener {
+                    val t = Transformer.Builder(context).also { if (attempt == 2) it.setEncoderFactory(Encoders.softwareFactory(context)) }.addListener(object : Transformer.Listener {
                         override fun onCompleted(composition: Composition, exportResult: ExportResult) { done.complete(exportResult) }
                         override fun onError(composition: Composition, exportResult: ExportResult, exportException: ExportException) { done.completeExceptionally(exportException) }
                     }).build()
