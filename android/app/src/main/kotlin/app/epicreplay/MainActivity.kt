@@ -7,6 +7,7 @@ import android.os.Bundle
 import androidx.activity.result.contract.ActivityResultContracts
 import app.epicreplay.download.DownloadService
 import androidx.activity.ComponentActivity
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.MaterialTheme
@@ -27,6 +28,7 @@ class MainActivity : ComponentActivity() {
     private val askNotifications = registerForActivityResult(ActivityResultContracts.RequestPermission()) { }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        installSplashScreen() // variant A of the icon on the dark ground (FR-ICON-2); the app's own theme takes over after it
         super.onCreate(savedInstanceState)
         val actions = FirstRunActions(
             startDownload = { profile ->
@@ -44,7 +46,10 @@ class MainActivity : ComponentActivity() {
         )
         setContent {
             MaterialTheme {
-                FirstRunScreen(graph.setup, graph.keys, actions, Modifier.statusBarsPadding())
+                androidx.compose.foundation.layout.Column(Modifier.statusBarsPadding()) {
+                    app.epicreplay.ui.AppHeader()
+                    FirstRunScreen(graph.setup, graph.keys, actions)
+                }
             }
         }
     }
