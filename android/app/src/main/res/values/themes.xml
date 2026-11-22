@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- The app's theme once it has started. -->
+    <style name="Theme.EpicReplay" parent="@android:style/Theme.Material.Light.NoActionBar" />
+
+    <!-- The cold start (spec 004 FR-ICON-2): variant A of the icon, the mark and ER, on the dark ground. -->
+    <style name="Theme.EpicReplay.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/ic_splash_background</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash</item>
+        <item name="postSplashScreenTheme">@style/Theme.EpicReplay</item>
+    </style>
+</resources>

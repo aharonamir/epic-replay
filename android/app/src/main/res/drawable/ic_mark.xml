@@ -1,0 +1,2 @@
+<!-- Derived from icon-a-dark.svg (the first path) by android/tools/make_icon_resources.py: do not edit; change the SVG and run the script. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="30dp" android:height="20dp" android:viewportWidth="31.2" android:viewportHeight="20"><group android:translateX="-38.4" android:translateY="-26.0"><path android:fillColor="#FFD23F" android:pathData="M54 26L38.4 36.0L54 46Z M69.6 26L54 36.0L69.6 46Z"/></group></vector>

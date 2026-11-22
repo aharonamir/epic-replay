@@ -69,6 +69,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.core.splashscreen)
     implementation(project(":core"))
     implementation(project(":engine"))
     implementation(project(":media"))

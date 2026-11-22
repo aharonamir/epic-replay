@@ -20,6 +20,7 @@ compose-ui = { module = "androidx.compose.ui:ui" }
 compose-ui-test = { module = "androidx.compose.ui:ui-test-junit4" }
 compose-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest" }
 compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
+core-splashscreen = { module = "androidx.core:core-splashscreen", version = "1.0.1" }
 activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
 coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
 json-schema = { module = "io.github.optimumcode:json-schema-validator", version.ref = "jsonSchema" }
