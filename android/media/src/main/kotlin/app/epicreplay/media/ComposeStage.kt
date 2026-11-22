@@ -63,7 +63,7 @@ class ComposeStage(private val composer: Composer, private val fonts: OverlayFon
         val final = File(runDir, "final.mp4")
         val events = ArrayList<String>()
         val result = try {
-            composer.compose(segments, File(runDir, "mix.wav"), overlays, final) { events += it; log(it) }
+            composer.compose(segments, File(runDir, "mix.wav"), overlays, final, portrait = height > width) { events += it; log(it) }
         } catch (e: kotlinx.coroutines.CancellationException) { throw e } catch (e: Exception) {
             return ComposeOutcome("failed", ("the video could not be made: " + (e.message ?: e.javaClass.simpleName)).take(500), null)
         } finally { overlays.forEach { it.second.recycle() } }
@@ -78,7 +78,7 @@ class ComposeStage(private val composer: Composer, private val fonts: OverlayFon
             .associate { it.getValue("id").jsonPrimitive.content to Wav.read(File(runDir, it.getValue("file").jsonPrimitive.content).readBytes()).samples }
         val hits = ComposeMeasure.onsets(voice, takes, mono, 48000)
         val fps = sb.getValue("fps").jsonPrimitive.double
-        val problems = ComposeMeasure.problems(sb, frames, mono.size / 48000.0, hits)
+        val problems = ComposeMeasure.problems(sb, frames, mono.size / 48000.0, hits, info.width, info.height)
         val labels = pack.getValue("script").jsonObject.getValue("labels").jsonObject
         val doc = buildJsonObject {
             put("duration_s", PyMath.round(frames / fps, 3)); put("container_duration_s", PyMath.round(info.durationS, 3))

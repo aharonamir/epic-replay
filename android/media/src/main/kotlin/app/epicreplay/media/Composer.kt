@@ -55,11 +55,14 @@ class Composer(private val context: Context, hardwareCodecs: ((String) -> List<M
     private val hardwareSelector: EncoderSelector = hardwareCodecs?.let { f -> EncoderSelector { ImmutableList.copyOf(f(it)) } } ?: EncoderSelector.DEFAULT
 
     private val main = Handler(Looper.getMainLooper())
+    @Volatile private var sizePortrait = false
 
     /** What an export finished with. */
     class Result(val encoder: EncoderChoice, val exportResult: ExportResult?)
 
-    suspend fun compose(segments: List<File>, mix: File, overlays: List<Pair<OverlaySpec, Bitmap>>, out: File, log: (String) -> Unit = {}): Result {
+    /** [portrait]: the storyboard is taller than wide, so the encoder must be told (Media3 otherwise swaps the sides of a portrait output). */
+    suspend fun compose(segments: List<File>, mix: File, overlays: List<Pair<OverlaySpec, Bitmap>>, out: File, portrait: Boolean = false, log: (String) -> Unit = {}): Result {
+        sizePortrait = portrait
         var last: ExportResult? = null
         val encoder = ExportPolicy.run(ExportAttempt { choice -> last = once(segments, mix, overlays, out, choice) }, log)
         return Result(encoder, last)
@@ -82,7 +85,7 @@ class Composer(private val context: Context, hardwareCodecs: ((String) -> List<M
         main.post {
             try {
                 if (cancelled.get()) return@post
-                val t = Transformer.Builder(context).setEncoderFactory(encoders).setVideoMimeType(MimeTypes.VIDEO_H264).setAudioMimeType(MimeTypes.AUDIO_AAC)
+                val t = Transformer.Builder(context).setEncoderFactory(encoders).setPortraitEncodingEnabled(sizePortrait).setVideoMimeType(MimeTypes.VIDEO_H264).setAudioMimeType(MimeTypes.AUDIO_AAC)
                     .addListener(object : Transformer.Listener {
                         override fun onCompleted(composition: Composition, exportResult: ExportResult) { done.complete(exportResult) }
                         override fun onError(composition: Composition, exportResult: ExportResult, exportException: ExportException) { done.completeExceptionally(exportException) }

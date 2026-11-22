@@ -36,14 +36,16 @@ object ComposeMeasure {
     }
 
     /** The timing checks of a finished export: the picture is the storyboard's length to the frame, the sound as long, every key line within [toleranceMs] of its target. Empty when all hold. */
-    fun problems(sb: JsonObject, frames: Int, audioS: Double, hits: List<JsonObject>, toleranceMs: Int = 150): List<String> {
+    fun problems(sb: JsonObject, frames: Int, audioS: Double, hits: List<JsonObject>, width: Int? = null, height: Int? = null, toleranceMs: Int = 150): List<String> {
         val fps = sb.getValue("fps").jsonPrimitive.double
         val duration = sb.getValue("duration_s").jsonPrimitive.double
         val out = ArrayList<String>()
         val expected = Math.round(duration * fps).toInt()
         if (frames != expected) out += "the video has $frames frames, the storyboard $expected"
         if (Math.abs(audioS - duration) > 0.1) out += "the sound is ${PyMath.round(audioS, 3)} s, the storyboard ${duration} s"
-        for (h in hits) if (Math.abs(h.getValue("error_ms").jsonPrimitive.content.toInt()) > toleranceMs) out += "line ${h.getValue("line_id").jsonPrimitive.content} lands ${h.getValue("error_ms").jsonPrimitive.content} ms from its target"
+        val w = sb.getValue("width").jsonPrimitive.content.toInt(); val h = sb.getValue("height").jsonPrimitive.content.toInt()
+        if (width != null && height != null && (width != w || height != h)) out += "the video is ${width}x$height, the storyboard ${w}x$h"
+        for (hit in hits) if (Math.abs(hit.getValue("error_ms").jsonPrimitive.content.toInt()) > toleranceMs) out += "line ${hit.getValue("line_id").jsonPrimitive.content} lands ${hit.getValue("error_ms").jsonPrimitive.content} ms from its target"
         return out
     }
 }
