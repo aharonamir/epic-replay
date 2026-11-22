@@ -1,0 +1,36 @@
+{
+  "area": "flow",
+  "function": "flow.run",
+  "language": null,
+  "description": "A clip goes through S0 to S3 and stops at the play card (`waiting_play_card`); the card answered, the next start goes on from S4 and finishes. Each stage is recorded once, with an event for starting and for finishing.",
+  "inputs": {
+    "user_context": {
+      "fixture": "sample_run/user_context.json"
+    },
+    "play_sheet": {
+      "fixture": "sample_run/play_sheet.json",
+      "merge_patch": {
+        "confirmed_by_user": false
+      }
+    },
+    "present": {
+      "value": []
+    },
+    "seed_held": {
+      "value": false
+    },
+    "rounds": {
+      "value": [
+        {},
+        {
+          "set_play_sheet": {
+            "confirmed_by_user": true
+          }
+        }
+      ]
+    }
+  },
+  "expected": {
+    "file": "expected/output.json"
+  }
+}

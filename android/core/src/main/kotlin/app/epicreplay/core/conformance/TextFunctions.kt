@@ -195,6 +195,7 @@ object TextFunctions {
                     put("blocks", AudioAnalysis.blockRms(y, sr).size)
                 }
             },
+            "flow.run" to { a -> app.epicreplay.core.run.FlowHarness.run(JsonObject(a), File(System.getProperty("shared.dir"))) },
             "audio.loudness" to { a ->
                 val (y, sr) = DrawnSignal.draw(a.getValue("recipe").jsonObject)
                 val ch = if (a.getValue("channels").jsonPrimitive.int == 1) listOf(y) else listOf(y, y)

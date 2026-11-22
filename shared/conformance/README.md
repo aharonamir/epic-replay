@@ -15,7 +15,7 @@ shared/conformance/<area>/<case>/expected/output.json   when the output is large
 
 | Key | Meaning |
 |---|---|
-| `area` | One of the eighteen areas below; the folder the case sits in |
+| `area` | One of the nineteen areas below; the folder the case sits in |
 | `function` | The rule under test, by the platform-neutral name in the table below |
 | `language` | `en`, `zh`, or `null` when the rule has no language |
 | `description` | What the case shows |
@@ -85,6 +85,7 @@ Compare the platform's output, as JSON, with the expected value: objects by key 
 | `mix.render` | `layers` (each with `kind`, `start`, `gain_db`, a signal `recipe`, `loop`, `channels`), `duration_s`, `windows` | S8's graph (`s8_mix.graph`, `normalise`) run by FFmpeg on the drawn layers: loudness, peak, length and the level in each window (dB); the phone's mixer matches it within 1 dB, not sample for sample | `stages.s8_mix` |
 | `compose.overlays` | `storyboard`, `script`, `pack`, `times` | the colours (accent, accent text, text on the accent) and, in drawing order, each overlay S10 draws: kind, words, window, fade and how much shows at each time | `stages.s10_compose.overlay_specs` |
 | `compose.landed` | `output`, `take`, `offset_s`, `planned_start_s` | where S10 finds a take in the finished audio: the best correlation within 0.5 s of the plan | `stages.s10_compose.landed` |
+| `flow.run` | `user_context`, `play_sheet`, `present` (files the folder holds), `seed_held`, `rounds` (each: `script` of what stages answer or `crash` before or after writing, `set_play_sheet`, `rerun`) | the real flow run with scripted stages over rounds of starts (a round after the first is a resume): for each round the status, the stages run, the manifest's records (stage, status, note), the events (stage, status) and the files left | `flow.runner.Run`, `rerun`, `held` |
 | `intake.check` | `files`: each `{name, size_bytes, info}`, `info` being a probe (`format.duration`, `streams` with `codec_type`) | for each the words for the page that refuse the upload, or `null`: the extension (`.mp4`, `.mov`, `.webm`, any case, the last dot), a size over 200 MiB, no video stream, a length outside 3 to 30 s with 0.05 s of slack (written to one decimal, half to even) | `stages.s0_intake.check` |
 | `intake.work_check` | `infos` | for each probe of the working copy the words that refuse it (no video stream; a length outside 3 to 30 s on what could be read), or `null` | `stages.s0_intake.check_work` |
 | `intake.capture_fps` | `streams` | the upload's own frame rate: the average, else the container's, else 30; to three places | `stages.s0_intake.capture_fps` |
@@ -116,6 +117,7 @@ The matching rules behind `lexicon.scan` and `checks.text` are written out in `s
 | `intake` | what is refused and why (extension, size, no video, the length with its slack, the words' rounding); the working copy's checks; the capture rate; the clip metadata; the working copy's size for 20 even or tall picture sizes (T420) |
 | `speech` | the request for English, timed, Mandarin, emoji, odd deliveries and long texts; the timings kept or not; the measures of a take with a breath at -26, -35.6 and -46 dB, with a room tail, a silent one, one shorter than a block, two words, and at 48 and 22.05 kHz (T422) |
 | `compose` | the loudness meter on steady, gated, loud and silent noise; the mix with voice, bed, one-shots and a stereo sting, a bed alone, one voice alone, a looped bed with its fades; the overlays of the three packs and a Mandarin one, with and without a headline or an end card; a take found on, before, after and beyond its plan, and near the end (T423) |
+| `flow` | a clip to the play card and on to done; a fixture seeding what it holds; a failed or stopped stage tried again on the next start; degraded stages going on; a stage that raises; a kill before and after a stage wrote its outputs; consent missing or of an old text; a flagged or unchecked clip stopping after the card; a re-run from a stage (T424) |
 
 ### The take's length after speeding up (`voice.place`)
 

@@ -1,0 +1,40 @@
+{
+  "area": "flow",
+  "function": "flow.run",
+  "language": null,
+  "description": "A stage that raises an exception ends the run `failed`, the note `RuntimeError: boom`.",
+  "inputs": {
+    "user_context": {
+      "fixture": "sample_run/user_context.json"
+    },
+    "play_sheet": {
+      "fixture": "sample_run/play_sheet.json"
+    },
+    "present": {
+      "value": [
+        "clip_meta.json",
+        "work.mp4",
+        "play_sheet.json",
+        "storyboard.json",
+        "script.json"
+      ]
+    },
+    "seed_held": {
+      "value": true
+    },
+    "rounds": {
+      "value": [
+        {
+          "script": {
+            "S10": {
+              "raises": "boom"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "expected": {
+    "file": "expected/output.json"
+  }
+}

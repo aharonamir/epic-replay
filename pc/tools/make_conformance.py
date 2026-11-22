@@ -1922,7 +1922,7 @@ def speech_cases() -> dict[str, dict]:
 
 def all_cases() -> dict[str, dict]:
     out = {}
-    for make in (storyboard_cases, slots_cases, checks_cases, lexicon_cases, units_cases, cells_cases, cell_layout_cases, backend_cases, budget_cases, consent_cases, signals_cases, checks_more_cases, voice_cases, mix_cases, visuals_cases, spotter_cases, commentator_cases, intake_cases, speech_cases, compose_cases):  # fmt: skip
+    for make in (storyboard_cases, slots_cases, checks_cases, lexicon_cases, units_cases, cells_cases, cell_layout_cases, backend_cases, budget_cases, consent_cases, signals_cases, checks_more_cases, voice_cases, mix_cases, visuals_cases, spotter_cases, commentator_cases, intake_cases, speech_cases, compose_cases, flow_cases):  # fmt: skip
         for name, case in make().items():
             out[f"{case['area']}/{name}"] = case
     return out
@@ -2156,6 +2156,119 @@ def compose_cases() -> dict[str, dict]:
             },
             0.0005,
         )
+    return out
+
+
+def flow_cases() -> dict[str, dict]:
+    """Added in T424: what the flow does with a run folder and on the next start (flow/runner.py), the real `Run` driven with scripted stages."""
+
+    def case(desc, rounds, present=(), seed_held=False, uc=None, ps_patch=None, ps=True):
+        ucref = {"fixture": "sample_run/user_context.json"}
+        if uc is not None:
+            ucref["merge_patch"] = uc
+        psref = {"fixture": "sample_run/play_sheet.json"}
+        if ps_patch is not None:
+            psref["merge_patch"] = ps_patch
+        return {
+            "area": "flow", "function": "flow.run", "language": None, "description": desc,
+            "inputs": {"user_context": ucref, "play_sheet": psref if ps else value(None), "present": value(list(present)),
+                       "seed_held": value(seed_held), "rounds": value(rounds)},
+        }  # fmt: skip
+
+    unconfirmed = {"confirmed_by_user": False}
+    fixture_files = [
+        "clip_meta.json",
+        "work.mp4",
+        "play_sheet.json",
+        "storyboard.json",
+        "script.json",
+    ]
+    confirm = {"set_play_sheet": {"confirmed_by_user": True}}
+    out = {}
+    out["from_a_clip_to_done"] = case(
+        "A clip goes through S0 to S3 and stops at the play card (`waiting_play_card`); the card answered, the next start goes on from S4 and finishes. Each stage is recorded once, with an event for starting and for finishing.",
+        [{}, confirm], ps_patch=unconfirmed)  # fmt: skip
+    out["a_fixture_seeds_what_it_holds"] = case(
+        "A folder holding the outputs of S0, S3 (and so S1, S2), the card, S4 and S5 records them as seeded and runs S9, S6, S7, S8 and S10.",
+        [{}],
+        present=fixture_files,
+        seed_held=True,
+    )
+    out["a_failed_stage_runs_again_on_the_next_start"] = case(
+        "S7 fails: the run ends `failed` with its note; the next start does not repeat the stages that were done and tries S7 again (a stage that was tried and failed runs again whatever it left behind).",
+        [{"script": {"S7": {"status": "failed", "note": "The voice could not be made"}}}, {}],
+        present=fixture_files,
+        seed_held=True,
+    )
+    out["degraded_goes_on"] = case(
+        "A stage that ends `degraded` lets the flow go on, and is recorded as degraded with its note.",
+        [
+            {
+                "script": {
+                    "S6": {"status": "degraded", "note": "one line rewritten"},
+                    "S8": {"status": "degraded", "note": "measured -12.9 LUFS"},
+                }
+            }
+        ],
+        present=fixture_files,
+        seed_held=True,
+    )
+    out["a_stopped_stage_ends_the_run"] = case(
+        "S9 stops: the run ends `stopped` with the note, nothing after S9 runs, and the next start tries S9 again.",
+        [{"script": {"S9": {"status": "stopped", "note": "cancelled"}}}, {}],
+        present=fixture_files,
+        seed_held=True,
+    )
+    out["a_stage_that_raises_fails_the_run_with_its_reason"] = case(
+        "A stage that raises an exception ends the run `failed`, the note `RuntimeError: boom`.",
+        [{"script": {"S10": {"raises": "boom"}}}],
+        present=fixture_files,
+        seed_held=True,
+    )
+    out["killed_before_a_stage_wrote_anything"] = case(
+        "The process dies in S8 before it wrote: no record for S8 and no output; the next start runs S8 and S10.",
+        [{"script": {"S8": {"crash": "before"}}}, {}],
+        present=fixture_files,
+        seed_held=True,
+    )
+    out["killed_after_a_stage_wrote_its_outputs"] = case(
+        "The process dies in S8 after it wrote its outputs and before it was recorded: the next start records S8 as seeded (its output was already there) and runs S10.",
+        [{"script": {"S8": {"crash": "after"}}}, {}],
+        present=fixture_files,
+        seed_held=True,
+    )
+    out["consent_is_checked_before_s2"] = case(
+        "A run without consent runs S0 and S1 and stops at S2 with its note; the stage is recorded `stopped`.",
+        [{}],
+        uc={"consent": None},
+        ps_patch=unconfirmed,
+    )
+    out["consent_of_an_old_text_is_not_consent"] = case(
+        "A consent given to an earlier text version stops the run at S2.",
+        [{}],
+        uc={"consent": {"text_version": "3"}},
+        ps_patch=unconfirmed,
+    )
+    out["a_flagged_clip_stops_after_the_card"] = case(
+        "A play sheet flagged sensitive stops the run at the first stage after the card, whatever path led there; the note names the reason.",
+        [{}],
+        present=fixture_files,
+        seed_held=True,
+        ps_patch={"sensitive": {"flag": True, "reason": "someone may be hurt"}},
+    )
+    out["a_clip_nobody_checked_stops_after_the_card"] = case(
+        "A play sheet whose sensitivity could not be checked, and which nobody answered for, stops the run after the card.",
+        [{}],
+        present=fixture_files,
+        seed_held=True,
+        ps_patch={"sensitive": {"flag": False, "reason": None, "checked": False}},
+    )
+    out["rerun_from_a_stage"] = case(
+        "A finished run re-run from S5: the outputs of S5 and the stages after it are deleted and forgotten, S0 to S9 are kept; the next start runs S5, S6, S7, S8 and S10.",
+        [{}, {"rerun": "S5"}],
+        present=fixture_files,
+        seed_held=True,
+    )
     return out
 
 

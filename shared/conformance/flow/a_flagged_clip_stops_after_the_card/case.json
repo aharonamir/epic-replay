@@ -1,0 +1,88 @@
+{
+  "area": "flow",
+  "function": "flow.run",
+  "language": null,
+  "description": "A play sheet flagged sensitive stops the run at the first stage after the card, whatever path led there; the note names the reason.",
+  "inputs": {
+    "user_context": {
+      "fixture": "sample_run/user_context.json"
+    },
+    "play_sheet": {
+      "fixture": "sample_run/play_sheet.json",
+      "merge_patch": {
+        "sensitive": {
+          "flag": true,
+          "reason": "someone may be hurt"
+        }
+      }
+    },
+    "present": {
+      "value": [
+        "clip_meta.json",
+        "work.mp4",
+        "play_sheet.json",
+        "storyboard.json",
+        "script.json"
+      ]
+    },
+    "seed_held": {
+      "value": true
+    },
+    "rounds": {
+      "value": [
+        {}
+      ]
+    }
+  },
+  "expected": {
+    "value": {
+      "rounds": [
+        {
+          "status": "stopped",
+          "ran": [],
+          "stages": [
+            [
+              "S0",
+              "seeded",
+              ""
+            ],
+            [
+              "S1",
+              "seeded",
+              ""
+            ],
+            [
+              "S2",
+              "seeded",
+              ""
+            ],
+            [
+              "S3",
+              "seeded",
+              ""
+            ],
+            [
+              "A",
+              "seeded",
+              ""
+            ],
+            [
+              "S4",
+              "stopped",
+              "sensitive: someone may be hurt"
+            ]
+          ],
+          "events": [],
+          "files": [
+            "clip_meta.json",
+            "play_sheet.json",
+            "script.json",
+            "storyboard.json",
+            "user_context.json",
+            "work.mp4"
+          ]
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "area": "flow",
+  "function": "flow.run",
+  "language": null,
+  "description": "The process dies in S8 before it wrote: no record for S8 and no output; the next start runs S8 and S10.",
+  "inputs": {
+    "user_context": {
+      "fixture": "sample_run/user_context.json"
+    },
+    "play_sheet": {
+      "fixture": "sample_run/play_sheet.json"
+    },
+    "present": {
+      "value": [
+        "clip_meta.json",
+        "work.mp4",
+        "play_sheet.json",
+        "storyboard.json",
+        "script.json"
+      ]
+    },
+    "seed_held": {
+      "value": true
+    },
+    "rounds": {
+      "value": [
+        {
+          "script": {
+            "S8": {
+              "crash": "before"
+            }
+          }
+        },
+        {}
+      ]
+    }
+  },
+  "expected": {
+    "file": "expected/output.json"
+  }
+}

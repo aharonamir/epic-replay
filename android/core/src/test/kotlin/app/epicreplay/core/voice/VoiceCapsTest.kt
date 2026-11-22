@@ -10,6 +10,7 @@ import app.epicreplay.core.budget.paidCall
 import app.epicreplay.core.net.HttpRequest
 import app.epicreplay.core.net.HttpResponse
 import app.epicreplay.core.net.HttpTransport
+import app.epicreplay.core.secrets.Secret
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -32,7 +33,7 @@ class VoiceCapsTest {
     }
 
     private fun ledger(run: Double, day: Double = 20.0) = Ledger(InMemoryLedgerStorage(), Caps(runUsd = run, dayUsd = day, preCheckpointUsd = 5.0), today = { "2026-11-21" }, now = { "t" })
-    private fun speech(t: FakeEleven, l: Ledger) = SpeechAdapter(t, { "k" }, "eleven_v3", { Pcm(FloatArray(4800), 48000) }, l, null, "run")
+    private fun speech(t: FakeEleven, l: Ledger) = SpeechAdapter(t, { Secret("k") }, "eleven_v3", { Pcm(FloatArray(4800), 48000) }, l, null, "run")
 
     @Test
     fun aVoiceCallThatWouldGoOverTheRunCapIsNotSent(): Unit = runBlocking {
@@ -76,10 +77,10 @@ class VoiceCapsTest {
         val timing = object : HttpTransport {
             override suspend fun send(request: HttpRequest, profileId: String): HttpResponse = throw app.epicreplay.core.models.ModelError.Timeout(profileId, "took too long")
         }
-        assertFailsWith<app.epicreplay.core.models.ModelError.Timeout> { SpeechAdapter(timing, { "k" }, "eleven_v3", { error("") }, l, null, "run").synthesise("x".repeat(26), "v", "x", "en", false) }
+        assertFailsWith<app.epicreplay.core.models.ModelError.Timeout> { SpeechAdapter(timing, { Secret("k") }, "eleven_v3", { error("") }, l, null, "run").synthesise("x".repeat(26), "v", "x", "en", false) }
         assertEquals(0.003, l.runTotal("run"), 1e-9) // it may have been billed
         val failing = object : HttpTransport { override suspend fun send(request: HttpRequest, profileId: String) = HttpResponse(500, "boom".toByteArray()) }
-        assertFailsWith<SpeechError> { SpeechAdapter(failing, { "k" }, "eleven_v3", { error("") }, l, null, "run").synthesise("y".repeat(26), "v", "x", "en", false) }
+        assertFailsWith<SpeechError> { SpeechAdapter(failing, { Secret("k") }, "eleven_v3", { error("") }, l, null, "run").synthesise("y".repeat(26), "v", "x", "en", false) }
         assertEquals(0.003, l.runTotal("run"), 1e-9) // an error answer was not billed
         assertTrue(l.inFlight().isEmpty())
         assertFailsWith<SpeechError> { SpeechAdapter(failing, { null }, "eleven_v3", { error("") }, l, null, "run").synthesise("z", "v", "x", "en", false) } // no key: nothing is sent, nothing is kept
