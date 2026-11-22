@@ -30,6 +30,7 @@ class AndroidMixAudio(private val assets: AssetManager, private val runDir: File
     private fun wav(bytes: ByteArray, name: String): List<FloatArray> {
         val (channels, r) = Wav.readChannels(bytes)
         require(r == rate) { "$name is at $r Hz, the mix is at $rate Hz" }
+        require(channels.size <= 2) { "$name has ${channels.size} channels; a sound of the pack is mono or stereo" }
         return channels
     }
 
