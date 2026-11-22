@@ -2480,7 +2480,7 @@ def ui_cases() -> dict[str, dict]:
         manifest(
             [
                 *ok("S0", "S1", "S2", "S3", "A", "S4", "S9"),
-                stage("S5", "degraded", 9.0, note="generic lines for l2"),
+                stage("S5", "degraded", 9.0, cost=0.0042, note="generic lines for l2"),
             ]
         ),
     )
@@ -2577,7 +2577,7 @@ def ui_cases() -> dict[str, dict]:
     )
     out["state_a_zero_total_is_not_a_total"] = case(
         "A manifest total of 0 (a run that was cut off before its total was written) falls back to the sum of the stages' costs, as `total or sum`.",
-        manifest([stage("S2", cost=0.0123), stage("S5", cost=0.0301)], total=0.0),
+        manifest([stage("S2", cost=0.0111), stage("S5", cost=0.0222)], total=0.0),
         files=(),
     )
     return out

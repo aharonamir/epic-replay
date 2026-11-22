@@ -17,7 +17,7 @@
             "status": "ok",
             "started_at": "2026-11-22T10:00:00Z",
             "duration_s": 1.0,
-            "cost_usd": 0.0123,
+            "cost_usd": 0.0111,
             "note": ""
           },
           {
@@ -25,7 +25,7 @@
             "status": "ok",
             "started_at": "2026-11-22T10:00:00Z",
             "duration_s": 1.0,
-            "cost_usd": 0.0301,
+            "cost_usd": 0.0222,
             "note": ""
           }
         ],

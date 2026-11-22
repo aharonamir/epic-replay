@@ -43,7 +43,14 @@ import kotlinx.serialization.json.JsonObject
  * [mode] is the provider mode: `LIVE` calls the providers, `RECORD` also keeps the answers, `REPLAY` answers only from recordings (no network).
  */
 @UnstableApi
-class RunLauncher(private val graph: AppGraph, private val context: Context, private val mode: ProviderMode = ProviderMode.LIVE, private val recordings: File? = null, private val chosen: ModelsUsed? = null) {
+class RunLauncher(private val graph: AppGraph, private val context: Context, private val mode: ProviderMode = ProviderMode.LIVE, private val recordings: File? = null, private val chosen: ModelsUsed? = null,
+    /** The backend for a profile (the app's own by default; a test gives scripted ones). */
+    private val backendFor: (Profile, Role) -> app.epicreplay.core.models.ModelBackend = graph::backendFor,
+    /** The voice (ElevenLabs with the user's key by default; a test gives a fake). */
+    private val speechFor: ((File) -> Speech)? = null,
+    /** The ledger of the caps (the app's own by default). */
+    private val ledger: app.epicreplay.core.budget.Ledger = graph.ledger,
+) {
     private val assets = context.assets
     private fun text(path: String) = assets.open(path).bufferedReader().use { it.readText() }
     private val shared: File by lazy { SharedFiles.extract(assets, File(context.filesDir, "shared"), context.packageManager.getPackageInfo(context.packageName, 0).longVersionCode) }
@@ -83,19 +90,19 @@ class RunLauncher(private val graph: AppGraph, private val context: Context, pri
                 val estimate = (v as? ServerProfile)?.callCeilingUsd ?: 0.0
                 val meta = app.epicreplay.core.run.RunFiles.read(File(run, "clip_meta.json"))!!
                 val renderer = ClipSheetRenderer(File(run, "work.mp4").path, (meta["fps"] as? kotlinx.serialization.json.JsonPrimitive)?.content?.toDoubleOrNull() ?: 30.0)
-                FlowStages.SpotterHandle(SpotterRun(spotter, VisionAdapter(graph.backendFor(v, Role.VISION), modelName(v), spotterWords.retryLine, estimate, graph.ledger, recorder, run.name), spotterWords, renderer), renderer)
+                FlowStages.SpotterHandle(SpotterRun(spotter, VisionAdapter(backendFor(v, Role.VISION), modelName(v), spotterWords.retryLine, estimate, ledger, recorder, run.name), spotterWords, renderer), renderer)
             },
-            commentatorLoop = { run -> models?.text?.let { t -> CommentatorRun(commentator, graph.backendFor(t, Role.TEXT), words, modelName(t), graph.ledger, recorder, run.name) } },
-            speech = { voice(dir, apiKey) },
+            commentatorLoop = { run -> models?.text?.let { t -> CommentatorRun(commentator, backendFor(t, Role.TEXT), words, modelName(t), ledger, recorder, run.name) } },
+            speech = { speechFor?.invoke(dir) ?: voice(dir, apiKey) },
         )
         return RunFlow(
             dir, PhoneStages.all(env) { run -> AndroidMixAudio(assets, run, rules.sampleRate) }, { uc -> consentCovers(uc, models) }, PhoneStages.stack(models, mode.name.lowercase()),
-            spentUsd = { graph.ledger.runTotal(dir.name) },
+            spentUsd = { ledger.runTotal(dir.name) },
         )
     }
 
     private fun voice(dir: File, apiKey: () -> app.epicreplay.core.secrets.Secret?): Speech = SpeechAdapter(
-        app.epicreplay.core.net.JavaHttpTransport(), apiKey, ELEVEN_MODEL, AndroidAudioConverter(context.cacheDir), graph.ledger, recorder, dir.name,
+        app.epicreplay.core.net.JavaHttpTransport(), apiKey, ELEVEN_MODEL, AndroidAudioConverter(context.cacheDir), ledger, recorder, dir.name,
     )
 
     companion object { const val ELEVEN_MODEL = "eleven_v3" }

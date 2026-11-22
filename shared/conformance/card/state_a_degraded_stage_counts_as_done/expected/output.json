@@ -2,7 +2,7 @@
   "status": "running",
   "style": "football_commentator",
   "language": "en",
-  "cost_usd": 0.0,
+  "cost_usd": 0.0042,
   "steps": [
     {
       "n": 1,
@@ -37,7 +37,7 @@
       "name": "Writing the call",
       "status": "running",
       "duration_s": null,
-      "cost_usd": 0.0
+      "cost_usd": 0.0042
     },
     {
       "n": 6,

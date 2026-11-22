@@ -27,6 +27,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role as SemanticsRole
 import androidx.compose.ui.unit.dp
 import app.epicreplay.core.download.DownloadStatus
@@ -58,7 +59,7 @@ class FirstRunActions(
  * the one-question check. Nothing here sends anything; a call is made only by [FirstRunActions.ask], after Ready.
  */
 @Composable
-fun FirstRunScreen(controller: SetupController, keys: KeysController, actions: FirstRunActions, modifier: Modifier = Modifier) {
+fun FirstRunScreen(controller: SetupController, keys: KeysController, actions: FirstRunActions, modifier: Modifier = Modifier, onContinue: (() -> Unit)? = null) {
     var tick by remember { mutableIntStateOf(0) } // bumped whenever something the step depends on changed
     var changing by remember { mutableStateOf(false) }
     val step = remember(tick) { controller.step() }
@@ -77,7 +78,7 @@ fun FirstRunScreen(controller: SetupController, keys: KeysController, actions: F
                 }
                 is SetupStep.NeedsDownload -> DownloadPart(step, actions) { tick++ }
                 is SetupStep.NeedsConsent -> ConsentPart(step) { controller.confirmConsent(); tick++ }
-                is SetupStep.Ready -> ReadyPart(actions)
+                is SetupStep.Ready -> ReadyPart(actions, onContinue)
             }
         }
     }
@@ -158,11 +159,13 @@ private fun ConsentPart(step: SetupStep.NeedsConsent, onConfirm: () -> Unit) {
 }
 
 @Composable
-private fun ReadyPart(actions: FirstRunActions) {
+private fun ReadyPart(actions: FirstRunActions, onContinue: (() -> Unit)?) {
     val scope = rememberCoroutineScope()
     var running by remember { mutableStateOf(false) }
     var answers by remember { mutableStateOf<Map<Role, String>>(emptyMap()) }
-    Text("Everything is set. Try both models with one question.")
+    Text("Everything is set.")
+    if (onContinue != null) Button(onClick = onContinue, modifier = Modifier.fillMaxWidth().testTag("continue")) { Text("Make a replay") }
+    Text("Or try both models with one question first.")
     Button(enabled = !running, onClick = {
         running = true; answers = emptyMap()
         scope.launch {

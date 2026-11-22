@@ -15,7 +15,7 @@ shared/conformance/<area>/<case>/expected/output.json   when the output is large
 
 | Key | Meaning |
 |---|---|
-| `area` | One of the nineteen areas below; the folder the case sits in |
+| `area` | One of the twenty areas below; the folder the case sits in |
 | `function` | The rule under test, by the platform-neutral name in the table below |
 | `language` | `en`, `zh`, or `null` when the rule has no language |
 | `description` | What the case shows |
@@ -86,6 +86,10 @@ Compare the platform's output, as JSON, with the expected value: objects by key 
 | `compose.overlays` | `storyboard`, `script`, `pack`, `times` | the colours (accent, accent text, text on the accent) and, in drawing order, each overlay S10 draws: kind, words, window, fade and how much shows at each time | `stages.s10_compose.overlay_specs` |
 | `compose.landed` | `output`, `take`, `offset_s`, `planned_start_s` | where S10 finds a take in the finished audio: the best correlation within 0.5 s of the plan | `stages.s10_compose.landed` |
 | `flow.run` | `user_context`, `play_sheet`, `present` (files the folder holds), `seed_held`, `rounds` (each: `script` of what stages answer or `crash` before or after writing, `set_play_sheet`, `rerun`) | the real flow run with scripted stages over rounds of starts (a round after the first is a resume): for each round the status, the stages run, the manifest's records (stage, status, note), the events (stage, status) and the files left | `flow.runner.Run`, `rerun`, `held` |
+| `card.answer` | `play_sheet`, `user_context`, `clip_meta`, `frame`, `edits`, `context`, `generic` | the play card's answer applied (`flow.runner.answer`): the key moment as the user's, events kept or removed, the sentences edited, the followed actor, the context, generic mode; or `{error}` with the reason, nothing written | `flow.runner.answer` |
+| `card.items` | `play_sheet` | the events the card asks about (the model's, below 0.7) and the event that holds the key moment | `runner.to_check`, `nearest_event` |
+| `card.rest_cost` | `clip_meta`, `pack` | the cost of the rest of the run the card shows | `runner.rest_cost_usd` |
+| `ui.state` | `manifest`, `typical` (median seconds by stage), `files` | what the progress screen shows (`web.app.state`): status, the eight steps (status, seconds, cost), step number, time left in words, the message of a stopped run | `web.app.state` |
 | `intake.check` | `files`: each `{name, size_bytes, info}`, `info` being a probe (`format.duration`, `streams` with `codec_type`) | for each the words for the page that refuse the upload, or `null`: the extension (`.mp4`, `.mov`, `.webm`, any case, the last dot), a size over 200 MiB, no video stream, a length outside 3 to 30 s with 0.05 s of slack (written to one decimal, half to even) | `stages.s0_intake.check` |
 | `intake.work_check` | `infos` | for each probe of the working copy the words that refuse it (no video stream; a length outside 3 to 30 s on what could be read), or `null` | `stages.s0_intake.check_work` |
 | `intake.capture_fps` | `streams` | the upload's own frame rate: the average, else the container's, else 30; to three places | `stages.s0_intake.capture_fps` |
@@ -118,6 +122,7 @@ The matching rules behind `lexicon.scan` and `checks.text` are written out in `s
 | `speech` | the request for English, timed, Mandarin, emoji, odd deliveries and long texts; the timings kept or not; the measures of a take with a breath at -26, -35.6 and -46 dB, with a room tail, a silent one, one shorter than a block, two words, and at 48 and 22.05 kHz (T422) |
 | `compose` | the loudness meter on steady, gated, loud and silent noise; the mix with voice, bed, one-shots and a stereo sting, a bed alone, one voice alone, a looped bed with its fades; the overlays of the three packs and a Mandarin one, with and without a headline or an end card; a take found on, before, after and beyond its plan, and near the end (T423) |
 | `flow` | a clip to the play card and on to done; a fixture seeding what it holds; a failed or stopped stage tried again on the next start; degraded stages going on; a stage that raises; a kill before and after a stage wrote its outputs; consent missing or of an old text; a flagged or unchecked clip stopping after the card; a re-run from a stage (T424) |
+| `card` | the key moment alone, out of range, negative; events kept and removed; removing the key moment's event; every event removed; unknown events and actors; the sentences edited and refused; context fields; generic mode; the events to check; the cost of the rest in three packs; the progress state of a run just started, at the card, after the answer, degraded, seeded, done, failed and stopped in each of the ways, and the time-left wordings (T425) |
 
 ### The take's length after speeding up (`voice.place`)
 
