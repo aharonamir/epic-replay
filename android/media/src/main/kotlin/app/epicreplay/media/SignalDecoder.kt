@@ -155,11 +155,20 @@ object SignalDecoder {
         return Pcm(resample(mono, r.rate, targetRate), Math.max(0L, r.firstPts))
     }
 
-    /** The first audio track with its channels kept apart (one or two; more are cut to the first two) at [targetRate], or null when there is none. */
+    /**
+     * The first audio track as one channel (mono) or two (stereo) at [targetRate], or null when there is none. More than two channels are mixed down: 5.1 as FFmpeg's
+     * default does (the front pair, the centre and the back pair at 0.707 each, the effects channel left out, the sum scaled so it cannot clip); any other count as the average of all.
+     */
     fun decodeChannels(path: String, targetRate: Int): List<FloatArray>? {
         val r = decodeRaw(path) ?: return null
-        val keep = minOf(2, r.channels)
-        return List(keep) { c -> resample(FloatArray(r.interleaved.size / r.channels) { n -> r.interleaved[n * r.channels + c] / 32768f }, r.rate, targetRate) }
+        val n = r.interleaved.size / r.channels
+        fun ch(c: Int, i: Int) = r.interleaved[i * r.channels + c] / 32768f
+        val out: List<FloatArray> = when {
+            r.channels <= 2 -> List(r.channels) { c -> FloatArray(n) { ch(c, it) } }
+            r.channels == 6 -> { val k = 0.7071068f; val norm = 1f / (1f + 2 * k); listOf(FloatArray(n) { (ch(0, it) + k * ch(2, it) + k * ch(4, it)) * norm }, FloatArray(n) { (ch(1, it) + k * ch(2, it) + k * ch(5, it)) * norm }) }
+            else -> { val m = FloatArray(n) { i -> var s = 0f; for (c in 0 until r.channels) s += ch(c, i); s / r.channels }; listOf(m, m.copyOf()) }
+        }
+        return out.map { resample(it, r.rate, targetRate) }
     }
 
     /** Linear resampling to [target]. */
