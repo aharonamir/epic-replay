@@ -49,3 +49,39 @@ def rest_cost(clip_meta: dict, pack: dict) -> float:
         config.load(), text_profile="deepseek-flash", vision_profile="deepseek-flash"
     )
     return runner.rest_cost_usd(clip_meta, pack, settings)
+
+
+def state(manifest: dict, typical: dict, files: list[str]) -> dict:
+    """`web.app.state` of a run folder holding `manifest.json` and `files`: the status, the eight steps, the time left and the message of a stopped run (what the progress screen shows)."""
+    from epic_replay.web import app
+
+    with tempfile.TemporaryDirectory() as tmp:
+        d = Path(tmp) / "r_test"
+        d.mkdir()
+        (d / "manifest.json").write_text(json.dumps(manifest))
+        for f in files:
+            (d / f).write_text("{}")
+        old_typical, old_live = app.typical_s, set(app.LIVE)
+        app.typical_s = lambda: typical
+        app.LIVE.add(d.name)  # a run being worked on in this process is never shown as stale
+        try:
+            s = app.state(d.name, d)
+        finally:
+            app.typical_s = old_typical
+            app.LIVE.clear()
+            app.LIVE.update(old_live)
+    return {
+        k: s[k]
+        for k in (
+            "status",
+            "style",
+            "language",
+            "cost_usd",
+            "steps",
+            "step_n",
+            "time_left",
+            "message",
+            "has_clip",
+            "has_video",
+        )
+    }

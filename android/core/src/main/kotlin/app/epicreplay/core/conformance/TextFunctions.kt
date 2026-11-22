@@ -212,6 +212,12 @@ object TextFunctions {
                 val loaded = app.epicreplay.core.models.ProfileLoader(File(shared, "contracts/model_profile.schema.json").readText(), app.epicreplay.core.models.Platform.PC).load(files)
                 JsonPrimitive(app.epicreplay.core.card.PlayCard.restCostUsd(a.getValue("clip_meta").jsonObject, a.getValue("pack").jsonObject, loaded.profiles.getValue("deepseek-flash")))
             },
+            "ui.state" to { a ->
+                val shared = File(System.getProperty("shared.dir"))
+                val files = a.getValue("files").jsonArray.map { it.jsonPrimitive.content }.toSet()
+                val typical = a.getValue("typical").jsonObject.mapValues { it.value.jsonPrimitive.double }
+                app.epicreplay.core.ui.RunState.of(a.getValue("manifest").jsonObject, typical, app.epicreplay.core.ui.PageWords.load(shared), "clip_meta.json" in files, "final.mp4" in files).toJson()
+            },
             "audio.loudness" to { a ->
                 val (y, sr) = DrawnSignal.draw(a.getValue("recipe").jsonObject)
                 val ch = if (a.getValue("channels").jsonPrimitive.int == 1) listOf(y) else listOf(y, y)

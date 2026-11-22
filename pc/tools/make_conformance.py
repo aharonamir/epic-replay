@@ -1922,7 +1922,7 @@ def speech_cases() -> dict[str, dict]:
 
 def all_cases() -> dict[str, dict]:
     out = {}
-    for make in (storyboard_cases, slots_cases, checks_cases, lexicon_cases, units_cases, cells_cases, cell_layout_cases, backend_cases, budget_cases, consent_cases, signals_cases, checks_more_cases, voice_cases, mix_cases, visuals_cases, spotter_cases, commentator_cases, intake_cases, speech_cases, compose_cases, flow_cases, card_cases):  # fmt: skip
+    for make in (storyboard_cases, slots_cases, checks_cases, lexicon_cases, units_cases, cells_cases, cell_layout_cases, backend_cases, budget_cases, consent_cases, signals_cases, checks_more_cases, voice_cases, mix_cases, visuals_cases, spotter_cases, commentator_cases, intake_cases, speech_cases, compose_cases, flow_cases, card_cases, ui_cases):  # fmt: skip
         for name, case in make().items():
             out[f"{case['area']}/{name}"] = case
     return out
@@ -2404,6 +2404,181 @@ def card_cases() -> dict[str, dict]:
     )
     out["rest_cost_of_another_pack"] = cost(
         "The voice's words a second differ by pack.", "nature_documentary", "en"
+    )
+    return out
+
+
+def ui_cases() -> dict[str, dict]:
+    """Added in T425: what the progress screen shows for a manifest (web/app.py `state`): the eight steps, the time left, the message of a stopped run."""
+
+    def stage(name, status="ok", duration=1.0, cost=0.0, note=""):
+        return {
+            "stage": name,
+            "status": status,
+            "started_at": "2026-11-22T10:00:00Z",
+            "duration_s": duration,
+            "cost_usd": cost,
+            "note": note,
+        }
+
+    def manifest(stages, status="running", total=None):
+        return {
+            "run_id": "r_test",
+            "created_at": "2026-11-22T10:00:00Z",
+            "status": status,
+            "style": "football_commentator",
+            "language": "en",
+            "stages": stages,
+            "total_usd": total,
+        }
+
+    typical = {
+        "S0": 2.0,
+        "S1": 3.0,
+        "S2": 10.0,
+        "S3": 6.0,
+        "S4": 1.0,
+        "S9": 14.0,
+        "S5": 12.0,
+        "S6": 1.0,
+        "S7": 5.0,
+        "S8": 3.0,
+        "S10": 9.0,
+    }
+
+    def case(desc, m, files=("clip_meta.json",), typ=None):
+        return {"area": "card", "function": "ui.state", "language": None, "description": desc,
+                "inputs": {"manifest": value(m), "typical": value(typical if typ is None else typ), "files": value(list(files))}}  # fmt: skip
+
+    ok = lambda *names: [stage(n, duration=2.0) for n in names]  # noqa: E731
+    out = {}
+    out["state_a_run_just_started"] = case(
+        "A run with nothing done: every step waits, step 1 of 8, the whole of the typical time left (about a minute).",
+        manifest([]),
+        files=(),
+    )
+    out["state_the_first_stages_done"] = case(
+        "S0 and S1 done: step 1 is done with its seconds (the two summed and rounded), step 2 runs.",
+        manifest(ok("S0", "S1")),
+    )
+    out["state_at_the_play_card"] = case(
+        "At the card the run waits for the user: step 4 is `waiting_user`, the three before it are done.",
+        manifest(
+            [
+                *ok("S0", "S1", "S2", "S3"),
+                stage("A", "waiting", 0.0, note="waiting for the play card"),
+            ],
+            status="waiting_play_card",
+        ),
+    )
+    out["state_the_card_answered"] = case(
+        "After the answer step 4 is done (its name changes to what the user confirmed) and shows no seconds; step 5 has begun.",
+        manifest([*ok("S0", "S1", "S2", "S3"), stage("A", "ok", 0.0), stage("S4", duration=1.0)]),
+    )
+    out["state_a_degraded_stage_counts_as_done"] = case(
+        "A degraded stage (a fallback was used) is done; the step still shows its seconds.",
+        manifest(
+            [
+                *ok("S0", "S1", "S2", "S3", "A", "S4", "S9"),
+                stage("S5", "degraded", 9.0, note="generic lines for l2"),
+            ]
+        ),
+    )
+    out["state_seeded_stages_are_done"] = case(
+        "Seeded stages (a fixture, or an output that was already there) are done.",
+        manifest(
+            [
+                stage("S0", "seeded", 0.0),
+                stage("S1", "seeded", 0.0),
+                stage("S2", "seeded", 0.0),
+                stage("S3", "seeded", 0.0),
+                stage("A", "seeded", 0.0),
+            ]
+        ),
+    )
+    out["state_done"] = case(
+        "A finished run: all eight steps done, step 8 of 8, no time left (a few seconds), the video and the clip present, the cost the manifest's total.",
+        manifest(
+            ok("S0", "S1", "S2", "S3", "A", "S4", "S9", "S5", "S6", "S7", "S8", "S10"),
+            status="done",
+            total=0.0412,
+        ),
+        files=("clip_meta.json", "final.mp4"),
+    )
+    out["state_time_left_wordings"] = case(
+        "The time left is the sum of the typical durations of the stages not done, read in three wordings: under 10 s, under 45 s, else.",
+        manifest([*ok("S0", "S1", "S2", "S3", "A", "S4", "S9", "S5", "S6", "S7", "S8")]),
+        typ={"S10": 8.0},
+    )
+    out["state_time_left_half_a_minute"] = case(
+        "Thirty seconds of typical work left: about half a minute.",
+        manifest([*ok("S0", "S1", "S2", "S3", "A", "S4", "S9")]),
+        typ={"S5": 12.0, "S6": 1.0, "S7": 5.0, "S8": 3.0, "S10": 9.0},
+    )
+    out["state_failed_names_the_step"] = case(
+        "A failed stage: the step is `failed`, and the message names the step in lower case, never the stage's own note.",
+        manifest(
+            [
+                *ok("S0", "S1", "S2", "S3", "A", "S4"),
+                stage("S9", "failed", 3.0, note="Invalid Nal units from the muxer"),
+            ],
+            status="failed",
+        ),
+    )
+    out["state_stopped_for_a_sensitive_clip"] = case(
+        "A clip flagged at S3 stops the run with the reason, without its final full stop.",
+        manifest(
+            [
+                *ok("S0", "S1", "S2"),
+                stage("S3", "stopped", 1.0, note="sensitive: someone may be hurt or upset."),
+            ],
+            status="stopped",
+        ),
+    )
+    out["state_stopped_by_the_cap"] = case(
+        "A call that would go over a cap stops the run with the limit message.",
+        manifest(
+            [
+                *ok("S0", "S1", "S2", "S3", "A", "S4"),
+                stage("S5", "stopped", 1.0, note="the run cap would be exceeded"),
+            ],
+            status="stopped",
+        ),
+    )
+    out["state_stopped_at_the_card"] = case(
+        "`Stop here` at the card: its own message.",
+        manifest(
+            [
+                *ok("S0", "S1", "S2", "S3"),
+                stage("A", "stopped", 0.0, note="stopped at the play card"),
+            ],
+            status="stopped",
+        ),
+    )
+    out["state_an_upload_refused_says_why"] = case(
+        "S0's note is written for the user: the reason the clip was refused is the message.",
+        manifest(
+            [
+                stage(
+                    "S0",
+                    "failed",
+                    0.1,
+                    note="That clip is 42 seconds long. We need 3 to 30 seconds.",
+                )
+            ],
+            status="failed",
+        ),
+        files=(),
+    )
+    out["state_the_cost_is_the_sum_when_there_is_no_total"] = case(
+        "With no total in the manifest the cost is the sum of the stages' costs.",
+        manifest([stage("S2", cost=0.0123), stage("S5", cost=0.0301)]),
+        files=(),
+    )
+    out["state_a_zero_total_is_not_a_total"] = case(
+        "A manifest total of 0 (a run that was cut off before its total was written) falls back to the sum of the stages' costs, as `total or sum`.",
+        manifest([stage("S2", cost=0.0123), stage("S5", cost=0.0301)], total=0.0),
+        files=(),
     )
     return out
 

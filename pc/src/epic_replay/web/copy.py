@@ -2,10 +2,29 @@
 Text from a style pack (name, description, sample line) is not here. The consent wording and
 the provider line come from `guards.consent`, which records them with the run."""
 
+import json
+
+from epic_replay import paths
 from epic_replay.guards import consent
 
-WORDMARK = "Epic Replay"
-HEADLINE = ("Film it.", "We'll call it.")
+# The words both apps show are shared data, `shared/copy/page.json` (spec 004, T425).
+_PAGE = json.loads((paths.COPY / "page.json").read_text("utf-8"))
+WORDMARK = _PAGE["wordmark"]
+HEADLINE = tuple(_PAGE["headline"])
+TIP = _PAGE["tip"]
+NARRATORS = _PAGE["narrators"]
+LANGUAGE = _PAGE["language"]
+OPTIONAL = _PAGE["optional"]
+GO = _PAGE["go"]
+PROGRESS = _PAGE["progress"]
+TIME_LEFT = tuple(_PAGE["time_left"])
+YOUR_TURN = _PAGE["your_turn"]
+# The eight steps the user sees, and the stages behind each (ui.md, Progress).
+STEPS = tuple((x["name"], tuple(x["stages"])) for x in _PAGE["steps"])
+CONFIRMED = _PAGE["confirmed"]
+CARD = _PAGE["card"]
+STOPPED = _PAGE["stopped"]
+
 DROP = {
     "lead": "Drop your clip here, or choose a file.",
     "sub": "Any great moment.",
@@ -13,55 +32,7 @@ DROP = {
     "limits": "3 to 30 seconds · MP4, MOV or WebM · up to 200 MB",
     "change": "Change",
 }
-TIP = "Tip: film in slo-mo mode for a sharper replay."
-NARRATORS = "Who's narrating?"
-LANGUAGE = "Commentary language"
-OPTIONAL = {"label": "Optional", "star": "Who's the star?", "mute": "Remove the clip's own sound"}
 CONSENT = consent.CONSENT_TEXT
-GO = "Make my replay"
-
-PROGRESS = {
-    "label": "Making your replay",
-    "step": "Step {n} of 8",
-    "working": "Working",
-    "show": "Show details",
-    "hide": "Hide details",
-}
-TIME_LEFT = ("A few seconds to go.", "About half a minute to go.", "About a minute to go.")
-YOUR_TURN = "Your turn."
-
-# The eight steps the user sees, and the stages behind each (ui.md, Progress).
-STEPS = (
-    ("Checking your clip", ("S0", "S1")),
-    ("Watching what happens", ("S2",)),
-    ("Finding the key moment", ("S3",)),
-    ("Is this what happened?", ("A",)),
-    ("Writing the call", ("S4", "S5", "S6")),
-    ("Building the slow-motion replay", ("S9",)),
-    ("Recording the voice", ("S7",)),
-    ("Mixing and finishing", ("S8", "S10")),
-)
-CONFIRMED = "You confirmed what happened"
-
-CARD = {
-    "back10": "10 back", "earlier": "Earlier", "later": "Later", "on10": "10 on",
-    "frame": "Frame {frame} · {t} s", "pick": "Pick the moment", "this_one": "This one",
-    "others": "Other moments", "check": "Check this", "yes": "Yes, that's it",
-    "why": "Pick the moment first: nudge it, choose another moment, or press \"This one\".",
-    "why_check": "Answer the question about the clip first.",
-    "unchecked": "We couldn't check that this clip is fine to narrate. Is everyone in it fine, and dressed?",
-    "fine": "Yes, everyone's fine", "not_fine": "No, stop here",
-    "failed": "That didn't go through. Try again.",
-    # add-backs 6 and 7: keep or remove, "Fix something", "Not at all"
-    "keep": "Keep", "remove": "Remove", "removed": "removed",
-    "why_items": "Keep or remove each item marked \"Check this\" first.",
-    "fix": "Fix something", "fix_done": "Done fixing", "reject": "Not at all", "back": "Back to the card",
-    "activity": "What's going on", "outcome": "How it ends",
-    "generic_note": "We can still make your replay, with a narration that doesn't say what happened.",
-    "generic": "Narrate without saying what happened", "stop": "Stop here",
-    "cost": "The rest will cost about ${cost}.",
-    "why_generic": "Pick the moment first: the replay is built around it.",
-}  # fmt: skip
 
 RESULT = {"headline": "Your replay", "download": "Download", "ai": "AI commentary",
           "start_over": "Start over with a new clip", "delete": "Delete this clip now",
@@ -119,15 +90,6 @@ DEMO = "Cached run from {date}"
 PAST = {"link": "Past replays", "headline": "Past replays", "one": "1 video", "many": "{n} videos",
         "empty": "No replays yet. Make your first one.", "make": "Make a replay",
         "untitled": "Your replay"}  # fmt: skip
-
-STOPPED = {
-    "headline": "Stopped",
-    "sensitive": "This clip isn't one we can narrate: {reason}.",
-    "cap": "We've reached today's limit for this demo.",
-    "rejected": "You stopped it at the play card. Nothing was narrated.",
-    "failed": "Something broke while {step}. Your clip is safe.",
-    "again": "Choose another clip",
-}
 
 
 def provider_line(settings) -> str:

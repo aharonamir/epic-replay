@@ -140,6 +140,7 @@ FUNCTIONS: dict[str, Callable[..., Any]] = {
     "card.answer": conformance_card.answer,
     "card.items": conformance_card.items,
     "card.rest_cost": conformance_card.rest_cost,
+    "ui.state": conformance_card.state,
     "intake.check": conformance_intake.check,
     "intake.work_check": conformance_intake.work_check,
     "intake.capture_fps": conformance_intake.capture_fps,
