@@ -120,7 +120,15 @@ class RunFlow(
         File(dir, EVENTS).appendText(PythonJson.dumps(line) + "\n")
     }
 
-    private fun save() = RunFiles.write(File(dir, MANIFEST), JsonObject(manifest))
+    /** Writes the manifest as it is now: a run's folder has one from the moment it is made, so a screen can read it before the first stage ends. */
+    fun save() = RunFiles.write(File(dir, MANIFEST), JsonObject(manifest))
+
+    /** Ends the run at [stage] for a reason the user gave ("Stop here" at the card): the stage is recorded `stopped` with [note], and the run is `stopped`. */
+    fun stopAt(stage: String, note: String): String {
+        val t0 = System.nanoTime()
+        record(stage, "stopped", t0, note)
+        return finish("stopped", stage, t0, note)
+    }
 
     private fun record(stage: String, status: String, t0: Long, note: String = "", cost: Double = 0.0) {
         val rec = buildJsonObject {
