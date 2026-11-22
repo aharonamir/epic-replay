@@ -31,7 +31,8 @@ class MixRules(val targetLufs: Double, val ceilingDbtp: Double, val limitMarginD
 
 /** `s8_mix.layers`: what goes into the mix, in order: the voice lines not dropped, the bed, the one-shots, the clip's own sound. Folders are written `run/` and `assets/`. */
 object Mix {
-    private fun truthy(e: JsonElement?): Boolean = when (e) {
+    /** Python's truthiness of a JSON value: null, false, 0, "" and empty containers are false. */
+    fun truthy(e: JsonElement?): Boolean = when (e) {
         null, is JsonNull -> false
         is JsonObject -> e.isNotEmpty()
         is JsonArray -> e.isNotEmpty()

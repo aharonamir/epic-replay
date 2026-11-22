@@ -22,8 +22,7 @@ object ComposeMeasure {
         val found = ArrayList<JsonObject>()
         for (l in voice.getValue("lines").jsonArray.map { it.jsonObject }) {
             if ("target_s" !in l) continue
-            val dropped = l["dropped"]
-            if (dropped != null && dropped !is kotlinx.serialization.json.JsonNull) continue
+            if (app.epicreplay.core.mix.Mix.truthy(l["dropped"])) continue
             val take = takes[l.getValue("id").jsonPrimitive.content] ?: continue
             val start = Landed.landed(take, out, l.getValue("timeline_start").jsonPrimitive.double, sampleRate)
             val target = l.getValue("target_s").jsonPrimitive.double

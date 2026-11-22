@@ -58,6 +58,13 @@ class MixStageTest {
         val hits = ComposeMeasure.onsets(v.doc, v.takes.mapValues { it.value.samples }, mono, 48000)
         assertEquals(listOf("l3", "l6"), hits.map { it.getValue("line_id").jsonPrimitive.content })
         for (h in hits) assertTrue(Math.abs(h.getValue("error_ms").jsonPrimitive.content.toInt()) <= 50, h.toString())
+        // a line the PC's voice.json marks `dropped` is not measured, and one marked false is
+        val lines = v.doc.getValue("lines").jsonArray.map { it.jsonObject }
+        fun with(f: (JsonObject) -> JsonObject) = JsonObject(v.doc + mapOf("lines" to kotlinx.serialization.json.JsonArray(lines.map(f))))
+        val noDrops = with { JsonObject(it + mapOf("dropped" to kotlinx.serialization.json.JsonPrimitive(false))) }
+        assertEquals(2, ComposeMeasure.onsets(noDrops, v.takes.mapValues { it.value.samples }, mono, 48000).size, "dropped false is kept")
+        val allDropped = with { JsonObject(it + mapOf("dropped" to kotlinx.serialization.json.JsonPrimitive("over"))) }
+        assertEquals(0, ComposeMeasure.onsets(allDropped, v.takes.mapValues { it.value.samples }, mono, 48000).size, "a reason drops it")
         println("MIX sample run: ${doc.getValue("loudness_lufs")} LUFS ${doc.getValue("true_peak_dbtp")} dBTP, onsets ${hits.map { it.getValue("error_ms") }}")
     }
 }

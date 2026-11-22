@@ -26,10 +26,17 @@ import kotlinx.serialization.json.put
 
 /** The sound of the layers of the mix on the phone: `run/...` from the run's folder (the clip's own sound decoded from `work.mp4`), `assets/...` from the shared sounds packed into the app. */
 class AndroidMixAudio(private val assets: AssetManager, private val runDir: File, private val rate: Int) : MixAudio {
+    /** A WAV layer must be at the mix's rate (the PC resamples; every shipped sound and take is at 48 kHz, so a different one is refused rather than played at the wrong speed). */
+    private fun wav(bytes: ByteArray, name: String): List<FloatArray> {
+        val (channels, r) = Wav.readChannels(bytes)
+        require(r == rate) { "$name is at $r Hz, the mix is at $rate Hz" }
+        return channels
+    }
+
     override fun load(file: String): List<FloatArray> = when {
         file == "run/work.mp4" -> SignalDecoder.decodeChannels(File(runDir, "work.mp4").path, rate) ?: emptyList()
-        file.startsWith("run/") -> Wav.readChannels(File(runDir, file.removePrefix("run/")).readBytes()).first
-        file.startsWith("assets/") -> Wav.readChannels(assets.open(file.removePrefix("assets/")).use { it.readBytes() }).first
+        file.startsWith("run/") -> wav(File(runDir, file.removePrefix("run/")).readBytes(), file)
+        file.startsWith("assets/") -> wav(assets.open(file.removePrefix("assets/")).use { it.readBytes() }, file)
         else -> throw IllegalArgumentException("unknown layer file $file")
     }
 }
@@ -66,7 +73,7 @@ class ComposeStage(private val composer: Composer, private val fonts: OverlayFon
         val lufs = if (stereo.isEmpty()) Double.NEGATIVE_INFINITY else Loudness.integrated(stereo, 48000)
         val peak = if (stereo.isEmpty()) Double.NEGATIVE_INFINITY else Loudness.truePeakDb(stereo)
         val mono = if (stereo.isEmpty()) FloatArray(0) else FloatArray(stereo[0].size) { i -> stereo.sumOf { it[i].toDouble() }.toFloat() / stereo.size }
-        val takes = voice.getValue("lines").jsonArray.map { it.jsonObject }.filter { (it["dropped"] == null || it["dropped"] is kotlinx.serialization.json.JsonNull) }
+        val takes = voice.getValue("lines").jsonArray.map { it.jsonObject }.filter { !app.epicreplay.core.mix.Mix.truthy(it["dropped"]) }
             .associate { it.getValue("id").jsonPrimitive.content to Wav.read(File(runDir, it.getValue("file").jsonPrimitive.content).readBytes()).samples }
         val hits = ComposeMeasure.onsets(voice, takes, mono, 48000)
         val fps = sb.getValue("fps").jsonPrimitive.double

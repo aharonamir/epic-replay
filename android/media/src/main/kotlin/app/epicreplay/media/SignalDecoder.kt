@@ -107,6 +107,7 @@ object SignalDecoder {
         val codec = MediaCodec.createDecoderByType(f.getString(MediaFormat.KEY_MIME)!!)
         codec.configure(f, null, null, 0); codec.start()
         val chunks = ArrayList<ShortArray>()
+        var encoding = android.media.AudioFormat.ENCODING_PCM_16BIT
         var rate = f.getInteger(MediaFormat.KEY_SAMPLE_RATE); var channels = f.getInteger(MediaFormat.KEY_CHANNEL_COUNT)
         var firstPts = -1L
         try {
@@ -125,13 +126,18 @@ object SignalDecoder {
                 if (o == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
                     val nf = codec.outputFormat
                     rate = nf.getInteger(MediaFormat.KEY_SAMPLE_RATE); channels = nf.getInteger(MediaFormat.KEY_CHANNEL_COUNT)
+                    if (nf.containsKey(MediaFormat.KEY_PCM_ENCODING)) encoding = nf.getInteger(MediaFormat.KEY_PCM_ENCODING)
                 } else if (o >= 0) {
                     if (info.size > 0) {
                         if (firstPts < 0) firstPts = info.presentationTimeUs
                         val raw = codec.getOutputBuffer(o)!!
                         raw.position(info.offset); raw.limit(info.offset + info.size)
-                        val s = raw.order(ByteOrder.nativeOrder()).asShortBuffer()
-                        chunks.add(ShortArray(info.size / 2).also { s.get(it) })
+                        raw.order(ByteOrder.nativeOrder())
+                        chunks.add(when (encoding) { // the decoder's own format: 16-bit unless it says otherwise
+                            android.media.AudioFormat.ENCODING_PCM_FLOAT -> raw.asFloatBuffer().let { f -> ShortArray(info.size / 4) { (f.get().coerceIn(-1f, 1f) * 32767f).toInt().toShort() } }
+                            android.media.AudioFormat.ENCODING_PCM_8BIT -> ShortArray(info.size) { (((raw.get().toInt() and 0xFF) - 128) shl 8).toShort() }
+                            else -> raw.asShortBuffer().let { sb -> ShortArray(info.size / 2).also { sb.get(it) } }
+                        })
                     }
                     codec.releaseOutputBuffer(o, false)
                     if (info.flags and MediaCodec.BUFFER_FLAG_END_OF_STREAM != 0) outputDone = true
