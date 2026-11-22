@@ -1,0 +1,31 @@
+{
+  "area": "compose",
+  "function": "audio.loudness",
+  "language": null,
+  "description": "The same noise on two identical channels is 3 LU louder: the meter adds the channels' power.",
+  "inputs": {
+    "recipe": {
+      "value": {
+        "rate": 48000,
+        "seconds": 6,
+        "bursts": [
+          {
+            "start_s": 0,
+            "dur_s": 6,
+            "amp": 8000
+          }
+        ]
+      }
+    },
+    "channels": {
+      "value": 2
+    }
+  },
+  "tolerance_s": 0.1,
+  "expected": {
+    "value": {
+      "lufs": -10.9,
+      "peak_dbfs": -6.9
+    }
+  }
+}

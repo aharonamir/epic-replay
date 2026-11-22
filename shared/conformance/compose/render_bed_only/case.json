@@ -1,0 +1,72 @@
+{
+  "area": "compose",
+  "function": "mix.render",
+  "language": null,
+  "description": "A bed and a sting with no voice: nothing to duck under; brought to -14 LUFS (the gap between them is small enough for a linear gain: past 11 LU `loudnorm` turns dynamic and lifts the quiet part).",
+  "inputs": {
+    "layers": {
+      "value": [
+        {
+          "kind": "bed",
+          "start": 0.0,
+          "gain_db": -8.0,
+          "recipe": {
+            "rate": 48000,
+            "seconds": 2,
+            "bursts": [
+              {
+                "start_s": 0,
+                "dur_s": 2,
+                "amp": 6000
+              }
+            ]
+          },
+          "loop": true
+        },
+        {
+          "kind": "sting_in",
+          "start": 0.0,
+          "gain_db": 0.0,
+          "recipe": {
+            "rate": 48000,
+            "seconds": 0.8,
+            "bursts": [
+              {
+                "start_s": 0,
+                "dur_s": 0.8,
+                "amp": 5000
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "duration_s": {
+      "value": 6.0
+    },
+    "windows": {
+      "value": [
+        [
+          0.0,
+          0.7
+        ],
+        [
+          1.5,
+          5.0
+        ]
+      ]
+    }
+  },
+  "tolerance_s": 1.0,
+  "expected": {
+    "value": {
+      "lufs": -14.0,
+      "peak_dbfs": -2.9,
+      "duration_s": 6.0,
+      "window_db": [
+        -14.0,
+        -22.8
+      ]
+    }
+  }
+}

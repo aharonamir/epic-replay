@@ -1,0 +1,31 @@
+{
+  "area": "compose",
+  "function": "audio.loudness",
+  "language": null,
+  "description": "Noise near full scale: the peak is near 0 dBFS.",
+  "inputs": {
+    "recipe": {
+      "value": {
+        "rate": 48000,
+        "seconds": 4,
+        "bursts": [
+          {
+            "start_s": 0,
+            "dur_s": 4,
+            "amp": 30000
+          }
+        ]
+      }
+    },
+    "channels": {
+      "value": 2
+    }
+  },
+  "tolerance_s": 0.1,
+  "expected": {
+    "value": {
+      "lufs": 0.6,
+      "peak_dbfs": 4.6
+    }
+  }
+}

@@ -344,3 +344,14 @@ No on-device script passed the checks as written, in either mode, as for the sam
 
 **Default (D7).** The loop is not worse than the structured draft on the cloud profile or on the phone, so it is the default: tools for a profile that takes tool calls, feedback for one that does not. On the phone the gain is one line a run for about 70 to 85 extra seconds; whether that is worth the wait is the owner's call (`CommentatorMode.STRUCTURED` is one argument away).
 
+
+## FFmpeg 8 `amix` can end a mix early when there is no bed (found 2026-11-22, T423)
+
+Running the S8 graph (`s8_mix.graph`) on drawn layers many times, FFmpeg 8.0.1's `amix` sometimes (up to 1 run in 3) ended the output early (2.5 s of 7 s) and lost the later voice lines, when the mix had **no bed** and more than one voice line (two lines plus a one-shot, or three lines). One voice line, a bed with a sting, and the full graph with a bed (two to three lines, bed, three one-shots and two stings, 40 runs each) never did. All three shipped packs have a bed, so the PC's runs are not known to be affected; a pack with an empty `sound.bed` could be. Not fixed (the PC app is the reference). The conformance cases of T423 leave out the bedless multi-line mix for this reason. A fix would be `amix=...:duration=longest` replaced by summing with `apad` on each input, or one input per voice line through `adelay` into a single `amerge`; to decide with the owner.
+
+## The PC's bed stops with the last voice line, and `loudnorm` turns dynamic past 11 LU (found 2026-11-22, T423)
+
+Two behaviours of the PC's S8 that the phone does not copy (spec 004 T423 follows the spec's text, not these):
+
+- `sidechaincompress` ends its output when its key (the mixed voice) ends, so the ducked bed stops at the end of the last voice line and the rest of the video has none (the `apad` then fills with silence). In the sample run the last line ends at 28.11 s of 28.9 s, inside the bed's own fade-out, so it is not heard; a narration that ends early would leave the end of the video without its bed. The phone keeps the bed to the end. If the owner wants the PC fixed: pad the key with `apad` to the video's length before the compressor.
+- `loudnorm` with `linear=true` falls back to dynamic mode when the measured loudness range is over its target LRA of 11 (a loud sting over a bed 25 dB lower), and then lifts the quiet part by about 2 dB relative to the loud part. A mix with a voice and a ducked bed stays under 11 LU; the phone applies one linear gain and a peak limiter. The conformance cases of the mix use levels where the two agree.

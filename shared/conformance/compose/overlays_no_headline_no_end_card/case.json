@@ -1,0 +1,85 @@
+{
+  "area": "compose",
+  "function": "compose.overlays",
+  "language": null,
+  "description": "An empty headline leaves out the title and the headline of the end card; with the end card's window gone from the storyboard it is not drawn.",
+  "inputs": {
+    "storyboard": {
+      "fixture": "sample_run/storyboard.json",
+      "merge_patch": {
+        "overlays": [
+          {
+            "type": "ai_label",
+            "start": 0.0,
+            "end": 28.9
+          },
+          {
+            "type": "title",
+            "start": 0.0,
+            "end": 1.0
+          },
+          {
+            "type": "replay_bug",
+            "start": 16.4,
+            "end": 16.5
+          }
+        ]
+      }
+    },
+    "script": {
+      "fixture": "sample_run/script.json",
+      "merge_patch": {
+        "headline": ""
+      }
+    },
+    "pack": {
+      "style": "football_commentator",
+      "language": "en"
+    },
+    "times": {
+      "value": [
+        0.0,
+        16.4,
+        16.45,
+        16.5,
+        28.0
+      ]
+    }
+  },
+  "expected": {
+    "value": [
+      {
+        "kind": "replay_bug",
+        "text": {
+          "label": "REPLAY"
+        },
+        "start": 16.4,
+        "end": 16.5,
+        "fade_s": 0.033333333333333805,
+        "alpha": [
+          0.0,
+          0.0,
+          1.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "kind": "ai_label",
+        "text": {
+          "label": "AI COMMENTARY"
+        },
+        "start": 0.0,
+        "end": 28.9,
+        "fade_s": 0.2,
+        "alpha": [
+          0.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      }
+    ]
+  }
+}

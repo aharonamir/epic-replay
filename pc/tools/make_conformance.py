@@ -1922,9 +1922,240 @@ def speech_cases() -> dict[str, dict]:
 
 def all_cases() -> dict[str, dict]:
     out = {}
-    for make in (storyboard_cases, slots_cases, checks_cases, lexicon_cases, units_cases, cells_cases, cell_layout_cases, backend_cases, budget_cases, consent_cases, signals_cases, checks_more_cases, voice_cases, mix_cases, visuals_cases, spotter_cases, commentator_cases, intake_cases, speech_cases):  # fmt: skip
+    for make in (storyboard_cases, slots_cases, checks_cases, lexicon_cases, units_cases, cells_cases, cell_layout_cases, backend_cases, budget_cases, consent_cases, signals_cases, checks_more_cases, voice_cases, mix_cases, visuals_cases, spotter_cases, commentator_cases, intake_cases, speech_cases, compose_cases):  # fmt: skip
         for name, case in make().items():
             out[f"{case['area']}/{name}"] = case
+    return out
+
+
+def compose_cases() -> dict[str, dict]:
+    """Added in T423: the loudness meter, the mix (S8) on drawn layers, what S10 draws and when, and where a take lands in the finished audio."""
+
+    def case(function, desc, inputs, tol=None):
+        c = {
+            "area": "compose",
+            "function": function,
+            "language": None,
+            "description": desc,
+            "inputs": inputs,
+        }
+        if tol is not None:
+            c["tolerance_s"] = tol
+        return c
+
+    def sig(seconds, *bursts, rate=48000):
+        return {
+            "rate": rate,
+            "seconds": seconds,
+            "bursts": [{"start_s": a, "dur_s": d, "amp": amp} for a, d, amp in bursts],
+        }
+
+    out = {}
+    for name, desc, recipe, ch in [
+        (
+            "loudness_mono_steady",
+            "EBU R128 integrated loudness and peak of steady noise, one channel.",
+            sig(6, (0, 6, 8000)),
+            1,
+        ),
+        (
+            "loudness_stereo_steady",
+            "The same noise on two identical channels is 3 LU louder: the meter adds the channels' power.",
+            sig(6, (0, 6, 8000)),
+            2,
+        ),
+        (
+            "loudness_gated",
+            "A loud part and a part 26 dB under it: the meter's gates leave the quiet part out of the integrated value.",
+            sig(8, (0, 2, 12000), (3, 3, 600)),
+            1,
+        ),
+        (
+            "loudness_loud",
+            "Noise near full scale: the peak is near 0 dBFS.",
+            sig(4, (0, 4, 30000)),
+            2,
+        ),
+        (
+            "loudness_with_silence",
+            "Noise with silence before, between and after (the absolute gate at -70 LUFS).",
+            sig(10, (1, 2, 5000), (5, 2, 5000)),
+            1,
+        ),
+    ]:
+        out[name] = case(
+            "audio.loudness", desc, {"recipe": value(recipe), "channels": value(ch)}, 0.1
+        )
+
+    def layer(kind, start, gain_db, recipe, loop=False, channels=1):
+        d = {"kind": kind, "start": start, "gain_db": gain_db, "recipe": recipe}
+        if loop:
+            d["loop"] = True
+        if (
+            channels == 2
+        ):  # the same noise on both channels: a stereo file, as the packs' sounds are
+            d["channels"] = 2
+        return d
+
+    voice = [
+        layer("voice", 1.0, 0.0, sig(1.5, (0, 1.5, 9000))),
+        layer("voice", 4.0, 0.0, sig(1.5, (0, 1.5, 9000))),
+    ]
+    bed = layer("bed", 0.0, -18.0, sig(2, (0, 2, 6000)), loop=True)
+    roar = layer("climax", 4.2, 0.0, sig(0.5, (0, 0.5, 20000)))
+    sting = layer("sting_in", 0.0, 0.0, sig(0.8, (0, 0.8, 14000)), channels=2)
+    windows = [[0.0, 0.9], [1.1, 2.4], [2.6, 2.7], [2.8, 2.9], [3.0, 3.9], [4.3, 4.95]]
+    out["render_voice_bed_and_shots"] = case(
+        "mix.render",
+        "Two voice lines, a bed ducked under them (sidechain compressor, 0.02 / 8 / 20 ms / 350 ms), a one-shot and a sting, normalised to -14 LUFS: loudness, peak and the level in six windows, two of them just after the first line (the ducker letting go) (the PC's ducker stops the bed when the last voice line ends, so the bed after it is not compared).",
+        {
+            "layers": value([*voice, bed, roar, sting]),
+            "duration_s": value(6.0),
+            "windows": value(windows),
+        },
+        1.0,
+    )
+    out["render_bed_only"] = case(
+        "mix.render",
+        "A bed and a sting with no voice: nothing to duck under; brought to -14 LUFS (the gap between them is small enough for a linear gain: past 11 LU `loudnorm` turns dynamic and lifts the quiet part).",
+        {
+            "layers": value(
+                [
+                    layer("bed", 0.0, -8.0, sig(2, (0, 2, 6000)), loop=True),
+                    layer("sting_in", 0.0, 0.0, sig(0.8, (0, 0.8, 5000))),
+                ]
+            ),
+            "duration_s": value(6.0),
+            "windows": value([[0.0, 0.7], [1.5, 5.0]]),
+        },
+        1.0,
+    )
+    out["render_voice_only"] = case(
+        "mix.render",
+        "One voice line alone, no bed: normalised, with silence before and after (several lines with no bed are left out of the cases: FFmpeg 8's `amix` sometimes ends such a mix early, see docs/provider-notes.md).",
+        {
+            "layers": value(voice[:1]),
+            "duration_s": value(7.0),
+            "windows": value([[0.0, 0.9], [1.1, 2.4], [2.8, 3.8], [4.1, 5.4]]),
+        },
+        1.0,
+    )
+    out["render_bed_loop_and_fades"] = case(
+        "mix.render",
+        "A bed shorter than the video, alone: looped to the length, faded in over 0.5 s and out over the last second, then brought to -14 LUFS.",
+        {
+            "layers": value([layer("bed", 0.0, -18.0, sig(1, (0, 1, 7000)), loop=True)]),
+            "duration_s": value(3.5),
+            "windows": value([[0.0, 0.25], [0.25, 0.5], [1.0, 2.0], [2.6, 2.7], [3.2, 3.4]]),
+        },
+        1.0,
+    )
+
+    base = {
+        "storyboard": {"fixture": "sample_run/storyboard.json"},
+        "script": {"fixture": "sample_run/script.json"},
+    }
+    times = [
+        0.0,
+        0.1,
+        0.2,
+        0.5,
+        0.9,
+        1.0,
+        2.0,
+        16.3,
+        16.4,
+        16.5,
+        21.0,
+        26.3,
+        26.4,
+        26.5,
+        28.7,
+        28.9,
+    ]
+    for style, pack_id in [
+        ("football", "football_commentator"),
+        ("nature", "nature_documentary"),
+        ("news", "news_reporter"),
+    ]:
+        out[f"overlays_{style}"] = case(
+            "compose.overlays",
+            f"The overlays of the sample run in the {pack_id} pack: title, replay bug, end card (kicker over headline) and the AI label, each with its window, its fade and how much shows at sixteen times.",
+            {**base, "pack": {"style": pack_id, "language": "en"}, "times": value(times)},
+        )
+    out["overlays_no_headline_no_end_card"] = case(
+        "compose.overlays",
+        "An empty headline leaves out the title and the headline of the end card; with the end card's window gone from the storyboard it is not drawn.",
+        {
+            "storyboard": {
+                "fixture": "sample_run/storyboard.json",
+                "merge_patch": {
+                    "overlays": [
+                        {"type": "ai_label", "start": 0.0, "end": 28.9},
+                        {"type": "title", "start": 0.0, "end": 1.0},
+                        {"type": "replay_bug", "start": 16.4, "end": 16.5},
+                    ]
+                },
+            },
+            "script": {"fixture": "sample_run/script.json", "merge_patch": {"headline": ""}},
+            "pack": {"style": "football_commentator", "language": "en"},
+            "times": value([0.0, 16.4, 16.45, 16.5, 28.0]),
+        },
+    )
+    out["overlays_mandarin"] = case(
+        "compose.overlays",
+        "A Mandarin pack and headline: the same overlays; the words are the pack's.",
+        {
+            "storyboard": {"fixture": "sample_run/storyboard.json"},
+            "script": {
+                "fixture": "sample_run/script.json",
+                "merge_patch": {"headline": "任意球直挂死角"},
+            },
+            "pack": {"style": "football_commentator", "language": "zh"},
+            "times": value(times),
+        },
+    )
+
+    background = sig(10, (0, 10, 3000))
+    take = sig(1.5, (0, 1.5, 12000))
+    for name, desc, at, planned in [
+        (
+            "landed_on_plan",
+            "A take added into noise exactly where it was planned: found there.",
+            3.0,
+            3.0,
+        ),
+        (
+            "landed_late",
+            "A take 0.2 s after its plan (a shift from joining or encoding): found at its real start.",
+            3.2,
+            3.0,
+        ),
+        ("landed_early", "A take 0.3 s before its plan: found at its real start.", 2.7, 3.0),
+        (
+            "landed_outside_the_search",
+            "A take 0.8 s after its plan, past the 0.5 s search: the nearest match inside the search.",
+            3.8,
+            3.0,
+        ),
+        (
+            "landed_near_the_end",
+            "A plan so near the end of the output that the take does not fit: the plan itself.",
+            9.5,
+            9.5,
+        ),
+    ]:
+        out[name] = case(
+            "compose.landed",
+            desc,
+            {
+                "output": value(background),
+                "take": value(take),
+                "offset_s": value(at),
+                "planned_start_s": value(planned),
+            },
+            0.0005,
+        )
     return out
 
 

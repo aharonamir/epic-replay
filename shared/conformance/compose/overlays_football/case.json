@@ -1,0 +1,41 @@
+{
+  "area": "compose",
+  "function": "compose.overlays",
+  "language": null,
+  "description": "The overlays of the sample run in the football_commentator pack: title, replay bug, end card (kicker over headline) and the AI label, each with its window, its fade and how much shows at sixteen times.",
+  "inputs": {
+    "storyboard": {
+      "fixture": "sample_run/storyboard.json"
+    },
+    "script": {
+      "fixture": "sample_run/script.json"
+    },
+    "pack": {
+      "style": "football_commentator",
+      "language": "en"
+    },
+    "times": {
+      "value": [
+        0.0,
+        0.1,
+        0.2,
+        0.5,
+        0.9,
+        1.0,
+        2.0,
+        16.3,
+        16.4,
+        16.5,
+        21.0,
+        26.3,
+        26.4,
+        26.5,
+        28.7,
+        28.9
+      ]
+    }
+  },
+  "expected": {
+    "file": "expected/output.json"
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "area": "compose",
+  "function": "audio.loudness",
+  "language": null,
+  "description": "EBU R128 integrated loudness and peak of steady noise, one channel.",
+  "inputs": {
+    "recipe": {
+      "value": {
+        "rate": 48000,
+        "seconds": 6,
+        "bursts": [
+          {
+            "start_s": 0,
+            "dur_s": 6,
+            "amp": 8000
+          }
+        ]
+      }
+    },
+    "channels": {
+      "value": 1
+    }
+  },
+  "tolerance_s": 0.1,
+  "expected": {
+    "value": {
+      "lufs": -13.9,
+      "peak_dbfs": -6.9
+    }
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "area": "compose",
+  "function": "compose.overlays",
+  "language": null,
+  "description": "A Mandarin pack and headline: the same overlays; the words are the pack's.",
+  "inputs": {
+    "storyboard": {
+      "fixture": "sample_run/storyboard.json"
+    },
+    "script": {
+      "fixture": "sample_run/script.json",
+      "merge_patch": {
+        "headline": "任意球直挂死角"
+      }
+    },
+    "pack": {
+      "style": "football_commentator",
+      "language": "zh"
+    },
+    "times": {
+      "value": [
+        0.0,
+        0.1,
+        0.2,
+        0.5,
+        0.9,
+        1.0,
+        2.0,
+        16.3,
+        16.4,
+        16.5,
+        21.0,
+        26.3,
+        26.4,
+        26.5,
+        28.7,
+        28.9
+      ]
+    }
+  },
+  "expected": {
+    "file": "expected/output.json"
+  }
+}

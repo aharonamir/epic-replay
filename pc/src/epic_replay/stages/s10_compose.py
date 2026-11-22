@@ -152,14 +152,40 @@ def png_graph(sb: dict, pngs: dict[str, Path], first_input: int) -> tuple[list[s
     return args, ";".join([*chains, f"[{last}]null[v]"])
 
 
-def html_overlays(script: dict, pack: dict, frame: tuple[int, int], out_dir: Path) -> dict:
-    """The overlay PNGs from the HTML templates, or {} when they cannot be rendered (no
-    Chromium, Chromium hung, a skin missing): the caller then draws FFmpeg text."""
+def overlay_texts(script: dict, pack: dict) -> dict:
+    """The words of the overlays, by the key `graphics.render.wanted` reads."""
     labels = pack["script"]["labels"]
     texts = {"headline": script["headline"], "replay_bug": labels.get("replay_bug", "REPLAY"),
              "kicker": labels.get("end_card_kicker", "")}  # fmt: skip
     if "ai_label" in labels:
         texts["ai_label"] = labels["ai_label"]
+    return texts
+
+
+def overlay_specs(sb: dict, script: dict, pack: dict) -> list[dict]:
+    """What is drawn over the video (the HTML path of `run`, shared with the phone): for each overlay that has words and a window in the storyboard, in
+    drawing order, its kind, words, window and the length of the fade in and the fade out (`png_graph`)."""
+    wanted = html.wanted(overlay_texts(script, pack))
+    spans = {o["type"]: o for o in sb["overlays"]}
+    return [
+        {"kind": k, "text": wanted[k], "start": spans[k]["start"], "end": spans[k]["end"],
+         "fade_s": min(FADE_S, (spans[k]["end"] - spans[k]["start"]) / 3)}
+        for k in PNG_ORDER if k in wanted and k in spans
+    ]  # fmt: skip
+
+
+def overlay_alpha(spec: dict, t: float) -> float:
+    """How much of the overlay shows at `t`: a linear fade in over `fade_s` from the start and out over `fade_s` to the end (FFmpeg's `fade` on the alpha)."""
+    f = spec["fade_s"]
+    up = 1.0 if f <= 0 else min(1.0, max(0.0, (t - spec["start"]) / f))
+    down = 1.0 if f <= 0 else min(1.0, max(0.0, (spec["end"] - t) / f))
+    return min(up, down)
+
+
+def html_overlays(script: dict, pack: dict, frame: tuple[int, int], out_dir: Path) -> dict:
+    """The overlay PNGs from the HTML templates, or {} when they cannot be rendered (no
+    Chromium, Chromium hung, a skin missing): the caller then draws FFmpeg text."""
+    texts = overlay_texts(script, pack)
     try:
         return html.render(texts, pack["graphics"], frame, out_dir, pack.get("language", "en"))
     except Exception:  # noqa: BLE001 - the video is still made, with text overlays

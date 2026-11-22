@@ -1,0 +1,141 @@
+{
+  "area": "compose",
+  "function": "mix.render",
+  "language": null,
+  "description": "Two voice lines, a bed ducked under them (sidechain compressor, 0.02 / 8 / 20 ms / 350 ms), a one-shot and a sting, normalised to -14 LUFS: loudness, peak and the level in six windows, two of them just after the first line (the ducker letting go) (the PC's ducker stops the bed when the last voice line ends, so the bed after it is not compared).",
+  "inputs": {
+    "layers": {
+      "value": [
+        {
+          "kind": "voice",
+          "start": 1.0,
+          "gain_db": 0.0,
+          "recipe": {
+            "rate": 48000,
+            "seconds": 1.5,
+            "bursts": [
+              {
+                "start_s": 0,
+                "dur_s": 1.5,
+                "amp": 9000
+              }
+            ]
+          }
+        },
+        {
+          "kind": "voice",
+          "start": 4.0,
+          "gain_db": 0.0,
+          "recipe": {
+            "rate": 48000,
+            "seconds": 1.5,
+            "bursts": [
+              {
+                "start_s": 0,
+                "dur_s": 1.5,
+                "amp": 9000
+              }
+            ]
+          }
+        },
+        {
+          "kind": "bed",
+          "start": 0.0,
+          "gain_db": -18.0,
+          "recipe": {
+            "rate": 48000,
+            "seconds": 2,
+            "bursts": [
+              {
+                "start_s": 0,
+                "dur_s": 2,
+                "amp": 6000
+              }
+            ]
+          },
+          "loop": true
+        },
+        {
+          "kind": "climax",
+          "start": 4.2,
+          "gain_db": 0.0,
+          "recipe": {
+            "rate": 48000,
+            "seconds": 0.5,
+            "bursts": [
+              {
+                "start_s": 0,
+                "dur_s": 0.5,
+                "amp": 20000
+              }
+            ]
+          }
+        },
+        {
+          "kind": "sting_in",
+          "start": 0.0,
+          "gain_db": 0.0,
+          "recipe": {
+            "rate": 48000,
+            "seconds": 0.8,
+            "bursts": [
+              {
+                "start_s": 0,
+                "dur_s": 0.8,
+                "amp": 14000
+              }
+            ]
+          },
+          "channels": 2
+        }
+      ]
+    },
+    "duration_s": {
+      "value": 6.0
+    },
+    "windows": {
+      "value": [
+        [
+          0.0,
+          0.9
+        ],
+        [
+          1.1,
+          2.4
+        ],
+        [
+          2.6,
+          2.7
+        ],
+        [
+          2.8,
+          2.9
+        ],
+        [
+          3.0,
+          3.9
+        ],
+        [
+          4.3,
+          4.95
+        ]
+      ]
+    }
+  },
+  "tolerance_s": 1.0,
+  "expected": {
+    "value": {
+      "lufs": -14.0,
+      "peak_dbfs": -5.3,
+      "duration_s": 6.0,
+      "window_db": [
+        -16.7,
+        -23.3,
+        -54.2,
+        -46.3,
+        -44.8,
+        -17.2
+      ]
+    }
+  }
+}

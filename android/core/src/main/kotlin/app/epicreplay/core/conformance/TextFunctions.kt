@@ -4,6 +4,13 @@ import app.epicreplay.core.audio.AudioAnalysis
 import app.epicreplay.core.intake.Intake
 import app.epicreplay.core.sheet.ContactSheet
 import app.epicreplay.core.voice.ElevenLabs
+import app.epicreplay.core.PyMath
+import app.epicreplay.core.audio.Landed
+import app.epicreplay.core.audio.Loudness
+import app.epicreplay.core.compose.OverlayPlan
+import app.epicreplay.core.mix.MixLayer
+import app.epicreplay.core.mix.MixRender
+import app.epicreplay.core.mix.MixRules
 import app.epicreplay.core.text.EnglishLexicon
 import app.epicreplay.core.text.MandarinLexicon
 import app.epicreplay.core.text.SpokenUnits
@@ -178,22 +185,7 @@ object TextFunctions {
                 JsonArray(a.getValue("sizes").jsonArray.map { s -> val (w, h) = Intake.workSize(s.jsonArray[0].jsonPrimitive.content.toInt(), s.jsonArray[1].jsonPrimitive.content.toInt()); JsonArray(listOf(JsonPrimitive(w), JsonPrimitive(h))) })
             },
             "audio.measure" to { a ->
-                val r = a.getValue("recipe").jsonObject
-                val sr = r.getValue("rate").jsonPrimitive.int
-                val n = Math.round(r.getValue("seconds").jsonPrimitive.double * sr).toInt()
-                val ints = LongArray(n)
-                var state = 987654321L
-                for (b in r.getValue("bursts").jsonArray) {
-                    val o = b.jsonObject
-                    val start = Math.round(o.getValue("start_s").jsonPrimitive.double * sr).toInt()
-                    val end = minOf(n, Math.round((o.getValue("start_s").jsonPrimitive.double + o.getValue("dur_s").jsonPrimitive.double) * sr).toInt())
-                    val amp = o.getValue("amp").jsonPrimitive.int
-                    for (i in start until end) {
-                        state = (state * 1664525L + 1013904223L) and 0xFFFFFFFFL
-                        ints[i] = Math.floorDiv((((state shr 16) and 0xFFFF) - 32768) * amp, 32768L)
-                    }
-                }
-                val y = FloatArray(n) { (ints[it].coerceIn(-32768, 32767) / 32768.0).toFloat() }
+                val (y, sr) = DrawnSignal.draw(a.getValue("recipe").jsonObject)
                 val (ta, tb) = AudioAnalysis.trimBounds(y, sr)
                 val window = a.getValue("window_s").jsonPrimitive.double
                 buildJsonObject {
@@ -202,6 +194,49 @@ object TextFunctions {
                     put("rises", JsonArray(a.getValue("times").jsonArray.map { JsonPrimitive(AudioAnalysis.snapToRise(y, sr, it.jsonPrimitive.double, window)) }))
                     put("blocks", AudioAnalysis.blockRms(y, sr).size)
                 }
+            },
+            "audio.loudness" to { a ->
+                val (y, sr) = DrawnSignal.draw(a.getValue("recipe").jsonObject)
+                val ch = if (a.getValue("channels").jsonPrimitive.int == 1) listOf(y) else listOf(y, y)
+                buildJsonObject { put("lufs", PyMath.round(Loudness.integrated(ch, sr), 1)); put("peak_dbfs", PyMath.round(Loudness.truePeakDb(ch), 1)) }
+            },
+            "mix.render" to { a ->
+                val rules = MixRules.parse(java.io.File(System.getProperty("shared.dir"), "mix/rules.json").readText())
+                val layers = a.getValue("layers").jsonArray.map { e ->
+                    val o = e.jsonObject
+                    val (y, _) = DrawnSignal.draw(o.getValue("recipe").jsonObject)
+                    MixLayer(o.getValue("kind").jsonPrimitive.content, if (o["channels"]?.jsonPrimitive?.int == 2) listOf(y, y) else listOf(y), o.getValue("start").jsonPrimitive.double, o.getValue("gain_db").jsonPrimitive.double, o["loop"]?.jsonPrimitive?.content == "true")
+                }
+                val r = MixRender.render(layers, a.getValue("duration_s").jsonPrimitive.double, rules)
+                val sr = rules.sampleRate
+                val mono = FloatArray(r.left.size) { (r.left[it] + r.right[it]) / 2f }
+                buildJsonObject {
+                    put("lufs", PyMath.round(r.lufs, 1)); put("peak_dbfs", PyMath.round(r.peakDbfs, 1)); put("duration_s", PyMath.round(r.left.size.toDouble() / sr, 2))
+                    put("window_db", JsonArray(a.getValue("windows").jsonArray.map { w ->
+                        val from = (w.jsonArray[0].jsonPrimitive.double * sr).toInt(); val to = minOf(mono.size, (w.jsonArray[1].jsonPrimitive.double * sr).toInt())
+                        var sum = 0.0; for (i in from until to) sum += mono[i].toDouble() * mono[i]
+                        val rms = if (to > from) Math.sqrt(sum / (to - from)) else 0.0
+                        JsonPrimitive(PyMath.round(20 * Math.log10(maxOf(rms, 1e-9)), 1))
+                    }))
+                }
+            },
+            "compose.overlays" to { a ->
+                val times = a.getValue("times").jsonArray.map { it.jsonPrimitive.double }
+                JsonArray(OverlayPlan.specs(a.getValue("storyboard").jsonObject, a.getValue("script").jsonObject, a.getValue("pack").jsonObject).map { s ->
+                    buildJsonObject {
+                        put("kind", s.kind); put("text", buildJsonObject { s.text.forEach { (k, v) -> put(k, v) } })
+                        put("start", s.start); put("end", s.end); put("fade_s", s.fadeS)
+                        put("alpha", JsonArray(times.map { JsonPrimitive(PyMath.round(s.alpha(it), 6)) }))
+                    }
+                })
+            },
+            "compose.landed" to { a ->
+                val (o, sr) = DrawnSignal.draw(a.getValue("output").jsonObject)
+                val (t, _) = DrawnSignal.draw(a.getValue("take").jsonObject)
+                val at = Math.round(a.getValue("offset_s").jsonPrimitive.double * sr).toInt()
+                val out = o.copyOf()
+                for (i in t.indices) if (at + i < out.size) out[at + i] += t[i]
+                JsonPrimitive(PyMath.round(Landed.landed(t, out, a.getValue("planned_start_s").jsonPrimitive.double, sr), 6))
             },
             "speech.request" to { a ->
                 JsonArray(a.getValue("takes").jsonArray.map { t ->

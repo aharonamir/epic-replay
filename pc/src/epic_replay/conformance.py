@@ -18,6 +18,7 @@ from typing import Any
 from epic_replay import (
     conformance_backend,
     conformance_commentator,
+    conformance_compose,
     conformance_consent,
     conformance_intake,
     conformance_signals,
@@ -129,6 +130,10 @@ FUNCTIONS: dict[str, Callable[..., Any]] = {
     "speech.request": conformance_speech.request,
     "speech.alignment": conformance_speech.alignment,
     "audio.measure": conformance_speech.measure,
+    "audio.loudness": conformance_compose.loudness,
+    "mix.render": conformance_compose.render,
+    "compose.overlays": conformance_compose.overlays,
+    "compose.landed": conformance_compose.landed,
     "intake.check": conformance_intake.check,
     "intake.work_check": conformance_intake.work_check,
     "intake.capture_fps": conformance_intake.capture_fps,
