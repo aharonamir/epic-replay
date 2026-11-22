@@ -1,6 +1,7 @@
 package app.epicreplay.core.card
 
 import app.epicreplay.core.PyMath
+import app.epicreplay.core.mix.Mix
 import app.epicreplay.core.models.Profile
 import app.epicreplay.core.models.ServerProfile
 import app.epicreplay.core.text.PyText
@@ -62,7 +63,13 @@ object PlayCard {
         var uc = userContext
         val known = ps.getValue("events").jsonArray.map { it.jsonObject.getValue("id").jsonPrimitive.content }.toSet()
         val keep = HashMap<String, Boolean>()
-        for (x in (edits["events"] as? JsonArray) ?: JsonArray(emptyList())) {
+        val rawEvents = edits["events"]
+        val eventEdits = when {
+            rawEvents is JsonArray -> rawEvents
+            !Mix.truthy(rawEvents) -> JsonArray(emptyList()) // `edits.get("events") or []`
+            else -> throw IllegalArgumentException("each event edit is {id, keep} with an event of this play sheet") // anything else that is not empty is iterated, and fails its check, in the PC
+        }
+        for (x in eventEdits) {
             val o = x as? JsonObject
             val id = str(o?.get("id")); val k = (o?.get("keep") as? JsonPrimitive)?.takeIf { !it.isString && (it.content == "true" || it.content == "false") }?.content?.toBoolean()
             require(o != null && id != null && id in known && k != null) { "each event edit is {id, keep} with an event of this play sheet" }

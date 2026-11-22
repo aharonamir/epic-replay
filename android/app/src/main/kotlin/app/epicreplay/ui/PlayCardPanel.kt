@@ -37,6 +37,9 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import app.epicreplay.core.card.PlayCard
 import app.epicreplay.core.ui.CardAnswerInput
@@ -90,7 +93,7 @@ fun PlayCardPanel(ps: JsonObject, meta: JsonObject, costUsd: Double, words: Page
             return@Column
         }
         Box(Modifier.fillMaxWidth().aspectRatio(16f / 9f).background(Ink.raised).border(BorderStroke(2.dp, if (s.keyMomentAnswered) Ink.line else accent.text), RoundedCornerShape(4.dp)), contentAlignment = Alignment.Center) {
-            picture?.let { Image(it, null, Modifier.fillMaxWidth(), contentScale = ContentScale.Fit) }
+            picture?.let { Image(it, "Frame ${s.frame} of the clip", Modifier.fillMaxWidth(), contentScale = ContentScale.Fit) }
         }
         Text(words.card("frame").replace("{frame}", s.frame.toString()).replace("{t}", "%.2f".format(java.util.Locale.ROOT, s.seconds)), style = MaterialTheme.typography.labelMedium, modifier = Modifier.testTag("frame_label"))
         if (!s.keyMomentAnswered) Text(words.card("check").uppercase() + " · " + words.card("pick"), style = MaterialTheme.typography.labelSmall, color = accent.text, modifier = Modifier.testTag("pick_flag"))
@@ -145,7 +148,7 @@ private fun RepeatButton(label: String, modifier: Modifier, onStep: () -> Unit) 
     val step = rememberUpdatedState(onStep)
     val scope = rememberCoroutineScope()
     Box(
-        modifier.height(44.dp).border(BorderStroke(1.dp, Ink.controlLine), RoundedCornerShape(20.dp)).pointerInput(Unit) {
+        modifier.height(48.dp).semantics(mergeDescendants = true) { role = androidx.compose.ui.semantics.Role.Button; contentDescription = label }.border(BorderStroke(1.dp, Ink.controlLine), RoundedCornerShape(24.dp)).pointerInput(Unit) {
             detectTapGestures(onPress = {
                 step.value()
                 val held = scope.launch { delay(450); while (true) { step.value(); delay(200) } }

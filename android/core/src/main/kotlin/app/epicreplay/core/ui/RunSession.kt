@@ -37,6 +37,7 @@ class RunSession(private val runsDir: File, private val words: PageWords, privat
     private val _view = MutableStateFlow<RunView?>(null)
     val view: StateFlow<RunView?> = _view
     private var job: Job? = null
+    private val jobs = ArrayList<Job>() // every flow started and not yet ended, cancelled ones still unwinding included: a new flow waits for all of them
 
     private fun newId(): String = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss").withZone(ZoneOffset.UTC).format(Instant.now()).let { "r_${it}_" + ByteArray(3).also(SecureRandom()::nextBytes).joinToString("") { b -> "%02x".format(b) } }
 
@@ -59,17 +60,23 @@ class RunSession(private val runsDir: File, private val words: PageWords, privat
 
     /** Runs (or goes on with) the flow of [dir] and keeps the view up to date until it ends. [seeded] are stages whose outputs were put there on purpose (a fixture). */
     fun start(dir: File, seeded: Set<String> = emptySet()) {
-        if (job?.isActive == true) return
-        job = scope.launch {
-            val flow = flowFor(dir)
-            val poll = launch { while (isActive) { refresh(dir); delay(pollMs) } }
-            try { flow.run(seeded) } catch (e: CancellationException) { throw e } finally { poll.cancel(); refresh(dir) }
+        synchronized(jobs) {
+            jobs.removeAll { it.isCompleted } // a cancelled job is not active but is still unwinding until it is completed
+            val before = jobs.toList()
+            val j = scope.launch {
+                before.forEach { it.join() } // one flow at a time: a start while another ends (the card's answer just after the flow returned) goes on when it has
+                val flow = flowFor(dir)
+                val poll = launch { while (isActive) { refresh(dir); delay(pollMs) } }
+                try { flow.run(seeded) } catch (e: CancellationException) { throw e } finally { poll.cancel() }
+            }
+            j.invokeOnCompletion { refresh(dir) } // after the flow's end, with the job no longer active: the screen stops showing it as working
+            jobs += j; job = j
         }
         refresh(dir)
     }
 
     /** The user closed the screen or the app is going: the flow stops where it is; the run folder keeps what was done, and [start] goes on from there. */
-    fun pause() { job?.cancel(); job = null }
+    fun pause() { synchronized(jobs) { jobs.forEach { it.cancel() }; job = null } }
 
     /** The play card's answer: the key moment and the edits go into the play sheet and the context, and the run goes on. Throws [IllegalArgumentException] with the reason if the answer is refused. */
     fun answer(dir: File, input: CardAnswerInput) {

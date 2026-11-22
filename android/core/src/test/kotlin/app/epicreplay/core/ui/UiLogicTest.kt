@@ -146,3 +146,49 @@ class UiLogicTest {
         assertFalse(RunSession.typicalOf(runs).containsKey("A"))
     }
 }
+
+class UiLogicRulesTest {
+    private val shared = File(System.getProperty("shared.dir"))
+    private fun json(f: String) = Json.parseToJsonElement(File(shared, f).readText()).jsonObject
+    private val ps = json("fixtures/sample_run/play_sheet.json"); private val meta = json("fixtures/sample_run/clip_meta.json"); private val uc = json("fixtures/sample_run/user_context.json")
+
+    @Test
+    fun theGenericAnswerSendsTheKeyMomentAloneWhateverWasDecidedBefore() {
+        var s = CardModel.decide(CardModel.editActivity(CardModel.thisOne(CardModel.start(ps, meta)), "other"), "e5", false)
+        val g = CardModel.answerInput(s, generic = true)
+        assertEquals("{}", g.edits.toString()); assertTrue(g.generic); assertEquals(313, g.frame)
+    }
+
+    @Test
+    fun aNonListOfEventEditsIsRefusedAsThePcRefusesIt() {
+        for (bad in listOf("\"abc\"", "{\"id\":\"e1\"}", "5", "true")) {
+            val e = assertFailsWith<IllegalArgumentException> { app.epicreplay.core.card.PlayCard.answer(ps, uc, meta, 313, Json.parseToJsonElement("""{"events":$bad}""").jsonObject, JsonObject(emptyMap())) }
+            assertEquals("each event edit is {id, keep} with an event of this play sheet", e.message)
+        }
+        for (empty in listOf("null", "[]", "\"\"", "0", "false", "{}")) assertNotNull(app.epicreplay.core.card.PlayCard.answer(ps, uc, meta, 313, Json.parseToJsonElement("""{"events":$empty}""").jsonObject, JsonObject(emptyMap())))
+    }
+}
+
+class RunSessionConcurrencyTest {
+    private val shared = File(System.getProperty("shared.dir"))
+    private val words = PageWords.load(shared)
+
+    @Test
+    fun aStartWhileAnotherFlowEndsWaitsForItAndNeverRunsTwoAtOnce() = kotlinx.coroutines.runBlocking {
+        val runs = java.nio.file.Files.createTempDirectory("runs").toFile()
+        val active = java.util.concurrent.atomic.AtomicInteger(); val most = java.util.concurrent.atomic.AtomicInteger(); val started = java.util.concurrent.atomic.AtomicInteger()
+        fun flow(dir: File) = RunFlow(dir, FlowOrder.ORDER.filter { it.name != "A" }.associate { def ->
+            def.name to StageRunner { ctx ->
+                if (def.name == "S0") { started.incrementAndGet(); most.set(maxOf(most.get(), active.incrementAndGet())); try { kotlinx.coroutines.delay(150) } finally { active.decrementAndGet() } }
+                for (o in def.outputs) File(ctx.dir, o).writeText(if (o == "play_sheet.json") File(shared, "fixtures/sample_run/play_sheet.json").readText().replace("\"confirmed_by_user\": true", "\"confirmed_by_user\": false") else if (o == "clip_meta.json") File(shared, "fixtures/sample_run/clip_meta.json").readText() else "{}")
+                StageResult("ok")
+            }
+        }, { true }, JsonObject(emptyMap()))
+        val session = RunSession(runs, words, CoroutineScope(Dispatchers.Default), ::flow, pollMs = 20)
+        val dir = session.create(File(runs, "c.mp4").apply { writeText("v") }, Json.parseToJsonElement(File(shared, "fixtures/sample_run/user_context.json").readText()).jsonObject)
+        session.start(dir); session.start(dir); session.pause(); session.start(dir)
+        withTimeout(30_000) { while (session.view.value?.atCard != true || session.view.value?.working == true) kotlinx.coroutines.delay(20) }
+        assertEquals(1, most.get(), "never two flows at once")
+        assertTrue(started.get() >= 1)
+    }
+}

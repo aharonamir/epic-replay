@@ -85,6 +85,7 @@ object CardModel {
 
     /** What an answer of "Yes, that's it" (or "Narrate without saying what happened", [generic]) sends: the decisions made and the sentences changed. */
     fun answerInput(s: CardState, generic: Boolean = false): CardAnswerInput {
+        if (generic) return CardAnswerInput(s.frame, JsonObject(emptyMap()), true) // "Not at all" then "Narrate without saying what happened" sends the key moment alone, as the PC's
         val edits = buildJsonObject {
             if (s.decisions.isNotEmpty()) put("events", JsonArray(s.decisions.map { (id, keep) -> buildJsonObject { put("id", id); put("keep", keep) } }))
             if (s.activity.trim() != s.originalActivity) put("activity", s.activity)

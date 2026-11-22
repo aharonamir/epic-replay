@@ -103,11 +103,14 @@ class AppViewModel(private val graph: AppGraph, private val context: Context, la
         return PlayCard.restCostUsd(view.clipMeta!!, pack, launcher.models()?.text)
     }
 
-    /** The card's pictures: frames of the run's working copy by number. */
-    fun frames(dir: File): FrameSource {
-        val clip = ClipFrames(File(dir, "work.mp4").path)
-        return FrameSource { n -> withContext(Dispatchers.IO) { clip.frameAt(n)?.asImageBitmap() } }
+    /** The card's pictures: frames of the run's working copy by number; closed when the card leaves the screen. */
+    class ClipFrameSource(path: String) : FrameSource, AutoCloseable {
+        private val clip = ClipFrames(path)
+        override suspend fun frame(n: Int): ImageBitmap? = withContext(Dispatchers.IO) { clip.frameAt(n)?.asImageBitmap() }
+        override fun close() = clip.close()
     }
+
+    fun frames(dir: File): ClipFrameSource = ClipFrameSource(File(dir, "work.mp4").path)
 
     fun accent(view: RunView?): Accent {
         val id = view?.state?.style ?: cards.first().id

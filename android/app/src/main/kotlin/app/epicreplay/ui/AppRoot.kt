@@ -62,6 +62,7 @@ private fun RunScreen(vm: AppViewModel, view: RunView) {
     ProgressScreen(view.state, vm.words, vm::another) {
         if (view.atCard) {
             val frames = remember(view.dir) { vm.frames(view.dir) }
+            androidx.compose.runtime.DisposableEffect(view.dir) { onDispose { frames.close() } }
             PlayCardPanel(
                 view.playSheet!!, view.clipMeta!!, vm.restCost(view), vm.words, frames,
                 CardActions({ vm.session.answer(view.dir, it) }, { note -> vm.session.stopAtCard(view.dir, note) }, { vm.session.markFine(view.dir) }),
