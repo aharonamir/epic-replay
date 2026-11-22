@@ -38,6 +38,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
@@ -148,7 +149,7 @@ private fun RepeatButton(label: String, modifier: Modifier, onStep: () -> Unit) 
     val step = rememberUpdatedState(onStep)
     val scope = rememberCoroutineScope()
     Box(
-        modifier.height(48.dp).semantics(mergeDescendants = true) { role = androidx.compose.ui.semantics.Role.Button; contentDescription = label }.border(BorderStroke(1.dp, Ink.controlLine), RoundedCornerShape(24.dp)).pointerInput(Unit) {
+        modifier.height(48.dp).semantics(mergeDescendants = true) { role = androidx.compose.ui.semantics.Role.Button; contentDescription = label; onClick(label) { step.value(); true } }.border(BorderStroke(1.dp, Ink.controlLine), RoundedCornerShape(24.dp)).pointerInput(Unit) {
             detectTapGestures(onPress = {
                 step.value()
                 val held = scope.launch { delay(450); while (true) { step.value(); delay(200) } }
