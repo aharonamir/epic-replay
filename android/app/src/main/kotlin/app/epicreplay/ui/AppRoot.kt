@@ -45,14 +45,25 @@ fun AppRoot(vm: AppViewModel, isReady: () -> Boolean, keys: app.epicreplay.core.
     val scope = rememberCoroutineScope()
     var keysTick by remember { mutableStateOf(0) }
     var showKeys by remember { mutableStateOf(false) }
+    var settings by remember { mutableStateOf(0) } // 0 closed, 1 the choice, 2 the models, 3 the keys
     val voiceKeyMissing = remember(keysTick) { keys.rows().first { it.kind == app.epicreplay.core.secrets.KeyKind.ELEVENLABS }.status != app.epicreplay.core.secrets.KeyStatus.PRESENT }
     val pick = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri -> if (uri != null) scope.launch { vm.chooseClip(uri) } }
     val film = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { r -> if (r.resultCode == Activity.RESULT_OK) r.data?.data?.let { scope.launch { vm.chooseClip(it) } } }
     val accent = if (onStart) (choosing?.let { accentOf(it.accent, null) } ?: DefaultAccent) else vm.accent(view)
     EpicTheme(accent) {
         androidx.compose.material3.Surface(color = Ink.ground, modifier = modifier.fillMaxSize()) { Column(Modifier.statusBarsPadding().navigationBarsPadding()) {
-            AppHeader()
+            AppHeader(onSettings = if (ready && settings == 0 && !showKeys) ({ settings = 1 }) else null)
             when {
+                settings == 1 -> Column(Modifier.padding(16.dp), verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(12.dp)) {
+                    androidx.compose.material3.Button(onClick = { settings = 2 }, modifier = Modifier.fillMaxWidth().testTag("settings_models")) { Text("Models: where they run, the server, the download") }
+                    androidx.compose.material3.Button(onClick = { settings = 3 }, modifier = Modifier.fillMaxWidth().testTag("settings_keys")) { Text("Keys") }
+                    androidx.compose.material3.OutlinedButton(onClick = { settings = 0 }, modifier = Modifier.fillMaxWidth().testTag("settings_back")) { Text("Back") }
+                }
+                settings == 2 -> firstRun { settings = 0 }
+                settings == 3 -> Column {
+                    KeysSection(keys, onChanged = { keysTick++ })
+                    androidx.compose.material3.Button(onClick = { settings = 0 }, modifier = Modifier.padding(16.dp).fillMaxWidth()) { Text("Done") }
+                }
                 showKeys -> Column {
                     KeysSection(keys, onChanged = { keysTick++ })
                     androidx.compose.material3.Button(onClick = { showKeys = false }, modifier = Modifier.padding(16.dp).androidx_fill().testTagKeys()) { Text("Done") }
