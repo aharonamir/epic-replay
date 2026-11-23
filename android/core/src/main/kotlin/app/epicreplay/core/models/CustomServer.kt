@@ -30,14 +30,15 @@ object CustomServers {
         val base = apiBase.trim()
         if (!base.startsWith("https://")) return "The address must start with https:// (a plain http address is not used)."
         val host = base.removePrefix("https://").substringBefore('/')
-        if (host.isEmpty() || ' ' in base || '?' in base || '#' in base) return "That is not a server address (no spaces, query or #; for example https://api.example.com/v1)."
+        if (host.isEmpty() || base.any { it.isWhitespace() || it.isISOControl() || it.code in 0x1C..0x1F || it.code == 0x85 || it.code == 0xA0 } || '?' in base || '#' in base) return "That is not a server address (no spaces, query or #; for example https://api.example.com/v1)."
         if (!MODEL.matches(model.trim())) return "The model name is one word, as the server names it (letters, digits and . _ : / @ + -)."
-        if (label.trim().length > 40) return "The name is at most 40 characters."
-        for (p in listOf(priceIn, priceOut)) if (price(p) == null) return "A price is a number of dollars per million tokens, or empty if unknown."
+        if (label.trim().length > 40 || label.any { it.isISOControl() }) return "The name is at most 40 characters, on one line."
+        for (p in listOf(priceIn, priceOut)) if (price(p) == null) return "A price is a number of dollars per million tokens (0 to 10,000), or empty if unknown."
         return null
     }
 
-    private fun price(text: String): Double? = text.trim().ifEmpty { "0" }.toDoubleOrNull()?.takeIf { it >= 0 && it.isFinite() }
+    /** Dollars per million tokens: a number from 0 to 10,000 (more is not a price, and would overflow the ceiling worked out from it). */
+    private fun price(text: String): Double? = text.trim().ifEmpty { "0" }.toDoubleOrNull()?.takeIf { it in 0.0..10_000.0 }
 
     /** The server for typed values, or null when [problem] says they are wrong. */
     fun of(label: String, apiBase: String, model: String, priceIn: String, priceOut: String, supportsTools: Boolean): CustomServer? =

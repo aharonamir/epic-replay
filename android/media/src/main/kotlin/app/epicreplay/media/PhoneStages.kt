@@ -125,9 +125,10 @@ object PhoneStages {
     )
 
     /** The manifest's `stack` (as the PC's): the provider mode and the models each role ran on, recorded when the run starts so that a later change of choice does not alter it (FR-006). */
-    fun stack(models: ModelsUsed?, mode: String): JsonObject = buildJsonObject {
+    fun stack(models: ModelsUsed?, mode: String, customProfile: JsonObject? = null): JsonObject = buildJsonObject {
         put("mode", mode)
         put("vision", models?.vision?.id ?: "none"); put("text", models?.text?.id ?: "none")
         put("models", models?.toJson() ?: JsonObject(emptyMap()))
+        customProfile?.let { put("custom_profile", it) } // a copy of the user's own server as the run started: a later edit of the server does not change this run
     }
 }

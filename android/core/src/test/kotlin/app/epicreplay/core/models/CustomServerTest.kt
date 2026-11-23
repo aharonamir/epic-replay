@@ -47,3 +47,15 @@ class CustomServerTest {
         store.delete(); assertNull(store.load())
     }
 }
+
+class CustomServerRulesTest {
+    @Test
+    fun aTabOrOtherWhiteSpaceInTheAddressIsRefusedAndHugePricesToo() {
+        assertTrue(CustomServers.problem("", "https://a.example.com/\tv1", "m", "", "")!!.contains("not a server address"))
+        assertTrue(CustomServers.problem("", "https://a.example.com/ v1", "m", "", "")!!.contains("not a server address"))
+        assertTrue(CustomServers.problem("", "https://a.example.com/v1", "m", "1e308", "")!!.contains("price"))
+        assertTrue(CustomServers.problem("", "https://a.example.com/v1", "m", "", "10001")!!.contains("price"))
+        assertNull(CustomServers.problem("", "https://a.example.com/v1", "m", "10000", "10000"))
+        assertTrue(CustomServers.problem("a\nb", "https://a.example.com/v1", "m", "", "")!!.contains("one line"))
+    }
+}

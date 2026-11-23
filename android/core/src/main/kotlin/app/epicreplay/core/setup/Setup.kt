@@ -71,9 +71,7 @@ class SetupController(
         val vision = choice.chosen(Role.VISION) ?: return SetupStep.NeedsChoice(Role.VISION)
         val text = choice.chosen(Role.TEXT) ?: return SetupStep.NeedsChoice(Role.TEXT)
         for (p in listOf(vision, text).distinctBy { it.id }) {
-            if (p is ServerProfile && p.apiKeyEnv != null && secrets.status(KeyKind.MODEL_PROVIDER) != KeyStatus.PRESENT) {
-                return SetupStep.NeedsKey(KeyKind.MODEL_PROVIDER)
-            }
+            if (p is ServerProfile && p.apiKeyEnv != null && secrets.status(keyFor(p)) != KeyStatus.PRESENT) return SetupStep.NeedsKey(keyFor(p))
         }
         for (p in listOf(vision, text).distinctBy { it.id }) {
             if (p is OnDeviceProfile && !downloader.installed(p)) return SetupStep.NeedsDownload(p, downloader.remainingBytes(p), ModelNotice.of(p))
@@ -95,7 +93,9 @@ class SetupController(
         val chosen = listOfNotNull(vision, text).distinctBy { it.id }
         val steps = ArrayList<Pair<String, Boolean>>()
         steps += "Models" to (vision != null && text != null)
-        if (chosen.isEmpty() || chosen.any { it is ServerProfile && it.apiKeyEnv != null }) steps += "Key" to (secrets.status(KeyKind.MODEL_PROVIDER) == KeyStatus.PRESENT && chosen.isNotEmpty())
+        val needing = chosen.filterIsInstance<ServerProfile>().filter { it.apiKeyEnv != null }.map { keyFor(it) }.distinct()
+        if (chosen.isEmpty()) steps += "Key" to false
+        for (k in needing) steps += "Key" to (secrets.status(k) == KeyStatus.PRESENT)
         if (chosen.any { it is OnDeviceProfile }) steps += "Download" to chosen.filterIsInstance<OnDeviceProfile>().all { downloader.installed(it) }
         steps += "Voice" to (secrets.status(KeyKind.ELEVENLABS) == KeyStatus.PRESENT)
         steps += "Agree" to (vision != null && text != null && consent.load()?.let { copy.covers(it, vision.location, text.location) } == true)
@@ -119,6 +119,9 @@ class SetupController(
     }
 
     companion object {
+        /** The key a cloud profile is called with: the user's own server has its own, every shipped profile the model provider's. */
+        fun keyFor(p: ServerProfile): KeyKind = if (p.id == CustomServers.ID) KeyKind.CUSTOM_SERVER else KeyKind.MODEL_PROVIDER
+
         /** The one line of spec US1.1: what a choice means (the provider's name is the profile's label). */
         fun meaning(profile: Profile, role: Role): String = when (profile) {
             is OnDeviceProfile -> "Stays on this phone; free; needs a ${ModelNotice.megabytes(profile.files.sumOf { it.bytes })} download; slower and less accurate."

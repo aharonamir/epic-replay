@@ -89,6 +89,7 @@ class AppViewModel(private val graph: AppGraph, private val context: Context, la
     /** "Make my replay": the run is made from the clip and the choices, with the consent the tick gives, and started. */
     fun make(input: StartInput) {
         val (file, _) = _clip.value ?: return
+        if (graph.setup.step() !is app.epicreplay.core.setup.SetupStep.Ready) return // a key deleted in Settings, a missing download or consent: no run starts
         val models = launcher.models() ?: return
         val card = cards.first { it.id == input.narrator }
         val record = ConsentRecord(Instant.now().toString().substringBefore('.') + "Z", consentCopy.textVersion, models.vision.location, models.text.location).toJson()

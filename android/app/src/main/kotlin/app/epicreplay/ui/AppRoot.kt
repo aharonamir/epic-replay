@@ -46,6 +46,7 @@ fun AppRoot(vm: AppViewModel, isReady: () -> Boolean, keys: app.epicreplay.core.
     var keysTick by remember { mutableStateOf(0) }
     var showKeys by remember { mutableStateOf(false) }
     var settings by remember { mutableStateOf(0) } // 0 closed, 1 the choice, 2 the models, 3 the keys
+    val setupReady = remember(keysTick, settings, ready) { isReady() }
     val voiceKeyMissing = remember(keysTick) { keys.rows().first { it.kind == app.epicreplay.core.secrets.KeyKind.ELEVENLABS }.status != app.epicreplay.core.secrets.KeyStatus.PRESENT }
     val pick = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri -> if (uri != null) scope.launch { vm.chooseClip(uri) } }
     val film = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { r -> if (r.resultCode == Activity.RESULT_OK) r.data?.data?.let { scope.launch { vm.chooseClip(it) } } }
@@ -74,6 +75,7 @@ fun AppRoot(vm: AppViewModel, isReady: () -> Boolean, keys: app.epicreplay.core.
                     vm.cards, vm.words, vm.consentCopy.consentText, vm.providerLine(), clip?.second, problem,
                     StartActions({ pick.launch("video/*") }, { film.launch(Intent(MediaStore.ACTION_VIDEO_CAPTURE)) }, ), { choosing = it }, vm::make,
                     voiceKeyMissing = voiceKeyMissing, onAddKey = { showKeys = true },
+                    setupProblem = if (setupReady) null else "Setup is not finished: a key, the download or the consent is missing.", onSetup = { settings = 1 },
                 )
                 view!!.state.status == "done" && view!!.state.hasVideo -> ResultScreen(java.io.File(view!!.dir, "final.mp4"), vm::another)
                 else -> RunScreen(vm, view!!) { showKeys = true }

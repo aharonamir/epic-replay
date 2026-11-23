@@ -65,7 +65,7 @@ class AppGraph(context: Context) {
 
     /** The client for a cloud [profile] in [role]. A failure never carries the key. */
     fun cloudBackend(profile: ServerProfile, role: Role, transport: HttpTransport = JavaHttpTransport()): CloudBackend {
-        val key = { secrets.get(KeyKind.MODEL_PROVIDER) }
+        val key = { secrets.get(SetupController.keyFor(profile)) } // the user's own server has a key of its own: a key typed for one server is never sent to another
         return CloudBackend(profile, role, RedactingTransport(transport) { listOf(key()) }, key, BitmapImageResizer())
     }
 
@@ -91,14 +91,15 @@ class AppGraph(context: Context) {
 
     /** The profiles packaged from `shared/models/`, minus what Android cannot run (spec 004 FR-005). */
     val customServers = CustomServerStore(File(root, "settings/${CustomServers.FILE}"))
-    @Volatile private var loadedProfiles: LoadedProfiles? = null
+    private val profilesLock = Any()
+    private var loadedProfiles: LoadedProfiles? = null
     private fun loadProfiles(): LoadedProfiles {
         val files = appContext.assets.list("models")!!.filter { it.endsWith(".json") }.map { ProfileFile(it, asset("models/$it")) } + listOfNotNull(customServers.profileFile())
         return ProfileLoader(asset("contracts/model_profile.schema.json"), Platform.ANDROID).load(files)
     }
     /** The shipped profiles and the user's own server (spec 004 FR-CUSTOM-1); read again after the server is saved. */
-    val profiles: LoadedProfiles get() = loadedProfiles ?: loadProfiles().also { loadedProfiles = it }
-    fun reloadProfiles() { loadedProfiles = null }
+    val profiles: LoadedProfiles get() = synchronized(profilesLock) { loadedProfiles ?: loadProfiles().also { loadedProfiles = it } }
+    fun reloadProfiles() { synchronized(profilesLock) { loadedProfiles = null } }
 
     /** The first-run and settings logic: the choice for each role, what is missing before a run, the consent. */
     val setup: SetupController by lazy {

@@ -66,6 +66,14 @@ class RunLauncher(private val graph: AppGraph, private val context: Context, pri
 
     private fun modelName(p: Profile) = when (p) { is ServerProfile -> p.model; else -> p.id }
 
+    private fun customSnapshot(models: ModelsUsed?): JsonObject? =
+        if (models != null && (models.vision.id == app.epicreplay.core.models.CustomServers.ID || models.text.id == app.epicreplay.core.models.CustomServers.ID)) graph.customServers.load()?.let(app.epicreplay.core.models.CustomServers::profileJson) else null
+
+    /** A run's copy of the user's own server, read as a profile (the shared schema checks it as it checked the file). */
+    private fun snapshotProfile(json: JsonObject): Profile? =
+        app.epicreplay.core.models.ProfileLoader(text("contracts/model_profile.schema.json"), app.epicreplay.core.models.Platform.ANDROID)
+            .load(listOf(app.epicreplay.core.models.ProfileFile(app.epicreplay.core.models.CustomServers.FILE, json.toString()))).profiles[app.epicreplay.core.models.CustomServers.ID]
+
     /** Whether a user context's consent covers the models the run goes to. */
     fun consentCovers(uc: JsonObject, models: ModelsUsed?): Boolean = models != null && ConsentCopy(text("copy/consent.json")).covers((uc["consent"] as? JsonObject) ?: JsonObject(emptyMap()), models.vision.location, models.text.location)
 
@@ -73,7 +81,7 @@ class RunLauncher(private val graph: AppGraph, private val context: Context, pri
     fun flow(dir: File, apiKey: () -> app.epicreplay.core.secrets.Secret? = { graph.secrets.get(app.epicreplay.core.secrets.KeyKind.ELEVENLABS) }): RunFlow {
         val root = shared
         val saved = RunFiles.read(File(dir, RunFlow.MANIFEST))
-        val models = chosen ?: (if (saved != null) RunStack.saved(saved, graph.profiles.profiles) ?: throw IllegalStateException("the models this run started with are no longer offered") else models())
+        val models = chosen ?: (if (saved != null) RunStack.saved(saved, graph.profiles.profiles, ::snapshotProfile) ?: throw IllegalStateException("the models this run started with are no longer offered") else models())
         val words = CommentatorWords.load(root)
         val checks = Checks.fromShared(root)
         val scriptSchema = File(root, "contracts/script.schema.json").readText()
@@ -96,7 +104,7 @@ class RunLauncher(private val graph: AppGraph, private val context: Context, pri
             speech = { speechFor?.invoke(dir) ?: voice(dir, apiKey) },
         )
         return RunFlow(
-            dir, PhoneStages.all(env) { run -> AndroidMixAudio(assets, run, rules.sampleRate) }, { uc -> consentCovers(uc, models) }, PhoneStages.stack(models, mode.name.lowercase()),
+            dir, PhoneStages.all(env) { run -> AndroidMixAudio(assets, run, rules.sampleRate) }, { uc -> consentCovers(uc, models) }, PhoneStages.stack(models, mode.name.lowercase(), customSnapshot(models)),
             spentUsd = { ledger.runTotal(dir.name) },
         )
     }

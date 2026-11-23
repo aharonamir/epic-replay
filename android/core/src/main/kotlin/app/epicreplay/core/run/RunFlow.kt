@@ -73,10 +73,18 @@ object FlowOrder {
 
 /** The models a run started with, read back from its manifest (spec 004 FR-006: a run already started keeps the profiles it started with, whatever the choice is now). */
 object RunStack {
-    /** The vision and text profiles named in the manifest's `stack.models`, or null when there is none or a profile is no longer offered (the caller then says so rather than use another). */
-    fun saved(manifest: JsonObject?, profiles: Map<String, app.epicreplay.core.models.Profile>): app.epicreplay.core.setup.ModelsUsed? {
-        val models = (manifest?.get("stack") as? JsonObject)?.get("models") as? JsonObject ?: return null
-        fun profile(role: String) = ((models[role] as? JsonObject)?.get("profile") as? JsonPrimitive)?.takeIf { it !is JsonNull }?.content?.let { profiles[it] }
+    /**
+     * The vision and text profiles named in the manifest's `stack.models`, or null when there is none or a profile is no longer offered (the caller then says so rather than use another).
+     * The user's own server is read from the copy the manifest holds (`stack.custom_profile`, made by [snapshot]), so changing the server's address or model does not redirect a run that
+     * is waiting or resuming.
+     */
+    fun saved(manifest: JsonObject?, profiles: Map<String, app.epicreplay.core.models.Profile>, snapshot: (JsonObject) -> app.epicreplay.core.models.Profile? = { null }): app.epicreplay.core.setup.ModelsUsed? {
+        val stack = manifest?.get("stack") as? JsonObject ?: return null
+        val models = stack["models"] as? JsonObject ?: return null
+        val held = stack["custom_profile"] as? JsonObject
+        val own = held?.let(snapshot)
+        // a run that holds a copy of the user's own server never falls back to the server saved now: an unreadable copy is no profile at all
+        fun profile(role: String) = ((models[role] as? JsonObject)?.get("profile") as? JsonPrimitive)?.takeIf { it !is JsonNull }?.content?.let { id -> if (id == app.epicreplay.core.models.CustomServers.ID && held != null) own else profiles[id] }
         val vision = profile("vision") ?: return null; val text = profile("text") ?: return null
         return app.epicreplay.core.setup.ModelsUsed(vision, text)
     }

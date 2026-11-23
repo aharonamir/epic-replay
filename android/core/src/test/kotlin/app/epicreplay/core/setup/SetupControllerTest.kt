@@ -203,4 +203,18 @@ class SetupControllerTest {
         onPhone.choose(Role.VISION, "tiny-device"); onPhone.choose(Role.TEXT, "tiny-device")
         assertEquals(listOf("Models", "Download", "Voice", "Agree"), onPhone.outline().map { it.first }) // no key for a model on the phone
     }
+
+    @Test
+    fun aKeyTypedForOneServerIsNeverTheKeyOfAnotherAndTheOwnServerAsksForItsOwn() {
+        assertEquals(KeyKind.MODEL_PROVIDER, SetupController.keyFor(cloud))
+        val mine = cloud.copy(id = "custom-cloud", label = "Mine", apiBase = "https://x.example/v1", model = "m")
+        assertEquals(KeyKind.CUSTOM_SERVER, SetupController.keyFor(mine))
+        val c = controller(LoadedProfiles(listOf(cloud, mine, phone).associateBy { it.id }, emptyList()))
+        c.choose(Role.VISION, "deepseek-flash"); c.choose(Role.TEXT, "custom-cloud")
+        secrets().put(KeyKind.MODEL_PROVIDER, Secret("sk-abcdefghijklmnop1234"))
+        assertEquals(KeyKind.CUSTOM_SERVER, assertIs<SetupStep.NeedsKey>(c.step()).key) // the first key does not serve the second server
+        assertEquals(listOf("Models", "Key", "Key", "Voice", "Agree"), c.outline().map { it.first })
+        secrets().put(KeyKind.CUSTOM_SERVER, Secret("custom-key-abcdefgh"))
+        assertIs<SetupStep.NeedsConsent>(c.step())
+    }
 }

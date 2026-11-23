@@ -53,7 +53,7 @@ class StartActions(val pickClip: () -> Unit, val recordClip: () -> Unit)
  * and "Make my replay", enabled by a valid clip and the consent. Choosing a narrator recolours the screen in its accent ([onNarrator]).
  */
 @Composable
-fun StartScreen(cards: List<NarratorCard>, words: PageWords, consentText: String, providerLine: String, clipName: String?, clipProblem: String?, actions: StartActions, onNarrator: (NarratorCard) -> Unit, onMake: (StartInput) -> Unit, modifier: Modifier = Modifier, voiceKeyMissing: Boolean = false, onAddKey: () -> Unit = {}) {
+fun StartScreen(cards: List<NarratorCard>, words: PageWords, consentText: String, providerLine: String, clipName: String?, clipProblem: String?, actions: StartActions, onNarrator: (NarratorCard) -> Unit, onMake: (StartInput) -> Unit, modifier: Modifier = Modifier, voiceKeyMissing: Boolean = false, onAddKey: () -> Unit = {}, setupProblem: String? = null, onSetup: () -> Unit = {}) {
     var narrator by rememberSaveable { mutableStateOf(cards.first().id) }
     var language by rememberSaveable { mutableStateOf("en") }
     var player by rememberSaveable { mutableStateOf("") }
@@ -125,8 +125,12 @@ fun StartScreen(cards: List<NarratorCard>, words: PageWords, consentText: String
             Text(words.stopped("voice_key"), style = MaterialTheme.typography.bodyLarge, modifier = Modifier.testTag("voice_key_missing"))
             OutlinedButton(onClick = onAddKey, modifier = Modifier.testTag("add_key")) { Text(words.stopped("add_key")) }
         }
+        if (setupProblem != null) Column(Modifier.fillMaxWidth().border(BorderStroke(1.dp, accent.text), RoundedCornerShape(6.dp)).padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(setupProblem, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.testTag("setup_problem"))
+            OutlinedButton(onClick = onSetup, modifier = Modifier.testTag("open_settings")) { Text("Open Settings") }
+        }
         Button(
-            onClick = { onMake(input) }, enabled = StartForm.canStart(input) && !voiceKeyMissing, modifier = Modifier.fillMaxWidth().height(64.dp).testTag("make"),
+            onClick = { onMake(input) }, enabled = StartForm.canStart(input) && !voiceKeyMissing && setupProblem == null, modifier = Modifier.fillMaxWidth().height(64.dp).testTag("make"),
             colors = ButtonDefaults.buttonColors(containerColor = accent.fill, contentColor = accent.onAccent, disabledContainerColor = Ink.raised, disabledContentColor = Ink.muted),
         ) { Text(words.go.uppercase(), style = MaterialTheme.typography.titleLarge) }
         Spacer(Modifier.height(32.dp))
