@@ -4,6 +4,12 @@ import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.assertTextEquals
+import androidx.compose.ui.test.assertTextContains
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -39,23 +45,24 @@ class FirstRunScreenTest {
     private val downloads = mutableListOf<String>()
     private val status = MutableStateFlow<DownloadStatus>(DownloadStatus.Idle)
 
-    private val kept = File(ctx.filesDir, "models.kept-by-test")
+    private val keptDirs = listOf("models", "secrets", "settings")
+    private fun kept(d: String) = File(ctx.filesDir, "$d.kept-by-test")
 
-    /** Secrets and settings are cleared; downloaded models are set aside (a rename) and put back, never deleted. */
-    private fun clean() {
-        for (d in listOf("secrets", "settings")) File(ctx.filesDir, d).deleteRecursively()
-        File(ctx.filesDir, "models").deleteRecursively()
-    }
-
+    /** What the test touches (the models, the keys, the choices and the consent) is set aside by a rename and put back after, so a phone in use keeps its state; the test works on empty ones. */
     @Before fun setUp() {
-        val models = File(ctx.filesDir, "models")
-        if (models.exists() && !kept.exists()) check(models.renameTo(kept)) { "could not set the models aside" }
-        clean(); graph = AppGraph(ctx)
+        for (d in keptDirs) {
+            val dir = File(ctx.filesDir, d)
+            if (dir.exists() && !kept(d).exists()) check(dir.renameTo(kept(d))) { "could not set $d aside" }
+            else if (dir.exists()) dir.deleteRecursively() // a leftover of an earlier run of this test, the kept one is the real one
+        }
+        graph = AppGraph(ctx)
     }
 
     @After fun tearDown() {
-        clean()
-        if (kept.exists()) check(kept.renameTo(File(ctx.filesDir, "models"))) { "could not put the models back" }
+        for (d in keptDirs) {
+            File(ctx.filesDir, d).deleteRecursively()
+            if (kept(d).exists()) check(kept(d).renameTo(File(ctx.filesDir, d))) { "could not put $d back" }
+        }
     }
 
     private fun show() = rule.setContent {
@@ -103,7 +110,7 @@ class FirstRunScreenTest {
     @Test
     fun theConsentNamesTheFramesAndTheTextAndNeedsTheTickBeforeAnything() {
         graph.setup.choose(Role.VISION, "deepseek-flash"); graph.setup.choose(Role.TEXT, "deepseek-flash")
-        graph.secrets.put(KeyKind.MODEL_PROVIDER, Secret("sk-abcdefghijklmnop1234"))
+        graph.secrets.put(KeyKind.MODEL_PROVIDER, Secret("sk-abcdefghijklmnop1234")); graph.secrets.put(KeyKind.ELEVENLABS, Secret("voice-key-abcdef"))
         show()
         rule.onNodeWithText("Still frames from the clip, and descriptions drawn from them with the script, are sent to the model providers", substring = true).assertExists()
         rule.onNodeWithText("I agree").assertIsNotEnabled()
@@ -115,12 +122,48 @@ class FirstRunScreenTest {
     @Test
     fun readyAsksBothRolesOneQuestionEach() {
         graph.setup.choose(Role.VISION, "deepseek-flash"); graph.setup.choose(Role.TEXT, "deepseek-flash")
-        graph.secrets.put(KeyKind.MODEL_PROVIDER, Secret("sk-abcdefghijklmnop1234"))
+        graph.secrets.put(KeyKind.MODEL_PROVIDER, Secret("sk-abcdefghijklmnop1234")); graph.secrets.put(KeyKind.ELEVENLABS, Secret("voice-key-abcdef"))
         graph.setup.confirmConsent()
         show()
         rule.onNodeWithText("Ask both models one question").performClick()
         rule.waitUntil(5_000) { asked.size == 2 }
         rule.onNodeWithText("Vision: answer for VISION").assertExists()
         rule.onNodeWithText("Text: answer for TEXT").assertExists()
+    }
+
+    @Test
+    fun theKeysAreAskedOneAtATimeAndSavingOneMovesOnToTheNext() {
+        graph.setup.choose(Role.VISION, "deepseek-flash"); graph.setup.choose(Role.TEXT, "deepseek-flash")
+        show()
+        rule.onNodeWithTag("wizard_step").assertTextEquals("Step 2 of 4")
+        rule.onNodeWithText("api.deepseek.com", substring = true).assertExists() // the address and the model of the server are shown
+        rule.onNodeWithText("ElevenLabs key").assertDoesNotExist() // never two keys on a screen
+        rule.onNodeWithText("Key").performTextInput("sk-abcdefghijklmnop1234"); rule.onNodeWithText("Save").performClick()
+        rule.waitForIdle()
+        rule.onNodeWithTag("wizard_step").assertTextEquals("Step 3 of 4")
+        rule.onNodeWithText("The voice").assertExists(); rule.onNodeWithText("ElevenLabs key").assertExists(); rule.onNodeWithText("Model provider key").assertDoesNotExist()
+        rule.onNodeWithText("Key").performTextInput("voice-key-abcdef"); rule.onNodeWithText("Save").performClick()
+        rule.waitForIdle()
+        rule.onNodeWithTag("wizard_step").assertTextEquals("Step 4 of 4")
+        rule.onNodeWithText("I agree").assertExists()
+    }
+
+    @Test
+    fun aServerOfTheUsersOwnIsEnteredCheckedSavedAndChosen() {
+        show()
+        rule.onNodeWithTag("own_server_vision").performClick()
+        rule.onNodeWithTag("server_base").performScrollTo().performTextReplacement("http://plain.example.com/v1")
+        rule.onNodeWithTag("server_model").performScrollTo().performTextInput("my-model")
+        rule.onNodeWithTag("server_save").performScrollTo().performClick()
+        rule.onNodeWithTag("server_problem").performScrollTo().assertTextContains("https://", substring = true)
+        rule.onNodeWithTag("server_base").performScrollTo().performTextReplacement("https://api.example.com/v1")
+        rule.onNodeWithTag("server_price_in").performScrollTo().performTextInput("0.4"); rule.onNodeWithTag("server_price_out").performScrollTo().performTextInput("1.6")
+        rule.onNodeWithTag("server_save").performScrollTo().performClick()
+        rule.waitForIdle()
+        assert(graph.setup.chosen(Role.VISION)?.id == "custom-cloud") { "${graph.setup.chosen(Role.VISION)?.id}" }
+        assert(graph.setup.customServer()?.apiBase == "https://api.example.com/v1")
+        rule.onNodeWithTag("own_server_text").assertExists() // offered for the other role too, now that it is saved
+        graph.setup.choose(Role.TEXT, "custom-cloud")
+        graph.customServers.delete(); graph.reloadProfiles()
     }
 }

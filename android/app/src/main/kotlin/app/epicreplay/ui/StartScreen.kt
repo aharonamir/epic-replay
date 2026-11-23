@@ -72,7 +72,7 @@ fun StartScreen(cards: List<NarratorCard>, words: PageWords, consentText: String
             if (clipProblem != null) Text(clipProblem, color = Ink.dangerText, modifier = Modifier.testTag("clip_problem"))
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 Button(onClick = actions.pickClip, modifier = Modifier.testTag("pick_clip"), colors = ButtonDefaults.buttonColors(containerColor = accent.fill, contentColor = accent.onAccent)) { Text(if (clipName == null) "Choose a clip" else "Change") }
-                OutlinedButton(onClick = actions.recordClip, modifier = Modifier.testTag("record_clip")) { Text("Film one") }
+                OutlinedButton(onClick = actions.recordClip, modifier = Modifier.testTag("record_clip")) { Text("Film") }
             }
             Text("3 to 30 seconds · MP4, MOV or WebM", style = MaterialTheme.typography.bodyMedium, color = Ink.muted)
         }

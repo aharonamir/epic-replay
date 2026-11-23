@@ -59,7 +59,7 @@ class RunLauncher(private val graph: AppGraph, private val context: Context, pri
         StyleLoader(text("contracts/style_pack.schema.json"), kotlinx.serialization.json.Json.parseToJsonElement(text("styles/voices.json")) as JsonObject, { true }).load(files)
     }
     private val recorder get() = if (recordings != null) app.epicreplay.core.record.Recorder(mode, recordings) else graph.recorder(mode)
-    private val choice get() = ModelChoice(graph.modelChoice, graph.profiles)
+    private val choice get() = ModelChoice(graph.modelChoice, { graph.profiles })
 
     /** The models the next run would use ([chosen] when given: a test), or null when a role has none chosen. */
     fun models(): ModelsUsed? = chosen ?: choice.let { c -> c.chosen(Role.VISION)?.let { v -> c.chosen(Role.TEXT)?.let { t -> ModelsUsed(v, t) } } }

@@ -10,7 +10,10 @@ class ProfileChoiceException(message: String) : Exception(message)
  * that this platform loaded and that lists the role can be chosen, and a stored choice whose profile is
  * gone (a deleted file, a new platform rule) reads as no choice, so the app asks again (D3).
  */
-class ModelChoice(private val store: ModelChoiceStore, private val loaded: LoadedProfiles) {
+class ModelChoice(private val store: ModelChoiceStore, private val profiles: () -> LoadedProfiles) {
+    constructor(store: ModelChoiceStore, loaded: LoadedProfiles) : this(store, { loaded })
+    private val loaded: LoadedProfiles get() = profiles()
+
     fun choose(role: Role, profileId: String) {
         val p = loaded.profiles[profileId]
             ?: throw ProfileChoiceException("no usable model profile $profileId; the profiles are ${loaded.profiles.keys.joinToString().ifEmpty { "none" }}")

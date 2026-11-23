@@ -15,6 +15,7 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -54,45 +55,64 @@ class FirstRunActions(
 )
 
 /**
- * The first-run flow and, later, the models part of settings (spec 004 US1 and US3, T411). One screen that follows
- * [SetupController.step]: a choice for each role, then the key, the download, the consent, and when nothing is missing
- * the one-question check. Nothing here sends anything; a call is made only by [FirstRunActions.ask], after Ready.
+ * The first run as a wizard (spec 004 FR-WIZ-1, T411): the steps that apply, one screen each, "Step n of m" above them: the two models; a cloud model's key (with its address and
+ * model name shown, or entered for a server of the user's own); an on-device model's download; the voice's key; the consent; then the one-question check. A key is entered alone on its
+ * screen and saving it moves on. Nothing here sends anything; a call is made only by [FirstRunActions.ask], after Ready.
  */
 @Composable
 fun FirstRunScreen(controller: SetupController, keys: KeysController, actions: FirstRunActions, modifier: Modifier = Modifier, onContinue: (() -> Unit)? = null) {
     var tick by remember { mutableIntStateOf(0) } // bumped whenever something the step depends on changed
     var changing by remember { mutableStateOf(false) }
     val step = remember(tick) { controller.step() }
+    val outline = remember(tick) { controller.outline() }
+    val at = outline.indexOfFirst { !it.second }.let { if (it < 0) outline.lastIndex else it }
     Column(modifier.verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        Text("Where do the models run?", style = MaterialTheme.typography.headlineSmall)
+        Text("Step ${at + 1} of ${outline.size}", style = MaterialTheme.typography.labelMedium, modifier = Modifier.testTag("wizard_step"))
         if (changing || step is SetupStep.NeedsChoice) {
+            Text("Where do the models run?", style = MaterialTheme.typography.headlineSmall)
             for (role in Role.entries) RolePicker(controller, role) { tick++ }
             if (changing && step !is SetupStep.NeedsChoice) Button(onClick = { changing = false; tick++ }) { Text("Done") }
         } else {
-            Summary(controller) { changing = true }
             when (step) {
                 is SetupStep.NeedsChoice -> {}
                 is SetupStep.NeedsKey -> {
-                    Text("A key is needed before anything is sent.", style = MaterialTheme.typography.titleMedium)
-                    KeysSection(keys, onChanged = { tick++ }) // a saved or deleted key changes what is missing
+                    Text("A key is needed before anything is sent.", style = MaterialTheme.typography.headlineSmall)
+                    for (p in listOfNotNull(controller.chosen(Role.VISION), controller.chosen(Role.TEXT)).distinctBy { it.id }.filterIsInstance<app.epicreplay.core.models.ServerProfile>()) {
+                        Text("${p.label}\n${p.apiBase} · model ${p.model}", style = MaterialTheme.typography.bodyMedium, modifier = Modifier.testTag("server_${p.id}"))
+                    }
+                    KeyStep(keys, step.key) { tick++ }
                 }
-                is SetupStep.NeedsDownload -> DownloadPart(step, actions) { tick++ }
-                is SetupStep.NeedsConsent -> ConsentPart(step) { controller.confirmConsent(); tick++ }
-                is SetupStep.Ready -> ReadyPart(actions, onContinue)
+                is SetupStep.NeedsDownload -> { Summary(controller) { changing = true }; DownloadPart(step, actions) { tick++ } }
+                is SetupStep.NeedsVoiceKey -> {
+                    Text("The voice", style = MaterialTheme.typography.headlineSmall)
+                    Text("Every replay is spoken with ElevenLabs. Each replay costs about five cents of voice; the key stays on this phone.", style = MaterialTheme.typography.bodyMedium)
+                    KeyStep(keys, step.key) { tick++ }
+                }
+                is SetupStep.NeedsConsent -> { Summary(controller) { changing = true }; ConsentPart(step) { controller.confirmConsent(); tick++ } }
+                is SetupStep.Ready -> { Summary(controller) { changing = true }; ReadyPart(actions, onContinue) }
             }
         }
     }
 }
 
+/** One key on a screen of its own: its field, Save, and on a saved key the wizard goes on. */
+@Composable
+private fun KeyStep(keys: KeysController, kind: app.epicreplay.core.secrets.KeyKind, onSaved: () -> Unit) {
+    SecureWhileTyping()
+    KeyRowView(keys.rows().first { it.kind == kind }, keys) { onSaved() }
+}
+
 @Composable
 private fun RolePicker(controller: SetupController, role: Role, onChosen: () -> Unit) {
     var chosen by remember(role) { mutableStateOf(controller.chosen(role)?.id) }
+    var editing by remember(role) { mutableStateOf(false) }
+    val ownId = app.epicreplay.core.models.CustomServers.ID
     Column(Modifier.selectableGroup(), verticalArrangement = Arrangement.spacedBy(4.dp)) {
         Text(if (role == Role.VISION) "Looking at the clip" else "Writing the script", style = MaterialTheme.typography.titleMedium)
-        for (option in controller.options(role)) {
+        for (option in controller.options(role).filter { it.profile.id != ownId }) {
             Row(
                 Modifier.fillMaxWidth().selectable(selected = chosen == option.profile.id, role = SemanticsRole.RadioButton, onClick = {
-                    controller.choose(role, option.profile.id); chosen = option.profile.id; onChosen()
+                    controller.choose(role, option.profile.id); chosen = option.profile.id; editing = false; onChosen()
                 }),
             ) {
                 RadioButton(selected = chosen == option.profile.id, onClick = null)
@@ -102,6 +122,53 @@ private fun RolePicker(controller: SetupController, role: Role, onChosen: () -> 
                 }
             }
         }
+        // a server of the user's own (FR-CUSTOM-1): chosen once it is saved; its form opens to enter or to change it
+        val mine = controller.customServer()
+        Row(
+            Modifier.fillMaxWidth().testTag("own_server_${role.id}").selectable(selected = chosen == ownId, role = SemanticsRole.RadioButton, onClick = {
+                if (mine != null) { controller.choose(role, ownId); chosen = ownId; onChosen() } else editing = true
+            }),
+        ) {
+            RadioButton(selected = chosen == ownId, onClick = null)
+            Column(Modifier.padding(start = 8.dp)) {
+                Text(mine?.label ?: "Your own server")
+                Text(mine?.let { "${it.apiBase} · model ${it.model}" } ?: "Any OpenAI-compatible server over HTTPS: its address, model and key.", style = MaterialTheme.typography.bodySmall)
+            }
+        }
+        if (mine != null && !editing) OutlinedButton(onClick = { editing = true }, modifier = Modifier.testTag("edit_own_server_${role.id}")) { Text("Change my server") }
+        if (editing) CustomServerForm(mine) { server ->
+            controller.saveCustomServer(server, role); chosen = ownId; editing = false; onChosen()
+        }
+    }
+}
+
+/** The form of the user's own server: name, address, model, the prices that the spending caps count with, and whether it takes tool calls. */
+@Composable
+private fun CustomServerForm(initial: app.epicreplay.core.models.CustomServer?, onSave: (app.epicreplay.core.models.CustomServer) -> Unit) {
+    var label by remember { mutableStateOf(initial?.label ?: "") }
+    var base by remember { mutableStateOf(initial?.apiBase ?: "https://") }
+    var model by remember { mutableStateOf(initial?.model ?: "") }
+    var pin by remember { mutableStateOf(initial?.priceInPerM?.takeIf { it > 0 }?.toString() ?: "") }
+    var pout by remember { mutableStateOf(initial?.priceOutPerM?.takeIf { it > 0 }?.toString() ?: "") }
+    var tools by remember { mutableStateOf(initial?.supportsTools ?: true) }
+    var problem by remember { mutableStateOf<String?>(null) }
+    Column(Modifier.padding(start = 8.dp, top = 8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        OutlinedTextField(label, { label = it }, label = { Text("Name (optional)") }, singleLine = true, modifier = Modifier.fillMaxWidth().testTag("server_label"))
+        OutlinedTextField(base, { base = it; problem = null }, label = { Text("Address, e.g. https://api.example.com/v1") }, singleLine = true, modifier = Modifier.fillMaxWidth().testTag("server_base"))
+        OutlinedTextField(model, { model = it; problem = null }, label = { Text("Model name") }, singleLine = true, modifier = Modifier.fillMaxWidth().testTag("server_model"))
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            OutlinedTextField(pin, { pin = it; problem = null }, label = { Text("USD per million in") }, singleLine = true, modifier = Modifier.weight(1f).testTag("server_price_in"))
+            OutlinedTextField(pout, { pout = it; problem = null }, label = { Text("USD per million out") }, singleLine = true, modifier = Modifier.weight(1f).testTag("server_price_out"))
+        }
+        Text("The prices let the spending caps count this server's cost; leave them empty if you do not know them (the caps then cannot count it).", style = MaterialTheme.typography.bodySmall)
+        Row(Modifier.toggleable(tools, role = SemanticsRole.Checkbox, onValueChange = { tools = it }), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+            Checkbox(tools, onCheckedChange = null); Text("It takes tool calls", Modifier.padding(start = 8.dp))
+        }
+        problem?.let { Text(it, color = MaterialTheme.colorScheme.error, modifier = Modifier.testTag("server_problem")) }
+        Button(onClick = {
+            problem = app.epicreplay.core.models.CustomServers.problem(label, base, model, pin, pout)
+            if (problem == null) onSave(app.epicreplay.core.models.CustomServers.of(label, base, model, pin, pout, tools)!!)
+        }, modifier = Modifier.testTag("server_save")) { Text("Save") }
     }
 }
 

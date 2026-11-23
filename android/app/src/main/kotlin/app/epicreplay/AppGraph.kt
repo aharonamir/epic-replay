@@ -11,6 +11,8 @@ import app.epicreplay.core.budget.Ledger
 import app.epicreplay.core.consent.ConsentCopy
 import app.epicreplay.core.consent.ConsentStore
 import app.epicreplay.core.models.CloudBackend
+import app.epicreplay.core.models.CustomServerStore
+import app.epicreplay.core.models.CustomServers
 import app.epicreplay.core.models.LoadedProfiles
 import app.epicreplay.core.models.ModelChoice
 import app.epicreplay.core.models.Platform
@@ -88,17 +90,23 @@ class AppGraph(context: Context) {
     private fun asset(path: String) = appContext.assets.open(path).bufferedReader().use { it.readText() }
 
     /** The profiles packaged from `shared/models/`, minus what Android cannot run (spec 004 FR-005). */
-    val profiles: LoadedProfiles by lazy {
-        val files = appContext.assets.list("models")!!.filter { it.endsWith(".json") }.map { ProfileFile(it, asset("models/$it")) }
-        ProfileLoader(asset("contracts/model_profile.schema.json"), Platform.ANDROID).load(files)
+    val customServers = CustomServerStore(File(root, "settings/${CustomServers.FILE}"))
+    @Volatile private var loadedProfiles: LoadedProfiles? = null
+    private fun loadProfiles(): LoadedProfiles {
+        val files = appContext.assets.list("models")!!.filter { it.endsWith(".json") }.map { ProfileFile(it, asset("models/$it")) } + listOfNotNull(customServers.profileFile())
+        return ProfileLoader(asset("contracts/model_profile.schema.json"), Platform.ANDROID).load(files)
     }
+    /** The shipped profiles and the user's own server (spec 004 FR-CUSTOM-1); read again after the server is saved. */
+    val profiles: LoadedProfiles get() = loadedProfiles ?: loadProfiles().also { loadedProfiles = it }
+    fun reloadProfiles() { loadedProfiles = null }
 
     /** The first-run and settings logic: the choice for each role, what is missing before a run, the consent. */
     val setup: SetupController by lazy {
         SetupController(
-            profiles, ModelChoice(modelChoice, profiles), secrets, modelDownloader(),
+            { profiles }, ModelChoice(modelChoice, { profiles }), secrets, modelDownloader(),
             ConsentStore(File(root, "settings/consent.json")), ConsentCopy(asset("copy/consent.json")),
             { Instant.now().truncatedTo(java.time.temporal.ChronoUnit.SECONDS).toString() },
+            customServers, ::reloadProfiles,
         )
     }
 
