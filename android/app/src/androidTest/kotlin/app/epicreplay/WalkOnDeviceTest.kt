@@ -87,7 +87,7 @@ class WalkOnDeviceTest {
         val models = graph.profiles.profiles.getValue("deepseek-flash").let { ModelsUsed(it, it) }
         val ledger = Ledger(InMemoryLedgerStorage(), Caps(runUsd = 5.0, dayUsd = 20.0, preCheckpointUsd = 5.0), today = { "walk" }, now = { "t" })
         val launcher = RunLauncher(graph, ctx, ProviderMode.LIVE, File(work, "recordings"), models, { _, role -> if (role == Role.VISION) vision else textModel }, { voice }, ledger)
-        val vm = AppViewModel(graph, ctx, launcher, File(work, "runs"))
+        val vm = AppViewModel(graph, ctx, launcher, File(work, "runs")) { true } // setup is the test's own: nothing of the phone's keys, models or consent is read
         val clip = File(work, "strike.mp4").also { f -> tests.open("fixtures/clip/work_15s_1080p.mp4").use { i -> f.outputStream().use { i.copyTo(it) } } }
         vm.useClip(clip, "strike.mp4")
 

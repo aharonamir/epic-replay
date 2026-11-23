@@ -39,7 +39,10 @@ import kotlinx.serialization.json.jsonObject
 
 /** The screens' state: the run in hand (it outlives a turn of the screen), the clip chosen on the start screen, and the words and narrators read from the shared data. */
 @UnstableApi
-class AppViewModel(private val graph: AppGraph, private val context: Context, launcher: RunLauncher? = null, runsDirOverride: File? = null) : ViewModel() {
+class AppViewModel(private val graph: AppGraph, private val context: Context, launcher: RunLauncher? = null, runsDirOverride: File? = null,
+    /** Whether setup is finished (the app's own by default; a test that brings its own launcher brings this too). */
+    private val setupReady: () -> Boolean = { graph.setup.step() is app.epicreplay.core.setup.SetupStep.Ready },
+) : ViewModel() {
     private fun text(path: String) = context.assets.open(path).bufferedReader().use { it.readText() }
     val words: PageWords = PageWords.parse(text("copy/page.json"))
     val consentCopy = ConsentCopy(text("copy/consent.json"))
@@ -89,7 +92,7 @@ class AppViewModel(private val graph: AppGraph, private val context: Context, la
     /** "Make my replay": the run is made from the clip and the choices, with the consent the tick gives, and started. */
     fun make(input: StartInput) {
         val (file, _) = _clip.value ?: return
-        if (graph.setup.step() !is app.epicreplay.core.setup.SetupStep.Ready) return // a key deleted in Settings, a missing download or consent: no run starts
+        if (!setupReady()) return // a key deleted in Settings, a missing download or consent: no run starts
         val models = launcher.models() ?: return
         val card = cards.first { it.id == input.narrator }
         val record = ConsentRecord(Instant.now().toString().substringBefore('.') + "Z", consentCopy.textVersion, models.vision.location, models.text.location).toJson()
