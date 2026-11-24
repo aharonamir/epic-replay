@@ -156,8 +156,18 @@ def script_panel(d: Path) -> dict | None:
     sc = _read(d, "script.json")
     if not sc:
         return None
-    voice = {x["id"]: x for x in (_read(d, "voice.json") or {}).get("lines", [])}
-    gloss = _read(d, "gloss_en.json") or {}  # zh runs only: review text
+    return script_panel_of(
+        sc, _read(d, "voice.json"), _read(d, "checks.json"), _read(d, "gloss_en.json")
+    )
+
+
+def script_panel_of(
+    sc: dict, voice_json: dict | None, checks: dict | None, gloss: dict | None
+) -> dict:
+    """`script_panel` of the files' contents (shared with the phone as the `result.script_panel`
+    conformance function)."""
+    voice = {x["id"]: x for x in (voice_json or {}).get("lines", [])}
+    gloss = gloss or {}  # zh runs only: review text
     lines = []
     for ln in sc.get("lines", []):
         v = voice.get(ln["id"], {})
@@ -171,7 +181,7 @@ def script_panel(d: Path) -> dict | None:
             "climax": ln["role"] == "climax",
             "dropped": bool(v.get("dropped")),
         })  # fmt: skip
-    checks = _read(d, "checks.json") or {"passed": True, "failures": []}
+    checks = checks or {"passed": True, "failures": []}
     failed = [f"{f.get('where', '')}: {f.get('detail', '')}" for f in checks.get("failures", [])]
     lang = "zh-Hans" if sc.get("language") == "zh" else None
     return {"lines": lines, "lang": lang, "passed": checks.get("passed", True) and not failed, "failures": failed}  # fmt: skip

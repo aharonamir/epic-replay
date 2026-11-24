@@ -1,0 +1,31 @@
+{
+  "rows": [
+    {
+      "name": "Checking your clip",
+      "duration": "3 s",
+      "cost": "0.0000"
+    },
+    {
+      "name": "Finding the moment",
+      "duration": "41 s",
+      "cost": "0.0123"
+    },
+    {
+      "name": "You confirmed what happened",
+      "duration": "",
+      "cost": "0.0000"
+    },
+    {
+      "name": "Writing the commentary",
+      "duration": "12 s",
+      "cost": "0.0301"
+    },
+    {
+      "name": "Making your video",
+      "duration": "9 s",
+      "cost": "0.0000"
+    }
+  ],
+  "duration": "65 s",
+  "cost": "0.0424"
+}

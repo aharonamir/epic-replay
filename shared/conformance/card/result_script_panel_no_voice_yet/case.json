@@ -1,0 +1,23 @@
+{
+  "area": "card",
+  "function": "result.script_panel",
+  "language": null,
+  "description": "With no voice file the lines have no time and none is dropped; with no checks file the panel is passed.",
+  "inputs": {
+    "script": {
+      "fixture": "sample_run/script.json"
+    },
+    "voice": {
+      "value": null
+    },
+    "checks": {
+      "value": null
+    },
+    "gloss": {
+      "value": null
+    }
+  },
+  "expected": {
+    "file": "expected/output.json"
+  }
+}

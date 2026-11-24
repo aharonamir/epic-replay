@@ -159,7 +159,13 @@ class FirstRunScreenTest {
         rule.onNodeWithTag("server_base").performScrollTo().performTextReplacement("https://api.example.com/v1")
         rule.onNodeWithTag("server_price_in").performScrollTo().performTextInput("0.4"); rule.onNodeWithTag("server_price_out").performScrollTo().performTextInput("1.6")
         rule.onNodeWithTag("server_save").performScrollTo().performClick()
+        rule.onNodeWithTag("server_problem").performScrollTo().assertTextContains("API key", substring = true) // address, model and key are one form: no key, nothing saved
+        assert(graph.setup.customServer() == null)
+        rule.onNodeWithTag("server_key").performScrollTo().performTextInput("sk-my-own-key-0123456789")
+        rule.onNodeWithTag("server_save").performScrollTo().performClick()
         rule.waitForIdle()
+        assert(graph.keys.rows().first { it.kind == app.epicreplay.core.secrets.KeyKind.CUSTOM_SERVER }.status == app.epicreplay.core.secrets.KeyStatus.PRESENT) { "the key is saved with the form" }
+        assert(graph.keys.rows().first { it.kind == app.epicreplay.core.secrets.KeyKind.MODEL_PROVIDER }.status != app.epicreplay.core.secrets.KeyStatus.PRESENT) { "and is not the provider's key" }
         assert(graph.setup.chosen(Role.VISION)?.id == "custom-cloud") { "${graph.setup.chosen(Role.VISION)?.id}" }
         assert(graph.setup.customServer()?.apiBase == "https://api.example.com/v1")
         rule.onNodeWithTag("own_server_text").assertExists() // offered for the other role too, now that it is saved

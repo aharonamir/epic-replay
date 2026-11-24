@@ -1,0 +1,43 @@
+{
+  "area": "card",
+  "function": "result.time_and_cost",
+  "language": null,
+  "description": "Costs round to four places: 0.00005 and 0.123456.",
+  "inputs": {
+    "state": {
+      "value": {
+        "steps": [
+          {
+            "name": "a",
+            "duration_s": 1,
+            "cost_usd": 5e-05
+          },
+          {
+            "name": "b",
+            "duration_s": 2,
+            "cost_usd": 0.123456
+          }
+        ],
+        "cost_usd": 0.123506
+      }
+    }
+  },
+  "expected": {
+    "value": {
+      "rows": [
+        {
+          "name": "a",
+          "duration": "1 s",
+          "cost": "0.0001"
+        },
+        {
+          "name": "b",
+          "duration": "2 s",
+          "cost": "0.1235"
+        }
+      ],
+      "duration": "3 s",
+      "cost": "0.1235"
+    }
+  }
+}

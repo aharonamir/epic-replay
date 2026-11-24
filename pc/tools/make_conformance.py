@@ -1922,7 +1922,7 @@ def speech_cases() -> dict[str, dict]:
 
 def all_cases() -> dict[str, dict]:
     out = {}
-    for make in (storyboard_cases, slots_cases, checks_cases, lexicon_cases, units_cases, cells_cases, cell_layout_cases, backend_cases, budget_cases, consent_cases, signals_cases, checks_more_cases, voice_cases, mix_cases, visuals_cases, spotter_cases, commentator_cases, intake_cases, speech_cases, compose_cases, flow_cases, card_cases, ui_cases):  # fmt: skip
+    for make in (storyboard_cases, slots_cases, checks_cases, lexicon_cases, units_cases, cells_cases, cell_layout_cases, backend_cases, budget_cases, consent_cases, signals_cases, checks_more_cases, voice_cases, mix_cases, visuals_cases, spotter_cases, commentator_cases, intake_cases, speech_cases, compose_cases, flow_cases, card_cases, ui_cases, result_cases):  # fmt: skip
         for name, case in make().items():
             out[f"{case['area']}/{name}"] = case
     return out
@@ -2580,6 +2580,58 @@ def ui_cases() -> dict[str, dict]:
         manifest([stage("S2", cost=0.0111), stage("S5", cost=0.0222)], total=0.0),
         files=(),
     )
+    return out
+
+
+def result_cases() -> dict[str, dict]:
+    """Added in T426: the result's script panel and its time and cost panel (web/views.py)."""
+    sample = lambda name: {"fixture": f"sample_run/{name}"}  # noqa: E731
+    voice = {"fixture": "voice/sample_run_voice.json"}
+
+    def panel(desc, script, voice_ref, checks, gloss=None, lang=None):
+        return {"area": "card", "function": "result.script_panel", "language": lang, "description": desc,
+                "inputs": {"script": script, "voice": voice_ref, "checks": {"value": checks}, "gloss": {"value": gloss}}}  # fmt: skip
+
+    def money(desc, steps, cost):
+        rows = [{"name": n, "duration_s": d, "cost_usd": c} for n, d, c in steps]
+        return {"area": "card", "function": "result.time_and_cost", "language": None, "description": desc,
+                "inputs": {"state": {"value": {"steps": rows, "cost_usd": cost}}}}  # fmt: skip
+
+    out = {}
+    out["result_script_panel_sample_run"] = panel(
+        "The sample run's seven lines with the time each is spoken (one decimal and ' s · '), the two key lines marked, the climax line named, every check passed.",
+        sample("script.json"), voice, {"passed": True, "failures": []},
+    )  # fmt: skip
+    out["result_script_panel_a_dropped_line_has_no_time"] = panel(
+        "A line that was not voiced shows no time and is marked dropped; the checks' failures are listed as 'where: detail' and the panel is not passed.",
+        sample("script.json"),
+        {"value": {"lines": [{"id": "l1", "timeline_start": 1.3, "dropped": None}, {"id": "l2", "timeline_start": 5.04, "dropped": "did not fit"}, {"id": "l3", "timeline_start": 11.4, "dropped": None}]}},
+        {"passed": False, "failures": [{"where": "l2", "detail": "names a player the user did not give"}]},
+    )  # fmt: skip
+    out["result_script_panel_no_voice_yet"] = panel(
+        "With no voice file the lines have no time and none is dropped; with no checks file the panel is passed.",
+        sample("script.json"), {"value": None}, None,
+    )  # fmt: skip
+    out["result_script_panel_failures_alone_fail_it"] = panel(
+        "A failure in the list fails the panel even when `passed` says true.",
+        sample("script.json"), voice, {"passed": True, "failures": [{"detail": "too long"}]},
+    )  # fmt: skip
+    out["result_script_panel_mandarin_with_gloss"] = panel(
+        "A Mandarin script is marked `zh-Hans` and carries the English gloss of each line it has one for.",
+        {"value": {"language": "zh", "lines": [{"id": "l1", "role": "opening", "text": "任意球！"}, {"id": "l2", "role": "replay_climax", "text": "进了！"}, {"id": "l3", "role": "made_up_role", "text": "好"}]}},
+        {"value": {"lines": [{"id": "l1", "timeline_start": 2.0}, {"id": "l2", "timeline_start": 12.25}]}},
+        {"passed": True, "failures": []}, {"l1": "Free kick!", "l2": "In!"}, "zh",
+    )  # fmt: skip
+    out["result_time_and_cost"] = money(
+        "Each step's seconds ('5 s', blank when it has none) and cost to four places, the total seconds as a sum of the whole seconds and the total cost.",
+        [("Checking your clip", 3, 0.0), ("Finding the moment", 41, 0.0123), ("You confirmed what happened", None, 0.0), ("Writing the commentary", 12, 0.0301), ("Making your video", 9, 0.0)],
+        0.0424,
+    )  # fmt: skip
+    out["result_time_and_cost_rounding"] = money(
+        "Costs round to four places: 0.00005 and 0.123456.",
+        [("a", 1, 0.00005), ("b", 2, 0.123456)],
+        0.123506,
+    )  # fmt: skip
     return out
 
 

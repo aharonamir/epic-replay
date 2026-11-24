@@ -9,18 +9,22 @@
     <application
         android:name=".EpicApp"
         android:allowBackup="false"
+        android:largeHeap="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:usesCleartextTraffic="false"
         android:icon="@mipmap/ic_launcher"
         android:label="Epic Replay"
         android:theme="@style/Theme.EpicReplay.Splash">
-        <activity android:name=".MainActivity" android:exported="true">
+        <activity android:name=".MainActivity" android:exported="true" android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden"> <!-- turning to landscape for the full-screen video does not restart the screen -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <provider android:name="androidx.core.content.FileProvider" android:authorities="${applicationId}.share" android:exported="false" android:grantUriPermissions="true">
+            <meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/share_paths" />
+        </provider>
         <service android:name=".download.DownloadService" android:exported="false" android:foregroundServiceType="dataSync" />
     </application>
 </manifest>

@@ -1,0 +1,43 @@
+{
+  "area": "card",
+  "function": "result.time_and_cost",
+  "language": null,
+  "description": "Each step's seconds ('5 s', blank when it has none) and cost to four places, the total seconds as a sum of the whole seconds and the total cost.",
+  "inputs": {
+    "state": {
+      "value": {
+        "steps": [
+          {
+            "name": "Checking your clip",
+            "duration_s": 3,
+            "cost_usd": 0.0
+          },
+          {
+            "name": "Finding the moment",
+            "duration_s": 41,
+            "cost_usd": 0.0123
+          },
+          {
+            "name": "You confirmed what happened",
+            "duration_s": null,
+            "cost_usd": 0.0
+          },
+          {
+            "name": "Writing the commentary",
+            "duration_s": 12,
+            "cost_usd": 0.0301
+          },
+          {
+            "name": "Making your video",
+            "duration_s": 9,
+            "cost_usd": 0.0
+          }
+        ],
+        "cost_usd": 0.0424
+      }
+    }
+  },
+  "expected": {
+    "file": "expected/output.json"
+  }
+}

@@ -103,9 +103,18 @@ class RunSession(private val runsDir: File, private val words: PageWords, privat
     /** "Stop here" at the card, or "No, stop here" to the question about the people in the clip: the run ends `stopped` with [note]. */
     fun stopAtCard(dir: File, note: String) { flowFor(dir).stopAt(FlowOrder.CHECKPOINT_A, note); refresh(dir) }
 
-    /** The newest run that is not finished (running, waiting at the card, or broken and not dismissed), for the app to pick up when it is opened again: a broken one shows its message and can be tried again. */
-    fun latestOpen(): File? = runsDir.listFiles { f -> f.isDirectory && File(f, RunFlow.MANIFEST).isFile && !File(f, DISMISSED).exists() }?.sortedByDescending { it.name }
-        ?.firstOrNull { RunFiles.read(File(it, RunFlow.MANIFEST))?.getValue("status")?.jsonPrimitive?.content in setOf("running", "waiting_play_card", "failed") }
+    /** Every run that is not finished (running, waiting at the card, or broken and not dismissed), newest first. */
+    fun openRuns(): List<File> = runsDir.listFiles { f -> f.isDirectory && File(f, RunFlow.MANIFEST).isFile && !File(f, DISMISSED).exists() }.orEmpty().sortedByDescending { it.name }
+        .filter { RunFiles.read(File(it, RunFlow.MANIFEST))?.getValue("status")?.jsonPrimitive?.content in setOf("running", "waiting_play_card", "failed") }
+
+    /** The newest run that is not finished, for the app to pick up when it is opened again: a broken one shows its message and can be tried again. */
+    fun latestOpen(): File? = openRuns().firstOrNull()
+
+    /** The run in hand was deleted: nothing is shown of it any more. */
+    fun forget(dir: File) { if (_view.value?.dir == dir) { pause(); _view.value = null } }
+
+    /** Whether the flow of [dir] is working now, so a delete waits. */
+    fun isWorking(dir: File): Boolean = _view.value?.let { it.dir == dir && (it.working || synchronized(jobs) { jobs.any { j -> !j.isCompleted } }) } == true // a cancelled flow still unwinding counts
 
     /** The user is done with a run that broke (they chose another clip): the app does not open it again. The folder and its files stay. */
     fun dismiss(dir: File) { File(dir, DISMISSED).writeText("") }

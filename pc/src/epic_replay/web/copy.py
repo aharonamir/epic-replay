@@ -34,22 +34,11 @@ DROP = {
 }
 CONSENT = consent.CONSENT_TEXT
 
-RESULT = {"headline": "Your replay", "download": "Download", "ai": "AI commentary",
-          "start_over": "Start over with a new clip", "delete": "Delete this clip now",
-          "another": "Try another narrator", "same_clip": "Same moment, new voice.",
-          "no_confirm": "No need to confirm again.", "new_clip": "Use a different clip",
-          "all_versions": "This removes all {n} versions of this clip.",
-          "views": "What to watch", "view_replay": "Replay", "view_clip": "Original clip",
-          "clip_note": "Your clip, before any commentary."}  # fmt: skip
-
-# The result's panels (ui.md section 4). "Write it again" is add-back 10.
-PANELS = {"saw": "What we saw", "script": "The script", "time": "Time and cost",
-          "passed": "Every line passed its checks.", "failed": "These lines failed a check:",
-          "dropped": "not voiced: did not fit", "total": "Total"}  # fmt: skip
-# A script line's role as the script panel names it.
-ROLES = {"opening": "opening", "build_up": "build-up", "climax": "key moment",
-         "reaction": "reaction", "replay_watch": "replay", "replay_climax": "key moment",
-         "sign_off": "sign-off"}  # fmt: skip
+# The result's panels, a script line's role as the script panel names it, and the past replays view (ui.md sections 4 and 2) are shared too.
+RESULT = _PAGE["result"]
+PANELS = _PAGE["panels"]
+ROLES = _PAGE["roles"]
+PAST = _PAGE["past"]
 
 # The details view (FR-036, ui.md section 2): one line per stage in the data face, then the
 # agents' calls in order. Who ran each stage; any stage not named here was run by code.
@@ -85,11 +74,6 @@ DETAILS = {
 }  # fmt: skip
 
 DEMO = "Cached run from {date}"
-
-# The past replays view (ui.md, "Past replays").
-PAST = {"link": "Past replays", "headline": "Past replays", "one": "1 video", "many": "{n} videos",
-        "empty": "No replays yet. Make your first one.", "make": "Make a replay",
-        "untitled": "Your replay"}  # fmt: skip
 
 
 def provider_line(settings) -> str:

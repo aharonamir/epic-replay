@@ -13,4 +13,7 @@ object PyMath {
 
     /** `f"{x:.2f}"`: Python rounds the exact binary value half to even, Java's own formatting rounds half up. */
     fun fixed2(x: Double): String = BigDecimal(x).setScale(2, RoundingMode.HALF_EVEN).toPlainString()
+
+    /** `f"{x:.{places}f}"`, the same way. */
+    fun fixed(x: Double, places: Int): String = BigDecimal(x).setScale(places, RoundingMode.HALF_EVEN).toPlainString()
 }

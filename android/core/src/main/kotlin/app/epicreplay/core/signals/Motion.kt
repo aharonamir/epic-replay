@@ -19,21 +19,38 @@ object Motion {
     private const val BLOCK = 8
     private const val COARSE_RANGE = 5
 
-    fun curves(frames: Sequence<Gray>): Curves {
+    /**
+     * The four curves of a clip. The change from frame i-1 to i depends on those two frames alone, so the frames are taken in batches and the pairs of a batch are worked out on [threads]
+     * threads at once; the numbers are the same as one at a time, and arrive in order (a phone has eight cores, the scan was using one).
+     */
+    fun curves(frames: Sequence<Gray>, threads: Int = Math.max(1, Math.min(8, Runtime.getRuntime().availableProcessors()))): Curves {
         val flow = ArrayList<Double>(); val change = ArrayList<Double>(); val camera = ArrayList<Double>(); val share = ArrayList<Double>()
-        var prev: Gray? = null
-        var prevHalf: Gray? = null
-        for (cur in frames) {
-            val half = halve(cur)
-            val p = prev
-            if (p == null) { flow.add(0.0); change.add(0.0); camera.add(0.0); share.add(0.0) } else {
-                val r = step(p, prevHalf!!, cur, half)
-                flow.add(r[0]); change.add(r[1]); camera.add(r[2]); share.add(r[3])
+        val pool = if (threads > 1) java.util.concurrent.Executors.newFixedThreadPool(threads) else null
+        try {
+            val batchSize = threads * 3
+            var carry: Gray? = null; var carryHalf: Gray? = null
+            val batch = ArrayList<Gray>()
+            fun flush() {
+                if (batch.isEmpty()) return
+                val cur = batch.toList(); batch.clear()
+                val halves: List<Gray> = run(pool, cur.map { g -> { halve(g) } })
+                val first = if (carry == null) 1 else 0 // the clip's first frame has no change to measure
+                if (carry == null) { flow.add(0.0); change.add(0.0); camera.add(0.0); share.add(0.0) }
+                val jobs = (first until cur.size).map { i ->
+                    val p = if (i == 0) carry!! else cur[i - 1]; val ph = if (i == 0) carryHalf!! else halves[i - 1]
+                    { step(p, ph, cur[i], halves[i]) }
+                }
+                for (r in run(pool, jobs)) { flow.add(r[0]); change.add(r[1]); camera.add(r[2]); share.add(r[3]) }
+                carry = cur.last(); carryHalf = halves.last()
             }
-            prev = cur; prevHalf = half
-        }
+            for (f in frames) { batch.add(f); if (batch.size >= batchSize) flush() }
+            flush()
+        } finally { pool?.shutdown() }
         return Curves(flow.toDoubleArray(), change.toDoubleArray(), camera.toDoubleArray(), share.toDoubleArray())
     }
+
+    private fun <T> run(pool: java.util.concurrent.ExecutorService?, jobs: List<() -> T>): List<T> =
+        if (pool == null) jobs.map { it() } else pool.invokeAll(jobs.map { j -> java.util.concurrent.Callable { j() } }).map { it.get() }
 
     private fun halve(g: Gray): Gray {
         val w = g.width / 2; val h = g.height / 2
@@ -104,20 +121,21 @@ object Motion {
             val v = (prev[x0, y0] * (1 - fx) + prev[x1, y0] * fx) * (1 - fy) + (prev[x0, y1] * (1 - fx) + prev[x1, y1] * fx) * fy
             warped[y * w + x] = Math.round(v).toInt(); valid[y * w + x] = true
         }
-        val ok = BooleanArray(w * h) // eroded by 5x5: every neighbour is valid
-        for (y in 2 until h - 2) for (x in 2 until w - 2) {
-            var all = true
-            loop@ for (j in -2..2) for (i in -2..2) if (!valid[(y + j) * w + x + i]) { all = false; break@loop }
-            ok[y * w + x] = all
-        }
+        // eroded by 5x5: every neighbour is valid (a row test, then a column test: the same set as testing the 25 neighbours)
+        val rowOk = BooleanArray(w * h)
+        for (y in 0 until h) for (x in 2 until w - 2) rowOk[y * w + x] = valid[y * w + x - 2] && valid[y * w + x - 1] && valid[y * w + x] && valid[y * w + x + 1] && valid[y * w + x + 2]
+        val ok = BooleanArray(w * h)
+        for (y in 2 until h - 2) for (x in 2 until w - 2) ok[y * w + x] = rowOk[(y - 2) * w + x] && rowOk[(y - 1) * w + x] && rowOk[y * w + x] && rowOk[(y + 1) * w + x] && rowOk[(y + 2) * w + x]
         val a = blur(IntArray(w * h) { cur.data[it].toInt() and 0xFF }, w, h)
         val b = blur(warped, w, h)
-        val diffs = ArrayList<Int>()
-        for (i in 0 until w * h) if (ok[i]) diffs.add(Math.abs(a[i] - b[i]))
-        if (diffs.isEmpty()) return doubleArrayOf(flowE, 0.0, cam, 1.0)
-        val kd = Math.max(1, diffs.size / 500)
-        val top = diffs.sortedDescending().take(kd).average()
-        return doubleArrayOf(flowE, top, cam, diffs.count { it > 6 }.toDouble() / diffs.size)
+        // the differences are whole numbers from 0 to 255: counted, not sorted (the mean of the largest kd is the same)
+        val hist = IntArray(256); var count = 0; var over = 0
+        for (i in 0 until w * h) if (ok[i]) { val d = Math.abs(a[i] - b[i]); hist[d]++; count++; if (d > 6) over++ }
+        if (count == 0) return doubleArrayOf(flowE, 0.0, cam, 1.0)
+        val kd = Math.max(1, count / 500)
+        var left = kd; var total = 0L; var v = 255
+        while (left > 0 && v >= 0) { val take = Math.min(left, hist[v]); total += take.toLong() * v; left -= take; v-- }
+        return doubleArrayOf(flowE, total.toDouble() / kd, cam, over.toDouble() / count)
     }
 
     /** `[a, b, tx, ty]` of x' = a x - b y + tx, y' = b x + a y + ty from the vectors that agree; the identity if too few do. */

@@ -184,6 +184,7 @@ class RunFlow(
             val res = try {
                 if (stage == FlowOrder.CHECKPOINT_A) playCard() else (stages[stage] ?: return finish("failed", stage, t0, "no runner for $stage")).run(ctx)
             } catch (e: CancellationException) { throw e } catch (e: Exception) { StageResult("failed", "${e.javaClass.simpleName}: ${e.message}".take(500)) }
+            catch (e: OutOfMemoryError) { StageResult("failed", "the phone ran out of memory in $stage") } // the run stops with a message and can be tried again from this stage; the app does not end
             val cost = spentUsd() - spent
             emit(buildJsonObject {
                 put("stage", stage); put("status", if (res.status == "ok") "finished" else res.status); put("note", res.note.ifEmpty { null }); put("cost_usd", PyMath.round(cost, 6))

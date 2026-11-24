@@ -44,15 +44,21 @@ fun KeysSection(controller: KeysController, modifier: Modifier = Modifier, onCha
     }
 }
 
-/** While keys can be typed or shown masked, the window is excluded from screenshots, screen recording and the recents thumbnail (review: the typed key must not be captured). */
+/** While keys can be typed or shown masked, the window is excluded from screenshots, screen recording and the recents thumbnail (review: the typed key must not be captured). Counted: the flag stays while any such part is on screen. */
 @Composable
 fun SecureWhileTyping() {
     val context = LocalContext.current
     DisposableEffect(Unit) {
         val window = (context as? Activity)?.window
-        window?.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
-        onDispose { window?.clearFlags(WindowManager.LayoutParams.FLAG_SECURE) }
+        if (window != null) SecureWindows.enter(window)
+        onDispose { if (window != null) SecureWindows.leave(window) }
     }
+}
+
+private object SecureWindows {
+    private val counts = java.util.WeakHashMap<android.view.Window, Int>()
+    @Synchronized fun enter(w: android.view.Window) { val n = (counts[w] ?: 0) + 1; counts[w] = n; if (n == 1) w.addFlags(WindowManager.LayoutParams.FLAG_SECURE) }
+    @Synchronized fun leave(w: android.view.Window) { val n = (counts[w] ?: 1) - 1; if (n <= 0) { counts.remove(w); w.clearFlags(WindowManager.LayoutParams.FLAG_SECURE) } else counts[w] = n }
 }
 
 @Composable

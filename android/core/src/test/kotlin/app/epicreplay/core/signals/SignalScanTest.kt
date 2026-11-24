@@ -38,4 +38,18 @@ class SignalScanTest {
         val loud = Audio.loudPeaks(y).single()
         assertEquals(1.0, loud.at); assertEquals(0.58343505859375f, loud.peak)
     }
+
+    @Test
+    fun theCurvesAreTheSameOnOneThreadAndOnMany() {
+        val recipe = Json.parseToJsonElement("""{"width":160,"height":90,"fps":30,"frames":150,"pan":[2,1],"objects":[{"x":20,"y":60,"vx":8,"vy":-3,"size":10,"from":60,"to":63}]}""").jsonObject
+        val one = Motion.curves(Synthetic.frames(recipe), threads = 1)
+        for (threads in listOf(2, 4, 7)) { // batch sizes that do and do not divide the 150 frames
+            val many = Motion.curves(Synthetic.frames(recipe), threads = threads)
+            assertEquals(150, many.flow.size)
+            assertContentEquals(one.flow, many.flow, "flow, $threads threads"); assertContentEquals(one.change, many.change, "change, $threads threads")
+            assertContentEquals(one.camera, many.camera, "camera"); assertContentEquals(one.share, many.share, "share")
+        }
+        assertEquals(0.0, one.flow[0]); assertEquals(1, Motion.curves(Synthetic.frames(recipe).take(1), threads = 4).flow.size)
+        assertEquals(0, Motion.curves(emptySequence(), threads = 4).flow.size)
+    }
 }

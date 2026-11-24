@@ -18,7 +18,7 @@
         "commentator.brief", "commentator.system_prompt", "commentator.failures", "commentator.patched",
         "commentator.script", "commentator.generic",
         "speech.request", "speech.alignment", "audio.measure",
-        "audio.loudness", "mix.render", "compose.overlays", "compose.landed", "flow.run", "card.answer", "card.items", "card.rest_cost", "ui.state",
+        "audio.loudness", "mix.render", "compose.overlays", "compose.landed", "flow.run", "card.answer", "card.items", "card.rest_cost", "ui.state", "result.script_panel", "result.time_and_cost",
         "intake.check", "intake.work_check", "intake.capture_fps", "intake.meta", "intake.work_size"
       ]
     },

@@ -1,6 +1,7 @@
 package app.epicreplay.ui
 
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import android.provider.OpenableColumns
 import androidx.compose.ui.graphics.ImageBitmap
@@ -68,7 +69,7 @@ class AppViewModel(private val graph: AppGraph, private val context: Context, la
     /** Whether the start screen is shown (else the run in hand). */
     val onStart: StateFlow<Boolean> = _onStart
 
-    init { session.latestOpen()?.let { session.refresh(it); session.start(it) } }
+    init { app.epicreplay.core.ui.PastRuns.sweep(runsDir); session.latestOpen()?.let { session.refresh(it); session.start(it) } }
 
     /** The clip the user picked or filmed: copied to the app's cache and checked as the PC checks an upload's name and size (S0 checks the rest). */
     suspend fun chooseClip(uri: Uri) = withContext(Dispatchers.IO) {
@@ -104,6 +105,51 @@ class AppViewModel(private val graph: AppGraph, private val context: Context, la
             } finally { _starting.value = false }
         }
     }
+
+    /** The first-run and settings logic of the app (the same controller the wizard uses). */
+    val setup get() = graph.setup
+
+    /** The settings page's logic: the on-device models with their sizes, and their deletion (FR-SET-1, FR-SET-2). A download or a run working stops a delete. */
+    val settings by lazy {
+        app.epicreplay.core.setup.SettingsController({ graph.profiles }, app.epicreplay.core.models.ModelChoice(graph.modelChoice, { graph.profiles }), graph.modelDownloader(),
+            { p -> modelRefusal(p) })
+    }
+
+    /** Why [p] cannot be deleted now: a download or a run is working, or an unfinished run (at the card, or broken and not dismissed) uses it. */
+    private fun modelRefusal(p: app.epicreplay.core.models.OnDeviceProfile): String? {
+        if (graph.downloads.status.value is app.epicreplay.core.download.DownloadStatus.Running || session.view.value?.working == true) return "Wait for the download or the run to finish, then delete."
+        val uses = session.openRuns().any { open -> // every unfinished replay, not only the newest: an older one left at the card still needs its model
+            val models = (RunFiles.read(File(open, "manifest.json"))?.get("stack") as? JsonObject)?.get("models") as? JsonObject
+            models?.values?.any { ((it as? JsonObject)?.get("profile") as? kotlinx.serialization.json.JsonPrimitive)?.content == p.id } == true
+        }
+        return if (uses) "A replay that is not finished uses this model. Finish it or choose another clip first, then delete." else null
+    }
+
+    /** The reason a model could not be deleted, or null when it is gone and the roles that used it ask again. */
+    suspend fun deleteModel(profile: app.epicreplay.core.models.OnDeviceProfile): String? = withContext(Dispatchers.IO) {
+        try { settings.delete(profile); null } catch (e: app.epicreplay.core.setup.ModelDeleteRefused) { e.message } catch (e: app.epicreplay.core.download.DownloadError) { "Could not delete the model's files: ${e.message}" }
+    }
+
+    /** How many finished replays there are and the bytes the run folders take. */
+    fun storage(): Pair<Int, Long> = app.epicreplay.core.ui.PastRuns.storage(runsDir)
+
+    /** Finished videos, newest first (the past replays). */
+    fun pastItems(): List<app.epicreplay.core.ui.PastItem> = app.epicreplay.core.ui.PastRuns.list(runsDir, words.past("untitled"))
+
+    /** What the result screen shows for the run in [dir]. */
+    fun result(dir: File): app.epicreplay.core.ui.ResultData? = app.epicreplay.core.ui.ResultModel.of(dir, words, words.past("untitled"))
+
+    /** The run [id] and every version of its clip removed from the phone (FR-023); the reason it was refused, or null. The run in hand, if it was one of them, is forgotten. */
+    suspend fun deleteRun(id: String): String? = withContext(Dispatchers.IO) {
+        try {
+            app.epicreplay.core.ui.PastRuns.delete(runsDir, id) { session.isWorking(it) }
+            session.view.value?.dir?.takeIf { !it.exists() }?.let { session.forget(it); _clip.value = null; _onStart.value = true }
+            null
+        } catch (e: app.epicreplay.core.ui.DeleteRefused) { e.message }
+    }
+
+    /** A share of the finished video of [dir] to another app: the video alone, through a content address that lasts for that one share. */
+    fun shareIntent(dir: File): Intent = Share.intent(context, dir)
 
     /** From the run in hand back to the start screen (the run, if unfinished, stays in its folder and is picked up when the app is opened). */
     fun another() { session.pause(); session.view.value?.takeIf { it.state.status in setOf("failed", "stopped") }?.let { session.dismiss(it.dir) }; _clip.value = null; _clipProblem.value = null; _onStart.value = true }

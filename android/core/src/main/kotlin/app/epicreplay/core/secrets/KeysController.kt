@@ -20,17 +20,23 @@ class KeysController(private val store: SecretStore) {
     /** Returns null when the key was stored, else the reason it was refused. */
     fun save(kind: KeyKind, typed: String): String? {
         val key = typed.trim()
+        return problem(typed) ?: try {
+            store.put(kind, Secret(key))
+            null
+        } catch (e: SecretStoreException) {
+            e.message
+        }
+    }
+
+    /** Why [typed] cannot be a key, or null; nothing is stored. */
+    fun problem(typed: String): String? {
+        val key = typed.trim()
         return when {
             key.isEmpty() -> "Type the key first."
             key.length < MIN_LENGTH -> "That is too short to be a key."
             key.length > MAX_LENGTH -> "That is too long to be a key."
             key.any { it.isWhitespace() || it.isISOControl() } -> "A key has no spaces or line breaks."
-            else -> try {
-                store.put(kind, Secret(key))
-                null
-            } catch (e: SecretStoreException) {
-                e.message
-            }
+            else -> null
         }
     }
 

@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "note": "The words of the page that both apps show (spec 004, T425): the start screen's labels, the eight steps and their stages, the progress words, the play card's words and the stopped messages. The PC's web/copy.py and the phone read this file; the words of the web page that only it has (the drop area, the result, the details view) stay in copy.py.",
+  "note": "The words of the page that both apps show (spec 004, T425): the start screen's labels, the eight steps and their stages, the progress words, the play card's words and the stopped messages. The PC's web/copy.py and the phone read this file; the words of the web page that only it has (the drop area, the details view) stay in copy.py.",
   "wordmark": "Epic Replay",
   "headline": [
     "Film it.",
@@ -126,5 +126,48 @@
     "retry": "Try again",
     "voice_key": "The voice needs an ElevenLabs key. Add it, then try again.",
     "add_key": "Add the key"
+  },
+  "result": {
+    "headline": "Your replay",
+    "download": "Download",
+    "ai": "AI commentary",
+    "start_over": "Start over with a new clip",
+    "delete": "Delete this clip now",
+    "another": "Try another narrator",
+    "same_clip": "Same moment, new voice.",
+    "no_confirm": "No need to confirm again.",
+    "new_clip": "Use a different clip",
+    "all_versions": "This removes all {n} versions of this clip.",
+    "views": "What to watch",
+    "view_replay": "Replay",
+    "view_clip": "Original clip",
+    "clip_note": "Your clip, before any commentary."
+  },
+  "panels": {
+    "saw": "What we saw",
+    "script": "The script",
+    "time": "Time and cost",
+    "passed": "Every line passed its checks.",
+    "failed": "These lines failed a check:",
+    "dropped": "not voiced: did not fit",
+    "total": "Total"
+  },
+  "roles": {
+    "opening": "opening",
+    "build_up": "build-up",
+    "climax": "key moment",
+    "reaction": "reaction",
+    "replay_watch": "replay",
+    "replay_climax": "key moment",
+    "sign_off": "sign-off"
+  },
+  "past": {
+    "link": "Past replays",
+    "headline": "Past replays",
+    "one": "1 video",
+    "many": "{n} videos",
+    "empty": "No replays yet. Make your first one.",
+    "make": "Make a replay",
+    "untitled": "Your replay"
   }
 }

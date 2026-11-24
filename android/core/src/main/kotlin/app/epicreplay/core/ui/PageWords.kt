@@ -24,6 +24,12 @@ class PageWords(val data: JsonObject) {
     fun optional(key: String): String = data.getValue("optional").jsonObject.getValue(key).jsonPrimitive.content
     fun progress(key: String): String = data.getValue("progress").jsonObject.getValue(key).jsonPrimitive.content
     fun card(key: String): String = data.getValue("card").jsonObject.getValue(key).jsonPrimitive.content
+    fun result(key: String): String = data.getValue("result").jsonObject.getValue(key).jsonPrimitive.content
+    fun panel(key: String): String = data.getValue("panels").jsonObject.getValue(key).jsonPrimitive.content
+    fun past(key: String): String = data.getValue("past").jsonObject.getValue(key).jsonPrimitive.content
+
+    /** A script line's role as the script panel names it; a role the list does not know has its underscores made spaces. */
+    fun role(role: String): String = (data.getValue("roles").jsonObject[role] as? kotlinx.serialization.json.JsonPrimitive)?.content ?: role.replace("_", " ")
     fun stopped(key: String): String = data.getValue("stopped").jsonObject.getValue(key).jsonPrimitive.content
 
     companion object {
