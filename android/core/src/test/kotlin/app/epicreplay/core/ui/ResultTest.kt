@@ -106,4 +106,14 @@ class ResultTest {
         assertEquals("Your replay", bare.headline); assertEquals(null, bare.panel)
         assertEquals(null, ResultModel.of(File(root, "nope"), words, "x"))
     }
+
+    @Test
+    fun everyUnfinishedRunIsListedNewestFirstAndADismissedOrFinishedOneIsNot() {
+        val root = Files.createTempDirectory("runs").toFile()
+        run(root, "r_a_old", status = "waiting_play_card", video = false); run(root, "r_b_failed", status = "failed", video = false); run(root, "r_c_done")
+        run(root, "r_d_dismissed", status = "failed", video = false); File(root, "r_d_dismissed/" + RunSession.DISMISSED).writeText("")
+        val session = RunSession(root, words, kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.Unconfined), { error("no flow") })
+        assertEquals(listOf("r_b_failed", "r_a_old"), session.openRuns().map { it.name })
+        assertEquals("r_b_failed", session.latestOpen()?.name)
+    }
 }
