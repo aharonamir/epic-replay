@@ -110,12 +110,20 @@ class SetupController(
     fun saveCustomServer(server: CustomServer, role: Role?, apiKey: String? = null): String? {
         val store = customServers ?: error("this build keeps no server of the user's own")
         val keys = app.epicreplay.core.secrets.KeysController(secrets)
+        val old = store.load()
         if (apiKey != null) {
-            if (apiKey.isBlank()) { if (secrets.status(KeyKind.CUSTOM_SERVER) != KeyStatus.PRESENT) return "Type the API key; it stays on this phone." }
-            else keys.problem(apiKey)?.let { return it }
+            if (apiKey.isBlank()) {
+                if (secrets.status(KeyKind.CUSTOM_SERVER) != KeyStatus.PRESENT) return "Type the API key; it stays on this phone."
+                // a saved key goes only to the address it was typed for: a new address needs the key typed again
+                if (old != null && old.apiBase.trim().trimEnd('/') != server.apiBase.trim().trimEnd('/')) return "The address changed, so type the API key again: a saved key is not sent to a different address."
+            } else keys.problem(apiKey)?.let { return it }
         }
-        store.save(server); onProfilesChanged()
-        if (apiKey != null && apiKey.isNotBlank()) keys.save(KeyKind.CUSTOM_SERVER, apiKey)?.let { return it }
+        store.save(server)
+        if (apiKey != null && apiKey.isNotBlank()) {
+            val failed = keys.save(KeyKind.CUSTOM_SERVER, apiKey)
+            if (failed != null) { if (old != null) store.save(old) else store.delete(); onProfilesChanged(); return failed } // both or neither
+        }
+        onProfilesChanged()
         if (role != null) choice.choose(role, CustomServers.ID) // from Settings no role is named: the choices stay as they are
         return null
     }

@@ -59,7 +59,7 @@ class SettingsControllerTest {
     private val downloader get() = ModelDownloader(File(tmp, "models"), DownloadPolicy.DEFAULT, { 100_000 })
     private val choice by lazy { ModelChoice(ModelChoiceStore(File(tmp, "choice.json"))) { profiles } }
     private var busy = false
-    private val settings get() = SettingsController({ profiles }, choice, downloader, { busy })
+    private val settings get() = SettingsController({ profiles }, choice, downloader, { if (busy) "Wait for the download or the run to finish, then delete." else null })
 
     @Test
     fun aModelWithFilesIsListedWithItsSizeAndWhoUsesIt_aPartCountsToo() {
@@ -113,11 +113,25 @@ class SettingsControllerTest {
     fun anEmptyKeyFieldOnAnEditKeepsTheSavedKey() {
         val c = setup()
         assertNull(c.saveCustomServer(server, Role.TEXT, "sk-custom-0123456789"))
-        val edited = CustomServers.of("Mine", "https://api.other.example/v1", "model-y", "", "", false)!!
+        val edited = CustomServers.of("Mine", "https://api.example.com/v1", "model-y", "", "", false)!!
         assertNull(c.saveCustomServer(edited, Role.TEXT, ""))
         assertEquals("model-y", c.customServer()!!.model)
         assertEquals("sk-custom-0123456789", secrets().get(KeyKind.CUSTOM_SERVER)!!.reveal(), "the key stays")
         assertNull(c.saveCustomServer(edited, Role.VISION, "sk-replacement-9876543210"))
         assertEquals("sk-replacement-9876543210", secrets().get(KeyKind.CUSTOM_SERVER)!!.reveal())
+    }
+
+    @Test
+    fun aSavedKeyIsNotSentToANewAddress_theKeyMustBeTypedAgain() {
+        val c = setup()
+        assertNull(c.saveCustomServer(server, Role.TEXT, "sk-custom-0123456789"))
+        val moved = CustomServers.of("Mine", "https://other-host.example/v1", "model-x", "", "", true)!!
+        assertNotNull(c.saveCustomServer(moved, null, "")?.takeIf { "type the API key again" in it }, "an empty key field with a new address is refused")
+        assertEquals("https://api.example.com/v1", c.customServer()!!.apiBase, "and the server is as it was")
+        assertNull(c.saveCustomServer(moved, null, "sk-new-host-key-0123456789"))
+        assertEquals("https://other-host.example/v1", c.customServer()!!.apiBase)
+        assertEquals("sk-new-host-key-0123456789", secrets().get(KeyKind.CUSTOM_SERVER)!!.reveal())
+        val sameHostSlash = CustomServers.of("Mine", "https://other-host.example/v1/", "model-z", "", "", true)!!
+        assertNull(c.saveCustomServer(sameHostSlash, null, ""), "a trailing slash is the same address")
     }
 }

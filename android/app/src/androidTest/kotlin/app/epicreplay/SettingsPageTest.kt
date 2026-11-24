@@ -57,7 +57,7 @@ class SettingsPageTest {
     }
 
     private val device: OnDeviceProfile get() = graph.profiles.profiles.values.filterIsInstance<OnDeviceProfile>().first()
-    private fun settings() = SettingsController({ graph.profiles }, ModelChoice(graph.modelChoice, { graph.profiles }), graph.modelDownloader(), { false })
+    private fun settings() = SettingsController({ graph.profiles }, ModelChoice(graph.modelChoice, { graph.profiles }), graph.modelDownloader(), { null })
 
     private fun show() = rule.setContent {
         MaterialTheme {

@@ -112,7 +112,16 @@ class AppViewModel(private val graph: AppGraph, private val context: Context, la
     /** The settings page's logic: the on-device models with their sizes, and their deletion (FR-SET-1, FR-SET-2). A download or a run working stops a delete. */
     val settings by lazy {
         app.epicreplay.core.setup.SettingsController({ graph.profiles }, app.epicreplay.core.models.ModelChoice(graph.modelChoice, { graph.profiles }), graph.modelDownloader(),
-            { graph.downloads.status.value is app.epicreplay.core.download.DownloadStatus.Running || session.view.value?.working == true })
+            { p -> modelRefusal(p) })
+    }
+
+    /** Why [p] cannot be deleted now: a download or a run is working, or an unfinished run (at the card, or broken and not dismissed) uses it. */
+    private fun modelRefusal(p: app.epicreplay.core.models.OnDeviceProfile): String? {
+        if (graph.downloads.status.value is app.epicreplay.core.download.DownloadStatus.Running || session.view.value?.working == true) return "Wait for the download or the run to finish, then delete."
+        val open = session.latestOpen() ?: return null
+        val models = (RunFiles.read(File(open, "manifest.json"))?.get("stack") as? JsonObject)?.get("models") as? JsonObject
+        val uses = models?.values?.any { ((it as? JsonObject)?.get("profile") as? kotlinx.serialization.json.JsonPrimitive)?.content == p.id } == true
+        return if (uses) "A replay that is not finished uses this model. Finish it or choose another clip first, then delete." else null
     }
 
     /** The reason a model could not be deleted, or null when it is gone and the roles that used it ask again. */
