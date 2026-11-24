@@ -71,6 +71,9 @@ object PastRuns {
         return family.size
     }
 
+    /** How many finished videos there are and the bytes every run folder takes (what the settings page shows as storage: FR-SET-1). */
+    fun storage(root: File, untitled: String = ""): Pair<Int, Long> = list(root, untitled).size to root.listFiles { f -> f.isDirectory && !f.name.startsWith(".") }.orEmpty().sumOf { d -> d.walkTopDown().filter { it.isFile }.sumOf { it.length() } }
+
     /** Remove what a delete left behind when the app stopped. */
     fun sweep(root: File) { root.listFiles { f -> f.name.startsWith(GONE) }.orEmpty().forEach { it.deleteRecursively() } }
 }

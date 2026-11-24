@@ -173,6 +173,12 @@ class ModelDownloader(
         }
     }
 
+    /** The bytes of [profile]'s files on the phone now, finished or part-downloaded (the settings page shows them: FR-SET-1). */
+    fun sizeOnDisk(profile: OnDeviceProfile): Long = profile.files.sumOf { f -> listOf(finalFile(f), partFile(f)).sumOf { if (it.isFile) it.length() else 0L } }
+
+    /** Whether any file of [profile], finished or part, is on the phone. */
+    fun hasFiles(profile: OnDeviceProfile): Boolean = profile.files.any { f -> finalFile(f).exists() || partFile(f).exists() }
+
     /** Deletes the files of [profile], complete or partial (spec 004 FR-011). */
     suspend fun delete(profile: OnDeviceProfile) {
         for (f in profile.files) {
