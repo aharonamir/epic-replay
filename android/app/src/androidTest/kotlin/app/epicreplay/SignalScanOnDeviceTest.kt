@@ -46,4 +46,23 @@ class SignalScanOnDeviceTest {
         // a lossy encode may add weak peaks (the keyframes); the strike must be stronger than every other candidate
         assertTrue(s.candidates.filter { it !== top }.all { it.score < top.score })
     }
+
+    /**
+     * The scan's speed (T427 asks for it; the owner's first full run took 279 s for a 20 s, 608 by 1080 clip): the 15 s 1080p fixture is timed and held to a ceiling, and the newest clip that is
+     * on the phone from a real run is timed too when there is one (its frames are read by the decoder only; nothing is shown or kept but the seconds).
+     */
+    @Test
+    fun theScanOfAClipTakesAFewSecondsAFrameNotAThirdOfASecond() {
+        val clip = File(cache, "work_15s_1080p.mp4"); copy("fixtures/clip/work_15s_1080p.mp4", clip)
+        val t0 = System.nanoTime(); val s = SignalDecoder.scan(clip.path); val secs = (System.nanoTime() - t0) / 1e9
+        val log = File(InstrumentationRegistry.getInstrumentation().targetContext.filesDir, "t426_scan.txt")
+        log.appendText("fixture 1080p ${s.frames} frames: $secs s (${secs / s.frames * 1000} ms a frame)\n")
+        assertTrue("the 15 s 1080p clip took $secs s", secs < 20.0)
+        val runs = File(InstrumentationRegistry.getInstrumentation().targetContext.filesDir, "runs")
+        val real = runs.listFiles()?.filter { File(it, "work.mp4").isFile }?.maxByOrNull { it.name }?.let { File(it, "work.mp4") }
+        if (real != null) {
+            val t1 = System.nanoTime(); val r = SignalDecoder.scan(real.path); val rs = (System.nanoTime() - t1) / 1e9
+            log.appendText("a real run's clip ${r.frames} frames: $rs s (${rs / r.frames * 1000} ms a frame)\n")
+        }
+    }
 }

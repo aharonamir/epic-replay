@@ -77,20 +77,36 @@ object SignalDecoder {
         return try { track(ex, "video/")?.let { ex.selectTrack(it); ex.sampleTime.takeIf { t -> t >= 0 } } } finally { ex.release() }
     }
 
-    /** The luma plane, averaged down to [WIDTH] pixels wide when it is wider. */
+    /**
+     * The luma plane as a grey picture [WIDTH] wide when the frame is wider (as the PC's `cv2.resize(frame, (320, round(h * 320 / w)))`), each output pixel the mean of the source pixels it covers;
+     * a frame no wider than [WIDTH] is kept as it is. (An integer-only reduction left a 608-wide phone clip at 608 and made the scan three times slower than it needs to be.)
+     * Each source row is read from the buffer once, as a whole.
+     */
     private fun small(image: android.media.Image): Gray {
         val crop = image.cropRect
         val w = crop.width(); val h = crop.height()
         val plane = image.planes[0]
         val buf = plane.buffer; val stride = plane.rowStride; val px = plane.pixelStride
-        val scale = Math.max(1, w / WIDTH)
-        val ow = w / scale; val oh = h / scale
+        val ow = if (w > WIDTH) WIDTH else w
+        val oh = if (w > WIDTH) Math.max(2, Math.rint(h.toDouble() * WIDTH / w).toInt()) else h
+        val xLo = IntArray(ow) { (it.toLong() * w / ow).toInt() }; val xHi = IntArray(ow) { Math.min(w, Math.max(xLo[it] + 1, Math.ceil((it + 1).toDouble() * w / ow).toInt())) }
         val out = ByteArray(ow * oh)
-        for (y in 0 until oh) for (x in 0 until ow) {
-            var s = 0
-            for (j in 0 until scale) for (i in 0 until scale)
-                s += buf.get((crop.top + y * scale + j) * stride + (crop.left + x * scale + i) * px).toInt() and 0xFF
-            out[y * ow + x] = ((s + scale * scale / 2) / (scale * scale)).toByte()
+        val row = ByteArray(stride + px)
+        val sum = IntArray(ow)
+        var loadedRow = -1
+        fun load(y: Int) { // one source row, whole
+            if (y == loadedRow) return
+            val start = (crop.top + y) * stride + crop.left * px
+            buf.position(start); buf.get(row, 0, Math.min(w * px, buf.limit() - start)); loadedRow = y
+        }
+        for (oy in 0 until oh) {
+            val y0 = (oy.toLong() * h / oh).toInt(); val y1 = Math.min(h, Math.max(y0 + 1, Math.ceil((oy + 1).toDouble() * h / oh).toInt()))
+            java.util.Arrays.fill(sum, 0)
+            for (y in y0 until y1) {
+                load(y)
+                for (ox in 0 until ow) { var s = 0; for (x in xLo[ox] until xHi[ox]) s += row[x * px].toInt() and 0xFF; sum[ox] += s }
+            }
+            for (ox in 0 until ow) { val n = (y1 - y0) * (xHi[ox] - xLo[ox]); out[oy * ow + ox] = ((sum[ox] + n / 2) / n).toByte() }
         }
         return Gray(ow, oh, out)
     }
