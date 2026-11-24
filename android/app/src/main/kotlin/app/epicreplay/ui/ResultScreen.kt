@@ -31,6 +31,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -77,7 +78,7 @@ fun ResultScreen(video: File, data: ResultData?, words: PageWords, actions: Resu
                 if (panel == null) Text("No script was kept for this replay.", color = Ink.muted)
                 else {
                     panel.lines.forEachIndexed { i, l ->
-                        Column(Modifier.fillMaxWidth().testTag("line_$i").then(if (l.key) Modifier.border(BorderStroke(1.dp, accent.text), RoundedCornerShape(6.dp)).padding(8.dp) else Modifier.padding(vertical = 4.dp))) {
+                        Column(Modifier.fillMaxWidth().semantics(mergeDescendants = true) {}.testTag("line_$i").then(if (l.key) Modifier.border(BorderStroke(1.dp, accent.text), RoundedCornerShape(6.dp)).padding(8.dp) else Modifier.padding(vertical = 4.dp))) {
                             Text(l.time + l.role.uppercase() + if (l.generic) " · written by code" else "", style = MaterialTheme.typography.labelMedium, color = if (l.key) accent.text else Ink.muted)
                             Text(l.text, style = MaterialTheme.typography.bodyLarge)
                             if (l.gloss != null) Text(l.gloss!!, style = MaterialTheme.typography.bodySmall, color = Ink.muted)
