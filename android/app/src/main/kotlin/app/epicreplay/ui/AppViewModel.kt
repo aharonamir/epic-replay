@@ -1,6 +1,7 @@
 package app.epicreplay.ui
 
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import android.provider.OpenableColumns
 import androidx.compose.ui.graphics.ImageBitmap
@@ -68,7 +69,7 @@ class AppViewModel(private val graph: AppGraph, private val context: Context, la
     /** Whether the start screen is shown (else the run in hand). */
     val onStart: StateFlow<Boolean> = _onStart
 
-    init { session.latestOpen()?.let { session.refresh(it); session.start(it) } }
+    init { app.epicreplay.core.ui.PastRuns.sweep(runsDir); session.latestOpen()?.let { session.refresh(it); session.start(it) } }
 
     /** The clip the user picked or filmed: copied to the app's cache and checked as the PC checks an upload's name and size (S0 checks the rest). */
     suspend fun chooseClip(uri: Uri) = withContext(Dispatchers.IO) {
@@ -103,6 +104,27 @@ class AppViewModel(private val graph: AppGraph, private val context: Context, la
                 session.start(dir)
             } finally { _starting.value = false }
         }
+    }
+
+    /** Finished videos, newest first (the past replays). */
+    fun pastItems(): List<app.epicreplay.core.ui.PastItem> = app.epicreplay.core.ui.PastRuns.list(runsDir, words.past("untitled"))
+
+    /** What the result screen shows for the run in [dir]. */
+    fun result(dir: File): app.epicreplay.core.ui.ResultData? = app.epicreplay.core.ui.ResultModel.of(dir, words, words.past("untitled"))
+
+    /** The run [id] and every version of its clip removed from the phone (FR-023); the reason it was refused, or null. The run in hand, if it was one of them, is forgotten. */
+    suspend fun deleteRun(id: String): String? = withContext(Dispatchers.IO) {
+        try {
+            app.epicreplay.core.ui.PastRuns.delete(runsDir, id) { session.isWorking(it) }
+            session.view.value?.dir?.takeIf { !it.exists() }?.let { session.forget(it); _clip.value = null; _onStart.value = true }
+            null
+        } catch (e: app.epicreplay.core.ui.DeleteRefused) { e.message }
+    }
+
+    /** A share of the finished video of [dir] to another app: the video alone, through a content address that lasts for that one share. */
+    fun shareIntent(dir: File): Intent {
+        val uri = androidx.core.content.FileProvider.getUriForFile(context, context.packageName + ".share", File(dir, "final.mp4"))
+        return Intent.createChooser(Intent(Intent.ACTION_SEND).apply { type = "video/mp4"; putExtra(Intent.EXTRA_STREAM, uri); addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION) }, null)
     }
 
     /** From the run in hand back to the start screen (the run, if unfinished, stays in its folder and is picked up when the app is opened). */

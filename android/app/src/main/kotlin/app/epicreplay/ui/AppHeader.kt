@@ -19,11 +19,12 @@ import app.epicreplay.R
 
 /** The top of every screen (spec 004 FR-ICON-2, design.md header): the rewind mark of the icon, 30 by 20 dp in the accent yellow, beside the wordmark. */
 @Composable
-fun AppHeader(modifier: Modifier = Modifier, onSettings: (() -> Unit)? = null) {
+fun AppHeader(modifier: Modifier = Modifier, onSettings: (() -> Unit)? = null, onPast: (() -> Unit)? = null) {
     Row(modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 16.dp), verticalAlignment = Alignment.CenterVertically) {
         Image(painterResource(R.drawable.ic_mark), contentDescription = null)
         Spacer(Modifier.width(10.dp))
         Text("EPIC REPLAY", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Black, modifier = Modifier.weight(1f))
+        if (onPast != null) androidx.compose.material3.TextButton(onClick = onPast, modifier = Modifier.androidx_tag("past")) { Text("Past") }
         if (onSettings != null) androidx.compose.material3.TextButton(onClick = onSettings, modifier = Modifier.androidx_tag("settings")) { Text("Settings") }
     }
 }

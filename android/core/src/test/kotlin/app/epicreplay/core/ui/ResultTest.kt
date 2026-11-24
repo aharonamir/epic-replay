@@ -86,4 +86,18 @@ class ResultTest {
         assertEquals(listOf("r_a"), root.list()!!.toList())
         assertFalse(File(root, ".deleting-r_b").exists())
     }
+
+    @Test
+    fun aRunFolderGivesItsResultWithWhatIsThereAndNothingForWhatIsNot() {
+        val root = Files.createTempDirectory("runs").toFile()
+        run(root, "r_a")
+        File(root, "r_a/script.json").writeText("""{"headline":"Top corner","lines":[{"id":"l1","role":"opening","text":"Free kick.","generic":true}]}""")
+        val r = ResultModel.of(File(root, "r_a"), words, "Your replay")!!
+        assertEquals("Top corner", r.headline); assertEquals(1, r.panel!!.lines.size); assertEquals(8, r.time.rows.size); assertEquals("0.0412", r.time.cost)
+        assertEquals(1, r.fallback.lines.size); assertEquals(emptyList(), r.models.map { it.name }); assertEquals(1, r.versions)
+        File(root, "r_a/script.json").delete()
+        val bare = ResultModel.of(File(root, "r_a"), words, "Your replay")!!
+        assertEquals("Your replay", bare.headline); assertEquals(null, bare.panel)
+        assertEquals(null, ResultModel.of(File(root, "nope"), words, "x"))
+    }
 }

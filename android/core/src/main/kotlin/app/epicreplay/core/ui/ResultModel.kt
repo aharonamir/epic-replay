@@ -42,6 +42,9 @@ class ModelRow(val name: String, val value: String)
 /** What the result page says about the part the coded fallback played (FR-018): empty when the model wrote everything. */
 class FallbackNote(val lines: List<String>)
 
+/** Everything the result screen shows of one finished run, read from its folder. [versions] is how many runs of the same clip there are (what a delete removes). */
+class ResultData(val runId: String, val headline: String, val style: String?, val panel: ScriptPanel?, val time: TimeAndCost, val models: List<ModelRow>, val fallback: FallbackNote, val versions: Int)
+
 /**
  * What the result screen shows of a finished run, built by code from the run's files (spec 004 FR-017, FR-018; `web/views.py` of the PC for the panels both apps have).
  * Nothing here changes a stage; a file that is missing or cannot be read gives no row.
@@ -114,5 +117,18 @@ object ResultModel {
         val degraded = (manifest["stages"] as? JsonArray).orEmpty().map { it.jsonObject }.filter { str(it["status"]) == "degraded" }.mapNotNull { st -> words.steps.firstOrNull { str(st["stage"]) in it.stages }?.name }.distinct()
         for (step in degraded) out += "\"$step\" ran with some calls left out; code filled in."
         return FallbackNote(out)
+    }
+
+    /** The result of the run in [dir], or null when it has no manifest. Files that are missing or unreadable give no panel, never an error. */
+    fun of(dir: java.io.File, words: PageWords, untitled: String): ResultData? {
+        fun read(n: String) = app.epicreplay.core.run.RunFiles.read(java.io.File(dir, n))
+        val manifest = read(app.epicreplay.core.run.RunFlow.MANIFEST) ?: return null
+        val script = read("script.json")
+        val panel = script?.let { scriptPanel(it, read("voice.json"), read("checks.json"), read("gloss_en.json"), words) }
+        val state = RunState.of(manifest, emptyMap(), words, java.io.File(dir, "clip_meta.json").exists(), java.io.File(dir, "final.mp4").exists())
+        return ResultData(
+            dir.name, str(script?.get("headline"))?.takeIf { it.isNotBlank() } ?: untitled, str(manifest["style"]), panel, timeAndCost(state.steps, state.costUsd),
+            modelRows(manifest), fallbackNote(manifest, panel, words), PastRuns.versions(dir).size,
+        )
     }
 }

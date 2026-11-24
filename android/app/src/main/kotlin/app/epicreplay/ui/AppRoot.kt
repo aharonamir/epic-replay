@@ -46,6 +46,11 @@ fun AppRoot(vm: AppViewModel, isReady: () -> Boolean, keys: app.epicreplay.core.
     var keysTick by remember { mutableStateOf(0) }
     var showKeys by remember { mutableStateOf(false) }
     var settings by remember { mutableStateOf(0) } // 0 closed, 1 the choice, 2 the models, 3 the keys
+    var pastPage by remember { mutableStateOf(0) } // 0 closed, 1 the list, 2 one of them
+    var viewing by remember { mutableStateOf<java.io.File?>(null) }
+    var pastTick by remember { mutableStateOf(0) }
+    var notice by remember { mutableStateOf<String?>(null) }
+    val ctx = androidx.compose.ui.platform.LocalContext.current
     val setupReady = remember(keysTick, settings, ready) { isReady() }
     val voiceKeyMissing = remember(keysTick) { keys.rows().first { it.kind == app.epicreplay.core.secrets.KeyKind.ELEVENLABS }.status != app.epicreplay.core.secrets.KeyStatus.PRESENT }
     val pick = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri -> if (uri != null) scope.launch { vm.chooseClip(uri) } }
@@ -53,8 +58,16 @@ fun AppRoot(vm: AppViewModel, isReady: () -> Boolean, keys: app.epicreplay.core.
     val accent = if (onStart) (choosing?.let { accentOf(it.accent, null) } ?: DefaultAccent) else vm.accent(view)
     EpicTheme(accent) {
         androidx.compose.material3.Surface(color = Ink.ground, modifier = modifier.fillMaxSize()) { Column(Modifier.statusBarsPadding().navigationBarsPadding()) {
-            AppHeader(onSettings = if (ready && settings == 0 && !showKeys) ({ settings = 1 }) else null)
+            AppHeader(onSettings = if (ready && settings == 0 && !showKeys && pastPage == 0) ({ settings = 1 }) else null, onPast = if (ready && settings == 0 && !showKeys && pastPage == 0) ({ notice = null; pastPage = 1 }) else null)
+            notice?.let { Text(it, color = Ink.dangerText, modifier = Modifier.padding(horizontal = 16.dp).testTag("notice")) }
             when {
+                pastPage == 1 -> PastScreen(remember(pastTick, ready) { vm.pastItems() }, vm.words, { viewing = java.io.File(vm.runsDir, it.runId); pastPage = 2 },
+                    { item -> scope.launch { notice = vm.deleteRun(item.runId); pastTick++ } }, { pastPage = 0; vm.another() })
+                pastPage == 2 && viewing != null -> {
+                    val dir = viewing!!
+                    ResultScreen(java.io.File(dir, "final.mp4"), remember(dir) { vm.result(dir) }, vm.words,
+                        ResultActions({ ctx.startActivity(vm.shareIntent(dir)) }, { pastPage = 0; vm.another() }, { scope.launch { notice = vm.deleteRun(dir.name); pastTick++; if (notice == null) pastPage = 1 } }, { pastPage = 1 }))
+                }
                 settings == 1 -> Column(Modifier.padding(16.dp), verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(12.dp)) {
                     androidx.compose.material3.Button(onClick = { settings = 2 }, modifier = Modifier.fillMaxWidth().testTag("settings_models")) { Text("Models: where they run, the server, the download") }
                     androidx.compose.material3.Button(onClick = { settings = 3 }, modifier = Modifier.fillMaxWidth().testTag("settings_keys")) { Text("Keys") }
@@ -77,7 +90,11 @@ fun AppRoot(vm: AppViewModel, isReady: () -> Boolean, keys: app.epicreplay.core.
                     voiceKeyMissing = voiceKeyMissing, onAddKey = { showKeys = true },
                     setupProblem = if (setupReady) null else "Setup is not finished: a key, the download or the consent is missing.", onSetup = { settings = 1 },
                 )
-                view!!.state.status == "done" && view!!.state.hasVideo -> ResultScreen(java.io.File(view!!.dir, "final.mp4"), vm::another)
+                view!!.state.status == "done" && view!!.state.hasVideo -> {
+                    val dir = view!!.dir
+                    ResultScreen(java.io.File(dir, "final.mp4"), remember(dir) { vm.result(dir) }, vm.words,
+                        ResultActions({ ctx.startActivity(vm.shareIntent(dir)) }, vm::another, { scope.launch { notice = vm.deleteRun(dir.name) } }))
+                }
                 else -> RunScreen(vm, view!!) { showKeys = true }
             }
         } }
