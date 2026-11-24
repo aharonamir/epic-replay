@@ -173,11 +173,11 @@ class ResultScreenTest {
         val d = run("r_full")
         rule.setContent { EpicTheme { ResultScreen(File(d, "final.mp4"), ResultModel.of(d, words, "Your replay"), words, ResultActions({}, {}, {}), turnForFullScreen = false) } } // the test activity restarts when turned; the app's own does not (FullScreenOnDeviceTest)
         rule.onAllNodesWithTag("fullscreen_player").assertCountEquals(0)
-        rule.onNodeWithTag("fullscreen").assertIsDisplayed().performClick()
+        rule.onNodeWithTag("fullscreen").performScrollTo().assertIsDisplayed().performClick()
         rule.waitUntil(5_000) { rule.onAllNodesWithTag("fullscreen_player").fetchSemanticsNodes().isNotEmpty() }
         rule.onNodeWithTag("exit_fullscreen").assertIsDisplayed().performClick()
         rule.waitUntil(5_000) { rule.onAllNodesWithTag("fullscreen_player").fetchSemanticsNodes().isEmpty() }
         rule.onNodeWithTag("player").assertIsDisplayed()
-        rule.onNodeWithTag("fullscreen").assertIsDisplayed() // and it can be opened again
+        rule.onNodeWithTag("fullscreen").performScrollTo().assertIsDisplayed() // and it can be opened again
     }
 }
