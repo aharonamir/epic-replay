@@ -100,12 +100,15 @@ object ResultModel {
     fun modelRows(manifest: JsonObject, words: PageWords? = null): List<ModelRow> {
         val used = (manifest["stack"] as? JsonObject)?.get("models") as? JsonObject ?: return emptyList()
         val stagesOf = mapOf("vision" to listOf("S2", "S3"), "text" to listOf("S5"))
-        return listOf("vision" to "Looking at the clip", "text" to "Writing the script").mapNotNull { (role, name) ->
+        val rows = listOf("vision" to "Looking at the clip", "text" to "Writing the script").mapNotNull { (role, name) ->
             val m = used[role] as? JsonObject ?: return@mapNotNull null
             val where = if (str(m["location"]) == "local") "on this phone" else "at a cloud provider"
             val steps = words?.steps?.filter { st -> st.stages.any { it in stagesOf.getValue(role) } }?.map { it.name }.orEmpty()
             ModelRow(name, "${str(m["label"]) ?: str(m["profile"]) ?: "?"}, ${str(m["model"]) ?: "?"}, $where", steps)
         }
+        // the voice is a cloud service whatever the models are (ElevenLabs): told with the models, so "the rest ran as code" stays true
+        val voiced = (manifest["stages"] as? JsonArray).orEmpty().map { it.jsonObject }.any { str(it["stage"]) == "S7" && str(it["status"]) in setOf("ok", "degraded") }
+        return if (voiced) rows + ModelRow("Recording the voice", "ElevenLabs, at a cloud provider", words?.steps?.filter { st -> "S7" in st.stages }?.map { it.name }.orEmpty()) else rows
     }
 
     /**

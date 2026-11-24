@@ -24,6 +24,9 @@ class ResultTest {
         // FR-018: which of the eight steps each used, so the cloud and the phone are told stage by stage
         assertEquals(listOf(words.steps.filter { s -> "S2" in s.stages || "S3" in s.stages }.map { it.name }, words.steps.filter { s -> "S5" in s.stages }.map { it.name }), rows.map { it.steps })
         assertTrue(rows.all { it.steps.isNotEmpty() })
+        // the voice is a cloud service: named when the run had it, whatever the models are
+        val voiced = ResultModel.modelRows(obj("""{"stack":{"models":{"vision":{"profile":"g","label":"G","location":"local","model":"m"},"text":{"profile":"g","label":"G","location":"local","model":"m"}}},"stages":[{"stage":"S7","status":"ok"}]}"""), words)
+        assertEquals(listOf("Looking at the clip", "Writing the script", "Recording the voice"), voiced.map { it.name }); assertEquals("ElevenLabs, at a cloud provider", voiced[2].value); assertTrue(voiced[2].steps.isNotEmpty())
         assertEquals(emptyList(), ResultModel.modelRows(obj("""{"stack":{"mode":"fixture"}}""")), "a run from before the models were recorded names none")
     }
 

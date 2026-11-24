@@ -145,4 +145,22 @@ class ResultScreenTest {
             }
         } finally { d.deleteRecursively() }
     }
+
+    @Test
+    fun theShareIntentCarriesTheVideoAloneWithAReadGrantForThatOneAddress() {
+        val ctx = inst.targetContext
+        val d = File(File(ctx.filesDir, "runs"), "r_intent_test").apply { mkdirs() }
+        File(d, "final.mp4").writeText("v"); File(d, "upload.mp4").writeText("the clip")
+        try {
+            val chooser = app.epicreplay.ui.Share.intent(ctx, d)
+            val send = chooser.getParcelableExtra(android.content.Intent.EXTRA_INTENT, android.content.Intent::class.java)!!
+            assertEquals(android.content.Intent.ACTION_SEND, send.action); assertEquals("video/mp4", send.type)
+            assertTrue(send.flags and android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION != 0)
+            assertEquals(0, send.flags and android.content.Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+            val uri = send.getParcelableExtra(android.content.Intent.EXTRA_STREAM, android.net.Uri::class.java)!!
+            assertEquals(ctx.packageName + ".share", uri.authority)
+            assertEquals(listOf("runs", "r_intent_test", "final.mp4"), uri.pathSegments) // the one file; the grant of a share covers the address in the intent, not its neighbours
+            assertEquals(null, send.getStringExtra(android.content.Intent.EXTRA_TEXT)); assertEquals(1, send.extras!!.keySet().size)
+        } finally { d.deleteRecursively() }
+    }
 }

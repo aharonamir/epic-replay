@@ -122,10 +122,7 @@ class AppViewModel(private val graph: AppGraph, private val context: Context, la
     }
 
     /** A share of the finished video of [dir] to another app: the video alone, through a content address that lasts for that one share. */
-    fun shareIntent(dir: File): Intent {
-        val uri = androidx.core.content.FileProvider.getUriForFile(context, context.packageName + ".share", File(dir, "final.mp4"))
-        return Intent.createChooser(Intent(Intent.ACTION_SEND).apply { type = "video/mp4"; putExtra(Intent.EXTRA_STREAM, uri); addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION) }, null)
-    }
+    fun shareIntent(dir: File): Intent = Share.intent(context, dir)
 
     /** From the run in hand back to the start screen (the run, if unfinished, stays in its folder and is picked up when the app is opened). */
     fun another() { session.pause(); session.view.value?.takeIf { it.state.status in setOf("failed", "stopped") }?.let { session.dismiss(it.dir) }; _clip.value = null; _clipProblem.value = null; _onStart.value = true }
