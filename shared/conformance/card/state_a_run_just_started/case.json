@@ -1,0 +1,40 @@
+{
+  "area": "card",
+  "function": "ui.state",
+  "language": null,
+  "description": "A run with nothing done: every step waits, step 1 of 8, the whole of the typical time left (about a minute).",
+  "inputs": {
+    "manifest": {
+      "value": {
+        "run_id": "r_test",
+        "created_at": "2026-11-22T10:00:00Z",
+        "status": "running",
+        "style": "football_commentator",
+        "language": "en",
+        "stages": [],
+        "total_usd": null
+      }
+    },
+    "typical": {
+      "value": {
+        "S0": 2.0,
+        "S1": 3.0,
+        "S2": 10.0,
+        "S3": 6.0,
+        "S4": 1.0,
+        "S9": 14.0,
+        "S5": 12.0,
+        "S6": 1.0,
+        "S7": 5.0,
+        "S8": 3.0,
+        "S10": 9.0
+      }
+    },
+    "files": {
+      "value": []
+    }
+  },
+  "expected": {
+    "file": "expected/output.json"
+  }
+}

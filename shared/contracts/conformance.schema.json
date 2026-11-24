@@ -6,7 +6,7 @@
   "additionalProperties": false,
   "required": ["area", "function", "language", "description", "inputs", "expected"],
   "properties": {
-    "area": {"enum": ["storyboard", "slots", "checks", "lexicon", "units", "cells", "backend", "budget", "consent", "signals", "voice", "mix", "visuals", "spotter", "commentator", "intake", "speech", "compose", "flow"]},
+    "area": {"enum": ["storyboard", "slots", "checks", "lexicon", "units", "cells", "backend", "budget", "consent", "signals", "voice", "mix", "visuals", "spotter", "commentator", "intake", "speech", "compose", "flow", "card"]},
     "function": {
       "enum": [
         "storyboard.build", "slots.build", "checks.check", "checks.text",
@@ -18,7 +18,7 @@
         "commentator.brief", "commentator.system_prompt", "commentator.failures", "commentator.patched",
         "commentator.script", "commentator.generic",
         "speech.request", "speech.alignment", "audio.measure",
-        "audio.loudness", "mix.render", "compose.overlays", "compose.landed", "flow.run",
+        "audio.loudness", "mix.render", "compose.overlays", "compose.landed", "flow.run", "card.answer", "card.items", "card.rest_cost", "ui.state",
         "intake.check", "intake.work_check", "intake.capture_fps", "intake.meta", "intake.work_size"
       ]
     },

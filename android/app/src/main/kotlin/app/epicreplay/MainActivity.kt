@@ -7,6 +7,7 @@ import android.os.Bundle
 import androidx.activity.result.contract.ActivityResultContracts
 import app.epicreplay.download.DownloadService
 import androidx.activity.ComponentActivity
+import androidx.activity.viewModels
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -44,13 +45,11 @@ class MainActivity : ComponentActivity() {
             unmetered = graph::isUnmetered,
             ask = { role -> askOneQuestion(role) },
         )
+        val vm by viewModels<app.epicreplay.ui.AppViewModel> { object : androidx.lifecycle.ViewModelProvider.Factory { @Suppress("UNCHECKED_CAST") override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T = app.epicreplay.ui.AppViewModel(graph, applicationContext) as T } }
         setContent {
-            MaterialTheme {
-                androidx.compose.foundation.layout.Column(Modifier.statusBarsPadding()) {
-                    app.epicreplay.ui.AppHeader()
-                    FirstRunScreen(graph.setup, graph.keys, actions)
-                }
-            }
+            app.epicreplay.ui.AppRoot(vm, { graph.setup.step() is app.epicreplay.core.setup.SetupStep.Ready }, graph.keys, { onContinue ->
+                FirstRunScreen(graph.setup, graph.keys, actions, Modifier, onContinue)
+            })
         }
     }
 

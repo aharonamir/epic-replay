@@ -27,4 +27,15 @@ class RunStackTest {
         assertNull(RunStack.saved(manifest(profile.id, "gone"), mapOf(profile.id to profile)))
         assertNull(RunStack.saved(manifest(profile.id, profile.id), emptyMap()))
     }
+
+    @Test
+    fun theUsersOwnServerIsReadFromTheRunsCopyNotFromWhatIsSavedNow() {
+        val mine = Testing.profile()
+        val snapshot = Json.parseToJsonElement("""{"id":"custom-cloud","model":"old-model"}""").jsonObject
+        val manifest = Json.parseToJsonElement("""{"stack":{"custom_profile":{"id":"custom-cloud","model":"old-model"},"models":{"vision":{"profile":"custom-cloud"},"text":{"profile":"custom-cloud"}}}}""").jsonObject
+        val now = mapOf("custom-cloud" to Testing.profile())
+        val got = RunStack.saved(manifest, now) { snap -> assertEquals(snapshot, snap); mine }
+        kotlin.test.assertSame(mine, got!!.vision) // the copy, not the profile of that name that is saved now
+        assertNull(RunStack.saved(manifest, now)) // without a way to read the copy there is none
+    }
 }

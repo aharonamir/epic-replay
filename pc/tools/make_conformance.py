@@ -1922,7 +1922,7 @@ def speech_cases() -> dict[str, dict]:
 
 def all_cases() -> dict[str, dict]:
     out = {}
-    for make in (storyboard_cases, slots_cases, checks_cases, lexicon_cases, units_cases, cells_cases, cell_layout_cases, backend_cases, budget_cases, consent_cases, signals_cases, checks_more_cases, voice_cases, mix_cases, visuals_cases, spotter_cases, commentator_cases, intake_cases, speech_cases, compose_cases, flow_cases):  # fmt: skip
+    for make in (storyboard_cases, slots_cases, checks_cases, lexicon_cases, units_cases, cells_cases, cell_layout_cases, backend_cases, budget_cases, consent_cases, signals_cases, checks_more_cases, voice_cases, mix_cases, visuals_cases, spotter_cases, commentator_cases, intake_cases, speech_cases, compose_cases, flow_cases, card_cases, ui_cases):  # fmt: skip
         for name, case in make().items():
             out[f"{case['area']}/{name}"] = case
     return out
@@ -2268,6 +2268,317 @@ def flow_cases() -> dict[str, dict]:
         [{}, {"rerun": "S5"}],
         present=fixture_files,
         seed_held=True,
+    )
+    return out
+
+
+def card_cases() -> dict[str, dict]:
+    """Added in T425: what the play card does with the user's answers (flow/runner.py `answer`, `to_check`, `nearest_event`, `rest_cost_usd`)."""
+
+    def sheet(change=None):
+        """The sample play sheet as an input; `change` edits a copy (a merge patch cannot reach into an array)."""
+        ps = json.loads((paths.SAMPLE_RUN / "play_sheet.json").read_text())
+        if change:
+            change(ps)
+        return value(ps)
+
+    def event(ps, eid):
+        return next(e for e in ps["events"] if e["id"] == eid)
+
+    def base(frame=313, edits=None, context=None, generic=False, change=None, desc=""):
+        psref = sheet(change)
+        ucref = {"fixture": "sample_run/user_context.json"}
+        return {
+            "area": "card", "function": "card.answer", "language": None, "description": desc,
+            "inputs": {"play_sheet": psref, "user_context": ucref, "clip_meta": {"fixture": "sample_run/clip_meta.json"}, "frame": value(frame),
+                       "edits": value(edits or {}), "context": value(context or {}), "generic": value(generic)},
+        }  # fmt: skip
+
+    def unsure(ps):  # e5 is a model event below the highlight line: an item to check
+        event(ps, "e5")["confidence"] = 0.5
+
+    out = {}
+    out["the_key_moment_only"] = base(
+        289,
+        desc="The user picks a candidate: the climax takes its frame and its time (frame over fps), the method becomes `user`, the confidence 1.0 and the sheet is confirmed.",
+    )
+    out["a_frame_past_the_clip_is_refused"] = base(
+        450,
+        desc="A frame after the last of the clip (450 frames at 30 a second: 0 to 449) is refused with the range, and nothing is written.",
+    )
+    out["a_negative_frame_is_refused"] = base(
+        -1, desc="A frame before the first is refused the same way."
+    )
+    out["keep_and_remove_events"] = base(edits={"events": [{"id": "e5", "keep": True}, {"id": "e2", "keep": False}]}, change=unsure,
+        desc="`keep: true` makes an event the user's (`source: user`); `keep: false` removes it; the others stay as they were.")  # fmt: skip
+    out["removing_the_key_moments_event_moves_it_to_the_nearest"] = base(frame=300, edits={"events": [{"id": "e6", "keep": False}]},
+        desc="The key moment's own event is removed: the climax's `event_id` becomes the nearest kept event to the moment (an event that holds it first, then the later start).")  # fmt: skip
+    out["removing_every_event_is_refused"] = base(
+        edits={"events": [{"id": f"e{i}", "keep": False} for i in range(1, 9)]},
+        desc="At least one event must be kept.",
+    )
+    out["an_unknown_event_is_refused"] = base(
+        edits={"events": [{"id": "e99", "keep": True}]},
+        desc="Each event edit is {id, keep} with an event of this play sheet.",
+    )
+    out["a_keep_that_is_not_a_boolean_is_refused"] = base(
+        edits={"events": [{"id": "e1", "keep": "yes"}]}, desc="`keep` is true or false."
+    )
+    out["the_outcome_sentence_is_the_key_events_outcome_too"] = base(edits={"outcome_summary": "  Scored from the free kick.  "},
+        desc="The outcome sentence is trimmed, marked the user's with confidence 1.0, and is also the outcome of the key moment's event.")  # fmt: skip
+    out["the_activity_is_edited"] = base(
+        edits={"activity": "football set piece"},
+        desc="The activity is a sentence of 1 to 80 characters, marked the user's.",
+    )
+    out["an_activity_over_80_characters_is_refused"] = base(
+        edits={"activity": "x" * 81},
+        desc="Longer than 80 characters: refused, naming the field and the limit.",
+    )
+    out["an_empty_outcome_is_refused"] = base(
+        edits={"outcome_summary": "   "}, desc="An empty sentence is refused (1 to 160 characters)."
+    )
+    out["the_followed_actor_changes"] = base(
+        edits={"followed_actor": "a2"},
+        desc="The followed actor is another actor of the sheet: `followed` moves to it.",
+    )
+    out["an_unknown_actor_is_refused"] = base(
+        edits={"followed_actor": "a9"}, desc="An actor that is not in the sheet is refused."
+    )
+    out["the_players_name_goes_to_the_followed_actor"] = base(context={"player_name": "Lee", "score": " 2-1 "},
+        desc="Context fields go into the user context, trimmed; a name also becomes the followed actor's `user_name`; an empty one is null.")  # fmt: skip
+    out["context_of_another_kind_is_refused"] = base(
+        context={"favourite_colour": "red"},
+        desc="Only the player, the two teams and the score are taken.",
+    )
+    out["a_context_field_over_40_characters_is_refused"] = base(
+        context={"team_home": "y" * 41}, desc="At most 40 characters each."
+    )
+    out["not_at_all_makes_a_generic_play_sheet"] = base(
+        generic=True,
+        desc="`Not at all` then `Narrate without saying what happened`: the sheet keeps what the model saw and is marked `mode: generic`.",
+    )
+    out["an_answer_that_fails_writes_nothing_of_the_edits_before_it"] = base(edits={"activity": "fine", "followed_actor": "a9"},
+        desc="A refused edit leaves everything as it was, the valid edit before it too (the function returns only the error).")  # fmt: skip
+
+    def items(desc, change=None):
+        return {
+            "area": "card",
+            "function": "card.items",
+            "language": None,
+            "description": desc,
+            "inputs": {"play_sheet": sheet(change)},
+        }
+
+    def two_unsure(ps):
+        event(ps, "e5")["confidence"] = 0.5
+        event(ps, "e2")["confidence"] = 0.69
+
+    def between(ps):
+        ps["climax"]["t"] = 9.65
+        event(ps, "e3").update(t_start=8.2, t_end=9.6)
+        event(ps, "e4").update(t_start=9.7, t_end=9.7)
+
+    out["items_to_check"] = items(
+        "The events the card asks about are the model's and below 0.7 (the user's are not asked about again); the key moment's event is the one that holds the moment.",
+        two_unsure,
+    )
+    out["items_when_nothing_is_unsure"] = items(
+        "With every model event at 0.7 or over, nothing is asked."
+    )
+    out["items_the_nearest_event_to_a_moment_between_events"] = items(
+        "A moment that no event holds: the nearest event (by distance), the later start on a tie.",
+        between,
+    )
+
+    def cost(desc, style, language):
+        return {"area": "card", "function": "card.rest_cost", "language": language, "description": desc,
+                "inputs": {"clip_meta": {"fixture": "sample_run/clip_meta.json"}, "pack": {"style": style, "language": language}}}  # fmt: skip
+
+    out["rest_cost_english"] = cost(
+        "The cost of the rest of the run: the Commentator's ceiling plus the voice for as many words as the clip's length holds at the pack's rate (6.5 characters a word at 0.10 USD per 1,000).",
+        "football_commentator",
+        "en",
+    )
+    out["rest_cost_mandarin"] = cost(
+        "In Mandarin a unit is a character: one character each.", "football_commentator", "zh"
+    )
+    out["rest_cost_of_another_pack"] = cost(
+        "The voice's words a second differ by pack.", "nature_documentary", "en"
+    )
+    return out
+
+
+def ui_cases() -> dict[str, dict]:
+    """Added in T425: what the progress screen shows for a manifest (web/app.py `state`): the eight steps, the time left, the message of a stopped run."""
+
+    def stage(name, status="ok", duration=1.0, cost=0.0, note=""):
+        return {
+            "stage": name,
+            "status": status,
+            "started_at": "2026-11-22T10:00:00Z",
+            "duration_s": duration,
+            "cost_usd": cost,
+            "note": note,
+        }
+
+    def manifest(stages, status="running", total=None):
+        return {
+            "run_id": "r_test",
+            "created_at": "2026-11-22T10:00:00Z",
+            "status": status,
+            "style": "football_commentator",
+            "language": "en",
+            "stages": stages,
+            "total_usd": total,
+        }
+
+    typical = {
+        "S0": 2.0,
+        "S1": 3.0,
+        "S2": 10.0,
+        "S3": 6.0,
+        "S4": 1.0,
+        "S9": 14.0,
+        "S5": 12.0,
+        "S6": 1.0,
+        "S7": 5.0,
+        "S8": 3.0,
+        "S10": 9.0,
+    }
+
+    def case(desc, m, files=("clip_meta.json",), typ=None):
+        return {"area": "card", "function": "ui.state", "language": None, "description": desc,
+                "inputs": {"manifest": value(m), "typical": value(typical if typ is None else typ), "files": value(list(files))}}  # fmt: skip
+
+    ok = lambda *names: [stage(n, duration=2.0) for n in names]  # noqa: E731
+    out = {}
+    out["state_a_run_just_started"] = case(
+        "A run with nothing done: every step waits, step 1 of 8, the whole of the typical time left (about a minute).",
+        manifest([]),
+        files=(),
+    )
+    out["state_the_first_stages_done"] = case(
+        "S0 and S1 done: step 1 is done with its seconds (the two summed and rounded), step 2 runs.",
+        manifest(ok("S0", "S1")),
+    )
+    out["state_at_the_play_card"] = case(
+        "At the card the run waits for the user: step 4 is `waiting_user`, the three before it are done.",
+        manifest(
+            [
+                *ok("S0", "S1", "S2", "S3"),
+                stage("A", "waiting", 0.0, note="waiting for the play card"),
+            ],
+            status="waiting_play_card",
+        ),
+    )
+    out["state_the_card_answered"] = case(
+        "After the answer step 4 is done (its name changes to what the user confirmed) and shows no seconds; step 5 has begun.",
+        manifest([*ok("S0", "S1", "S2", "S3"), stage("A", "ok", 0.0), stage("S4", duration=1.0)]),
+    )
+    out["state_a_degraded_stage_counts_as_done"] = case(
+        "A degraded stage (a fallback was used) is done; the step still shows its seconds.",
+        manifest(
+            [
+                *ok("S0", "S1", "S2", "S3", "A", "S4", "S9"),
+                stage("S5", "degraded", 9.0, cost=0.0042, note="generic lines for l2"),
+            ]
+        ),
+    )
+    out["state_seeded_stages_are_done"] = case(
+        "Seeded stages (a fixture, or an output that was already there) are done.",
+        manifest(
+            [
+                stage("S0", "seeded", 0.0),
+                stage("S1", "seeded", 0.0),
+                stage("S2", "seeded", 0.0),
+                stage("S3", "seeded", 0.0),
+                stage("A", "seeded", 0.0),
+            ]
+        ),
+    )
+    out["state_done"] = case(
+        "A finished run: all eight steps done, step 8 of 8, no time left (a few seconds), the video and the clip present, the cost the manifest's total.",
+        manifest(
+            ok("S0", "S1", "S2", "S3", "A", "S4", "S9", "S5", "S6", "S7", "S8", "S10"),
+            status="done",
+            total=0.0412,
+        ),
+        files=("clip_meta.json", "final.mp4"),
+    )
+    out["state_time_left_wordings"] = case(
+        "The time left is the sum of the typical durations of the stages not done, read in three wordings: under 10 s, under 45 s, else.",
+        manifest([*ok("S0", "S1", "S2", "S3", "A", "S4", "S9", "S5", "S6", "S7", "S8")]),
+        typ={"S10": 8.0},
+    )
+    out["state_time_left_half_a_minute"] = case(
+        "Thirty seconds of typical work left: about half a minute.",
+        manifest([*ok("S0", "S1", "S2", "S3", "A", "S4", "S9")]),
+        typ={"S5": 12.0, "S6": 1.0, "S7": 5.0, "S8": 3.0, "S10": 9.0},
+    )
+    out["state_failed_names_the_step"] = case(
+        "A failed stage: the step is `failed`, and the message names the step in lower case, never the stage's own note.",
+        manifest(
+            [
+                *ok("S0", "S1", "S2", "S3", "A", "S4"),
+                stage("S9", "failed", 3.0, note="Invalid Nal units from the muxer"),
+            ],
+            status="failed",
+        ),
+    )
+    out["state_stopped_for_a_sensitive_clip"] = case(
+        "A clip flagged at S3 stops the run with the reason, without its final full stop.",
+        manifest(
+            [
+                *ok("S0", "S1", "S2"),
+                stage("S3", "stopped", 1.0, note="sensitive: someone may be hurt or upset."),
+            ],
+            status="stopped",
+        ),
+    )
+    out["state_stopped_by_the_cap"] = case(
+        "A call that would go over a cap stops the run with the limit message.",
+        manifest(
+            [
+                *ok("S0", "S1", "S2", "S3", "A", "S4"),
+                stage("S5", "stopped", 1.0, note="the run cap would be exceeded"),
+            ],
+            status="stopped",
+        ),
+    )
+    out["state_stopped_at_the_card"] = case(
+        "`Stop here` at the card: its own message.",
+        manifest(
+            [
+                *ok("S0", "S1", "S2", "S3"),
+                stage("A", "stopped", 0.0, note="stopped at the play card"),
+            ],
+            status="stopped",
+        ),
+    )
+    out["state_an_upload_refused_says_why"] = case(
+        "S0's note is written for the user: the reason the clip was refused is the message.",
+        manifest(
+            [
+                stage(
+                    "S0",
+                    "failed",
+                    0.1,
+                    note="That clip is 42 seconds long. We need 3 to 30 seconds.",
+                )
+            ],
+            status="failed",
+        ),
+        files=(),
+    )
+    out["state_the_cost_is_the_sum_when_there_is_no_total"] = case(
+        "With no total in the manifest the cost is the sum of the stages' costs.",
+        manifest([stage("S2", cost=0.0123), stage("S5", cost=0.0301)]),
+        files=(),
+    )
+    out["state_a_zero_total_is_not_a_total"] = case(
+        "A manifest total of 0 (a run that was cut off before its total was written) falls back to the sum of the stages' costs, as `total or sum`.",
+        manifest([stage("S2", cost=0.0111), stage("S5", cost=0.0222)], total=0.0),
+        files=(),
     )
     return out
 

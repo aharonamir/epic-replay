@@ -25,6 +25,8 @@ class Secret(private val value: String) {
 /** The keys the user types in settings (spec 004 FR-008). `id` is the file name in the store. */
 enum class KeyKind(val id: String, val label: String) {
     MODEL_PROVIDER("model_provider", "Model provider key"),
+    /** The key of the user's own server (spec 004 FR-CUSTOM-1): never the shipped providers' key, so neither key can reach the other server. */
+    CUSTOM_SERVER("custom_server", "Key of your own server"),
     ELEVENLABS("elevenlabs", "ElevenLabs key"),
 }
 

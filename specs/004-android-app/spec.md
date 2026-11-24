@@ -2,7 +2,7 @@
 
 **Feature branch**: `004-android-app`
 **Created**: 2026-11-15
-**Status**: Draft, revision 4 (the app icon, section 5.4): part A (where the models run) is specified and the owner's decisions D1 to D11 are in section 9; part B (the rest of the app) is an outline that the spikes in the plan firm up
+**Status**: Draft, revision 5 (the first run as a wizard and a server of the user's own, section 5.5; owner, 2026-11-23; revision 4: the app icon, section 5.4): part A (where the models run) is specified and the owner's decisions D1 to D11 are in section 9; part B (the rest of the app) is an outline that the spikes in the plan firm up
 **Input**: "Start spec 004 with the three choices, the phone options are model run on cloud or downloaded like voice-reps." (2026-11-15). Before that: "can the user choose where the model runs: cloud with api key, ollama for pc, or local model on the phone like in voice-reps".
 **Depends on**: spec 002 (`shared/`, the conformance suite), spec 003 (model profiles and the model contract), merged at `e754d4a`. The on-device pattern is the owner's `voice-reps` app (github.com/aharonamir/voice-reps, commit `e03d3b3` and later, read 2026-11-15).
 
@@ -178,6 +178,15 @@ The yellow is the football narrator's accent. On the web the accent follows the 
 - **FR-ICON-5** Nothing in the icon depends on the chosen narrator, model or language.
 
 **Acceptance.** (1) On a phone with Android 13 or later the home screen shows C; with themed icons on, the monochrome layer shows in the theme's colours; no mask crops the mark or the letters. (2) A cold start shows A's splash screen, then the first screen. (3) The 512 px store image matches `icon-c-yellow.svg` scaled up. (4) Editing a triangle in `icon-monochrome.svg` (by hand, not committed) makes the build or the check of FR-ICON-4 fail. (5) The PC app is unchanged: its tests and goldens pass.
+
+### 5.5 The first run as a wizard, and a server of the user's own (revision 5; owner, 2026-11-23, after the first use on the phone)
+
+The first use showed three things: both keys were asked on one screen with a Save each, and saving the first moved the screen on so that the second was never entered; the cloud model was fixed to the one profile in `shared/models/`, with no address or model name to see or change; and a run could start with no voice key and break after ten minutes of work.
+
+- **FR-WIZ-1** The first run is a wizard of the steps that apply, one screen each, in this order, each saving what it asks and then moving on, with "Step n of m" shown: (1) where the two models run; (2) for a cloud model, its server (address and model name, shown; entered for a server of the user's own) and its key; (3) for an on-device model, the download; (4) the voice's key (ElevenLabs), because every run speaks; (5) the consent. One key is entered on a screen, never two.
+- **FR-WIZ-2** A run cannot start until the steps are done: "Make my replay" stays off, with the reason, while the voice's key is missing.
+- **FR-CUSTOM-1** Besides the profiles of `shared/models/`, the user may add one cloud server of their own: an OpenAI-compatible chat server over HTTPS, given as a name, a base address, a model name, the prices per million tokens (for the spending caps; 0 when unknown) and whether it takes tool calls. It is kept in the app's private settings as a profile file of the same schema (`kind: openai_compatible`, `location: cloud`, `status: experimental`, a call ceiling worked out from the prices as for `deepseek-flash`), checked by `model_profile.schema.json`, and offered for both roles like any other cloud profile. It is not shared data and the PC does not see it. Its key is the model provider's key. The consent covers it as it covers any cloud profile.
+- **FR-CUSTOM-2** A base address that is not `https://`, a model name with spaces and a negative price are refused with the reason; cleartext stays off (FR-009).
 
 ## 6. Success criteria
 

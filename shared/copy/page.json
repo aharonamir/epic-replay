@@ -1,0 +1,130 @@
+{
+  "schema_version": "1.0",
+  "note": "The words of the page that both apps show (spec 004, T425): the start screen's labels, the eight steps and their stages, the progress words, the play card's words and the stopped messages. The PC's web/copy.py and the phone read this file; the words of the web page that only it has (the drop area, the result, the details view) stay in copy.py.",
+  "wordmark": "Epic Replay",
+  "headline": [
+    "Film it.",
+    "We'll call it."
+  ],
+  "tip": "Tip: film in slo-mo mode for a sharper replay.",
+  "narrators": "Who's narrating?",
+  "language": "Commentary language",
+  "optional": {
+    "label": "Optional",
+    "star": "Who's the star?",
+    "mute": "Remove the clip's own sound"
+  },
+  "go": "Make my replay",
+  "progress": {
+    "label": "Making your replay",
+    "step": "Step {n} of 8",
+    "working": "Working",
+    "show": "Show details",
+    "hide": "Hide details"
+  },
+  "time_left": [
+    "A few seconds to go.",
+    "About half a minute to go.",
+    "About a minute to go."
+  ],
+  "your_turn": "Your turn.",
+  "steps": [
+    {
+      "name": "Checking your clip",
+      "stages": [
+        "S0",
+        "S1"
+      ]
+    },
+    {
+      "name": "Watching what happens",
+      "stages": [
+        "S2"
+      ]
+    },
+    {
+      "name": "Finding the key moment",
+      "stages": [
+        "S3"
+      ]
+    },
+    {
+      "name": "Is this what happened?",
+      "stages": [
+        "A"
+      ]
+    },
+    {
+      "name": "Writing the call",
+      "stages": [
+        "S4",
+        "S5",
+        "S6"
+      ]
+    },
+    {
+      "name": "Building the slow-motion replay",
+      "stages": [
+        "S9"
+      ]
+    },
+    {
+      "name": "Recording the voice",
+      "stages": [
+        "S7"
+      ]
+    },
+    {
+      "name": "Mixing and finishing",
+      "stages": [
+        "S8",
+        "S10"
+      ]
+    }
+  ],
+  "confirmed": "You confirmed what happened",
+  "card": {
+    "back10": "10 back",
+    "earlier": "Earlier",
+    "later": "Later",
+    "on10": "10 on",
+    "frame": "Frame {frame} · {t} s",
+    "pick": "Pick the moment",
+    "this_one": "This one",
+    "others": "Other moments",
+    "check": "Check this",
+    "yes": "Yes, that's it",
+    "why": "Pick the moment first: nudge it, choose another moment, or press \"This one\".",
+    "why_check": "Answer the question about the clip first.",
+    "unchecked": "We couldn't check that this clip is fine to narrate. Is everyone in it fine, and dressed?",
+    "fine": "Yes, everyone's fine",
+    "not_fine": "No, stop here",
+    "failed": "That didn't go through. Try again.",
+    "keep": "Keep",
+    "remove": "Remove",
+    "removed": "removed",
+    "why_items": "Keep or remove each item marked \"Check this\" first.",
+    "fix": "Fix something",
+    "fix_done": "Done fixing",
+    "reject": "Not at all",
+    "back": "Back to the card",
+    "activity": "What's going on",
+    "outcome": "How it ends",
+    "generic_note": "We can still make your replay, with a narration that doesn't say what happened.",
+    "generic": "Narrate without saying what happened",
+    "stop": "Stop here",
+    "cost": "The rest will cost about ${cost}.",
+    "why_generic": "Pick the moment first: the replay is built around it."
+  },
+  "stopped": {
+    "headline": "Stopped",
+    "sensitive": "This clip isn't one we can narrate: {reason}.",
+    "cap": "We've reached today's limit for this demo.",
+    "rejected": "You stopped it at the play card. Nothing was narrated.",
+    "failed": "Something broke while {step}. Your clip is safe.",
+    "again": "Choose another clip",
+    "retry": "Try again",
+    "voice_key": "The voice needs an ElevenLabs key. Add it, then try again.",
+    "add_key": "Add the key"
+  }
+}

@@ -26,7 +26,7 @@ class KeysControllerTest {
 
     @Test
     fun theScreenStartsWithBothKeysAbsent() {
-        assertEquals(listOf(KeyStatus.ABSENT, KeyStatus.ABSENT), c.rows().map { it.status })
+        assertEquals(listOf(KeyStatus.ABSENT, KeyStatus.ABSENT, KeyStatus.ABSENT), c.rows().map { it.status }) // the provider, the user's own server and the voice
         assertTrue(c.rows().all { it.masked == null })
     }
 

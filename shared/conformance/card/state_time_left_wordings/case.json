@@ -1,0 +1,121 @@
+{
+  "area": "card",
+  "function": "ui.state",
+  "language": null,
+  "description": "The time left is the sum of the typical durations of the stages not done, read in three wordings: under 10 s, under 45 s, else.",
+  "inputs": {
+    "manifest": {
+      "value": {
+        "run_id": "r_test",
+        "created_at": "2026-11-22T10:00:00Z",
+        "status": "running",
+        "style": "football_commentator",
+        "language": "en",
+        "stages": [
+          {
+            "stage": "S0",
+            "status": "ok",
+            "started_at": "2026-11-22T10:00:00Z",
+            "duration_s": 2.0,
+            "cost_usd": 0.0,
+            "note": ""
+          },
+          {
+            "stage": "S1",
+            "status": "ok",
+            "started_at": "2026-11-22T10:00:00Z",
+            "duration_s": 2.0,
+            "cost_usd": 0.0,
+            "note": ""
+          },
+          {
+            "stage": "S2",
+            "status": "ok",
+            "started_at": "2026-11-22T10:00:00Z",
+            "duration_s": 2.0,
+            "cost_usd": 0.0,
+            "note": ""
+          },
+          {
+            "stage": "S3",
+            "status": "ok",
+            "started_at": "2026-11-22T10:00:00Z",
+            "duration_s": 2.0,
+            "cost_usd": 0.0,
+            "note": ""
+          },
+          {
+            "stage": "A",
+            "status": "ok",
+            "started_at": "2026-11-22T10:00:00Z",
+            "duration_s": 2.0,
+            "cost_usd": 0.0,
+            "note": ""
+          },
+          {
+            "stage": "S4",
+            "status": "ok",
+            "started_at": "2026-11-22T10:00:00Z",
+            "duration_s": 2.0,
+            "cost_usd": 0.0,
+            "note": ""
+          },
+          {
+            "stage": "S9",
+            "status": "ok",
+            "started_at": "2026-11-22T10:00:00Z",
+            "duration_s": 2.0,
+            "cost_usd": 0.0,
+            "note": ""
+          },
+          {
+            "stage": "S5",
+            "status": "ok",
+            "started_at": "2026-11-22T10:00:00Z",
+            "duration_s": 2.0,
+            "cost_usd": 0.0,
+            "note": ""
+          },
+          {
+            "stage": "S6",
+            "status": "ok",
+            "started_at": "2026-11-22T10:00:00Z",
+            "duration_s": 2.0,
+            "cost_usd": 0.0,
+            "note": ""
+          },
+          {
+            "stage": "S7",
+            "status": "ok",
+            "started_at": "2026-11-22T10:00:00Z",
+            "duration_s": 2.0,
+            "cost_usd": 0.0,
+            "note": ""
+          },
+          {
+            "stage": "S8",
+            "status": "ok",
+            "started_at": "2026-11-22T10:00:00Z",
+            "duration_s": 2.0,
+            "cost_usd": 0.0,
+            "note": ""
+          }
+        ],
+        "total_usd": null
+      }
+    },
+    "typical": {
+      "value": {
+        "S10": 8.0
+      }
+    },
+    "files": {
+      "value": [
+        "clip_meta.json"
+      ]
+    }
+  },
+  "expected": {
+    "file": "expected/output.json"
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "area": "card",
+  "function": "ui.state",
+  "language": null,
+  "description": "A manifest total of 0 (a run that was cut off before its total was written) falls back to the sum of the stages' costs, as `total or sum`.",
+  "inputs": {
+    "manifest": {
+      "value": {
+        "run_id": "r_test",
+        "created_at": "2026-11-22T10:00:00Z",
+        "status": "running",
+        "style": "football_commentator",
+        "language": "en",
+        "stages": [
+          {
+            "stage": "S2",
+            "status": "ok",
+            "started_at": "2026-11-22T10:00:00Z",
+            "duration_s": 1.0,
+            "cost_usd": 0.0111,
+            "note": ""
+          },
+          {
+            "stage": "S5",
+            "status": "ok",
+            "started_at": "2026-11-22T10:00:00Z",
+            "duration_s": 1.0,
+            "cost_usd": 0.0222,
+            "note": ""
+          }
+        ],
+        "total_usd": 0.0
+      }
+    },
+    "typical": {
+      "value": {
+        "S0": 2.0,
+        "S1": 3.0,
+        "S2": 10.0,
+        "S3": 6.0,
+        "S4": 1.0,
+        "S9": 14.0,
+        "S5": 12.0,
+        "S6": 1.0,
+        "S7": 5.0,
+        "S8": 3.0,
+        "S10": 9.0
+      }
+    },
+    "files": {
+      "value": []
+    }
+  },
+  "expected": {
+    "file": "expected/output.json"
+  }
+}

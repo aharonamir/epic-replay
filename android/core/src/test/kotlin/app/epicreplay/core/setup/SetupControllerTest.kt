@@ -55,7 +55,8 @@ class SetupControllerTest {
     private val key = KeyGenerator.getInstance("AES").apply { init(256) }.generateKey()
     private fun secrets() = SecretStore(File(tmp, "secrets"), AesGcmCipher { key })
     private fun downloader() = ModelDownloader(File(tmp, "models"), DownloadPolicy.DEFAULT, { 100_000 })
-    private fun controller(profiles: LoadedProfiles = LoadedProfiles(listOf(cloud, phone).associateBy { it.id }, emptyList())): SetupController {
+    private fun controller(profiles: LoadedProfiles = LoadedProfiles(listOf(cloud, phone).associateBy { it.id }, emptyList()), voiceKey: Boolean = true): SetupController {
+        if (voiceKey) secrets().put(KeyKind.ELEVENLABS, Secret("voice-key-abcdef")) // every run speaks: the voice's key is a step of its own, before the consent
         val choice = ModelChoice(ModelChoiceStore(File(tmp, "choice.json")), profiles)
         return SetupController(profiles, choice, secrets(), downloader(), ConsentStore(File(tmp, "consent.json")),
             ConsentCopy(File(shared, "copy/consent.json").readText()), { clock })
@@ -177,5 +178,43 @@ class SetupControllerTest {
         assertEquals(setOf("profile", "label", "location", "model"), v.keys)
         assertEquals(listOf("tiny-device", "device", "tiny.gguf"), listOf("profile", "location", "model").map { v.getValue(it).jsonPrimitive.content })
         assertEquals(listOf("deepseek-flash", "cloud", "deepseek-flash"), listOf("profile", "location", "model").map { t.getValue(it).jsonPrimitive.content })
+    }
+
+    @Test
+    fun theVoicesKeyIsAskedForAfterTheModelsAndBeforeTheConsentOneStepAtATime() {
+        val c = controller(voiceKey = false)
+        c.choose(Role.VISION, "deepseek-flash"); c.choose(Role.TEXT, "deepseek-flash")
+        assertEquals(KeyKind.MODEL_PROVIDER, assertIs<SetupStep.NeedsKey>(c.step()).key) // the model's key first
+        secrets().put(KeyKind.MODEL_PROVIDER, Secret("sk-abcdefghijklmnop1234"))
+        assertEquals(KeyKind.ELEVENLABS, assertIs<SetupStep.NeedsVoiceKey>(c.step()).key) // then the voice's, not both at once
+        secrets().put(KeyKind.ELEVENLABS, Secret("voice-key-abcdef"))
+        assertIs<SetupStep.NeedsConsent>(c.step())
+        c.confirmConsent(); assertIs<SetupStep.Ready>(c.step())
+    }
+
+    @Test
+    fun theOutlineListsTheStepsThatApplyAndWhichAreDone() {
+        val c = controller(voiceKey = false)
+        assertEquals(listOf("Models" to false, "Key" to false, "Voice" to false, "Agree" to false), c.outline())
+        c.choose(Role.VISION, "deepseek-flash"); c.choose(Role.TEXT, "deepseek-flash")
+        secrets().put(KeyKind.MODEL_PROVIDER, Secret("sk-abcdefghijklmnop1234"))
+        assertEquals(listOf("Models" to true, "Key" to true, "Voice" to false, "Agree" to false), c.outline())
+        val onPhone = controller(voiceKey = false)
+        onPhone.choose(Role.VISION, "tiny-device"); onPhone.choose(Role.TEXT, "tiny-device")
+        assertEquals(listOf("Models", "Download", "Voice", "Agree"), onPhone.outline().map { it.first }) // no key for a model on the phone
+    }
+
+    @Test
+    fun aKeyTypedForOneServerIsNeverTheKeyOfAnotherAndTheOwnServerAsksForItsOwn() {
+        assertEquals(KeyKind.MODEL_PROVIDER, SetupController.keyFor(cloud))
+        val mine = cloud.copy(id = "custom-cloud", label = "Mine", apiBase = "https://x.example/v1", model = "m")
+        assertEquals(KeyKind.CUSTOM_SERVER, SetupController.keyFor(mine))
+        val c = controller(LoadedProfiles(listOf(cloud, mine, phone).associateBy { it.id }, emptyList()))
+        c.choose(Role.VISION, "deepseek-flash"); c.choose(Role.TEXT, "custom-cloud")
+        secrets().put(KeyKind.MODEL_PROVIDER, Secret("sk-abcdefghijklmnop1234"))
+        assertEquals(KeyKind.CUSTOM_SERVER, assertIs<SetupStep.NeedsKey>(c.step()).key) // the first key does not serve the second server
+        assertEquals(listOf("Models", "Key", "Key", "Voice", "Agree"), c.outline().map { it.first })
+        secrets().put(KeyKind.CUSTOM_SERVER, Secret("custom-key-abcdefgh"))
+        assertIs<SetupStep.NeedsConsent>(c.step())
     }
 }
