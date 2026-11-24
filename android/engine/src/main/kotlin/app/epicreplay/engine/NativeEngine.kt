@@ -14,9 +14,9 @@ class NativeEngine : InferenceEngine {
     @Volatile private var handle = 0L // 0: no model
     override val mediaMarker: String get() = nativeMarker()
 
-    override fun load(modelPath: String, projectorPath: String?, contextTokens: Int, threads: Int, imageMaxTokens: Int) {
+    override fun load(modelPath: String, projectorPath: String?, contextTokens: Int, threads: Int, imageMaxTokens: Int, repack: Boolean) {
         check(handle == 0L) { "a model is already loaded" }
-        handle = nativeLoad(modelPath, projectorPath ?: "", contextTokens, threads, imageMaxTokens)
+        handle = nativeLoad(modelPath, projectorPath ?: "", contextTokens, threads, imageMaxTokens, repack)
     }
 
     override fun generate(request: GenerateRequest, op: Long): GenerateResult {
@@ -51,7 +51,7 @@ class NativeEngine : InferenceEngine {
     private val lock = Any()
 
     private external fun nativeMarker(): String
-    private external fun nativeLoad(modelPath: String, projectorPath: String, contextTokens: Int, threads: Int, imageMaxTokens: Int): Long
+    private external fun nativeLoad(modelPath: String, projectorPath: String, contextTokens: Int, threads: Int, imageMaxTokens: Int, repack: Boolean): Long
     private external fun nativeCancel(handle: Long, op: Long)
     private external fun nativeFree(handle: Long)
     private external fun nativeGenerate(

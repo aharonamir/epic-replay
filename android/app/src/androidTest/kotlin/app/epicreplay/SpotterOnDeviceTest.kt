@@ -104,4 +104,40 @@ class SpotterOnDeviceTest {
         assertTrue("a stop must say why", out.status == "ok" || out.note.isNotBlank())
         if (out.status != "failed") assertNotNull(out.playSheet)
     }
+
+    /**
+     * T427: the owner's run sat 300 s on the first contact sheet of a portrait clip. One sheet of the newest real clip on the phone (its frames are read by the decoder and the model only; nothing is
+     * shown or kept but sizes and seconds) is sent at full size and at half size, and a landscape sheet of the fixture clip for comparison; the seconds go to `files/t427_metrics.txt`.
+     */
+    @Test
+    fun theTimeOfASheetCallDependsOnTheSizeOfTheSheet() {
+        val p = gemma()
+        assumeTrue("the Gemma files are not on the phone", p.files.all { File(graph.modelDir, it.name).isFile })
+        val real = File(ctx.filesDir, "runs").listFiles()?.filter { File(it, "work.mp4").isFile }?.maxByOrNull { it.name }?.let { File(it, "work.mp4") }
+        prepareClip()
+        val log = File(ctx.filesDir, "t427_metrics.txt")
+        val backend = graph.onDeviceBackend(p, Role.VISION, OnDeviceConfig())
+        val schema = buildJsonObject { put("type", JsonPrimitive("object")); put("properties", buildJsonObject { put("cell", buildJsonObject { put("type", JsonPrimitive("integer")) }) }); put("required", kotlinx.serialization.json.JsonArray(listOf(JsonPrimitive("cell")))) }
+        fun call(name: String, jpeg: ByteArray) {
+            val bmp = BitmapFactory.decodeByteArray(jpeg, 0, jpeg.size)
+            val t0 = System.nanoTime()
+            val r = try { runBlocking { backend.look(listOf(app.epicreplay.core.models.LabeledImage(null, jpeg)), "The picture is a contact sheet of numbered frames. Which cell number is the most eventful? Answer with the number.", schema, "") }.let { "ok ${it.usage.inputTokens} in-tokens ${it.text.take(40)}" } } catch (e: Exception) { "failed ${e.javaClass.simpleName}: ${e.message?.take(120)}" }
+            log.appendText("$name ${bmp.width}x${bmp.height} ${jpeg.size / 1024} KB: ${(System.nanoTime() - t0) / 1_000_000_000} s, $r\n")
+        }
+        ClipSheetRenderer(clip.path, 30.0).use { call("fixture landscape", it.render(listOf(0, 20, 40, 60, 80, 100, 120, 140, 149)).jpeg) }
+        if (real != null) ClipSheetRenderer(real.path, 30.0).use { r ->
+            val sheet = r.render((0 until 9).map { it * 10 + 5 })
+            call("real clip, full size", sheet.jpeg)
+            val bmp = BitmapFactory.decodeByteArray(sheet.jpeg, 0, sheet.jpeg.size)
+            val half = android.graphics.Bitmap.createScaledBitmap(bmp, bmp.width / 2, bmp.height / 2, true)
+            val out = java.io.ByteArrayOutputStream(); half.compress(android.graphics.Bitmap.CompressFormat.JPEG, 85, out)
+            call("real clip, half size", out.toByteArray())
+        }
+    }
+
+    private fun gemma() = OnDeviceProfile(
+        id = "gemma-4-e2b-device", label = "Gemma 4 E2B", roles = listOf(Role.VISION, Role.TEXT), supportsTools = false, status = "experimental", notes = "", engine = "llama.cpp",
+        files = listOf(ModelFile("gemma-4-E2B-it-Q4_0.gguf", "https://example.org/w", "0".repeat(64), 1, "weights"), ModelFile("mmproj-gemma-4-E2B-it-Q8_0.gguf", "https://example.org/p", "0".repeat(64), 1, "projector")),
+        contextTokens = 4096, minFreeRamMb = 1, minFreeStorageMb = 1, license = "test",
+    )
 }

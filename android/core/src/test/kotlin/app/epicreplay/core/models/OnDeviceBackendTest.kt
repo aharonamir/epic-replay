@@ -32,7 +32,7 @@ class FakeEngine(private val body: (GenerateRequest, FakeEngine) -> GenerateResu
     private val cancelled = CountDownLatch(1)
     @Volatile var blockUntilCancelled = false
 
-    override fun load(modelPath: String, projectorPath: String?, contextTokens: Int, threads: Int, imageMaxTokens: Int) {
+    override fun load(modelPath: String, projectorPath: String?, contextTokens: Int, threads: Int, imageMaxTokens: Int, repack: Boolean) {
         loads.incrementAndGet(); loadArgs = listOf(modelPath, projectorPath, contextTokens, threads, imageMaxTokens)
     }
 
@@ -203,7 +203,7 @@ class OnDeviceBackendTest {
         val closes = AtomicInteger()
         var closedOn: String? = null
         val engine = object : InferenceEngine by FakeEngine(ok) {
-            override fun load(modelPath: String, projectorPath: String?, contextTokens: Int, threads: Int, imageMaxTokens: Int) { loading.countDown(); releaseLoad.await(5, TimeUnit.SECONDS) }
+            override fun load(modelPath: String, projectorPath: String?, contextTokens: Int, threads: Int, imageMaxTokens: Int, repack: Boolean) { loading.countDown(); releaseLoad.await(5, TimeUnit.SECONDS) }
             override fun close() { closes.incrementAndGet(); closedOn = Thread.currentThread().name }
         }
         val b = OnDeviceBackend(profile(), Role.VISION, dir, { 5000 }, { engine })
@@ -283,7 +283,7 @@ class OnDeviceBackendTest {
         val b = OnDeviceBackend(profile(), Role.VISION, dir, { 5000 }, { FakeEngine(ok).also { engines += it; attempts++ } })
         // the first engine's load throws
         val failing = object : InferenceEngine by FakeEngine(ok) {
-            override fun load(modelPath: String, projectorPath: String?, contextTokens: Int, threads: Int, imageMaxTokens: Int) = throw RuntimeException("the model could not be loaded")
+            override fun load(modelPath: String, projectorPath: String?, contextTokens: Int, threads: Int, imageMaxTokens: Int, repack: Boolean) = throw RuntimeException("the model could not be loaded")
         }
         val b2 = OnDeviceBackend(profile(), Role.VISION, dir, { 5000 }, { failing })
         assertFailsWith<RuntimeException> { runBlocking { b2.look(emptyList(), "q") } }

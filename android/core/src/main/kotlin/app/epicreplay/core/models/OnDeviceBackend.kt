@@ -43,7 +43,7 @@ class GenerateResult(
 interface InferenceEngine : AutoCloseable {
     /** The text the prompt uses where an image goes. */
     val mediaMarker: String
-    fun load(modelPath: String, projectorPath: String?, contextTokens: Int, threads: Int, imageMaxTokens: Int)
+    fun load(modelPath: String, projectorPath: String?, contextTokens: Int, threads: Int, imageMaxTokens: Int, repack: Boolean = false)
 
     /**
      * Runs one call, numbered [op] (from 1). A [cancel] for the same number stops it even when the cancel
@@ -65,6 +65,11 @@ data class OnDeviceConfig(
     val threads: Int = 6,
     val maxTokens: Int = 1024,
     val imageMaxTokens: Int = 280,
+    /**
+     * Whether the CPU backend may copy the weights into its own repacked layout. Off: the repacked copy is 3 GB of anonymous memory that Android can only swap, and on a phone with its other apps
+     * open the swapping made a sheet call take 300 s or more (T427: the same calls took about 19 s each without it, and the whole of S2 162 s instead of 600 s with three calls left out).
+     */
+    val repack: Boolean = false,
     val temperature: Float = 0.2f,
     /** Off for a thinking model: its replies would otherwise be spent on reasoning (spike S1). */
     val thinking: Boolean = false,
@@ -155,7 +160,7 @@ class OnDeviceBackend(
             // The load and the hand-over of the engine happen on the engine thread, in order with a close() that
             // may be queued behind them: close() frees whatever is in engineRef, on that same thread.
             blocking(e, 0) {
-                e.load(file("weights")!!.path, file("projector")?.path, profile.contextTokens, config.threads, config.imageMaxTokens)
+                e.load(file("weights")!!.path, file("projector")?.path, profile.contextTokens, config.threads, config.imageMaxTokens, config.repack)
                 engineRef.set(e)
             }
         } catch (t: Throwable) {
