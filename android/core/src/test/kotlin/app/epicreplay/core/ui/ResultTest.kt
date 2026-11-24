@@ -116,4 +116,19 @@ class ResultTest {
         assertEquals(listOf("r_b_failed", "r_a_old"), session.openRuns().map { it.name })
         assertEquals("r_b_failed", session.latestOpen()?.name)
     }
+
+    @Test
+    fun aStageThatRunsOutOfMemoryFailsTheRunWithAMessageAndTheAppGoesOn() {
+        val dir = Files.createTempDirectory("oom").toFile()
+        File(dir, "upload.mp4").writeText("v"); File(dir, "user_context.json").writeText("{}")
+        val stages = app.epicreplay.core.run.FlowOrder.ORDER.filter { it.name != "A" }.associate { def ->
+            def.name to app.epicreplay.core.run.StageRunner { _ -> if (def.name == "S1") throw OutOfMemoryError("test") else app.epicreplay.core.run.StageResult("ok") }
+        }
+        val flow = app.epicreplay.core.run.RunFlow(dir, stages, { true }, JsonObject(emptyMap()))
+        val status = kotlinx.coroutines.runBlocking { flow.run() }
+        assertEquals("failed", status)
+        val m = app.epicreplay.core.run.RunFiles.read(File(dir, "manifest.json"))!!
+        val failed = m.getValue("stages").let { (it as kotlinx.serialization.json.JsonArray).map { s -> s.jsonObject } }.last()
+        assertTrue("ran out of memory" in failed.getValue("note").toString())
+    }
 }

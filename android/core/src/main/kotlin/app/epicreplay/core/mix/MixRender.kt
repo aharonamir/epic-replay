@@ -52,11 +52,8 @@ object MixRender {
         return out
     }
 
-    private fun sum(parts: List<List<FloatArray>>, n: Int): List<FloatArray> {
-        val out = List(2) { FloatArray(n) }
-        for (p in parts) for (c in 0..1) { val o = out[c]; val s = p[c]; for (i in 0 until n) o[i] += s[i] }
-        return out
-    }
+    /** Adds [part] into [acc] (two channels of [n] samples), in place. */
+    private fun addInto(acc: List<FloatArray>, part: List<FloatArray>, n: Int) { for (c in 0..1) { val o = acc[c]; val s = part[c]; for (i in 0 until n) o[i] += s[i] } }
 
     /** A peak limiter: a gain that never lets a sample pass [limit], reached over 5 ms ahead and let go over the same time. */
     fun limit(x: List<FloatArray>, limit: Float, sr: Int): List<FloatArray> {
@@ -78,29 +75,41 @@ object MixRender {
         return x.map { c -> FloatArray(n) { c[it] * minOf(g[it], 1f) } }
     }
 
+    /**
+     * The layers are placed and added one at a time and dropped, so no more than the voices' sum, the mix and one layer are in memory together (every layer at once, with a dozen of them
+     * at 34 s of stereo 48 kHz, filled the phone's 256 MB heap and ended the app). The additions are made in the order of the PC's graph, so the numbers are the same as when they were all held:
+     * the voices are summed first (the bed is ducked under that sum), then the other layers in order, then the voices' sum.
+     */
     fun render(layers: List<MixLayer>, durationS: Double, rules: MixRules): MixResult {
         val sr = rules.sampleRate
         val n = Math.round(durationS * sr).toInt()
-        val placed = layers.map { it to place(it, n, rules) }
-        val voices = placed.filter { it.first.kind == "voice" }.map { it.second }
-        var others = placed.filter { it.first.kind != "voice" }
-        val vox = if (voices.isNotEmpty()) sum(voices, n) else null
-        val parts = ArrayList<List<FloatArray>>()
-        for ((l, p) in others) {
+        val voiceLayers = layers.filter { it.kind == "voice" }
+        var vox: List<FloatArray>? = null
+        if (voiceLayers.isNotEmpty()) {
+            val acc = List(2) { FloatArray(n) }
+            for (l in voiceLayers) addInto(acc, place(l, n, rules), n)
+            vox = acc
+        }
+        val mix0 = List(2) { FloatArray(n) }
+        for (l in layers) {
+            if (l.kind == "voice") continue
+            val p = place(l, n, rules)
             if (l.kind == "bed" && vox != null) {
                 val d = rules.duck
-                parts += SidechainCompressor(d.threshold, d.ratio, d.attackMs, d.releaseMs, d.makeup, sr).process(p, vox)
-            } else parts += p
+                addInto(mix0, SidechainCompressor(d.threshold, d.ratio, d.attackMs, d.releaseMs, d.makeup, sr).process(p, vox), n)
+            } else addInto(mix0, p, n)
         }
-        if (vox != null) parts += vox
-        var mix = sum(parts, n)
+        if (vox != null) addInto(mix0, vox, n)
+        vox = null
+        var mix: List<FloatArray> = mix0
         // the loudness target: one gain, under the peak limit, then the PC's own correction (`s8_mix.normalise`)
         val limitLin = Math.pow(10.0, (rules.ceilingDbtp - rules.limitMarginDb) / 20.0).toFloat()
         var lufs = Loudness.integrated(mix, sr)
         if (lufs.isInfinite()) return MixResult(mix[0], mix[1], lufs, Loudness.truePeakDb(mix))
         for (pass in 0..1) {
             val g = Math.pow(10.0, (rules.targetLufs - lufs) / 20.0).toFloat()
-            mix = limit(mix.map { c -> FloatArray(n) { c[it] * g } }, limitLin, sr)
+            for (c in mix) for (i in 0 until n) c[i] = c[i] * g // in place: the same product, no second copy
+            mix = limit(mix, limitLin, sr)
             lufs = Loudness.integrated(mix, sr)
         }
         return MixResult(mix[0], mix[1], lufs, Loudness.truePeakDb(mix))
