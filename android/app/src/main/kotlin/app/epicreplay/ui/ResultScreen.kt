@@ -61,8 +61,8 @@ fun ResultScreen(video: File, data: ResultData?, words: PageWords, actions: Resu
         if (data != null) Text(data.headline, style = MaterialTheme.typography.titleLarge, color = accent.text, modifier = Modifier.testTag("result_title"))
         VideoPlayer(video, turnForFullScreen = turnForFullScreen)
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            Button(onClick = actions.onShare, modifier = Modifier.weight(1f).height(56.dp).testTag("share"), colors = ButtonDefaults.buttonColors(containerColor = accent.fill, contentColor = accent.onAccent)) { Text("SHARE") }
-            OutlinedButton(onClick = actions.onNew, modifier = Modifier.weight(1f).height(56.dp).testTag("new_clip")) { Text(if (actions.onBack == null) "MAKE ANOTHER" else "MAKE A NEW ONE") }
+            Button(onClick = actions.onShare, modifier = Modifier.weight(1f).height(56.dp).testTag("share"), colors = ButtonDefaults.buttonColors(containerColor = accent.fill, contentColor = accent.onAccent)) { Text("SHARE", maxLines = 1, softWrap = false) }
+            OutlinedButton(onClick = actions.onNew, modifier = Modifier.weight(1f).height(56.dp).testTag("new_clip")) { Text(if (actions.onBack == null) "NEW CLIP" else "NEW ONE", maxLines = 1, softWrap = false) } // one line, whatever the width or font size
         }
         if (data != null) {
             if (data.fallback.lines.isNotEmpty()) Column(Modifier.fillMaxWidth().border(BorderStroke(1.dp, accent.text), RoundedCornerShape(6.dp)).padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {

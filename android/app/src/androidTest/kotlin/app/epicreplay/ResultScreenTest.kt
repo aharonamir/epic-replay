@@ -79,7 +79,10 @@ class ResultScreenTest {
         rule.onAllNodesWithTag("model_steps").assertCountEquals(2)
         rule.onNodeWithTag("section_cost").performScrollTo().performClick()
         rule.onNodeWithTag("total_cost").performScrollTo().assertTextContains("0.0412 USD", substring = true)
-        rule.onNodeWithTag("share").performScrollTo().performClick(); rule.onNodeWithTag("new_clip").performClick()
+        val share = rule.onNodeWithTag("share").performScrollTo().fetchSemanticsNode().size; val another = rule.onNodeWithTag("new_clip").fetchSemanticsNode().size
+        assertEquals("the two buttons are the same height, one line each", share.height, another.height)
+        assertTrue("the button's text fits on one line: ${another.height}", another.height < 200)
+        rule.onNodeWithTag("share").performClick(); rule.onNodeWithTag("new_clip").performClick()
         assertEquals(1, shared); assertEquals(1, made); assertEquals(0, deleted)
     }
 
