@@ -131,44 +131,14 @@ private fun RolePicker(controller: SetupController, role: Role, onChosen: () -> 
         ) {
             RadioButton(selected = chosen == ownId, onClick = null)
             Column(Modifier.padding(start = 8.dp)) {
-                Text(mine?.label ?: "Your own server")
-                Text(mine?.let { "${it.apiBase} · model ${it.model}" } ?: "Any OpenAI-compatible server over HTTPS: its address, model and key.", style = MaterialTheme.typography.bodySmall)
+                Text(mine?.label ?: "Cloud server of your own")
+                Text(mine?.let { "${it.apiBase} · model ${it.model}" } ?: "Any OpenAI-compatible server (not only DeepSeek) over HTTPS: its address, model name and API key.", style = MaterialTheme.typography.bodySmall)
             }
         }
         if (mine != null && !editing) OutlinedButton(onClick = { editing = true }, modifier = Modifier.testTag("edit_own_server_${role.id}")) { Text("Change my server") }
-        if (editing) CustomServerForm(mine) { server ->
-            controller.saveCustomServer(server, role); chosen = ownId; editing = false; onChosen()
+        if (editing) CustomServerForm(mine, keySaved = controller.customKeySaved()) { server, key ->
+            controller.saveCustomServer(server, role, key).also { problem -> if (problem == null) { chosen = ownId; editing = false; onChosen() } }
         }
-    }
-}
-
-/** The form of the user's own server: name, address, model, the prices that the spending caps count with, and whether it takes tool calls. */
-@Composable
-private fun CustomServerForm(initial: app.epicreplay.core.models.CustomServer?, onSave: (app.epicreplay.core.models.CustomServer) -> Unit) {
-    var label by remember { mutableStateOf(initial?.label ?: "") }
-    var base by remember { mutableStateOf(initial?.apiBase ?: "https://") }
-    var model by remember { mutableStateOf(initial?.model ?: "") }
-    var pin by remember { mutableStateOf(initial?.priceInPerM?.takeIf { it > 0 }?.toString() ?: "") }
-    var pout by remember { mutableStateOf(initial?.priceOutPerM?.takeIf { it > 0 }?.toString() ?: "") }
-    var tools by remember { mutableStateOf(initial?.supportsTools ?: true) }
-    var problem by remember { mutableStateOf<String?>(null) }
-    Column(Modifier.padding(start = 8.dp, top = 8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        OutlinedTextField(label, { label = it }, label = { Text("Name (optional)") }, singleLine = true, modifier = Modifier.fillMaxWidth().testTag("server_label"))
-        OutlinedTextField(base, { base = it; problem = null }, label = { Text("Address, e.g. https://api.example.com/v1") }, singleLine = true, modifier = Modifier.fillMaxWidth().testTag("server_base"))
-        OutlinedTextField(model, { model = it; problem = null }, label = { Text("Model name") }, singleLine = true, modifier = Modifier.fillMaxWidth().testTag("server_model"))
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            OutlinedTextField(pin, { pin = it; problem = null }, label = { Text("USD per million in") }, singleLine = true, modifier = Modifier.weight(1f).testTag("server_price_in"))
-            OutlinedTextField(pout, { pout = it; problem = null }, label = { Text("USD per million out") }, singleLine = true, modifier = Modifier.weight(1f).testTag("server_price_out"))
-        }
-        Text("The prices let the spending caps count this server's cost; leave them empty if you do not know them (the caps then cannot count it).", style = MaterialTheme.typography.bodySmall)
-        Row(Modifier.toggleable(tools, role = SemanticsRole.Checkbox, onValueChange = { tools = it }), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
-            Checkbox(tools, onCheckedChange = null); Text("It takes tool calls", Modifier.padding(start = 8.dp))
-        }
-        problem?.let { Text(it, color = MaterialTheme.colorScheme.error, modifier = Modifier.testTag("server_problem")) }
-        Button(onClick = {
-            problem = app.epicreplay.core.models.CustomServers.problem(label, base, model, pin, pout)
-            if (problem == null) onSave(app.epicreplay.core.models.CustomServers.of(label, base, model, pin, pout, tools)!!)
-        }, modifier = Modifier.testTag("server_save")) { Text("Save") }
     }
 }
 

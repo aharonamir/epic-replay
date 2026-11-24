@@ -106,6 +106,23 @@ class AppViewModel(private val graph: AppGraph, private val context: Context, la
         }
     }
 
+    /** The first-run and settings logic of the app (the same controller the wizard uses). */
+    val setup get() = graph.setup
+
+    /** The settings page's logic: the on-device models with their sizes, and their deletion (FR-SET-1, FR-SET-2). A download or a run working stops a delete. */
+    val settings by lazy {
+        app.epicreplay.core.setup.SettingsController({ graph.profiles }, app.epicreplay.core.models.ModelChoice(graph.modelChoice, { graph.profiles }), graph.modelDownloader(),
+            { graph.downloads.status.value is app.epicreplay.core.download.DownloadStatus.Running || session.view.value?.working == true })
+    }
+
+    /** The reason a model could not be deleted, or null when it is gone and the roles that used it ask again. */
+    suspend fun deleteModel(profile: app.epicreplay.core.models.OnDeviceProfile): String? = withContext(Dispatchers.IO) {
+        try { settings.delete(profile); null } catch (e: app.epicreplay.core.setup.ModelDeleteRefused) { e.message } catch (e: app.epicreplay.core.download.DownloadError) { "Could not delete the model's files: ${e.message}" }
+    }
+
+    /** How many finished replays there are and the bytes the run folders take. */
+    fun storage(): Pair<Int, Long> = app.epicreplay.core.ui.PastRuns.storage(runsDir)
+
     /** Finished videos, newest first (the past replays). */
     fun pastItems(): List<app.epicreplay.core.ui.PastItem> = app.epicreplay.core.ui.PastRuns.list(runsDir, words.past("untitled"))
 

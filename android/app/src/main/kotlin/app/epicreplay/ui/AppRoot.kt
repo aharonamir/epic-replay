@@ -68,16 +68,12 @@ fun AppRoot(vm: AppViewModel, isReady: () -> Boolean, keys: app.epicreplay.core.
                     ResultScreen(java.io.File(dir, "final.mp4"), remember(dir) { vm.result(dir) }, vm.words,
                         ResultActions({ ctx.startActivity(vm.shareIntent(dir)) }, { pastPage = 0; vm.another() }, { scope.launch { notice = vm.deleteRun(dir.name); pastTick++; if (notice == null) pastPage = 1 } }, { pastPage = 1 }))
                 }
-                settings == 1 -> Column(Modifier.padding(16.dp), verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(12.dp)) {
-                    androidx.compose.material3.Button(onClick = { settings = 2 }, modifier = Modifier.fillMaxWidth().testTag("settings_models")) { Text("Models: where they run, the server, the download") }
-                    androidx.compose.material3.Button(onClick = { settings = 3 }, modifier = Modifier.fillMaxWidth().testTag("settings_keys")) { Text("Keys") }
-                    androidx.compose.material3.OutlinedButton(onClick = { settings = 0 }, modifier = Modifier.fillMaxWidth().testTag("settings_back")) { Text("Back") }
-                }
+                settings == 1 -> SettingsPage(
+                    vm.setup, keys,
+                    SettingsActions({ vm.settings.installed() }, vm::deleteModel, vm::storage, { settings = 2 }, { settings = 0; notice = null; pastPage = 1 }, { settings = 0 }),
+                    onChanged = { keysTick++; ready = isReady() },
+                )
                 settings == 2 -> firstRun { settings = 0 }
-                settings == 3 -> Column {
-                    KeysSection(keys, onChanged = { keysTick++ })
-                    androidx.compose.material3.Button(onClick = { settings = 0 }, modifier = Modifier.padding(16.dp).fillMaxWidth()) { Text("Done") }
-                }
                 showKeys -> Column {
                     KeysSection(keys, onChanged = { keysTick++ })
                     androidx.compose.material3.Button(onClick = { showKeys = false }, modifier = Modifier.padding(16.dp).androidx_fill().testTagKeys()) { Text("Done") }

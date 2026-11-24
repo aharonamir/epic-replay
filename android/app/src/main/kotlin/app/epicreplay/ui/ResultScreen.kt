@@ -3,6 +3,10 @@ package app.epicreplay.ui
 import android.widget.MediaController
 import android.widget.VideoView
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.displayCutoutPadding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -25,6 +29,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -47,23 +52,14 @@ class ResultActions(val onShare: () -> Unit, val onNew: () -> Unit, val onDelete
  * each stage ran on, the time and cost; share, make another, delete.
  */
 @Composable
-fun ResultScreen(video: File, data: ResultData?, words: PageWords, actions: ResultActions, modifier: Modifier = Modifier) {
+fun ResultScreen(video: File, data: ResultData?, words: PageWords, actions: ResultActions, modifier: Modifier = Modifier, turnForFullScreen: Boolean = true) {
     val accent = LocalAccent.current
     var confirm by rememberSaveable { mutableStateOf(false) }
     Column(modifier.verticalScroll(rememberScrollState()).padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         if (actions.onBack != null) TextButton(onClick = actions.onBack, modifier = Modifier.testTag("result_back")) { Text("Back to past replays") }
         Text(words.result("headline").uppercase(), style = MaterialTheme.typography.headlineMedium, modifier = Modifier.testTag("result_headline"))
         if (data != null) Text(data.headline, style = MaterialTheme.typography.titleLarge, color = accent.text, modifier = Modifier.testTag("result_title"))
-        AndroidView(
-            factory = { ctx ->
-                VideoView(ctx).apply {
-                    setVideoPath(video.path)
-                    setMediaController(MediaController(ctx).also { it.setAnchorView(this) })
-                    seekTo(1) // the first frame, the title card, until it is played: the video needs its sound
-                }
-            },
-            modifier = Modifier.fillMaxWidth().aspectRatio(16f / 9f).testTag("player"),
-        )
+        VideoPlayer(video, turnForFullScreen = turnForFullScreen)
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             Button(onClick = actions.onShare, modifier = Modifier.weight(1f).height(56.dp).testTag("share"), colors = ButtonDefaults.buttonColors(containerColor = accent.fill, contentColor = accent.onAccent)) { Text("SHARE") }
             OutlinedButton(onClick = actions.onNew, modifier = Modifier.weight(1f).height(56.dp).testTag("new_clip")) { Text(if (actions.onBack == null) "MAKE ANOTHER" else "MAKE A NEW ONE") }
@@ -121,3 +117,85 @@ private fun Section(tag: String, title: String, content: @Composable () -> Unit)
         if (open) Column(Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) { content() }
     }
 }
+
+/**
+ * The finished video with its controls and a full-screen button (spec 004 FR-PLAYER-1): full screen is a dialog over the whole screen, the phone turned to landscape for a landscape
+ * video, the system bars hidden, playing from where the small player was and leaving the small one where the big one stopped.
+ */
+@Composable
+fun VideoPlayer(video: File, modifier: Modifier = Modifier, turnForFullScreen: Boolean = true) {
+    var fullscreen by rememberSaveable { mutableStateOf(false) }
+    var position by rememberSaveable { mutableStateOf(0) }
+    var playing by rememberSaveable { mutableStateOf(false) }
+    val small = remember { arrayOfNulls<VideoView>(1) }
+    val landscape = remember(video) { isLandscape(video) }
+    Column(modifier) {
+        AndroidView(
+            factory = { ctx ->
+                VideoView(ctx).apply {
+                    setVideoPath(video.path)
+                    setMediaController(MediaController(ctx).also { it.setAnchorView(this) })
+                    seekTo(maxOf(position, 1)) // the first frame, the title card, until it is played: the video needs its sound
+                    small[0] = this
+                }
+            },
+            modifier = Modifier.fillMaxWidth().aspectRatio(if (landscape) 16f / 9f else 9f / 16f).testTag("player"),
+        )
+        TextButton(onClick = { small[0]?.let { position = it.currentPosition; playing = it.isPlaying; it.pause() }; fullscreen = true }, modifier = Modifier.testTag("fullscreen")) { Text("Full screen") }
+    }
+    if (fullscreen) FullScreenPlayer(video, landscape && turnForFullScreen, position, playing) { at -> position = at; small[0]?.seekTo(at); fullscreen = false }
+}
+
+@Composable
+private fun FullScreenPlayer(video: File, landscape: Boolean, startMs: Int, autoPlay: Boolean, onExit: (Int) -> Unit) {
+    val activity = androidx.compose.ui.platform.LocalContext.current as? android.app.Activity
+    val view = androidx.compose.ui.platform.LocalView.current
+    val big = remember { arrayOfNulls<VideoView>(1) }
+    androidx.compose.runtime.DisposableEffect(Unit) {
+        val before = activity?.requestedOrientation
+        if (landscape) activity?.requestedOrientation = android.content.pm.ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+        onDispose { before?.let { activity.requestedOrientation = it } }
+    }
+    androidx.compose.ui.window.Dialog(
+        onDismissRequest = { onExit(big[0]?.currentPosition ?: startMs) },
+        properties = androidx.compose.ui.window.DialogProperties(usePlatformDefaultWidth = false, decorFitsSystemWindows = false),
+    ) {
+        val window = (view.parent as? androidx.compose.ui.window.DialogWindowProvider)?.window
+        androidx.compose.runtime.SideEffect {
+            window?.let { w ->
+                androidx.core.view.WindowCompat.setDecorFitsSystemWindows(w, false)
+                androidx.core.view.WindowCompat.getInsetsController(w, w.decorView).apply {
+                    hide(androidx.core.view.WindowInsetsCompat.Type.systemBars())
+                    systemBarsBehavior = androidx.core.view.WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+                }
+            }
+        }
+        androidx.compose.foundation.layout.Box(Modifier.fillMaxSize().background(androidx.compose.ui.graphics.Color.Black).testTag("fullscreen_player")) {
+            AndroidView(
+                factory = { ctx ->
+                    VideoView(ctx).apply {
+                        setVideoPath(video.path)
+                        setMediaController(MediaController(ctx).also { it.setAnchorView(this) })
+                        setOnPreparedListener { seekTo(startMs); if (autoPlay) start() }
+                        big[0] = this
+                    }
+                },
+                modifier = Modifier.fillMaxSize().displayCutoutPadding(),
+            )
+            TextButton(onClick = { onExit(big[0]?.currentPosition ?: startMs) }, modifier = Modifier.align(Alignment.TopEnd).statusBarsPadding().testTag("exit_fullscreen")) { Text("Exit full screen", color = androidx.compose.ui.graphics.Color.White) }
+        }
+    }
+}
+
+/** Whether the video's picture is wider than it is tall (a clip of the phone's own can be either); wider when the size cannot be read. */
+private fun isLandscape(video: File): Boolean = try {
+    android.media.MediaMetadataRetriever().let { r ->
+        try {
+            r.setDataSource(video.path)
+            val w = r.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH)?.toInt() ?: 0
+            val h = r.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)?.toInt() ?: 0
+            val rot = r.extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION)?.toInt() ?: 0
+            if (rot == 90 || rot == 270) h > w else w >= h
+        } finally { r.release() }
+    }
+} catch (e: Exception) { true }

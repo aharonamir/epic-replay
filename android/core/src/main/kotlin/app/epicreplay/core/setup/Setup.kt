@@ -107,7 +107,7 @@ class SetupController(
      * saved with the server (under the server's own key kind); an empty field keeps the key that is saved, and is refused when none is. Null means the form has no key field (nothing is
      * checked or changed). Returns the reason nothing was saved, or null.
      */
-    fun saveCustomServer(server: CustomServer, role: Role, apiKey: String? = null): String? {
+    fun saveCustomServer(server: CustomServer, role: Role?, apiKey: String? = null): String? {
         val store = customServers ?: error("this build keeps no server of the user's own")
         val keys = app.epicreplay.core.secrets.KeysController(secrets)
         if (apiKey != null) {
@@ -116,11 +116,14 @@ class SetupController(
         }
         store.save(server); onProfilesChanged()
         if (apiKey != null && apiKey.isNotBlank()) keys.save(KeyKind.CUSTOM_SERVER, apiKey)?.let { return it }
-        choice.choose(role, CustomServers.ID)
+        if (role != null) choice.choose(role, CustomServers.ID) // from Settings no role is named: the choices stay as they are
         return null
     }
 
     fun customServer(): CustomServer? = customServers?.load()
+
+    /** Whether the key of the user's own server is saved (the form may then leave its key field empty). */
+    fun customKeySaved(): Boolean = secrets.status(KeyKind.CUSTOM_SERVER) == KeyStatus.PRESENT
 
     /** The user confirmed the words of [SetupStep.NeedsConsent]: the record names where the frames and the text go. */
     fun confirmConsent() {

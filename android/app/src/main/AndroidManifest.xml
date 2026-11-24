@@ -15,7 +15,7 @@
         android:icon="@mipmap/ic_launcher"
         android:label="Epic Replay"
         android:theme="@style/Theme.EpicReplay.Splash">
-        <activity android:name=".MainActivity" android:exported="true">
+        <activity android:name=".MainActivity" android:exported="true" android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden"> <!-- turning to landscape for the full-screen video does not restart the screen -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
