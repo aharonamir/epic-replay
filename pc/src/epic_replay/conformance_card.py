@@ -85,3 +85,17 @@ def state(manifest: dict, typical: dict, files: list[str]) -> dict:
             "has_video",
         )
     }
+
+
+def script_panel(script: dict, voice: dict | None, checks: dict | None, gloss: dict | None) -> dict:
+    """The result's script panel (`web.views.script_panel_of`, T426): each line's time, role, text, key mark, dropped mark, and what the checks said."""
+    from epic_replay.web import views
+
+    return views.script_panel_of(script, voice, checks, gloss)
+
+
+def time_and_cost(state: dict) -> dict:
+    """The result's time and cost panel (`web.views.time_and_cost`): each step's seconds and cost, and the totals."""
+    from epic_replay.web import views
+
+    return views.time_and_cost(state)

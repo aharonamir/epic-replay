@@ -1,0 +1,59 @@
+{
+  "area": "card",
+  "function": "result.script_panel",
+  "language": "zh",
+  "description": "A Mandarin script is marked `zh-Hans` and carries the English gloss of each line it has one for.",
+  "inputs": {
+    "script": {
+      "value": {
+        "language": "zh",
+        "lines": [
+          {
+            "id": "l1",
+            "role": "opening",
+            "text": "任意球！"
+          },
+          {
+            "id": "l2",
+            "role": "replay_climax",
+            "text": "进了！"
+          },
+          {
+            "id": "l3",
+            "role": "made_up_role",
+            "text": "好"
+          }
+        ]
+      }
+    },
+    "voice": {
+      "value": {
+        "lines": [
+          {
+            "id": "l1",
+            "timeline_start": 2.0
+          },
+          {
+            "id": "l2",
+            "timeline_start": 12.25
+          }
+        ]
+      }
+    },
+    "checks": {
+      "value": {
+        "passed": true,
+        "failures": []
+      }
+    },
+    "gloss": {
+      "value": {
+        "l1": "Free kick!",
+        "l2": "In!"
+      }
+    }
+  },
+  "expected": {
+    "file": "expected/output.json"
+  }
+}

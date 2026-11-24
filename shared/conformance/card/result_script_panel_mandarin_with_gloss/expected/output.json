@@ -1,0 +1,34 @@
+{
+  "lines": [
+    {
+      "time": "2.0 s · ",
+      "role": "opening",
+      "text": "任意球！",
+      "gloss": "Free kick!",
+      "key": false,
+      "climax": false,
+      "dropped": false
+    },
+    {
+      "time": "12.2 s · ",
+      "role": "key moment",
+      "text": "进了！",
+      "gloss": "In!",
+      "key": true,
+      "climax": false,
+      "dropped": false
+    },
+    {
+      "time": "",
+      "role": "made up role",
+      "text": "好",
+      "gloss": null,
+      "key": false,
+      "climax": false,
+      "dropped": false
+    }
+  ],
+  "lang": "zh-Hans",
+  "passed": true,
+  "failures": []
+}

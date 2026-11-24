@@ -1,0 +1,70 @@
+{
+  "lines": [
+    {
+      "time": "",
+      "role": "opening",
+      "text": "Free kick, just outside the box.",
+      "gloss": null,
+      "key": false,
+      "climax": false,
+      "dropped": false
+    },
+    {
+      "time": "",
+      "role": "build-up",
+      "text": "Noa...",
+      "gloss": null,
+      "key": false,
+      "climax": false,
+      "dropped": false
+    },
+    {
+      "time": "",
+      "role": "key moment",
+      "text": "TOP CORNER!",
+      "gloss": null,
+      "key": true,
+      "climax": true,
+      "dropped": false
+    },
+    {
+      "time": "",
+      "role": "reaction",
+      "text": "Unstoppable.",
+      "gloss": null,
+      "key": false,
+      "climax": false,
+      "dropped": false
+    },
+    {
+      "time": "",
+      "role": "replay",
+      "text": "Watch it again. Clean strike.",
+      "gloss": null,
+      "key": false,
+      "climax": false,
+      "dropped": false
+    },
+    {
+      "time": "",
+      "role": "key moment",
+      "text": "There it is. Top corner.",
+      "gloss": null,
+      "key": true,
+      "climax": false,
+      "dropped": false
+    },
+    {
+      "time": "",
+      "role": "sign-off",
+      "text": "Magnificent.",
+      "gloss": null,
+      "key": false,
+      "climax": false,
+      "dropped": false
+    }
+  ],
+  "lang": null,
+  "passed": true,
+  "failures": []
+}

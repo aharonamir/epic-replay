@@ -1,0 +1,30 @@
+{
+  "area": "card",
+  "function": "result.script_panel",
+  "language": null,
+  "description": "A failure in the list fails the panel even when `passed` says true.",
+  "inputs": {
+    "script": {
+      "fixture": "sample_run/script.json"
+    },
+    "voice": {
+      "fixture": "voice/sample_run_voice.json"
+    },
+    "checks": {
+      "value": {
+        "passed": true,
+        "failures": [
+          {
+            "detail": "too long"
+          }
+        ]
+      }
+    },
+    "gloss": {
+      "value": null
+    }
+  },
+  "expected": {
+    "file": "expected/output.json"
+  }
+}

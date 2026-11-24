@@ -1,0 +1,26 @@
+{
+  "area": "card",
+  "function": "result.script_panel",
+  "language": null,
+  "description": "The sample run's seven lines with the time each is spoken (one decimal and ' s · '), the two key lines marked, the climax line named, every check passed.",
+  "inputs": {
+    "script": {
+      "fixture": "sample_run/script.json"
+    },
+    "voice": {
+      "fixture": "voice/sample_run_voice.json"
+    },
+    "checks": {
+      "value": {
+        "passed": true,
+        "failures": []
+      }
+    },
+    "gloss": {
+      "value": null
+    }
+  },
+  "expected": {
+    "file": "expected/output.json"
+  }
+}
