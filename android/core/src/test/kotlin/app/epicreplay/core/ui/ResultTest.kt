@@ -19,8 +19,11 @@ class ResultTest {
     @Test
     fun theModelsAReadFromTheManifestAndSayWhereEachRan() {
         val m = obj("""{"stack":{"models":{"vision":{"profile":"gemma","label":"Gemma on the phone","location":"local","model":"gemma.task"},"text":{"profile":"deepseek-flash","label":"DeepSeek Flash","location":"cloud","model":"deepseek-v4-flash"}}}}""")
-        val rows = ResultModel.modelRows(m)
+        val rows = ResultModel.modelRows(m, words)
         assertEquals(listOf("Looking at the clip" to "Gemma on the phone, gemma.task, on this phone", "Writing the script" to "DeepSeek Flash, deepseek-v4-flash, at a cloud provider"), rows.map { it.name to it.value })
+        // FR-018: which of the eight steps each used, so the cloud and the phone are told stage by stage
+        assertEquals(listOf(words.steps.filter { s -> "S2" in s.stages || "S3" in s.stages }.map { it.name }, words.steps.filter { s -> "S5" in s.stages }.map { it.name }), rows.map { it.steps })
+        assertTrue(rows.all { it.steps.isNotEmpty() })
         assertEquals(emptyList(), ResultModel.modelRows(obj("""{"stack":{"mode":"fixture"}}""")), "a run from before the models were recorded names none")
     }
 

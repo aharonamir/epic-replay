@@ -111,7 +111,7 @@ class RunSession(private val runsDir: File, private val words: PageWords, privat
     fun forget(dir: File) { if (_view.value?.dir == dir) { pause(); _view.value = null } }
 
     /** Whether the flow of [dir] is working now, so a delete waits. */
-    fun isWorking(dir: File): Boolean = _view.value?.let { it.dir == dir && it.working } == true
+    fun isWorking(dir: File): Boolean = _view.value?.let { it.dir == dir && (it.working || synchronized(jobs) { jobs.any { j -> !j.isCompleted } }) } == true // a cancelled flow still unwinding counts
 
     /** The user is done with a run that broke (they chose another clip): the app does not open it again. The folder and its files stay. */
     fun dismiss(dir: File) { File(dir, DISMISSED).writeText("") }

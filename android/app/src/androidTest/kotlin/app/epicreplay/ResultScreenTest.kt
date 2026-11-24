@@ -126,4 +126,23 @@ class ResultScreenTest {
         rule.onNodeWithTag("past_empty").assertIsDisplayed()
         assertFalse(File(root, "r_c").exists())
     }
+
+    @Test
+    fun aShareAddressIsMadeOnlyForFilesUnderTheRunsFolder() {
+        val ctx = inst.targetContext
+        val runs = File(ctx.filesDir, "runs").apply { mkdirs() }
+        val d = File(runs, "r_share_test").apply { mkdirs() }
+        File(d, "final.mp4").writeText("video-bytes"); File(d, "upload.mp4").writeText("the clip")
+        val authority = ctx.packageName + ".share"
+        try {
+            val uri = androidx.core.content.FileProvider.getUriForFile(ctx, authority, File(d, "final.mp4"))
+            assertEquals("video-bytes", ctx.contentResolver.openInputStream(uri)!!.bufferedReader().use { it.readText() })
+            // the addresses it can make are only for files under files/runs/: the keys, the settings and the models are not among them
+            for (outside in listOf(File(ctx.filesDir, "secrets/model_provider.bin"), File(ctx.filesDir, "settings/model_choice.json"), File(ctx.cacheDir, "x.mp4"))) {
+                var refused = false
+                try { androidx.core.content.FileProvider.getUriForFile(ctx, authority, outside) } catch (e: IllegalArgumentException) { refused = true }
+                assertTrue("${outside.name} must not be shareable", refused)
+            }
+        } finally { d.deleteRecursively() }
+    }
 }

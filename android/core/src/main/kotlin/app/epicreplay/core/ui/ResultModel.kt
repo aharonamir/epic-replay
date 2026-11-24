@@ -36,8 +36,8 @@ class TimeAndCost(val rows: List<CostRow>, val duration: String, val cost: Strin
     }
 }
 
-/** A model a run used, for the result's list: what it did, which, and where it ran. */
-class ModelRow(val name: String, val value: String)
+/** A model a run used, for the result's list: what it did, which, where it ran, and the steps (of the eight) that used it (FR-018: which stages used the cloud, which the phone). */
+class ModelRow(val name: String, val value: String, val steps: List<String> = emptyList())
 
 /** What the result page says about the part the coded fallback played (FR-018): empty when the model wrote everything. */
 class FallbackNote(val lines: List<String>)
@@ -97,12 +97,14 @@ object ResultModel {
     )
 
     /** The models a run used, from its manifest's `stack` (FR-017); none for a run from before they were recorded. */
-    fun modelRows(manifest: JsonObject): List<ModelRow> {
+    fun modelRows(manifest: JsonObject, words: PageWords? = null): List<ModelRow> {
         val used = (manifest["stack"] as? JsonObject)?.get("models") as? JsonObject ?: return emptyList()
+        val stagesOf = mapOf("vision" to listOf("S2", "S3"), "text" to listOf("S5"))
         return listOf("vision" to "Looking at the clip", "text" to "Writing the script").mapNotNull { (role, name) ->
             val m = used[role] as? JsonObject ?: return@mapNotNull null
             val where = if (str(m["location"]) == "local") "on this phone" else "at a cloud provider"
-            ModelRow(name, "${str(m["label"]) ?: str(m["profile"]) ?: "?"}, ${str(m["model"]) ?: "?"}, $where")
+            val steps = words?.steps?.filter { st -> st.stages.any { it in stagesOf.getValue(role) } }?.map { it.name }.orEmpty()
+            ModelRow(name, "${str(m["label"]) ?: str(m["profile"]) ?: "?"}, ${str(m["model"]) ?: "?"}, $where", steps)
         }
     }
 
@@ -128,7 +130,7 @@ object ResultModel {
         val state = RunState.of(manifest, emptyMap(), words, java.io.File(dir, "clip_meta.json").exists(), java.io.File(dir, "final.mp4").exists())
         return ResultData(
             dir.name, str(script?.get("headline"))?.takeIf { it.isNotBlank() } ?: untitled, str(manifest["style"]), panel, timeAndCost(state.steps, state.costUsd),
-            modelRows(manifest), fallbackNote(manifest, panel, words), PastRuns.versions(dir).size,
+            modelRows(manifest, words), fallbackNote(manifest, panel, words), PastRuns.versions(dir).size,
         )
     }
 }

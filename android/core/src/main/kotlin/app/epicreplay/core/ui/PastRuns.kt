@@ -65,7 +65,9 @@ object PastRuns {
             val to = File(root, GONE + x.name)
             if (x.renameTo(to)) gone += x to to else { gone.forEach { (from, moved) -> moved.renameTo(from) }; throw DeleteRefused("could not remove ${x.name}") }
         }
-        gone.forEach { it.second.deleteRecursively() }
+        val left = gone.filter { (_, moved) -> !moved.deleteRecursively() && moved.exists() }
+        // out of sight but not yet gone: said, never reported as done; the sweep at the next start tries again
+        if (left.isNotEmpty()) throw DeleteRefused("Some of the files could not be removed now. They are hidden and will be removed when the app starts again.")
         return family.size
     }
 

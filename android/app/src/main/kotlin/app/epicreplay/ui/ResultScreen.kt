@@ -90,7 +90,7 @@ fun ResultScreen(video: File, data: ResultData?, words: PageWords, actions: Resu
             }
             Section("models", "The models") {
                 if (data.models.isEmpty()) Text("This replay did not record which models it used.", color = Ink.muted)
-                data.models.forEach { Column { Text(it.name, style = MaterialTheme.typography.labelMedium, color = Ink.muted); Text(it.value, modifier = Modifier.testTag("model_row")) } }
+                data.models.forEach { Column { Text(it.name, style = MaterialTheme.typography.labelMedium, color = Ink.muted); Text(it.value, modifier = Modifier.testTag("model_row")); if (it.steps.isNotEmpty()) Text("Used for: " + it.steps.joinToString(", ") + ". The other steps ran as code on this phone.", style = MaterialTheme.typography.bodySmall, color = Ink.muted, modifier = Modifier.testTag("model_steps")) } }
             }
             Section("cost", words.panel("time")) {
                 data.time.rows.forEach { r -> Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) { Text(r.name, modifier = Modifier.weight(1f)); Text((if (r.duration.isEmpty()) "" else r.duration + " · ") + "${r.cost} USD", style = MaterialTheme.typography.bodyMedium) } }
