@@ -372,3 +372,25 @@ Xiaomi 15T Pro, 11 GB, Gemma 4 E2B (Q4_0 + Q8_0 projector), the app's own flow (
 Other calls, repack off: the Commentator's chat turns (structured draft with its tool turns) 45 to 57 s each for 1.7 to 2.3 k prompt tokens and 195 to 380 reply tokens; S5 152 s for three turns, ending `degraded` (no draft passed; the coded fallback wrote the lines it could not, as for this model on the PC); S9 5.7 s. S1 (the scan, after the threads change of T426) 3.7 s for this clip. The run to the play card took 168 s, and to the voice 327 s.
 
 Not measured yet: the proposal's error against `eval/labels`, schema fit over many calls, Qwen3.5 (not downloaded), peak memory with repack off. The `status` of the on-device profiles stays `experimental`.
+
+## End-to-end runs on the phone (T428, 2026-11-25)
+
+The owner's clip (a 4.5 s portrait clip; it stays on the phone), football commentator, English, started from the app by the owner; the phone connected by USB with `android/tools/t428_connlog.sh` (the sockets the app's user id has open, once a second, remote address and port only) and `t428_report.py` (stages, seconds, costs). Spent in all: about 0.073 USD (the caps were on).
+
+| | Run A: cloud, both roles `deepseek-flash` | Run B1: Gemma on the phone, both roles | Run B2: Gemma, a fresh process |
+|---|---|---|---|
+| result | done, 7.2 MB video | done, 7.2 MB video | done, 7.9 MB video, **degraded** |
+| S1 scan | 9.4 s | 3.1 s | 2.9 s |
+| S2 Spotter | 28 s, 0.0103 USD | 159 s, all sheets answered | **306 s, every sheet timed out at 300 s**, the strongest S1 candidate proposed |
+| S5 Commentator | 8 s, 0.0043 USD, 6 lines | 139 s, `degraded` (no draft passed in 3 turns, generic lines for l1, l2 ...) | 120 s, `degraded` (the draft call timed out after 0 turns, generic lines for l1 to l5) |
+| S7 voice (ElevenLabs) | 5.6 s, 0.0220 USD | 3.1 s, 0.0222 USD | 2.9 s, 0.0142 USD |
+| S9, S8, S10 | 5.8, 4.4, 17.8 s | 5.0, 4.1, 4.8 s | 5.2, 4.1, 8.6 s |
+| total cost | 0.0366 USD | 0.0222 USD (the voice only) | 0.0142 USD (the voice only) |
+
+**SC-1 (no request leaves the phone during the models' work).** In run B2, a fresh process, the log has 171 samples and one remote only: `34.8.184.191:443` (the voice's host, ElevenLabs) from 06:12:12 to 06:13:12, which is S7 (06:12:11 to 06:12:14) and the minute after it. Nothing was connected during S1 to S5 (06:01:49 to 06:12:11), S9, S8 or S10 beyond it. Run A's log shows the other side: `3.173.21.63:443` (DeepSeek) from S2 and `34.8.184.191:443` from S7. (Run B1's log was not clean evidence: the process still held keep-alive sockets from run A, so B2 was made.) A run with the phone's models therefore connects once, to the voice, as the plan noted: SC-1's "no request leaves the phone" holds for the models, not for the voice, which is always ElevenLabs.
+
+**SC-2.** Run A: a key and no model download, both roles in the cloud, the run finished at 0.0366 USD; the caps are unit-tested (`BudgetTest`, `LedgerTest`) and were on.
+
+**SC-3.** The roles were switched from the cloud to the phone and back through Settings, with no reinstall; the consent was asked again when the roles moved to the phone (the owner's observation, to confirm in the PR).
+
+**Run B2 is a fault, not a measurement of the model.** The same Gemma, the same clip and the same code ran S2 in 159 s in B1 and not at all in B2, and in a separate test of a cold process the same sheet answered in 16 s. Both timeouts in B2 are "no progress at all" (300 s on the first sheet, 120 s on the draft's first turn). The likely cause is that the run's work has no foreground service: if the screen went off or the app went to the background during the run, Android deprioritises or freezes the process. To be confirmed with the owner and then fixed with a foreground service for a running replay.
