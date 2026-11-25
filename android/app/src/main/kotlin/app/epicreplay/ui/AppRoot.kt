@@ -58,7 +58,9 @@ fun AppRoot(vm: AppViewModel, isReady: () -> Boolean, keys: app.epicreplay.core.
     val accent = if (onStart) (choosing?.let { accentOf(it.accent, null) } ?: DefaultAccent) else vm.accent(view)
     EpicTheme(accent) {
         androidx.compose.material3.Surface(color = Ink.ground, modifier = modifier.fillMaxSize()) { Column(Modifier.statusBarsPadding().navigationBarsPadding()) {
-            AppHeader(onSettings = if (ready && settings == 0 && !showKeys && pastPage == 0) ({ settings = 1 }) else null, onPast = if (ready && settings == 0 && !showKeys && pastPage == 0) ({ notice = null; pastPage = 1 }) else null)
+            val onStartScreen = settings == 0 && pastPage == 0 && !showKeys && (onStart || view == null)
+            val goHome = { settings = 0; pastPage = 0; showKeys = false; notice = null; vm.home() }
+            AppHeader(onHome = if (ready) goHome else null, homeButton = ready && !onStartScreen, onSettings = if (ready && settings == 0 && !showKeys && pastPage == 0) ({ settings = 1 }) else null, onPast = if (ready && settings == 0 && !showKeys && pastPage == 0) ({ notice = null; pastPage = 1 }) else null)
             notice?.let { Text(it, color = Ink.dangerText, modifier = Modifier.padding(horizontal = 16.dp).testTag("notice")) }
             when {
                 pastPage == 1 -> PastScreen(remember(pastTick, ready) { vm.pastItems() }, vm.words, { viewing = java.io.File(vm.runsDir, it.runId); pastPage = 2 },
@@ -80,12 +82,21 @@ fun AppRoot(vm: AppViewModel, isReady: () -> Boolean, keys: app.epicreplay.core.
                 }
                 !ready -> firstRun { ready = true }
                 !onStart && view == null && starting -> androidx.compose.material3.Text("MAKING YOUR REPLAY", style = androidx.compose.material3.MaterialTheme.typography.headlineMedium, modifier = Modifier.padding(16.dp))
-                onStart || view == null -> StartScreen(
+                onStart || view == null -> Column {
+                    // a replay that is being made, or waits at the card, goes on while the start screen is open: a way back to it
+                    view?.takeIf { it.state.status in setOf("running", "waiting_play_card") }?.let { v ->
+                        androidx.compose.foundation.layout.Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                            Text(if (v.atCard) "A replay is waiting for you." else "A replay is being made.", modifier = Modifier.weight(1f).testTag("run_banner"))
+                            androidx.compose.material3.OutlinedButton(onClick = { vm.backToRun() }, modifier = Modifier.testTag("back_to_run")) { Text("Back to it") }
+                        }
+                    }
+                    StartScreen(
                     vm.cards, vm.words, vm.consentCopy.consentText, vm.providerLine(), clip?.second, problem,
                     StartActions({ pick.launch("video/*") }, { film.launch(Intent(MediaStore.ACTION_VIDEO_CAPTURE)) }, ), { choosing = it }, vm::make,
                     voiceKeyMissing = voiceKeyMissing, onAddKey = { showKeys = true },
                     setupProblem = if (setupReady) null else "Setup is not finished: a key, the download or the consent is missing.", onSetup = { settings = 1 },
-                )
+                    )
+                }
                 view!!.state.status == "done" && view!!.state.hasVideo -> {
                     val dir = view!!.dir
                     ResultScreen(java.io.File(dir, "final.mp4"), remember(dir) { vm.result(dir) }, vm.words,

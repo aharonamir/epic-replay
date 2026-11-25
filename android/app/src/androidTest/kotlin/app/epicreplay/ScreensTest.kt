@@ -133,9 +133,11 @@ class ScreensTest {
         rule.setContent { EpicTheme { Scrolling { PlayCardPanel(ps, meta, 0.05, words, { null }, CardActions({ sent = it }, {}, {})) } } }
         rule.onNodeWithTag("yes").performScrollTo().assertIsNotEnabled()
         rule.onNodeWithTag("why_not").assertTextContains("Pick the moment first", substring = true)
+        rule.onNodeWithTag("this_one").performScrollTo().assertIsEnabled().assertTextContains("THIS ONE", substring = true, ignoreCase = true) // a filled button while the moment is unanswered
         rule.onNodeWithTag("frame_label").assertTextContains("Frame 313", substring = true)
         rule.onNodeWithTag("later").performScrollTo().performClick()
         rule.onNodeWithTag("frame_label").assertTextContains("Frame 314", substring = true) // a tap moves one frame, and answers the moment
+        rule.onNodeWithTag("this_one").performScrollTo().assertTextContains("✓", substring = true) // and a ticked one once it is answered (the nudge answered it)
         rule.onNodeWithTag("on10").performScrollTo().performClick()
         rule.onNodeWithTag("frame_label").assertTextContains("Frame 324", substring = true)
         rule.onNodeWithTag("yes").performScrollTo().assertIsNotEnabled()

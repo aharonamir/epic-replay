@@ -6,7 +6,7 @@
 set -u
 LOG=${1:?usage: t428_connlog.sh LOGFILE}
 PKG=app.epicreplay
-UID_N=$(adb shell dumpsys package $PKG | grep -m1 -o 'userId=[0-9]*' | cut -d= -f2)
+UID_N=$(adb shell dumpsys package $PKG | grep -m1 -oE '(userId|appId)=[0-9]+' | cut -d= -f2) # the first user's uid is the app id
 [ -n "$UID_N" ] || { echo "the app is not installed" >&2; exit 1; }
 adb shell "cat /proc/net/tcp6 >/dev/null 2>&1" || { echo "this phone does not let the shell read /proc/net" >&2; exit 1; }
 echo "# t428 connection log of $PKG (uid $UID_N), started $(date -u +%FT%TZ)" > "$LOG"
@@ -20,7 +20,10 @@ while true; do
     ip=${rem%%:*}; port=$((16#${rem##*:}))
     case $proto in
       tcp|udp) addr=$(hex_ip4 "$ip") ;;
-      *) addr=$ip ;; # a v6 address is kept as the kernel prints it (a v4-mapped one ends in the four bytes of the v4 address)
+      *) case $ip in
+           0000000000000000FFFF0000????????) addr=$(hex_ip4 "${ip:24:8}") ;; # a v4 address inside a v6 socket
+           *) addr=$ip ;;                                                   # a real v6 address stays as the kernel prints it
+         esac ;;
     esac
     case "$addr" in 0.0.0.0|127.*) continue ;; esac
     echo "$t $proto remote $addr:$port state $st"

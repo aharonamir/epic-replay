@@ -151,6 +151,12 @@ class AppViewModel(private val graph: AppGraph, private val context: Context, la
     /** A share of the finished video of [dir] to another app: the video alone, through a content address that lasts for that one share. */
     fun shareIntent(dir: File): Intent = Share.intent(context, dir)
 
+    /** Home: the start screen is shown; a run that is being made goes on in its own scope and can be gone back to ([backToRun]). */
+    fun home() { _onStart.value = true }
+
+    /** Back to the run in hand from the start screen. */
+    fun backToRun() { _onStart.value = false }
+
     /** From the run in hand back to the start screen (the run, if unfinished, stays in its folder and is picked up when the app is opened). */
     fun another() { session.pause(); session.view.value?.takeIf { it.state.status in setOf("failed", "stopped") }?.let { session.dismiss(it.dir) }; _clip.value = null; _clipProblem.value = null; _onStart.value = true }
 
