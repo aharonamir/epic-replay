@@ -154,7 +154,9 @@ class ScreensTest {
         var sent: CardAnswerInput? = null
         var stopped: String? = null
         rule.setContent { EpicTheme { Scrolling { PlayCardPanel(ps, meta, 0.05, words, { null }, CardActions({ sent = it }, { stopped = it }, {})) } } }
-        rule.onNodeWithTag("other_289").performScrollTo().performClick() // the other candidate becomes the key moment
+        val other = rule.onNodeWithTag("other_289").performScrollTo().fetchSemanticsNode().size
+        assertTrue("the time of another moment is on one line: ${other.height} px high", other.height <= 160) // a button is at least 48 dp (about 150 px); a time broken over lines is far taller
+        rule.onNodeWithTag("other_289").performClick() // the other candidate becomes the key moment
         rule.onNodeWithTag("frame_label").assertTextContains("Frame 289", substring = true)
         rule.onNodeWithTag("fix").performScrollTo().performClick()
         rule.onNodeWithTag("edit_activity").performScrollTo().performTextReplacement("football set piece")

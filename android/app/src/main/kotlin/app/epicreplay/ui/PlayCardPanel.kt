@@ -109,8 +109,11 @@ fun PlayCardPanel(ps: JsonObject, meta: JsonObject, costUsd: Double, words: Page
         val others = CardModel.otherMoments(ps)
         if (others.isNotEmpty()) {
             Text(words.card("others"), style = MaterialTheme.typography.labelSmall, color = Ink.muted)
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                for ((frame, _) in others) OutlinedButton(onClick = { s = CardModel.pick(s, frame) }, modifier = Modifier.testTag("other_$frame")) { Text("%.1f s".format(java.util.Locale.ROOT, frame / s.fps), style = MaterialTheme.typography.labelMedium) }
+            // each button takes an equal share of the row and its time stays on one line, however many there are
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                for ((frame, _) in others) OutlinedButton(
+                    onClick = { s = CardModel.pick(s, frame) }, modifier = Modifier.weight(1f).testTag("other_$frame"), contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 4.dp, vertical = 8.dp),
+                ) { Text("%.1f s".format(java.util.Locale.ROOT, frame / s.fps), style = MaterialTheme.typography.labelMedium, maxLines = 1, softWrap = false) }
             }
         }
         if (s.fixing) {

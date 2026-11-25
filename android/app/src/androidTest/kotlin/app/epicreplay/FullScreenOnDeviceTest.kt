@@ -82,6 +82,7 @@ class FullScreenOnDeviceTest {
         rule.onAllNodesWithTag("home").assertCountEquals(0) // on the start screen there is nothing to go home from
         rule.onNodeWithTag("past").performClick()
         rule.waitUntil(10_000) { rule.onAllNodesWithTag("open_r_full").fetchSemanticsNodes().isNotEmpty() }
+        rule.onAllNodesWithTag("past").assertCountEquals(0); rule.onAllNodesWithTag("settings").assertCountEquals(0) // off the start screen only Home is in the header
         rule.onNodeWithTag("home").performClick()
         rule.waitUntil(10_000) { rule.onAllNodesWithTag("make").fetchSemanticsNodes().isNotEmpty() }
         rule.onNodeWithTag("settings").performClick()
@@ -89,5 +90,6 @@ class FullScreenOnDeviceTest {
         rule.onNodeWithTag("home_logo").performClick() // the mark and the wordmark go home too
         rule.waitUntil(10_000) { rule.onAllNodesWithTag("make").fetchSemanticsNodes().isNotEmpty() }
         rule.onAllNodesWithTag("home").assertCountEquals(0)
+        rule.onNodeWithTag("past").assertExists(); rule.onNodeWithTag("settings").assertExists() // and the start screen has Past and Settings
     }
 }

@@ -60,7 +60,11 @@ fun AppRoot(vm: AppViewModel, isReady: () -> Boolean, keys: app.epicreplay.core.
         androidx.compose.material3.Surface(color = Ink.ground, modifier = modifier.fillMaxSize()) { Column(Modifier.statusBarsPadding().navigationBarsPadding()) {
             val onStartScreen = settings == 0 && pastPage == 0 && !showKeys && (onStart || view == null)
             val goHome = { settings = 0; pastPage = 0; showKeys = false; notice = null; vm.home() }
-            AppHeader(onHome = if (ready) goHome else null, homeButton = ready && !onStartScreen, onSettings = if (ready && settings == 0 && !showKeys && pastPage == 0) ({ settings = 1 }) else null, onPast = if (ready && settings == 0 && !showKeys && pastPage == 0) ({ notice = null; pastPage = 1 }) else null)
+            // the start screen has Past and Settings; every other screen has Home, alone in the right corner (the wordmark keeps its room)
+            AppHeader(
+                onHome = if (ready) goHome else null, homeButton = ready && !onStartScreen,
+                onSettings = if (ready && onStartScreen) ({ settings = 1 }) else null, onPast = if (ready && onStartScreen) ({ notice = null; pastPage = 1 }) else null,
+            )
             notice?.let { Text(it, color = Ink.dangerText, modifier = Modifier.padding(horizontal = 16.dp).testTag("notice")) }
             when {
                 pastPage == 1 -> PastScreen(remember(pastTick, ready) { vm.pastItems() }, vm.words, { viewing = java.io.File(vm.runsDir, it.runId); pastPage = 2 },
