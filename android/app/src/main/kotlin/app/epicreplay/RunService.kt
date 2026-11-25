@@ -26,7 +26,9 @@ class RunService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         getSystemService(NotificationManager::class.java).createNotificationChannel(NotificationChannel(CHANNEL, "Making a replay", NotificationManager.IMPORTANCE_LOW))
+        // every start promotes the service to the foreground first, a stop included: a service started with startForegroundService that is stopped before it did so ends the app
         startForeground(NOTIFICATION_ID, notification(intent?.getStringExtra(EXTRA_TEXT) ?: "Making your replay"), ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC)
+        if (intent?.action == ACTION_STOP) { stopSelf(); return START_NOT_STICKY }
         if (lock == null) lock = getSystemService(PowerManager::class.java).newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "epicreplay:run").apply { acquire(WAKE_LIMIT_MS) }
         return START_NOT_STICKY
     }
@@ -53,9 +55,20 @@ class RunService : Service() {
 
         /** The run is working: the service is up, with [text] (the step) in its notification. A start the system refuses (the app is not in front) leaves the run as it was. */
         fun show(context: Context, text: String) {
-            try { context.startForegroundService(Intent(context, RunService::class.java).putExtra(EXTRA_TEXT, text)) } catch (e: Exception) { /* not allowed now: the run goes on without it */ }
+            try { requested = true; context.startForegroundService(Intent(context, RunService::class.java).putExtra(EXTRA_TEXT, text)) } catch (e: Exception) {
+                requested = false
+                android.util.Log.w("EpicReplay", "the run's foreground service could not start (${e.javaClass.simpleName}); the run goes on without it")
+            }
         }
 
-        fun stop(context: Context) { context.stopService(Intent(context, RunService::class.java)) }
+        /** Stops the service by telling it to (it promotes itself first, then stops), and only if one was asked for: a stop never races a start that has not reached `startForeground`. */
+        fun stop(context: Context) {
+            if (!requested) return
+            requested = false
+            try { context.startForegroundService(Intent(context, RunService::class.java).setAction(ACTION_STOP)) } catch (e: Exception) { context.stopService(Intent(context, RunService::class.java)) }
+        }
+
+        @Volatile private var requested = false
+        private const val ACTION_STOP = "app.epicreplay.STOP_RUN_SERVICE"
     }
 }

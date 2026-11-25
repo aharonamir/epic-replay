@@ -88,9 +88,9 @@ fun AppRoot(vm: AppViewModel, isReady: () -> Boolean, keys: app.epicreplay.core.
                 !onStart && view == null && starting -> androidx.compose.material3.Text("MAKING YOUR REPLAY", style = androidx.compose.material3.MaterialTheme.typography.headlineMedium, modifier = Modifier.padding(16.dp))
                 onStart || view == null -> Column {
                     // a replay that is being made, or waits at the card, goes on while the start screen is open: a way back to it
-                    view?.takeIf { it.state.status in setOf("running", "waiting_play_card") }?.let { v ->
+                    view?.takeIf { it.state.status in setOf("running", "waiting_play_card", "failed") }?.let { v ->
                         androidx.compose.foundation.layout.Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
-                            Text(if (v.atCard) "A replay is waiting for you." else "A replay is being made.", modifier = Modifier.weight(1f).testTag("run_banner"))
+                            Text(if (v.atCard) "A replay is waiting for you." else if (v.state.status == "failed") "A replay stopped and needs you." else "A replay is being made.", modifier = Modifier.weight(1f).testTag("run_banner"))
                             androidx.compose.material3.OutlinedButton(onClick = { vm.backToRun() }, modifier = Modifier.testTag("back_to_run")) { Text("Back to it") }
                         }
                     }
