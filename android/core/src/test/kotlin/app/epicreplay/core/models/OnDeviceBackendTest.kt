@@ -17,6 +17,7 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.async
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
@@ -31,8 +32,10 @@ class FakeEngine(private val body: (GenerateRequest, FakeEngine) -> GenerateResu
     @Volatile var loadArgs: List<Any?> = emptyList()
     private val cancelled = CountDownLatch(1)
     @Volatile var blockUntilCancelled = false
+    @Volatile var loadDelayMs = 0L
 
     override fun load(modelPath: String, projectorPath: String?, contextTokens: Int, threads: Int, imageMaxTokens: Int, repack: Boolean) {
+        if (loadDelayMs > 0) Thread.sleep(loadDelayMs)
         loads.incrementAndGet(); loadArgs = listOf(modelPath, projectorPath, contextTokens, threads, imageMaxTokens)
     }
 
@@ -304,5 +307,17 @@ class OnDeviceBackendTest {
     fun toolsAreRefusedForAProfileWithoutThem() {
         install()
         assertFailsWith<IllegalArgumentException> { runBlocking { backend(FakeEngine(ok)).chat(emptyList(), null, listOf(ToolDef("t", "d", JsonObject(emptyMap())))) } }
+    }
+
+    @Test
+    fun theTimeoutCountsTheGenerationAloneNotTheLoadOfTheModelNorTheWaitForTheCallsBefore() = runBlocking {
+        install()
+        val engine = FakeEngine { _, _ -> Thread.sleep(150); GenerateResult("""{"cell": 6}""", 300, 8, Stop.END_OF_TEXT, 10, 20, 5) }.also { it.loadDelayMs = 600 }
+        val b = backend(engine, cfg = OnDeviceConfig(textTimeoutS = 0.4)) // each generation takes 0.15 s, the load 0.6 s: far over the timeout together
+        kotlinx.coroutines.coroutineScope {
+            val calls = (1..3).map { async(kotlinx.coroutines.Dispatchers.Default) { b.chat(listOf(ChatMessage(ChatRole.USER, "x"))) } }
+            calls.forEach { assertEquals("""{"cell": 6}""", it.await().text) }
+        } // the third waited 0.3 s for the first two and all three came after a load of 0.6 s
+        assertEquals(1, engine.loads.get())
     }
 }

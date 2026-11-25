@@ -78,6 +78,16 @@ class AppGraph(context: Context) {
     fun onDeviceBackend(profile: OnDeviceProfile, role: Role, config: OnDeviceConfig = OnDeviceConfig()): OnDeviceBackend =
         OnDeviceBackend(profile, role, modelDir, AndroidMemoryProbe(appContext), { NativeEngine() }, config)
 
+    /**
+     * The one backend of an on-device profile in use: both roles, and every stage and run, share it, so the model is in memory once, never once for each stage (every stage used to make its
+     * own backend and none was ever closed: each kept 4 GB until the app ended). [releaseModels] frees it when no flow is working.
+     */
+    private val sharedOnDevice = HashMap<String, OnDeviceBackend>()
+    fun sharedBackend(profile: OnDeviceProfile, role: Role): OnDeviceBackend = synchronized(sharedOnDevice) { sharedOnDevice.getOrPut(profile.id) { onDeviceBackend(profile, if (role in profile.roles) role else profile.roles.first()) } }
+
+    /** Frees the memory of every on-device model that is loaded (the next call loads it again). */
+    suspend fun releaseModels() { val all = synchronized(sharedOnDevice) { sharedOnDevice.values.toList() }; all.forEach { it.unload() } }
+
     /** Downloads, resumes and deletes the files of on-device profiles in [modelDir] (HTTPS, allowed hosts, checksum). */
     fun modelDownloader(): ModelDownloader = ModelDownloader(modelDir, DownloadPolicy.DEFAULT, AndroidStorageProbe(modelDir))
 
@@ -114,7 +124,7 @@ class AppGraph(context: Context) {
     /** The backend for the profile chosen for [role], for whatever place it runs. */
     fun backendFor(profile: app.epicreplay.core.models.Profile, role: Role): app.epicreplay.core.models.ModelBackend = when (profile) {
         is ServerProfile -> cloudBackend(profile, role)
-        is OnDeviceProfile -> onDeviceBackend(profile, role)
+        is OnDeviceProfile -> sharedBackend(profile, role)
     }
 
     companion object {

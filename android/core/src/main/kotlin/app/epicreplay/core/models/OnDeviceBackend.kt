@@ -132,11 +132,12 @@ class OnDeviceBackend(
     /** [build] makes the request from the engine's image marker, which is known once the engine exists. */
     private suspend fun run(timeoutS: Double, withSchema: Boolean, build: (marker: String) -> GenerateRequest): ModelResult {
         val started = nanoTime()
-        // withTimeoutOrNull ends only this call's own timeout with null; a timeout or cancellation of the caller passes through unchanged
-        return withTimeoutOrNull((timeoutS * 1000).toLong()) {
-            mutex.withLock {
-                check(!closed) { "the on-device backend for profile ${profile.id} was closed" } // a call that was waiting when close() came
-                val e = ensureLoaded()
+        // The timeout is the generation's own: the wait for the calls before it and the loading of the model (a minute or more on a phone short of memory, T428) are not counted in it, as a
+        // call that had the engine to itself would not count them. withTimeoutOrNull ends only this call's own timeout with null; a timeout or cancellation of the caller passes through unchanged.
+        return mutex.withLock {
+            check(!closed) { "the on-device backend for profile ${profile.id} was closed" } // a call that was waiting when close() came
+            val e = ensureLoaded()
+            withTimeoutOrNull((timeoutS * 1000).toLong()) {
                 val request = build(e.mediaMarker)
                 val op = ops.incrementAndGet()
                 activeOp = op
@@ -144,8 +145,8 @@ class OnDeviceBackend(
                 if (r.stop == Stop.CANCELLED) throw CancellationException("the call was cancelled")
                 val data = if (withSchema) FirstJson.of(r.text) as? JsonObject else null
                 ModelResult(r.text, data, emptyList(), Usage(r.promptTokens, r.completionTokens), 0.0, (nanoTime() - started) / 1e9)
-            }
-        } ?: throw ModelError.Timeout(profile.id, "the on-device call took longer than ${timeoutS.toLong()} s")
+            } ?: throw ModelError.Timeout(profile.id, "the on-device call took longer than ${timeoutS.toLong()} s")
+        }
     }
 
     /** Loads the model on the first call: the files first, then the memory, never a crash for lack of either. */

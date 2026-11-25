@@ -69,6 +69,6 @@ class MainActivity : ComponentActivity() {
             result.text.trim().ifEmpty { "(no words came back)" }
         } catch (e: Exception) {
             "${profile.label} could not answer: ${e.message ?: e.javaClass.simpleName}"
-        }
+        } finally { graph.releaseModels() }
     }
 }

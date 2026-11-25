@@ -74,6 +74,7 @@ class AppViewModel(private val graph: AppGraph, private val context: Context, la
     /** The foreground service is up exactly while a flow works (a run waiting at the card, or finished, needs none). */
     private fun keepAlive(v: RunView?) {
         val working = v != null && v.working
+        if (!working) viewModelScope.launch(Dispatchers.IO) { graph.releaseModels() } // waiting at the card, finished, or failed: the model's memory goes back to the phone
         if (working) RunService.show(context, v!!.state.let { st -> "Step ${st.stepN} of 8: ${st.steps.getOrNull(st.stepN - 1)?.name ?: ""}" }) else RunService.stop(context)
     }
 
