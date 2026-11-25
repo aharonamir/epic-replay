@@ -65,7 +65,10 @@ class RunService : Service() {
         fun stop(context: Context) {
             if (!requested) return
             requested = false
-            try { context.startForegroundService(Intent(context, RunService::class.java).setAction(ACTION_STOP)) } catch (e: Exception) { context.stopService(Intent(context, RunService::class.java)) }
+            try { context.startForegroundService(Intent(context, RunService::class.java).setAction(ACTION_STOP)) } catch (e: Exception) {
+                // refused (the app is not in front): a service that is already up is stopped; one whose start is still pending is left to its own time limit rather than stopped before it promotes itself
+                if (running) context.stopService(Intent(context, RunService::class.java))
+            }
         }
 
         @Volatile private var requested = false
