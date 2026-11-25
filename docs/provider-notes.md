@@ -355,3 +355,20 @@ Two behaviours of the PC's S8 that the phone does not copy (spec 004 T423 follow
 
 - `sidechaincompress` ends its output when its key (the mixed voice) ends, so the ducked bed stops at the end of the last voice line and the rest of the video has none (the `apad` then fills with silence). In the sample run the last line ends at 28.11 s of 28.9 s, inside the bed's own fade-out, so it is not heard; a narration that ends early would leave the end of the video without its bed. The phone keeps the bed to the end. If the owner wants the PC fixed: pad the key with `apad` to the video's length before the compressor.
 - `loudnorm` with `linear=true` falls back to dynamic mode when the measured loudness range is over its target LRA of 11 (a loud sting over a bed 25 dB lower), and then lifts the quiet part by about 2 dB relative to the loud part. A mix with a voice and a ducked bed stays under 11 LU; the phone applies one linear gain and a peak limiter. The conformance cases of the mix use levels where the two agree.
+
+## On-device numbers from the app on the phone (T427, 2026-11-24)
+
+Xiaomi 15T Pro, 11 GB, Gemma 4 E2B (Q4_0 + Q8_0 projector), the app's own flow (`OnDeviceFlowTest`, a real 4.5 s portrait clip that stays on the phone; only seconds, sizes and tokens are kept), the phone in daily use (about 8.9 GB of its memory in use, 6 GB of swap used by other apps).
+
+**What went wrong in the owner's runs.** The first contact sheet of S2 timed out at 300 s and the other sheets failed after it, so the sensitivity check never ran (the card asks "is everyone in it fine?"). The same sheet answered in 10 s in a test of the backend alone. The difference was memory: with the CPU backend's weight repacking on (the default), `dumpsys meminfo` showed a 3.1 GB native heap of which 2.3 GB was in swap (`pswpin` 4.4 million pages: the repacked weights are anonymous memory Android can only swap), and the engine's threads sat at 0 % CPU waiting for pages. Setting `no_extra_bufts` (llama.cpp's `--no-repack`) keeps the weights in the mapped file, which the system drops and reads again from flash.
+
+| S2 on the same clip, same phone, same minute | repack on (before) | repack off (now) |
+|---|---|---|
+| S2 total | 602 s, 3 of 5 sheets left out (300 s timeouts) | 162 to 164 s, all sheets answered |
+| a sheet call (1 image, 533 prompt tokens, 40 to 90 reply tokens) | 68 s and then timeouts | about 19 s each |
+| the events call (2 images, 1,021 prompt tokens, 380 reply tokens) | 55 s | 61 s |
+| the sensitivity answer | missing in the owner's run (every call failed) | present (`sensitive: false`) |
+
+Other calls, repack off: the Commentator's chat turns (structured draft with its tool turns) 45 to 57 s each for 1.7 to 2.3 k prompt tokens and 195 to 380 reply tokens; S5 152 s for three turns, ending `degraded` (no draft passed; the coded fallback wrote the lines it could not, as for this model on the PC); S9 5.7 s. S1 (the scan, after the threads change of T426) 3.7 s for this clip. The run to the play card took 168 s, and to the voice 327 s.
+
+Not measured yet: the proposal's error against `eval/labels`, schema fit over many calls, Qwen3.5 (not downloaded), peak memory with repack off. The `status` of the on-device profiles stays `experimental`.

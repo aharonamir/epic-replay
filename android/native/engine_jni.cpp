@@ -103,7 +103,7 @@ JNIEXPORT jstring JNICALL Java_app_epicreplay_engine_NativeEngine_nativeMarker(J
 }
 
 JNIEXPORT jlong JNICALL Java_app_epicreplay_engine_NativeEngine_nativeLoad(
-    JNIEnv * env, jobject, jstring modelPath, jstring projectorPath, jint contextTokens, jint threads, jint imageMaxTokens) {
+    JNIEnv * env, jobject, jstring modelPath, jstring projectorPath, jint contextTokens, jint threads, jint imageMaxTokens, jboolean repack) {
     try {
         auto e = std::make_unique<Engine>();
         e->params.model.path = to_string(env, modelPath);
@@ -118,6 +118,7 @@ JNIEXPORT jlong JNICALL Java_app_epicreplay_engine_NativeEngine_nativeLoad(
         postprocess_cpu_params(e->params.cpuparams_batch, &e->params.cpuparams);
         e->params.mmproj_use_gpu = false; // no GPU backend is built
         e->params.warmup = false;
+        e->params.no_extra_bufts = !repack; // without the repacked copy the weights stay in the mapped file, which the system can drop and read again instead of swapping
         e->params.image_max_tokens = imageMaxTokens;
         e->params.use_jinja = true;
         e->n_batch = e->params.n_batch;

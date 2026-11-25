@@ -79,7 +79,10 @@ class ResultScreenTest {
         rule.onAllNodesWithTag("model_steps").assertCountEquals(2)
         rule.onNodeWithTag("section_cost").performScrollTo().performClick()
         rule.onNodeWithTag("total_cost").performScrollTo().assertTextContains("0.0412 USD", substring = true)
-        rule.onNodeWithTag("share").performScrollTo().performClick(); rule.onNodeWithTag("new_clip").performClick()
+        val share = rule.onNodeWithTag("share").performScrollTo().fetchSemanticsNode().size; val another = rule.onNodeWithTag("new_clip").fetchSemanticsNode().size
+        assertEquals("the two buttons are the same height, one line each", share.height, another.height)
+        assertTrue("the button's text fits on one line: ${another.height}", another.height < 200)
+        rule.onNodeWithTag("share").performClick(); rule.onNodeWithTag("new_clip").performClick()
         assertEquals(1, shared); assertEquals(1, made); assertEquals(0, deleted)
     }
 
@@ -170,11 +173,11 @@ class ResultScreenTest {
         val d = run("r_full")
         rule.setContent { EpicTheme { ResultScreen(File(d, "final.mp4"), ResultModel.of(d, words, "Your replay"), words, ResultActions({}, {}, {}), turnForFullScreen = false) } } // the test activity restarts when turned; the app's own does not (FullScreenOnDeviceTest)
         rule.onAllNodesWithTag("fullscreen_player").assertCountEquals(0)
-        rule.onNodeWithTag("fullscreen").assertIsDisplayed().performClick()
+        rule.onNodeWithTag("fullscreen").performScrollTo().assertIsDisplayed().performClick()
         rule.waitUntil(5_000) { rule.onAllNodesWithTag("fullscreen_player").fetchSemanticsNodes().isNotEmpty() }
         rule.onNodeWithTag("exit_fullscreen").assertIsDisplayed().performClick()
         rule.waitUntil(5_000) { rule.onAllNodesWithTag("fullscreen_player").fetchSemanticsNodes().isEmpty() }
         rule.onNodeWithTag("player").assertIsDisplayed()
-        rule.onNodeWithTag("fullscreen").assertIsDisplayed() // and it can be opened again
+        rule.onNodeWithTag("fullscreen").performScrollTo().assertIsDisplayed() // and it can be opened again
     }
 }
