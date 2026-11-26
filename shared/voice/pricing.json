@@ -1,0 +1,4 @@
+{
+  "_note": "What a character of speech costs, for the estimates and the spending caps (checked 2026-10-12, docs/provider-notes.md T004). One number both apps use: the PC app reads it (providers/speech.py); the Android app has the same number as a constant in core/voice/ElevenLabs.kt, which a test holds equal to this file.",
+  "elevenlabs": { "usd_per_1000_chars": 0.10 }
+}
