@@ -70,8 +70,6 @@ data class OnDeviceConfig(
      * open the swapping made a sheet call take 300 s or more (T427: the same calls took about 19 s each without it, and the whole of S2 162 s instead of 600 s with three calls left out).
      */
     val repack: Boolean = false,
-    /** How long a cancelled call is waited for. A native call that does not stop in this time is abandoned (T427: one clip's sheet kept the engine at 100 % of a core for over an hour and a 300 s timeout could not end it). */
-    val cancelGraceS: Double = 20.0,
     val temperature: Float = 0.2f,
     /** Off for a thinking model: its replies would otherwise be spent on reasoning (spike S1). */
     val thinking: Boolean = false,
@@ -100,9 +98,8 @@ class OnDeviceBackend(
     // Whoever takes the engine out with getAndSet(null) owns freeing it: close() and a load that finishes after close() cannot both free it.
     private val engineRef = java.util.concurrent.atomic.AtomicReference<InferenceEngine?>(null)
     // The engine runs on one thread with a big stack: the chat template and the prompt are parsed recursively.
-    @Volatile private var executor = newExecutor()
-    @Volatile private var dispatcher = executor.asCoroutineDispatcher()
-    private fun newExecutor() = Executors.newSingleThreadExecutor { r -> Thread(null, r, "epic-engine", 16L * 1024 * 1024) }
+    private val executor = Executors.newSingleThreadExecutor { r -> Thread(null, r, "epic-engine", 16L * 1024 * 1024) }
+    private val dispatcher = executor.asCoroutineDispatcher()
 
     fun file(role: String): File? = profile.files.firstOrNull { it.role == role }?.let { File(modelDir, it.name) }
 
@@ -179,36 +176,20 @@ class OnDeviceBackend(
      * Runs [block] on the engine thread. If this coroutine is cancelled, the engine is told to stop and
      * the block is waited for, so the engine is free again before the next call starts.
      */
-    private suspend fun <T> blocking(e: InferenceEngine, op: Long, block: () -> T): T {
-        // not a child of the caller: a child would keep the caller from finishing until a native call that does not stop had returned (a coroutine scope waits for its children)
+    private suspend fun <T> blocking(e: InferenceEngine, op: Long, block: () -> T): T = coroutineScope {
         val job = try {
-            kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + dispatcher).async { block() }
+            async(dispatcher) { block() }
         } catch (r: java.util.concurrent.RejectedExecutionException) {
             throw IllegalStateException("the on-device backend for profile ${profile.id} was closed")
         }
         try {
-            return job.await()
+            job.await()
         } catch (c: CancellationException) {
             e.cancel(op) // by number: it works even if the call has not started, and never touches a later call
-            val stopped = withContext(NonCancellable) { withTimeoutOrNull((config.cancelGraceS * 1000).toLong()) { job.join() } }
-            if (stopped == null) abandon(e) // it did not stop: the next call has an engine of its own
+            withContext(NonCancellable) { job.join() }
             throw c
         }
     }
-
-    /**
-     * An engine whose native call does not return after a cancel is given up: it is taken out, its thread left to finish if it ever does (a native call cannot be killed; its memory stays until then),
-     * and the next call loads a new engine on a new thread. The caller gets its timeout at once instead of waiting for a call that may never end.
-     */
-    private fun abandon(e: InferenceEngine) {
-        engineRef.compareAndSet(e, null)
-        val old = executor
-        executor = newExecutor(); dispatcher = executor.asCoroutineDispatcher()
-        old.shutdown() // no new work for the stuck thread; it ends when its call does
-        android_log("on-device engine abandoned: a native call did not stop ${config.cancelGraceS.toLong()} s after its cancel")
-    }
-
-    private fun android_log(message: String) { System.err.println("EpicReplay: $message") }
 
     /** Frees the model's memory; the next call loads it again. */
     suspend fun unload() = mutex.withLock {

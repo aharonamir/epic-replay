@@ -68,6 +68,9 @@ class SpotterEvalOnDeviceTest {
         val only = args.getString("only")
         val out = File(ctx.filesDir, "t427_eval.jsonl")
         val fpsTolS = 0.25 // EPIC_KEYFRAME_TOL_S of the PC
+        val wanted = labels.listFiles { f -> f.extension == "json" }!!.map { RunFiles.read(it)!!.getValue("clip").jsonPrimitive.content }.filter { only == null || it == only }
+        assumeTrue("no clip of the matrix is on the phone", wanted.any { File(clips, it).isFile })
+        for (w in wanted) require(File(clips, w).isFile) { "the clip $w has a label and is not on the phone: push them again" } // a missing input is a failure, not a silent skip
         for (labelFile in labels.listFiles { f -> f.extension == "json" }!!.sortedBy { it.name }) {
             val label = RunFiles.read(labelFile)!!
             val clipName = label.getValue("clip").jsonPrimitive.content
@@ -79,6 +82,7 @@ class SpotterEvalOnDeviceTest {
                 File(ctx.filesDir, "t427_live.txt").delete()
                 val calls = ArrayList<Triple<Double, Boolean, Pair<Long, Long>>>()
                 val launcher = RunLauncher(graph, ctx, ProviderMode.LIVE, File(ctx.cacheDir, "t427_rec"), app.epicreplay.core.setup.ModelsUsed(gemma!!, gemma), { p, r -> Counting(graph.backendFor(p, r), calls).also { it.live = File(ctx.filesDir, "t427_live.txt") } })
+                try {
                 val t0 = System.nanoTime()
                 // a watchdog: when a run takes over 100 s the stacks of every thread are written (names and frames only), so a hang can be read
                 val dog = Thread {
@@ -120,7 +124,7 @@ class SpotterEvalOnDeviceTest {
                     put("native_pss_kb", android.os.Debug.MemoryInfo().also { android.os.Debug.getMemoryInfo(it) }.nativePss)
                 }
                 out.appendText(row.toString() + "\n")
-                runBlocking { graph.releaseModels() } // as the app does when the replay waits at the card: the next run loads the model again
+                } finally { runBlocking { graph.releaseModels() } } // as the app does when the replay waits at the card: the next run loads the model again
             }
         }
     }
