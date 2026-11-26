@@ -18,6 +18,7 @@ The fallback provider is T030's (finding 6). The fallback provider is T030's (fi
 from __future__ import annotations
 
 import base64
+import json
 import shutil
 import subprocess
 import tempfile
@@ -27,7 +28,7 @@ from pathlib import Path
 
 import httpx
 
-from epic_replay import config
+from epic_replay import config, paths
 from epic_replay.guards.budget import Ledger, PaidResult, paid_call
 from epic_replay.providers.base import AudioResult, CallInfo
 from epic_replay.providers.replay import Recorder, cache_key
@@ -37,7 +38,12 @@ ELEVEN_TIMED_URL = (
     "https://api.elevenlabs.io/v1/text-to-speech/{voice_id}/with-timestamps"
     "?output_format=mp3_44100_128"
 )
-USD_PER_CHAR = 0.10 / 1000
+USD_PER_CHAR = (
+    json.loads((paths.SHARED / "voice" / "pricing.json").read_text("utf-8"))["elevenlabs"][
+        "usd_per_1000_chars"
+    ]
+    / 1000
+)  # shared with the Android app
 TIMEOUT_S = 60
 SAMPLE_RATE = 48000
 
