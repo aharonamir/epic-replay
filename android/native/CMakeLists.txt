@@ -33,5 +33,3 @@ target_include_directories(epic_engine PRIVATE
     ${llama_SOURCE_DIR}/tools/mtmd
 )
 target_link_libraries(epic_engine PRIVATE mtmd llama-common llama log android)
-# The library is shipped without its debug information (the toolchain adds -g to every build, which made it 114 MB; stripped it is 10 MB). The JNI functions stay exported.
-target_link_options(epic_engine PRIVATE -Wl,--strip-all -Wl,--gc-sections)

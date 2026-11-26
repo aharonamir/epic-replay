@@ -23,8 +23,8 @@ android {
                 arguments += listOf(
                     "-DCMAKE_BUILD_TYPE=Release",
                     "-DANDROID_STL=c++_shared",
-                    "-DCMAKE_C_FLAGS=-march=armv8.2-a+dotprod",
-                    "-DCMAKE_CXX_FLAGS=-march=armv8.2-a+dotprod",
+                    "-DCMAKE_C_FLAGS=-march=armv8.2-a+dotprod -g0", // -g0: the toolchain adds -g, which made the library 114 MB; no debug information is 10 to 20 MB (linking with --strip-all made a call hang, T427)
+                    "-DCMAKE_CXX_FLAGS=-march=armv8.2-a+dotprod -g0",
                 )
                 targets += "epic_engine"
             }

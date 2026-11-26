@@ -8,7 +8,7 @@ The Epic Replay app for Android (spec `specs/004-android-app/`). It reads the sh
 |---|---|
 | `app` | Jetpack Compose UI (first run as a wizard, start, progress with the play card, result with the player and full screen, past replays, settings, header with Home), `AppGraph` (keys, profiles, shared on-device backend), `RunLauncher` (the flow of a run from the app's parts), `RunService` (a foreground service that keeps a replay in the making alive with the app in the background), `DownloadService` |
 | `core` | Pure Kotlin, no Android classes: the model contract, the stage ports and their Kotlin ports (signals, Spotter, Commentator, voice, mix, visuals), guards, the run flow (`RunFlow`, resume), the play card and screen logic (`ui/`), settings and past runs, the conformance runner. Tested on the JVM in seconds |
-| `engine` | The JNI bridge, the llama.cpp and `libmtmd` build (`libepic_engine.so`, about 10 MB stripped) and the Android probes |
+| `engine` | The JNI bridge, the llama.cpp and `libmtmd` build (`libepic_engine.so`, about 13 MB without debug information) and the Android probes |
 | `media` | The Media3 pipeline and the phone's decoders: S1 decoding, S9 segments, S8 audio, S10 compose and export, the contact sheets |
 | `native/` | `CMakeLists.txt` and notes for llama.cpp and `libmtmd`, used by `engine` (not a Gradle module) |
 | `tools/` | `woff2_to_ttf.py` (the build), `make_icon_resources.py` (icon files from the SVGs), device scripts (`engine_device_test.sh`, `keys_device_test.sh`, `t424_kill_test.sh`) and the T428 instruments (`t428_connlog.sh`, `t428_report.py`) |
@@ -44,7 +44,7 @@ set -a; . ~/.epic-replay/release.env; set +a       # EPIC_KEYSTORE_PATH, EPIC_KE
 ~/workspace/android-dev/sdk/build-tools/37.0.0/apksigner verify --print-certs app/build/outputs/apk/release/app-release.apk
 ```
 
-The APK is `app/build/outputs/apk/release/app-release.apk` (about 61 MB, `arm64-v8a` only, APK Signature Scheme v2). Install it with `adb install -r`; a build signed with another key (the debug one) must be uninstalled first, which deletes the app's data, including the downloaded models. `EPIC_KEYSTORE_*` are described under Signing. The release key made for this build is `~/.epic-replay/release.keystore` with its passwords in `~/.epic-replay/release.env` (both `chmod 600`, outside the repository): **back them up**; a new key cannot update an app installed with this one.
+The APK is `app/build/outputs/apk/release/app-release.apk` (about 64 MB, `arm64-v8a` only, APK Signature Scheme v2; the engine library is built with `-g0`, no debug information, and is not linked with `--strip-all` or `--gc-sections`: that made a call hang on one clip, T427). Install it with `adb install -r`; a build signed with another key (the debug one) must be uninstalled first, which deletes the app's data, including the downloaded models. `EPIC_KEYSTORE_*` are described under Signing. The release key made for this build is `~/.epic-replay/release.keystore` with its passwords in `~/.epic-replay/release.env` (both `chmod 600`, outside the repository): **back them up**; a new key cannot update an app installed with this one.
 
 ## Rules for the Android app
 
