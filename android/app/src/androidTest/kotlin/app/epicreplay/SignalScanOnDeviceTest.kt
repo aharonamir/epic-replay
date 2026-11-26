@@ -65,4 +65,21 @@ class SignalScanOnDeviceTest {
             log.appendText("a real run's clip ${r.frames} frames: $rs s (${rs / r.frames * 1000} ms a frame)\n")
         }
     }
+
+    /**
+     * T427: the scan of the owner's starter clips on the phone, beside the PC's (`signals.json` of `spotter_check.py`): the top five candidate frames of each clip go to `files/t427_s1.txt`
+     * (frames and scores only). The clips are those `tools/t427_eval_push.sh` put in `files/eval/clips`.
+     */
+    @Test
+    fun theScanOfTheStarterClipsGivesTheCandidatesToCompareWithThePcs() {
+        val ctx = InstrumentationRegistry.getInstrumentation().targetContext
+        val clips = File(ctx.filesDir, "eval/clips")
+        org.junit.Assume.assumeTrue("no starter clips pushed", clips.isDirectory)
+        val out = File(ctx.filesDir, "t427_s1.txt").apply { delete() }
+        for (c in clips.listFiles { f -> f.extension == "mp4" }!!.sortedBy { it.name }) {
+            val t0 = System.nanoTime()
+            val s = SignalDecoder.scan(c.path, top = 5)
+            out.appendText("${c.name} ${s.frames} frames ${"%.1f".format((System.nanoTime() - t0) / 1e9)} s: " + s.candidates.joinToString(" ") { "${it.frame}(${it.score})" } + "\n")
+        }
+    }
 }
