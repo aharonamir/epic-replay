@@ -396,3 +396,49 @@ The owner's clip (a 4.5 s portrait clip; it stays on the phone), football commen
 **Run B2 is a fault, not a measurement of the model.** The same Gemma, the same clip and the same code ran S2 in 159 s in B1 and not at all in B2, and in a separate test of a cold process the same sheet answered in 16 s. Both timeouts in B2 are "no progress at all" (300 s on the first sheet, 120 s on the draft's first turn). The owner did not remember whether the app was in front. Two causes were found and fixed afterwards (below): the replay's work had no foreground service (Android can lower or freeze a process out of front), and the on-device call's timeout counted the model's load and the wait for earlier calls. Which of the two B2 was is not known; the second is certain for the S5 timeout of the third run.
 
 **The third phone run and the fix (T428, 2026-11-25).** With the foreground service the owner's run on Gemma (screen off after the start) finished with S2 254 s, every sheet answered, but S5 `degraded` with "the draft call failed (Timeout) after 0 turn(s)": the first Commentator call had the model to load again (S2 and S5 are separated by the play card, so the model is loaded twice) and the 120 s timeout counted that load and the wait for earlier calls. The backend's timeout now counts the generation alone. Every stage also made its own backend and none was ever closed, so each kept 4 GB until the app ended: there is now one shared backend for an on-device profile (both roles, every stage) and `AppViewModel` frees it whenever no flow is working (at the card, done, failed). `OnDeviceFlowTest` after the fix, cold process: S2 178 s with all six calls answered (about 19 s a sheet call; the 2-image events call 78 s), S5 171 s in three turns of 50 to 63 s with no timeout, ending `degraded` as this model does (no draft passed; coded lines for l1, l2, l5).
+
+## The phone's numbers (T427, 2026-11-26): Gemma 4 E2B on the owner's starter clips
+
+The PC's `spotter_check.py --profile` ported to the phone (`SpotterEvalOnDeviceTest`, `android/tools/t427_eval_push.sh`): for each of the 9 starter clips (`eval/clips`, with the owner's labels in `eval/labels`; the clips went to the phone only) and 2 repeats the app's own path runs from the clip to the play card with the on-device model for both roles (S0, S1, S2, S3). Xiaomi 15T Pro, 11 GB, the phone in daily use, repack off (T428 fixes), the model unloaded after each run (so each run loads it again). Errors in frames at 30 fps against `climax_t` (strict); tolerance 8 frames (`EPIC_KEYFRAME_TOL_S` 0.25). 16 of the 18 runs finished; the other two are `dog_catch_ball` (below).
+
+| clip | repeat | sheets | calls answered | retries | S2 seconds | method | err strict | err any | within tol | candidate near label | peak resident MB |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| FlippingPancakes | 0 | 5 | 6/6 | 0 | 173 | sheets+sound | 60 | 13 | no | yes | 3212 |
+| FlippingPancakes | 1 | 5 | 6/6 | 0 | 185 | sheets+sound | 60 | 13 | no | yes | 3381 |
+| Skateboard_trick | 0 | 2 | 3/3 | 0 | 120 | sheets | -33 | -33 | no | no | 3381 |
+| Skateboard_trick | 1 | 2 | 3/3 | 0 | 120 | sheets | -171 | -171 | no | no | 3438 |
+| SlowMotion-skater | 0 | 5 | 6/6 | 0 | 198 | sheets+sound | 153 | 153 | no | no | 3500 |
+| SlowMotion-skater | 1 | 5 | 6/6 | 0 | 201 | sheets+sound | 177 | 177 | no | no | 3551 |
+| basket_ball_shot | 0 | 5 | 6/6 | 0 | 191 | sheets | 294 | 141 | no | no | 3551 |
+| basket_ball_shot | 1 | 5 | 6/6 | 0 | 191 | sheets+sound | 332 | 179 | no | no | 3645 |
+| bottle_flip | 0 | 5 | 6/6 | 0 | 201 | sheets | -60 | -60 | no | no | 3668 |
+| bottle_flip | 1 | 5 | 6/6 | 0 | 200 | sheets+sound | 508 | 508 | no | no | 3668 |
+| fk_1 | 0 | 5 | 6/6 | 0 | 179 | sheets+sound | 264 | 264 | no | yes | 2595 |
+| fk_1 | 1 | 5 | 6/6 | 0 | 176 | sheets+sound | 264 | 264 | no | yes | 3254 |
+| fk_miss | 0 | 5 | 6/6 | 0 | 180 | sheets+sound | 32 | 32 | no | no | 3784 |
+| fk_miss | 1 | 5 | 6/6 | 0 | 180 | sheets+sound | 96 | 96 | no | no | 3835 |
+| fk_save | 0 | 5 | 6/6 | 0 | 184 | sheets | 126 | 126 | no | no | 3912 |
+| fk_save | 1 | 5 | 6/6 | 0 | 188 | sheets+sound | -167 | -167 | no | no | 3912 |
+
+- **Schema fit:** 90 backend returns in 90 calls, **0 retries estimated** (a retry is estimated as the calls beyond one per sheet and one events call; the adapter's own validation is not logged, so first-try fit is inferred from there being no extra call and no sheet left out in the 16 runs, not recorded per call), the events call (which holds the sensitivity answer) answered in 16 of 16 runs.
+- **Latency:** S2 120 to 201 s, mean 179 s a run (two to five sheets and the events call, one at a time; the split between about 19 s a sheet call and 60 to 95 s the events call is from the timing wrapper of the runs of 2026-11-24 and from queue differences in `call_s`, which has no call-kind field: a sheet call about 19 s, the events call 60 to 95 s, 3476 prompt and 687 reply tokens a run). A run to the play card took 3 to 3.4 minutes; S1 3 to 14 s.
+- **The proposal's error:** the key moment the model and the sound proposed was within 8 frames of the owner's label in **0 of 16** runs (the best, `fk_miss`, 32 and 96 frames: 1 and 3 seconds); one of the play sheet's candidates (`climax.candidates`: the S1 candidates and the sheet-derived alternatives, as the card shows them) lay within 8 frames of the strict label in 4 of 16 (`candidate near label`: play-sheet candidate recall). The smallest strict error was 32 frames (`fk_miss`) and the smallest error against an alternative label 13 frames (`FlippingPancakes`). The on-device Gemma proposes poorly, as the PC's local-model runs found (the play card and the coded fallback carry the run; spec 004 section 3). `status` of the on-device profiles stays `experimental`.
+- **Memory:** the largest sampled `VmHWM` (peak resident memory of the app's process since it started, in MB; the process was restarted between batches, so the column of the table is not one process's progression) was 3912 MB over the 16 runs (the mapped weights count while touched: the files are 3.4 GB; native heap proportional set 857 MB at most). The profile's `min_free_ram_mb` (3,300) stays; the first-run notice quotes it and the download size from the profile.
+
+**The phone's S1 scan beside the PC's** (the five best candidate frames of each clip; the PC's from `signals.json`, the phone's from `SignalDecoder.scan`, `SignalScanOnDeviceTest`; "near" = within 8 frames): on 7 of 9 clips the two lists share at least one frame within 8 frames, finds **no candidate at all on `Skateboard_trick`** and a **different list on `dog_catch_ball`**. The conformance cases compare synthetic clips; the Kotlin flow (block matching) and the PC's OpenCV flow may differ on real footage. The phone's list came from `SignalScanOnDeviceTest` run on the pushed file itself (the phone's S0 keeps the file as `work.mp4` and the scan resamples to 30 frames a second), the PC's from its `work.mp4`: close, not identical, inputs. Not investigated further here.
+
+| clip | PC top 5 | phone top 5 | PC frames the phone also has |
+|---|---|---|---|
+| FlippingPancakes | 68 120 40 97 25 | 120 68 25 491 92 | 4 of 5 |
+| Skateboard_trick | 125 366 203 219 186 | none | 0 of 5 |
+| SlowMotion-skater | 361 82 337 377 403 | 351 82 377 334 5 | 3 of 5 |
+| basket_ball_shot | 267 284 415 238 114 | 415 284 267 320 114 | 4 of 5 |
+| bottle_flip | 41 363 575 57 21 | 544 575 41 363 467 | 3 of 5 |
+| dog_catch_ball | 184 105 380 25 56 | 423 533 579 499 564 | 0 of 5 |
+| fk_1 | 526 661 498 751 91 | 751 485 710 470 844 | 1 of 5 |
+| fk_miss | 381 446 165 208 398 | 165 371 101 208 425 | 2 of 5 |
+| fk_save | 65 329 284 152 167 | 65 328 11 114 343 | 2 of 5 |
+
+**`dog_catch_ball`, the clip that stalls.** Two runs of this clip did not finish like the others and ended `failed`: the first took 5,479 s as a whole (91 minutes; its first sheet call, as the wrapper timed it, from the request to the reply and so including the wait for the engine and the model's load, 2,437 s; one sheet left out), the second 1,455 s (first call 1,326 s; no sheet left out; the events call not answered). During them the engine's threads sat at 100 % of three cores, or at 0 % between calls, and one thread dump showed the engine inside `nativeGenerate`. The other eight clips never showed it in 16 runs. The cause is not found: the logs of the stalls were not kept, so it is not known whether the 300 s limit fired, whether the cancel was seen, or where the time went (the model's load, the image encoding or the generation). An attempt to give up an engine whose call ignores its cancel was tried and left out after review (it left races between a load, a close and a retired engine that were not tested on the phone). Open.
+
+**The engine library.** A release build with `--strip-all --gc-sections` linked into `libepic_engine.so` (to shrink 114 MB to 10 MB) went with calls that hung at 0 % CPU on `fk_miss` (3 of 3 runs, the later ones with a thread dump showing the engine in `nativeGenerate`); the build without those flags, and the build with the compiler's `-g0`, finished `fk_miss` (1 and 1 runs, 436 s and 184 s). It was not isolated by a controlled rebuild which of the two flags, if either, was the cause (`--gc-sections` is on the NDK's default link line in any case); the library is now built with `-g0` and no explicit linker flags, 13 MB, the release APK 64 MB. Not measured: Qwen3.5 (not downloaded), peak memory with repack on.
