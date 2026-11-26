@@ -28,7 +28,7 @@ pc/
   runs/  demo/                     local, not committed
 ```
 
-The data the app reads (schemas, packs, word lists, assets, the sample run, the planted errors) is in `../shared/`.
+The data the app reads (schemas, packs, word lists, assets, the sample run, the planted errors, the words of the page both apps show in `shared/copy/page.json`) is in `../shared/`. The Android app (`../android/`) reads the same data and runs the same conformance cases (`tests/unit/test_conformance.py`); `tools/make_conformance.py` made the cases of the `card`, `flow`, `compose` and other areas the phone's code is held to, so a change to a rule they cover (a play card answer, the progress state, the result's script panel, the mix) is a change to a case, in the same commit as the spec (`../shared/conformance/README.md`).
 
 ## Commands (from `pc/`)
 
