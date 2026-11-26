@@ -65,6 +65,7 @@ class SpotterEvalOnDeviceTest {
         assumeTrue("no run on the phone to take the consent record from", source != null)
         val args = InstrumentationRegistry.getArguments()
         val repeats = args.getString("repeats")?.toInt() ?: 2
+        require(repeats in 1..10) { "repeats is 1 to 10, not $repeats" }
         val only = args.getString("only")
         val out = File(ctx.filesDir, "t427_eval.jsonl")
         val fpsTolS = 0.25 // EPIC_KEYFRAME_TOL_S of the PC
