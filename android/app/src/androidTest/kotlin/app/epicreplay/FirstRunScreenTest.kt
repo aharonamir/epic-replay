@@ -102,7 +102,7 @@ class FirstRunScreenTest {
         graph.setup.choose(Role.VISION, "gemma-4-e2b-device"); graph.setup.choose(Role.TEXT, "gemma-4-e2b-device")
         show()
         rule.onNodeWithText("Licence: Apache-2.0", substring = true).assertExists()
-        rule.onNodeWithText("Download").assertIsEnabled().performClick()
+        rule.onNodeWithText("Download").performScrollTo().assertIsEnabled().performClick()
         rule.waitForIdle()
         assert(downloads == listOf("gemma-4-e2b-device")) { "$downloads" }
     }
@@ -114,8 +114,8 @@ class FirstRunScreenTest {
         show()
         rule.onNodeWithText("Still frames from the clip, and descriptions drawn from them with the script, are sent to the model providers", substring = true).assertExists()
         rule.onNodeWithText("I agree").assertIsNotEnabled()
-        rule.onNodeWithText("I filmed this or have permission to use it.", substring = true).performClick()
-        rule.onNodeWithText("I agree").assertIsEnabled().performClick()
+        rule.onNodeWithText("I filmed this or have permission to use it.", substring = true).performScrollTo().performClick()
+        rule.onNodeWithText("I agree").performScrollTo().assertIsEnabled().performClick()
         rule.onNodeWithText("Ask both models one question").assertExists()
     }
 
@@ -125,7 +125,7 @@ class FirstRunScreenTest {
         graph.secrets.put(KeyKind.MODEL_PROVIDER, Secret("sk-abcdefghijklmnop1234")); graph.secrets.put(KeyKind.ELEVENLABS, Secret("voice-key-abcdef"))
         graph.setup.confirmConsent()
         show()
-        rule.onNodeWithText("Ask both models one question").performClick()
+        rule.onNodeWithText("Ask both models one question").performScrollTo().performClick()
         rule.waitUntil(5_000) { asked.size == 2 }
         rule.onNodeWithText("Vision: answer for VISION").assertExists()
         rule.onNodeWithText("Text: answer for TEXT").assertExists()
@@ -138,11 +138,11 @@ class FirstRunScreenTest {
         rule.onNodeWithTag("wizard_step").assertTextEquals("Step 2 of 4")
         rule.onNodeWithText("api.deepseek.com", substring = true).assertExists() // the address and the model of the server are shown
         rule.onNodeWithText("ElevenLabs key").assertDoesNotExist() // never two keys on a screen
-        rule.onNodeWithText("Key").performTextInput("sk-abcdefghijklmnop1234"); rule.onNodeWithText("Save").performClick()
+        rule.onNodeWithText("Key").performTextInput("sk-abcdefghijklmnop1234"); rule.onNodeWithText("Save").performScrollTo().performClick()
         rule.waitForIdle()
         rule.onNodeWithTag("wizard_step").assertTextEquals("Step 3 of 4")
         rule.onNodeWithText("The voice").assertExists(); rule.onNodeWithText("ElevenLabs key").assertExists(); rule.onNodeWithText("Model provider key").assertDoesNotExist()
-        rule.onNodeWithText("Key").performTextInput("voice-key-abcdef"); rule.onNodeWithText("Save").performClick()
+        rule.onNodeWithText("Key").performTextInput("voice-key-abcdef"); rule.onNodeWithText("Save").performScrollTo().performClick()
         rule.waitForIdle()
         rule.onNodeWithTag("wizard_step").assertTextEquals("Step 4 of 4")
         rule.onNodeWithText("I agree").assertExists()

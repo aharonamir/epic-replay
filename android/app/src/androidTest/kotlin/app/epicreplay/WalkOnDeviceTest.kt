@@ -120,10 +120,12 @@ class WalkOnDeviceTest {
         for (id in PlayCard.toCheck(atCard.playSheet!!)) rule.onNodeWithTag("keep_$id").performScrollTo().performClick()
         rule.onNodeWithTag("yes").performScrollTo().performClick()
 
-        // S4 to S10 to the result
+        // S4 to S10 to the result; the foreground service keeps the work alive while it works (T428: a run froze with the app out of front)
+        rule.waitUntil(30_000) { app.epicreplay.RunService.running }
         rule.waitUntil(300_000) { rule.onAllNodesWithTag("result_headline").fetchSemanticsNodes().isNotEmpty() || vm.session.view.value?.state?.status in setOf("failed", "stopped") }
         val done = vm.session.view.value!!
         assertEquals("the run did not finish: ${done.state.message} ${done.state.steps.map { it.status }}", "done", done.state.status)
+        rule.waitUntil(10_000) { !app.epicreplay.RunService.running } // and goes away when the run is done
         rule.onNodeWithTag("player").assertExists()
         assertTrue(done.state.steps.all { it.status == "done" })
         val render = RunFiles.read(File(done.dir, "render.json"))!!

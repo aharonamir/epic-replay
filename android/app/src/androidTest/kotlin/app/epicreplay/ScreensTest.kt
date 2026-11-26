@@ -133,9 +133,11 @@ class ScreensTest {
         rule.setContent { EpicTheme { Scrolling { PlayCardPanel(ps, meta, 0.05, words, { null }, CardActions({ sent = it }, {}, {})) } } }
         rule.onNodeWithTag("yes").performScrollTo().assertIsNotEnabled()
         rule.onNodeWithTag("why_not").assertTextContains("Pick the moment first", substring = true)
+        rule.onNodeWithTag("this_one").performScrollTo().assertIsEnabled().assertTextContains("THIS ONE", substring = true, ignoreCase = true) // a filled button while the moment is unanswered
         rule.onNodeWithTag("frame_label").assertTextContains("Frame 313", substring = true)
         rule.onNodeWithTag("later").performScrollTo().performClick()
         rule.onNodeWithTag("frame_label").assertTextContains("Frame 314", substring = true) // a tap moves one frame, and answers the moment
+        rule.onNodeWithTag("this_one").performScrollTo().assertTextContains("✓", substring = true) // and a ticked one once it is answered (the nudge answered it)
         rule.onNodeWithTag("on10").performScrollTo().performClick()
         rule.onNodeWithTag("frame_label").assertTextContains("Frame 324", substring = true)
         rule.onNodeWithTag("yes").performScrollTo().assertIsNotEnabled()
@@ -152,7 +154,9 @@ class ScreensTest {
         var sent: CardAnswerInput? = null
         var stopped: String? = null
         rule.setContent { EpicTheme { Scrolling { PlayCardPanel(ps, meta, 0.05, words, { null }, CardActions({ sent = it }, { stopped = it }, {})) } } }
-        rule.onNodeWithTag("other_289").performScrollTo().performClick() // the other candidate becomes the key moment
+        val other = rule.onNodeWithTag("other_289").performScrollTo().fetchSemanticsNode().size
+        assertTrue("the time of another moment is on one line: ${other.height} px high", other.height <= 160) // a button is at least 48 dp (about 150 px); a time broken over lines is far taller
+        rule.onNodeWithTag("other_289").performClick() // the other candidate becomes the key moment
         rule.onNodeWithTag("frame_label").assertTextContains("Frame 289", substring = true)
         rule.onNodeWithTag("fix").performScrollTo().performClick()
         rule.onNodeWithTag("edit_activity").performScrollTo().performTextReplacement("football set piece")

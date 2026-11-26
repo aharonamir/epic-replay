@@ -103,12 +103,17 @@ fun PlayCardPanel(ps: JsonObject, meta: JsonObject, costUsd: Double, words: Page
                 RepeatButton(words.card(label), Modifier.weight(1f).testTag(tag)) { s = CardModel.nudge(s, by) }
             }
         }
-        OutlinedButton(onClick = { s = CardModel.thisOne(s) }, modifier = Modifier.testTag("this_one")) { Text(words.card("this_one")) }
+        // "This one" is the answer to the moment: a filled button in the accent while it is unanswered (it looked like a disabled outline), and a ticked one that can still be pressed once it is
+        if (!s.keyMomentAnswered) Button(onClick = { s = CardModel.thisOne(s) }, modifier = Modifier.fillMaxWidth().height(52.dp).testTag("this_one"), colors = ButtonDefaults.buttonColors(containerColor = accent.fill, contentColor = accent.onAccent)) { Text(words.card("this_one").uppercase(), maxLines = 1) }
+        else OutlinedButton(onClick = { s = CardModel.thisOne(s) }, modifier = Modifier.fillMaxWidth().height(52.dp).testTag("this_one")) { Text("✓ " + words.card("this_one"), maxLines = 1) }
         val others = CardModel.otherMoments(ps)
         if (others.isNotEmpty()) {
             Text(words.card("others"), style = MaterialTheme.typography.labelSmall, color = Ink.muted)
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                for ((frame, _) in others) OutlinedButton(onClick = { s = CardModel.pick(s, frame) }, modifier = Modifier.testTag("other_$frame")) { Text("%.1f s".format(java.util.Locale.ROOT, frame / s.fps), style = MaterialTheme.typography.labelMedium) }
+            // each button takes an equal share of the row and its time stays on one line, however many there are
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                for ((frame, _) in others) OutlinedButton(
+                    onClick = { s = CardModel.pick(s, frame) }, modifier = Modifier.weight(1f).testTag("other_$frame"), contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 4.dp, vertical = 8.dp),
+                ) { Text("%.1f s".format(java.util.Locale.ROOT, frame / s.fps), style = MaterialTheme.typography.labelMedium, maxLines = 1, softWrap = false) }
             }
         }
         if (s.fixing) {

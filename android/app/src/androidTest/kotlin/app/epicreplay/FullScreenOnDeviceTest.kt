@@ -1,6 +1,7 @@
 package app.epicreplay
 
 import android.content.pm.ActivityInfo
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
@@ -72,5 +73,23 @@ class FullScreenOnDeviceTest {
         rule.waitUntil(10_000) { rule.onAllNodesWithTag("fullscreen_player").fetchSemanticsNodes().isEmpty() }
         assertEquals(before, requested())
         assertTrue(rule.onAllNodesWithTag("player").fetchSemanticsNodes().isNotEmpty())
+    }
+
+    @Test
+    fun theLogoAndTheHomeButtonTakeTheUserToTheStartScreenFromAnyPage() {
+        scenario = ActivityScenario.launch(MainActivity::class.java)
+        rule.waitUntil(10_000) { rule.onAllNodesWithTag("past").fetchSemanticsNodes().isNotEmpty() }
+        rule.onAllNodesWithTag("home").assertCountEquals(0) // on the start screen there is nothing to go home from
+        rule.onNodeWithTag("past").performClick()
+        rule.waitUntil(10_000) { rule.onAllNodesWithTag("open_r_full").fetchSemanticsNodes().isNotEmpty() }
+        rule.onAllNodesWithTag("past").assertCountEquals(0); rule.onAllNodesWithTag("settings").assertCountEquals(0) // off the start screen only Home is in the header
+        rule.onNodeWithTag("home").performClick()
+        rule.waitUntil(10_000) { rule.onAllNodesWithTag("make").fetchSemanticsNodes().isNotEmpty() }
+        rule.onNodeWithTag("settings").performClick()
+        rule.waitUntil(10_000) { rule.onAllNodesWithTag("settings_page").fetchSemanticsNodes().isNotEmpty() }
+        rule.onNodeWithTag("home_logo").performClick() // the mark and the wordmark go home too
+        rule.waitUntil(10_000) { rule.onAllNodesWithTag("make").fetchSemanticsNodes().isNotEmpty() }
+        rule.onAllNodesWithTag("home").assertCountEquals(0)
+        rule.onNodeWithTag("past").assertExists(); rule.onNodeWithTag("settings").assertExists() // and the start screen has Past and Settings
     }
 }

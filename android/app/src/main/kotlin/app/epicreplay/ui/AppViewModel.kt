@@ -8,6 +8,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.distinctUntilChangedBy
 import androidx.media3.common.util.UnstableApi
 import app.epicreplay.AppGraph
 import app.epicreplay.RunLauncher
@@ -22,6 +23,7 @@ import app.epicreplay.core.style.StyleLoader
 import app.epicreplay.core.ui.NarratorCard
 import app.epicreplay.core.ui.PageWords
 import app.epicreplay.core.ui.RunSession
+import app.epicreplay.RunService
 import app.epicreplay.core.ui.RunView
 import app.epicreplay.core.ui.StartForm
 import app.epicreplay.core.ui.StartInput
@@ -69,7 +71,14 @@ class AppViewModel(private val graph: AppGraph, private val context: Context, la
     /** Whether the start screen is shown (else the run in hand). */
     val onStart: StateFlow<Boolean> = _onStart
 
-    init { app.epicreplay.core.ui.PastRuns.sweep(runsDir); session.latestOpen()?.let { session.refresh(it); session.start(it) } }
+    /** The foreground service is up exactly while a flow works (a run waiting at the card, or finished, needs none). */
+    private fun keepAlive(v: RunView?) {
+        val working = v != null && v.working
+        if (!working) viewModelScope.launch(Dispatchers.IO) { graph.releaseModels() } // waiting at the card, finished, or failed: the model's memory goes back to the phone
+        if (working) RunService.show(context, v!!.state.let { st -> "Step ${st.stepN} of 8: ${st.steps.getOrNull(st.stepN - 1)?.name ?: ""}" }) else RunService.stop(context)
+    }
+
+    init { viewModelScope.launch { session.view.distinctUntilChangedBy { v -> if (v == null || !v.working) -1 else v.state.stepN }.collect { keepAlive(it) } }; app.epicreplay.core.ui.PastRuns.sweep(runsDir); session.latestOpen()?.let { session.refresh(it); session.start(it) } }
 
     /** The clip the user picked or filmed: copied to the app's cache and checked as the PC checks an upload's name and size (S0 checks the rest). */
     suspend fun chooseClip(uri: Uri) = withContext(Dispatchers.IO) {
@@ -150,6 +159,12 @@ class AppViewModel(private val graph: AppGraph, private val context: Context, la
 
     /** A share of the finished video of [dir] to another app: the video alone, through a content address that lasts for that one share. */
     fun shareIntent(dir: File): Intent = Share.intent(context, dir)
+
+    /** Home: the start screen is shown; a run that is being made goes on in its own scope and can be gone back to ([backToRun]). */
+    fun home() { _onStart.value = true }
+
+    /** Back to the run in hand from the start screen. */
+    fun backToRun() { _onStart.value = false }
 
     /** From the run in hand back to the start screen (the run, if unfinished, stays in its folder and is picked up when the app is opened). */
     fun another() { session.pause(); session.view.value?.takeIf { it.state.status in setOf("failed", "stopped") }?.let { session.dismiss(it.dir) }; _clip.value = null; _clipProblem.value = null; _onStart.value = true }
