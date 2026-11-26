@@ -33,6 +33,7 @@ class FakeEngine(private val body: (GenerateRequest, FakeEngine) -> GenerateResu
     private val cancelled = CountDownLatch(1)
     @Volatile var blockUntilCancelled = false
     @Volatile var loadDelayMs = 0L
+    @Volatile var ignoreCancelForMs = 0L
 
     override fun load(modelPath: String, projectorPath: String?, contextTokens: Int, threads: Int, imageMaxTokens: Int, repack: Boolean) {
         if (loadDelayMs > 0) Thread.sleep(loadDelayMs)
@@ -43,6 +44,7 @@ class FakeEngine(private val body: (GenerateRequest, FakeEngine) -> GenerateResu
         generateOps += op; requests += request
         peak = maxOf(peak, inFlight.incrementAndGet())
         try {
+            if (ignoreCancelForMs > 0) { Thread.sleep(ignoreCancelForMs); return GenerateResult("""{"cell": 1}""", 1, 1, Stop.END_OF_TEXT, 1, 1, 0) } // a native call that does not look at cancel
             if (blockUntilCancelled) {
                 cancelled.await(10, TimeUnit.SECONDS)
                 return GenerateResult("", 5, 0, Stop.CANCELLED, 1, 1, 0)
@@ -319,5 +321,20 @@ class OnDeviceBackendTest {
             calls.forEach { assertEquals("""{"cell": 6}""", it.await().text) }
         } // the third waited 0.3 s for the first two and all three came after a load of 0.6 s
         assertEquals(1, engine.loads.get())
+    }
+
+    @Test
+    fun aNativeCallThatIgnoresItsCancelIsAbandonedAndTheNextCallGetsANewEngine() = runBlocking {
+        install()
+        val stuck = FakeEngine(ok).also { it.ignoreCancelForMs = 4000 }
+        val fine = FakeEngine(ok)
+        val engines = java.util.concurrent.ConcurrentLinkedQueue(listOf(stuck, fine))
+        val b = OnDeviceBackend(profile(), Role.VISION, dir, { 5000 }, { engines.poll()!! }, OnDeviceConfig(visionTimeoutS = 0.3, cancelGraceS = 0.3))
+        val t0 = System.nanoTime()
+        assertFailsWith<ModelError.Timeout> { b.look(listOf(LabeledImage(null, ByteArray(3))), "q", schema) }
+        val took = (System.nanoTime() - t0) / 1e9
+        assertTrue(took < 2.0, "the caller waited for the stuck call: $took s")
+        assertEquals("""{"cell": 6}""", b.look(listOf(LabeledImage(null, ByteArray(3))), "q", schema).text) // a new engine on a new thread
+        assertEquals(1, fine.loads.get())
     }
 }
